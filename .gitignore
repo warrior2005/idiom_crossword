@@ -1,0 +1,40 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+*.iml
+.idea/
+.vscode/
+*.g.dart
+
+# Flutter plugins
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# macOS
+.DS_Store
+.metadata
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+*.xcworkspace
+*.xcuserdata
+
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+
+# Database (generated, large binary)
+assets/data/idiom_crossword_old.db
+assets/data/idiom_crossword_v1.db
+assets/data/idiom_crossword_variant_normalized.db
+
+
+# Python
+__pycache__/
+*.pyc
+scripts/_*.py
