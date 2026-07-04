@@ -635,7 +635,9 @@ class GridPainter extends CustomPainter {
         }
 
         // 文字
-        final displayChar = playerAnswers[(r, c)] ?? cell.character;
+        final displayChar = cell.isGiven 
+            ? cell.character 
+            : (playerAnswers[(r, c)] ?? '');
         final textPainter = TextPainter(
           text: TextSpan(
             text: displayChar,
