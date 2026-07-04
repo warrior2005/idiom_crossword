@@ -324,7 +324,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             // 候选字盘（下半部分）
             Expanded(
               flex: 3,
-              child: _buildCandidateBoard(),
+              child: _buildCandidateBoardWidget(),
             ),
 
             // 底部工具栏
@@ -421,7 +421,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildCandidateBoard() {
+  Widget _buildCandidateBoardWidget() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
@@ -669,6 +669,6 @@ class GridPainter extends CustomPainter {
   @override
   bool hitTest(Offset position) {
     // 触发 onTapDown 回调需要配合 GestureDetector
-    return super.hitTest(position);
+    return super.hitTest(position) ?? false;
   }
 }

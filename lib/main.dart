@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'src/ui/screens/home_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,9 +40,8 @@ class IdiomCrosswordApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         useMaterial3: true,
-        fontFamily: '.SF Pro Display', // iOS 系统字体
       ),
-      home: const Placeholder(), // TODO: 首页
+      home: const HomeScreen(),
     );
   }
 }
