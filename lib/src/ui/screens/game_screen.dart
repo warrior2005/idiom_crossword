@@ -282,6 +282,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   /// 点击网格中的格子切换焦点
   void _onGridTap(int row, int col) {
     final cell = _grid.cellAt(row, col);
+    // 只能点击非 given 的格子（包括已填入和未填入的）
     if (cell.state != CellState.filled || cell.isGiven) return;
 
     setState(() {
