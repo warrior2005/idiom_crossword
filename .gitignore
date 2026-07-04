@@ -38,3 +38,6 @@ assets/data/idiom_crossword_variant_normalized.db
 __pycache__/
 *.pyc
 scripts/_*.py
+
+# AI agents
+.superpowers/
