@@ -49,6 +49,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   // 候选字盘
   List<List<String>> _candidateBoard = [];
 
+  // 已使用的候选字位置（row, col）
+  final Set<(int, int)> _usedCandidateSlots = {};
+
   // 错误提示（闪烁效果用）
   final Set<(int, int)> _errorCells = {};
 
@@ -109,7 +112,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   /// 玩家点击候选字
-  void _onCandidateTap(String char) {
+  void _onCandidateTap(int row, int col, String char) {
     if (_focusRow < 0 || _focusCol < 0) return;
 
     final cell = _grid.cellAt(_focusRow, _focusCol);
@@ -118,6 +121,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     // 填入
     setState(() {
       _playerAnswers[(_focusRow, _focusCol)] = char;
+      _usedCandidateSlots.add((row, col));
     });
 
     // 检查当前成语是否完整
@@ -440,18 +444,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         final gridWidth = _grid.cols * 48.0;
         final gridHeight = _grid.rows * 48.0;
         
-        return GestureDetector(
-          onTapUp: (details) {
-            // 获取点击位置
-            final RenderBox box = context.findRenderObject() as RenderBox;
-            final localPosition = box.globalToLocal(details.globalPosition);
-            
-            // 计算网格偏移（居中显示）
+        return Listener(
+          onPointerDown: (event) {
             final offsetX = (constraints.maxWidth - gridWidth) / 2;
             final offsetY = (constraints.maxHeight - gridHeight) / 2;
             
-            final cellX = (localPosition.dx - offsetX) / 48.0;
-            final cellY = (localPosition.dy - offsetY) / 48.0;
+            final cellX = (event.localPosition.dx - offsetX) / 48.0;
+            final cellY = (event.localPosition.dy - offsetY) / 48.0;
             
             final col = cellX.floor();
             final row = cellY.floor();
@@ -522,26 +521,32 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: row.asMap().entries.map((cellEntry) {
+                final colIndex = cellEntry.key;
                 final char = cellEntry.value;
+                final isUsed = _usedCandidateSlots.contains((rowIndex, colIndex));
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 3),
                   child: SizedBox(
                     width: 40,
                     height: 44,
                     child: Material(
-                      color: Colors.brown.shade50,
+                      color: isUsed
+                          ? Colors.brown.shade100
+                          : Colors.brown.shade50,
                       borderRadius: BorderRadius.circular(8),
-                      elevation: 1,
+                      elevation: isUsed ? 0 : 1,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(8),
-                        onTap: () => _onCandidateTap(char),
+                        onTap: isUsed ? null : () => _onCandidateTap(rowIndex, colIndex, char),
                         child: Center(
                           child: Text(
                             char,
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w500,
-                              color: Colors.brown.shade900,
+                              color: isUsed
+                                  ? Colors.brown.shade300
+                                  : Colors.brown.shade900,
                             ),
                           ),
                         ),
