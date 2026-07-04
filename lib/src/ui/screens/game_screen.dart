@@ -523,30 +523,25 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: row.asMap().entries.map((cellEntry) {
                 final char = cellEntry.value;
-                final isUsed = _playerAnswers.containsValue(char);
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 3),
                   child: SizedBox(
                     width: 40,
                     height: 44,
                     child: Material(
-                      color: isUsed
-                          ? Colors.brown.shade100
-                          : Colors.brown.shade50,
+                      color: Colors.brown.shade50,
                       borderRadius: BorderRadius.circular(8),
-                      elevation: isUsed ? 0 : 1,
+                      elevation: 1,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(8),
-                        onTap: isUsed ? null : () => _onCandidateTap(char),
+                        onTap: () => _onCandidateTap(char),
                         child: Center(
                           child: Text(
                             char,
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w500,
-                              color: isUsed
-                                  ? Colors.brown.shade300
-                                  : Colors.brown.shade900,
+                              color: Colors.brown.shade900,
                             ),
                           ),
                         ),
