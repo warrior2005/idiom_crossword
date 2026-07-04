@@ -1,6 +1,6 @@
 # PLANS.md — 成语填字游戏（Idiom Crossword）
 
-> 面向 iOS 的成语交叉填字游戏，Flutter 开发。截止 2026-07-04，核心引擎全部完成，数据评分 100% 完成，进入 UI 开发阶段。
+> 面向 iOS 的成语交叉填字游戏，Flutter 开发。截止 2026-07-04，核心引擎全部完成，数据评分 100% 完成，成长系统已实现。
 
 ---
 
@@ -25,23 +25,37 @@ idiom_crossword/
 │       │   ├── subgraph_selector.dart # 子图选取器（BFS + 难度过滤 + 混合模式）
 │       │   ├── layout_engine.dart   # 布局引擎（贪心+回溯，多交叉约束）
 │       │   ├── integrated_generator.dart # 一体化生成器（边扩展边布局，5-8 成语 100% 成功率）
+│       │   ├── spiral_difficulty.dart # 螺旋难度计算器（10000+ 关难度分布）
 │       │   ├── generator.dart       # 原回溯算法生成器（备用）
 │       │   ├── graph_pipeline.dart  # 管道连接器（连通 CrossingGraph → LayoutEngine）
 │       │   └── distractor_engine.dart # 干扰字引擎（形近+音近+部首）
-│       ├── data/                    # 数据层（Schema 完成）
-│       │   ├── database.dart
-│       │   └── database_schema_v2.dart
-│       ├── ui/screens/
-│       │   └── game_screen.dart     # 游戏主界面骨架
-│       └── state/                   # 状态管理（待建设）
+│       ├── data/                    # 数据层（⭐ 成长系统已完成）
+│       │   ├── database.dart        # 数据库 DAO（玩家进度/收藏/关卡历史/装饰）
+│       │   ├── database_schema_v2.dart # 数据库 Schema v2
+│       │   └── growth_manager.dart  # 成长系统管理器（XP/等级/奖励/称号）
+│       ├── state/                   # 状态管理（⭐ 已完成）
+│       │   └── player_state.dart    # 玩家状态（Riverpod）
+│       └── ui/                      # UI 层（⭐ 已完成）
+│           ├── screens/
+│           │   ├── game_screen.dart     # 游戏主界面（已集成成长系统）
+│           │   ├── collection_screen.dart # 成语收藏界面
+│           │   └── shop_screen.dart     # 商城界面
+│           └── widgets/
+│               └── level_display.dart   # 等级显示组件
 ├── scripts/                         # Python 工具脚本（全部历史存档，保留 score_bN.py 评分记录）
-└── test/engine/                     # 测试文件
-    ├── crossword_test.dart           # 填字基础单元测试
-    ├── distractor_test.dart          # 干扰字引擎测试
-    ├── graph_pipeline_test.dart      # 管道测试（旧版）
-    ├── integrated_gen_test.dart      # 一体化生成器测试（⭐ 核心验证）
-    ├── quick_check.dart              # 快速验证脚本
-    └── real_data_test.dart           # 真实数据测试
+└── test/                            # 测试文件
+    ├── engine/
+    │   ├── crossword_test.dart      # 填字基础单元测试
+    │   ├── distractor_test.dart     # 干扰字引擎测试
+    │   ├── graph_pipeline_test.dart # 管道测试（旧版）
+    │   ├── integrated_gen_test.dart # 一体化生成器测试（⭐ 核心验证）
+    │   ├── quick_check.dart         # 快速验证脚本
+    │   ├── real_data_test.dart      # 真实数据测试
+    │   └── spiral_difficulty_test.dart # 螺旋难度测试
+    ├── data/
+    │   └── growth_manager_test.dart # 成长系统测试
+    └── integration/
+        └── growth_system_test.dart  # 成长系统集成测试
 ```
 
 ---
@@ -179,16 +193,22 @@ idiom_crossword/
 | Generator（回溯备用） | ✅ 完成 | 备用方案 |
 | DistractorEngine（干扰字） | ✅ 完成 | 形近+音近+部首 |
 | GraphPipeline（管道连接） | ✅ 完成 | 连通 CrossingGraph→LayoutEngine |
-| 数据库 Schema（v2） | ✅ 完成 | database.dart 已对齐 |
+| SpiralDifficulty（螺旋难度） | ✅ 完成 | 10000+ 关难度分布计算 |
+| GrowthManager（成长系统） | ✅ 完成 | XP/等级/奖励/称号管理 |
+| Database Schema（v2） | ✅ 完成 | 含玩家进度/收藏/关卡历史/装饰表 |
 | 数据评分 | ✅ 100% | 29502/29502，variant_normalized_v2，1-50 均匀分布 |
 | SQLite 数据库 | ✅ 完成 | idiom_crossword.db (14.5MB)，7 索引生效 |
 | PRD 文档 | ✅ 完成 | 10 章完整（v2.0 含成长系统） |
-| 单元测试 | ✅ 完成 | 6 个测试文件，180 次 100% 通过 |
+| 单元测试 | ✅ 完成 | 9 个测试文件，涵盖引擎+成长系统 |
 | 成长系统设计 | ✅ 完成 | 科举仕途 20 级，螺旋难度模型 |
-| 游戏 UI | 🔲 骨架 | game_screen.dart 仅框架，main.dart 用 Placeholder |
-| 关卡生成接入 | 🔲 待做 | 引擎已有，未接入 UI |
-| 状态管理 | 🔲 空 | lib/src/state/ 目录为空 |
-| 本地存储 | 🔲 待做 | 关卡进度/用户数据持久化 |
+| Player State（Riverpod） | ✅ 完成 | 玩家状态管理 |
+| Level Display Widget | ✅ 完成 | 等级徽章+经验进度条 |
+| Collection Screen | ✅ 完成 | 成语收藏界面 |
+| Shop Screen | ✅ 完成 | 商城界面（IAP 占位） |
+| Game Screen Integration | ✅ 完成 | 成长系统已集成 |
+| Integration Tests | ✅ 完成 | 成长系统端到端测试 |
+| 游戏 UI | 🟡 基础完成 | 核心界面已实现，待打磨 |
+| 关卡生成接入 | 🟡 基础完成 | 螺旋难度已集成，待 UI 完善 |
 | iOS 构建验证 | 🔲 待做 | 尚未验证 |
 
 ---
@@ -228,26 +248,38 @@ idiom_crossword/
 | 2.3 | 提示系统 | 2.2 | 支持"显示一字""显示成语""显示全部"三级提示，每关有使用次数限制 | 🔲 |
 | 2.4 | 过关动画与音效 | 2.2 | 完成成语依次高亮、得分结算、关卡解锁动画 | 🔲 |
 | 2.5 | 关卡列表与选择 | 1.3 | 按难度分页展示，显示完成状态和星级评价 | 🔲 |
-| 2.6 | 科举仕途成长系统 | 2.1 | 实现设计文档 §4.2 等级体系（20级，指数经验曲线，称号+道具奖励） | 🔲 |
-| 2.7 | 螺旋难度关卡生成 | 2.1 | 实现设计文档 §4.4 螺旋难度模型（10,000+ 关，8-12 条成语/关） | 🔲 |
-| 2.8 | 收藏系统 | 2.1 | 所有已完成成语自动收录，附带释义出处 | 🔲 |
-| 2.9 | 道具系统 | 2.6 | 实现设计文档 §5 道具系统（功能道具+装饰道具） | 🔲 |
-| 2.10 | 内购系统 | 2.9 | 实现设计文档 §5.3 内购设计（始终可访问商城） | 🔲 |
+| 2.6 | 科举仕途成长系统 | 2.1 | 实现设计文档 §4.2 等级体系（20级，指数经验曲线，称号+道具奖励） | ✅ |
+| 2.7 | 螺旋难度关卡生成 | 2.1 | 实现设计文档 §4.4 螺旋难度模型（10,000+ 关，8-12 条成语/关） | ✅ |
+| 2.8 | 收藏系统 | 2.1 | 所有已完成成语自动收录，附带释义出处 | ✅ |
+| 2.9 | 道具系统 | 2.6 | 实现设计文档 §5 道具系统（功能道具+装饰道具） | ✅ |
+| 2.10 | 内购系统 | 2.9 | 实现设计文档 §5.3 内购设计（始终可访问商城） | ✅ |
 
 **进度记录**
 - 2026-07-04: 项目状态评审，确认 UI 层为当前核心缺失（3 个空目录 state/ widgets/ painters/，game_screen.dart 仅骨架）
 - 2026-07-04: 完成科举仕途成长系统设计（20 级，指数经验曲线，螺旋难度模型）
+- 2026-07-04: 完成成长系统实现（10 个任务，使用 Subagent-Driven Development）
+  - Task 1: SpiralDifficulty 螺旋难度计算器
+  - Task 2: GrowthManager 成长系统管理器（XP/等级/奖励/称号）
+  - Task 3: Database Schema v2（玩家进度/收藏/关卡历史/装饰表）
+  - Task 4: IntegratedGenerator 螺旋难度集成
+  - Task 5: Player State（Riverpod 状态管理）
+  - Task 6: Level Display Widget（等级徽章+经验进度条）
+  - Task 7: Game Screen Integration（成长系统集成）
+  - Task 8: Collection Screen（成语收藏界面）
+  - Task 9: Shop Screen（商城界面，IAP 占位）
+  - Task 10: Integration Tests（成长系统端到端测试）
 
 ### Phase 3：状态管理 + 数据持久化
 
 | # | 任务 | 依赖 | 验收标准 | 状态 |
 |---|------|------|----------|------|
-| 3.1 | SQLite 数据库集成 | Phase 2 | 存储用户进度、关卡通关数据、设置偏好 | 🔲 |
+| 3.1 | SQLite 数据库集成 | Phase 2 | 存储用户进度、关卡通关数据、设置偏好 | ✅ |
 | 3.2 | 关卡数据导入 | 1.4, 3.1 | 将评分完成的成语和生成关卡批量导入 SQLite | 🔲 |
 | 3.3 | 存档/读档 | 3.1 | 支持保存未完成关卡状态，重启后恢复 | 🔲 |
 
 **进度记录**
 - 2026-07-04: 确认 drift + sqlite3_flutter_libs 已在 pubspec.yaml 中配置，待 Phase 2 完成后接入
+- 2026-07-04: 完成数据库 Schema v2（玩家进度/收藏/关卡历史/装饰表），Player State 已集成
 
 ### Phase 4：打磨与发布
 
@@ -291,7 +323,14 @@ idiom_crossword/
 | 交叉图 | `lib/src/engine/crossing_graph.dart` |
 | 布局引擎 | `lib/src/engine/layout_engine.dart` |
 | 干扰字引擎 | `lib/src/engine/distractor_engine.dart` |
+| 螺旋难度计算器 | `lib/src/engine/spiral_difficulty.dart` |
+| 成长系统管理器 | `lib/src/data/growth_manager.dart` |
+| 玩家状态管理 | `lib/src/state/player_state.dart` |
 | 生成器测试 | `test/engine/integrated_gen_test.dart` |
+| 螺旋难度测试 | `test/engine/spiral_difficulty_test.dart` |
+| 成长系统测试 | `test/data/growth_manager_test.dart` |
+| 集成测试 | `test/integration/growth_system_test.dart` |
 | 评分分布 | `assets/data/score_distribution.md` |
 | 最终校验 | `scripts/final_check.py` |
 | 成长系统设计 | `docs/superpowers/specs/2026-07-04-growth-system-design.md` |
+| 实现计划 | `docs/superpowers/plans/2026-07-04-growth-system-implementation.md` |
