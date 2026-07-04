@@ -105,17 +105,78 @@ class UserProgress extends Table {
 }
 
 // ============================================================
+// 成长系统表
+// ============================================================
+
+/// 玩家进度表
+class PlayerProgressTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get level => integer().withDefault(const Constant(1))();
+  IntColumn get totalXp => integer().withDefault(const Constant(0))();
+  IntColumn get completedLevels => integer().withDefault(const Constant(0))();
+  IntColumn get hintCards => integer().withDefault(const Constant(0))();
+  IntColumn get reviveCards => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// 收藏成语表
+class Collection extends Table {
+  IntColumn get idiomId => integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
+  DateTimeColumn get collectedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {idiomId};
+}
+
+/// 关卡通关记录表
+class LevelHistory extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get levelNumber => integer()();
+  DateTimeColumn get completedAt => dateTime().withDefault(currentDateAndTime)();
+  IntColumn get xpGained => integer()();
+  TextColumn get idiomsUsed => text()(); // JSON array of idiom IDs
+  IntColumn get timeSpentMs => integer().nullable()();
+  IntColumn get hintsUsed => integer().withDefault(const Constant(0))();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [];
+}
+
+/// 装饰道具拥有状态表
+class DecorationTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get decorationType => text()(); // 'grid_skin', 'avatar_frame', 'title_effect'
+  TextColumn get decorationId => text()(); // 'bamboo', 'wusha', 'jinbang'
+  DateTimeColumn get ownedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isActive => boolean().withDefault(const Constant(false))();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [{decorationType, decorationId}];
+}
+
+// ============================================================
 // 数据库
 // ============================================================
 
 @DriftDatabase(
-  tables: [Idioms, IdiomCharIndex, IdiomReversiblePair, CharSimilar, UserProgress],
+  tables: [
+    Idioms, 
+    IdiomCharIndex, 
+    IdiomReversiblePair, 
+    CharSimilar, 
+    UserProgress,
+    PlayerProgressTable,
+    Collection,
+    LevelHistory,
+    DecorationTable,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -134,6 +195,18 @@ class AppDatabase extends _$AppDatabase {
           'CREATE INDEX idx_idiom_first_char ON idioms(first_char)');
         await customStatement(
           'CREATE INDEX idx_idiom_last_char ON idioms(last_char)');
+      },
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          // 添加成长系统表
+          await m.createTable(playerProgressTable);
+          await m.createTable(collection);
+          await m.createTable(levelHistory);
+          await m.createTable(decorationTable);
+          // 创建关卡历史索引
+          await customStatement(
+            'CREATE INDEX idx_lh_level ON level_history(level_number)');
+        }
       },
     );
   }
@@ -194,6 +267,126 @@ class AppDatabase extends _$AppDatabase {
       ..orderBy([OrderingTerm.desc(charSimilar.simScore)]))
         .map((row) => row.similar)
         .get();
+  }
+
+  // ============================================================
+  // 成长系统 DAO 方法
+  // ============================================================
+
+  /// 获取玩家进度
+  Future<PlayerProgressTableData?> getPlayerProgress() async {
+    return await (select(playerProgressTable)..limit(1)).getSingleOrNull();
+  }
+
+  /// 更新玩家进度
+  Future<void> updatePlayerProgress({
+    required int level,
+    required int totalXp,
+    required int completedLevels,
+    required int hintCards,
+    required int reviveCards,
+  }) async {
+    final existing = await getPlayerProgress();
+    if (existing != null) {
+      await (update(playerProgressTable)
+        ..where((t) => t.id.equals(existing.id)))
+          .write(PlayerProgressTableCompanion(
+            level: Value(level),
+            totalXp: Value(totalXp),
+            completedLevels: Value(completedLevels),
+            hintCards: Value(hintCards),
+            reviveCards: Value(reviveCards),
+            updatedAt: Value(DateTime.now()),
+          ));
+    } else {
+      await into(playerProgressTable).insert(PlayerProgressTableCompanion(
+        level: Value(level),
+        totalXp: Value(totalXp),
+        completedLevels: Value(completedLevels),
+        hintCards: Value(hintCards),
+        reviveCards: Value(reviveCards),
+      ));
+    }
+  }
+
+  /// 添加成语到收藏
+  Future<void> addToCollection(int idiomId) async {
+    await into(collection).insert(
+      CollectionCompanion(idiomId: Value(idiomId)),
+      mode: InsertMode.insertOrIgnore,
+    );
+  }
+
+  /// 获取收藏的成语ID列表
+  Future<List<int>> getCollection() async {
+    return await (select(collection)
+      ..orderBy([(t) => OrderingTerm.desc(t.collectedAt)]))
+        .map((row) => row.idiomId)
+        .get();
+  }
+
+  /// 检查成语是否在收藏中
+  Future<bool> isInCollection(int idiomId) async {
+    final result = await (select(collection)
+      ..where((t) => t.idiomId.equals(idiomId))
+      ..limit(1))
+        .getSingleOrNull();
+    return result != null;
+  }
+
+  /// 添加关卡历史记录
+  Future<void> addLevelHistory({
+    required int levelNumber,
+    required int xpGained,
+    required List<int> idiomsUsed,
+    int? timeSpentMs,
+    int hintsUsed = 0,
+  }) async {
+    await into(levelHistory).insert(LevelHistoryCompanion(
+      levelNumber: Value(levelNumber),
+      xpGained: Value(xpGained),
+      idiomsUsed: Value(idiomsUsed.join(',')),
+      timeSpentMs: Value(timeSpentMs),
+      hintsUsed: Value(hintsUsed),
+    ));
+  }
+
+  /// 添加装饰道具
+  Future<void> addDecoration(String type, String id) async {
+    await into(decorationTable).insert(
+      DecorationTableCompanion(
+        decorationType: Value(type),
+        decorationId: Value(id),
+      ),
+      mode: InsertMode.insertOrIgnore,
+    );
+  }
+
+  /// 获取指定类型的已拥有装饰
+  Future<List<String>> getOwnedDecorations(String type) async {
+    return await (select(decorationTable)
+      ..where((t) => t.decorationType.equals(type))
+      ..orderBy([(t) => OrderingTerm.desc(t.ownedAt)]))
+        .map((row) => row.decorationId)
+        .get();
+  }
+
+  /// 设置当前使用的装饰
+  Future<void> setActiveDecoration(String type, String id) async {
+    // 先取消该类型下所有装饰的激活状态
+    await (update(decorationTable)
+      ..where((t) => t.decorationType.equals(type)))
+        .write(const DecorationTableCompanion(
+          isActive: Value(false),
+        ));
+    // 激活指定装饰
+    await (update(decorationTable)
+      ..where((t) => 
+        t.decorationType.equals(type) & 
+        t.decorationId.equals(id)))
+        .write(const DecorationTableCompanion(
+          isActive: Value(true),
+        ));
   }
 }
 

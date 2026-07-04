@@ -4,6 +4,7 @@
 ///   1. 当前填字游戏（交叉查询、难度分级、倒装支持）
 ///   2. 未来可扩展为接龙游戏（首尾字匹配）、成语消消乐（组词匹配）等
 ///   3. 数据治理：每条成语的元数据完整可追溯
+///   4. 成长系统（玩家进度、收藏、关卡历史、装饰）
 ///
 /// 设计原则：
 ///   - 宽表为主，多表索引辅助。SQLite 的 JOIN 成本偏高，
@@ -126,6 +127,67 @@
     idiom_id_b  INTEGER NOT NULL REFERENCES idiom(id) ON DELETE CASCADE,
     rel_type    TEXT    NOT NULL CHECK (rel_type IN ('synonym', 'antonym', 'related')),
     PRIMARY KEY (idiom_id_a, idiom_id_b, rel_type)
+  );
+*/
+
+// ============================================================
+// 成长系统表
+// ============================================================
+
+// ============================================================
+// 玩家进度表
+// ============================================================
+/*
+  TABLE player_progress (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    level           INTEGER NOT NULL DEFAULT 1,
+    total_xp        INTEGER NOT NULL DEFAULT 0,
+    completed_levels INTEGER NOT NULL DEFAULT 0,
+    hint_cards      INTEGER NOT NULL DEFAULT 0,
+    revive_cards    INTEGER NOT NULL DEFAULT 0,
+    created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at      TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+*/
+
+// ============================================================
+// 收藏成语表
+// ============================================================
+/*
+  TABLE collection (
+    idiom_id        INTEGER NOT NULL REFERENCES idiom(id) ON DELETE CASCADE,
+    collected_at    TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (idiom_id)
+  );
+*/
+
+// ============================================================
+// 关卡通关记录表
+// ============================================================
+/*
+  TABLE level_history (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    level_number    INTEGER NOT NULL,
+    completed_at    TEXT NOT NULL DEFAULT (datetime('now')),
+    xp_gained       INTEGER NOT NULL,
+    idioms_used     TEXT NOT NULL,  -- JSON array of idiom IDs
+    time_spent_ms   INTEGER,
+    hints_used      INTEGER DEFAULT 0
+  );
+  CREATE INDEX idx_lh_level ON level_history(level_number);
+*/
+
+// ============================================================
+// 装饰道具拥有状态表
+// ============================================================
+/*
+  TABLE decoration (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    decoration_type TEXT NOT NULL,  -- 'grid_skin', 'avatar_frame', 'title_effect'
+    decoration_id   TEXT NOT NULL,  -- 'bamboo', 'wusha', 'jinbang'
+    owned_at        TEXT NOT NULL DEFAULT (datetime('now')),
+    is_active       INTEGER DEFAULT 0,  -- 是否当前使用
+    UNIQUE(decoration_type, decoration_id)
   );
 */
 
