@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/player_state.dart';
 
+/// AppBar 中的简洁等级显示
 class LevelDisplay extends ConsumerWidget {
   const LevelDisplay({super.key});
 
@@ -10,66 +11,27 @@ class LevelDisplay extends ConsumerWidget {
     final player = ref.watch(playerProvider);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primaryContainer,
-            Theme.of(context).colorScheme.secondaryContainer,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Level badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _iconForLevel(player.level),
-                size: 32,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Lv.${player.level} ${player.title}',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+          Icon(
+            _iconForLevel(player.level),
+            size: 18,
+            color: Theme.of(context).colorScheme.primary,
           ),
-          const SizedBox(height: 12),
-          // XP progress bar
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '经验值',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    '${player.totalXp} / ${player.totalXp + player.xpToNextLevel}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              SizedBox(
-                width: 150,
-                child: LinearProgressIndicator(
-                  value: player.xpProgress,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ],
+          const SizedBox(width: 6),
+          Text(
+            'Lv.${player.level}',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
           ),
         ],
       ),
@@ -77,11 +39,11 @@ class LevelDisplay extends ConsumerWidget {
   }
 
   IconData _iconForLevel(int level) {
-    if (level >= 20) return Icons.emoji_events; // 位极人臣
-    if (level >= 16) return Icons.school; // 大学士+
-    if (level >= 12) return Icons.workspace_premium; // 状元+
-    if (level >= 8) return Icons.book; // 进士+
-    if (level >= 4) return Icons.person; // 贡生+
-    return Icons.menu_book; // 童生+
+    if (level >= 20) return Icons.emoji_events;
+    if (level >= 16) return Icons.school;
+    if (level >= 12) return Icons.workspace_premium;
+    if (level >= 8) return Icons.book;
+    if (level >= 4) return Icons.person;
+    return Icons.menu_book;
   }
 }
