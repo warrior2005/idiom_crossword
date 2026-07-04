@@ -325,6 +325,16 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  /// 获取收藏的成语详情列表（按收藏时间倒序）
+  Future<List<Idiom>> getCollectionWithDetails() async {
+    return await (select(collection).join([
+      innerJoin(idioms, idioms.id.equalsExp(collection.idiomId)),
+    ])
+      ..orderBy([OrderingTerm.desc(collection.collectedAt)]))
+        .map((row) => row.readTable(idioms))
+        .get();
+  }
+
   /// 检查成语是否在收藏中
   Future<bool> isInCollection(int idiomId) async {
     final result = await (select(collection)
