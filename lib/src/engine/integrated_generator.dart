@@ -8,6 +8,7 @@
 import 'dart:math';
 import 'crossing_graph.dart';
 import 'grid_engine.dart';
+import 'spiral_difficulty.dart';
 
 class _PlacedNode {
   final int idiomIdx;
@@ -42,7 +43,15 @@ class IntegratedGenerator {
     required int minDifficulty,
     required int maxDifficulty,
     int maxAttempts = 50,
+    int? levelNumber,
+    SpiralDifficultyResult? spiralResult,
   }) {
+    // 如果提供了 spiralResult，使用螺旋难度范围
+    if (spiralResult != null) {
+      minDifficulty = spiralResult.mainMin;
+      maxDifficulty = spiralResult.mainMax;
+    }
+    
     // 候选池
     final candidates = <int>{};
     for (int i = 0; i < graph.idioms.length; i++) {
@@ -396,6 +405,40 @@ class IntegratedGenerator {
       givenCharacters: givenChars,
       title: '',
     );
+  }
+
+  /// 生成螺旋难度关卡
+  /// 
+  /// [levelNumber] 关卡编号 (1-based)
+  /// [totalLevels] 总关卡数
+  CrosswordLevel? generateSpiral({
+    required int levelNumber,
+    int totalLevels = 10000,
+    int maxAttempts = 50,
+  }) {
+    final spiral = SpiralDifficulty.calculate(levelNumber);
+    final (mainCount, tailCount, previewCount) = 
+        SpiralDifficulty.selectIdiomCounts(levelNumber);
+    
+    final targetSize = mainCount + tailCount + previewCount;
+    
+    // First try with main range
+    var level = generate(
+      targetSize: targetSize,
+      minDifficulty: spiral.mainMin,
+      maxDifficulty: spiral.mainMax,
+      maxAttempts: maxAttempts ~/ 2,
+    );
+    
+    // If failed, try with wider range
+    level ??= generate(
+      targetSize: targetSize,
+      minDifficulty: (spiral.mainMin - 2).clamp(1, 50),
+      maxDifficulty: (spiral.mainMax + 2).clamp(1, 50),
+      maxAttempts: maxAttempts ~/ 2,
+    );
+    
+    return level;
   }
 }
 
