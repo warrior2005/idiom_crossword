@@ -55,8 +55,8 @@ class ExperienceResult {
 class GrowthManager {
   /// 升级所需经验值公式：XP(n) = 100 × 1.6^(n-1)
   static int xpForLevel(int level) {
-    if (level <= 1) return 0;
-    return (100 * pow(1.6, level - 2)).round();
+    if (level <= 1) return 100;
+    return (100 * pow(1.6, level - 1)).round();
   }
 
   /// 根据总经验值计算当前等级
@@ -64,7 +64,7 @@ class GrowthManager {
     int level = 1;
     int xpNeeded = 0;
     while (level < 20) {
-      xpNeeded += xpForLevel(level + 1);
+      xpNeeded += xpForLevel(level);
       if (totalXp < xpNeeded) break;
       level++;
     }
@@ -132,6 +132,9 @@ class GrowthManager {
   static int calculateXp(int levelNumber, List<int> idiomDifficulties) {
     if (levelNumber <= 5) {
       return 10; // 教学关固定 10 经验
+    }
+    if (idiomDifficulties.isEmpty) {
+      return 0;
     }
     final avgDifficulty = idiomDifficulties.reduce((a, b) => a + b) / 
         idiomDifficulties.length;
