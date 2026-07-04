@@ -59,11 +59,14 @@ class LevelDisplay extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 4),
-              LinearProgressIndicator(
-                value: player.xpProgress,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.primary,
+              SizedBox(
+                width: 150,
+                child: LinearProgressIndicator(
+                  value: player.xpProgress,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
             ],
