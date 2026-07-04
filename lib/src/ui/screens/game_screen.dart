@@ -41,6 +41,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   // 当前焦点格子
   int _focusRow = -1;
   int _focusCol = -1;
+  Direction? _currentDirection; // 当前填字方向
 
   // 玩家填入的字（row, col) → char
   final Map<(int, int), String> _playerAnswers = {};
@@ -87,10 +88,24 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         if (cell.state == CellState.filled && !cell.isGiven) {
           _focusRow = r;
           _focusCol = c;
+          // 根据格子所属成语确定初始方向
+          _currentDirection = _getDirectionForCell(r, c);
           return;
         }
       }
     }
+  }
+
+  /// 获取格子所属成语的方向
+  Direction? _getDirectionForCell(int row, int col) {
+    for (final placement in widget.level.placements) {
+      for (int k = 0; k < placement.idiom.text.length; k++) {
+        if (placement.cellAt(k) == (row, col)) {
+          return placement.direction;
+        }
+      }
+    }
+    return null;
   }
 
   /// 玩家点击候选字
@@ -183,8 +198,33 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       }
     }
 
-    // 沿每个成语方向找下一个空位
+    // 优先沿当前方向继续
+    if (_currentDirection != null) {
+      for (final (placement, k) in containingPlacements) {
+        if (placement.direction == _currentDirection) {
+          // 沿当前方向找下一个空位
+          for (int next = k + 1; next < placement.idiom.text.length; next++) {
+            final (nr, nc) = placement.cellAt(next);
+            final cell = _grid.cellAt(nr, nc);
+            if (cell.state == CellState.filled &&
+                !cell.isGiven &&
+                !_playerAnswers.containsKey((nr, nc))) {
+              setState(() {
+                _focusRow = nr;
+                _focusCol = nc;
+              });
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    // 当前方向没有了，尝试其他方向
     for (final (placement, k) in containingPlacements) {
+      // 跳过已尝试的方向
+      if (placement.direction == _currentDirection) continue;
+      
       for (int next = k + 1; next < placement.idiom.text.length; next++) {
         final (nr, nc) = placement.cellAt(next);
         final cell = _grid.cellAt(nr, nc);
@@ -194,6 +234,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           setState(() {
             _focusRow = nr;
             _focusCol = nc;
+            _currentDirection = placement.direction; // 切换方向
           });
           return;
         }
@@ -210,6 +251,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           setState(() {
             _focusRow = r;
             _focusCol = c;
+            _currentDirection = null; // 重置方向
           });
           return;
         }
@@ -218,6 +260,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     // 全部填完
     _focusRow = -1;
     _focusCol = -1;
+    _currentDirection = null;
     _checkLevelComplete();
   }
 
@@ -315,6 +358,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     setState(() {
       _focusRow = row;
       _focusCol = col;
+      _currentDirection = _getDirectionForCell(row, col);
     });
     HapticFeedback.selectionClick();
   }
