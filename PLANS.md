@@ -14,6 +14,8 @@ idiom_crossword/
 │   ├── idiom_cleaned.json           # 清洗后四字成语（29502 条）
 │   ├── to_score.json                # 待评分数据（29502 条，含 word/old_score/hint/pinyin）
 │   └── scoring_progress.json        # 最终评分（29502/29502，scores 字典 + batches_done 列表）
+├── docs/superpowers/specs/
+│   └── 2026-07-04-growth-system-design.md  # 科举仕途成长系统设计文档
 ├── lib/
 │   ├── main.dart                    # 应用入口
 │   └── src/
@@ -180,8 +182,9 @@ idiom_crossword/
 | 数据库 Schema（v2） | ✅ 完成 | database.dart 已对齐 |
 | 数据评分 | ✅ 100% | 29502/29502，variant_normalized_v2，1-50 均匀分布 |
 | SQLite 数据库 | ✅ 完成 | idiom_crossword.db (14.5MB)，7 索引生效 |
-| PRD 文档 | ✅ 完成 | 10 章完整 |
+| PRD 文档 | ✅ 完成 | 10 章完整（v2.0 含成长系统） |
 | 单元测试 | ✅ 完成 | 6 个测试文件，180 次 100% 通过 |
+| 成长系统设计 | ✅ 完成 | 科举仕途 20 级，螺旋难度模型 |
 | 游戏 UI | 🔲 骨架 | game_screen.dart 仅框架，main.dart 用 Placeholder |
 | 关卡生成接入 | 🔲 待做 | 引擎已有，未接入 UI |
 | 状态管理 | 🔲 空 | lib/src/state/ 目录为空 |
@@ -216,6 +219,8 @@ idiom_crossword/
 
 ### Phase 2：UI 完善（当前优先级 🔴）
 
+> 详细设计文档：`docs/superpowers/specs/2026-07-04-growth-system-design.md`
+
 | # | 任务 | 依赖 | 验收标准 | 状态 |
 |---|------|------|----------|------|
 | 2.1 | 填字网格渲染 | 1.2 | 正确渲染 IntegratedGenerator 输出的 CrosswordGrid（支持横纵交叉、不同字号适配） | 🔲 |
@@ -223,9 +228,15 @@ idiom_crossword/
 | 2.3 | 提示系统 | 2.2 | 支持"显示一字""显示成语""显示全部"三级提示，每关有使用次数限制 | 🔲 |
 | 2.4 | 过关动画与音效 | 2.2 | 完成成语依次高亮、得分结算、关卡解锁动画 | 🔲 |
 | 2.5 | 关卡列表与选择 | 1.3 | 按难度分页展示，显示完成状态和星级评价 | 🔲 |
+| 2.6 | 科举仕途成长系统 | 2.1 | 实现设计文档 §4.2 等级体系（20级，指数经验曲线，称号+道具奖励） | 🔲 |
+| 2.7 | 螺旋难度关卡生成 | 2.1 | 实现设计文档 §4.4 螺旋难度模型（10,000+ 关，8-12 条成语/关） | 🔲 |
+| 2.8 | 收藏系统 | 2.1 | 所有已完成成语自动收录，附带释义出处 | 🔲 |
+| 2.9 | 道具系统 | 2.6 | 实现设计文档 §5 道具系统（功能道具+装饰道具） | 🔲 |
+| 2.10 | 内购系统 | 2.9 | 实现设计文档 §5.3 内购设计（始终可访问商城） | 🔲 |
 
 **进度记录**
 - 2026-07-04: 项目状态评审，确认 UI 层为当前核心缺失（3 个空目录 state/ widgets/ painters/，game_screen.dart 仅骨架）
+- 2026-07-04: 完成科举仕途成长系统设计（20 级，指数经验曲线，螺旋难度模型）
 
 ### Phase 3：状态管理 + 数据持久化
 
@@ -283,3 +294,4 @@ idiom_crossword/
 | 生成器测试 | `test/engine/integrated_gen_test.dart` |
 | 评分分布 | `assets/data/score_distribution.md` |
 | 最终校验 | `scripts/final_check.py` |
+| 成长系统设计 | `docs/superpowers/specs/2026-07-04-growth-system-design.md` |
