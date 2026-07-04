@@ -171,9 +171,36 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
   }
 
-  /// 自动移到下一个空白格
+  /// 自动移到下一个空白格（沿当前成语方向移动）
   void _moveToNextEmptyCell() {
-    // 简单的从左到右、从上到下扫描
+    // 找到包含当前格子的所有成语
+    final List<(Placement, int)> containingPlacements = [];
+    for (final placement in widget.level.placements) {
+      for (int k = 0; k < placement.idiom.text.length; k++) {
+        if (placement.cellAt(k) == (_focusRow, _focusCol)) {
+          containingPlacements.add((placement, k));
+        }
+      }
+    }
+
+    // 沿每个成语方向找下一个空位
+    for (final (placement, k) in containingPlacements) {
+      for (int next = k + 1; next < placement.idiom.text.length; next++) {
+        final (nr, nc) = placement.cellAt(next);
+        final cell = _grid.cellAt(nr, nc);
+        if (cell.state == CellState.filled &&
+            !cell.isGiven &&
+            !_playerAnswers.containsKey((nr, nc))) {
+          setState(() {
+            _focusRow = nr;
+            _focusCol = nc;
+          });
+          return;
+        }
+      }
+    }
+
+    // 没找到同方向的，回退到逐行扫描
     for (int r = 0; r < _grid.rows; r++) {
       for (int c = 0; c < _grid.cols; c++) {
         final cell = _grid.cellAt(r, c);
