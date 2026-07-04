@@ -364,50 +364,49 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildGrid() {
-    return GestureDetector(
-      onTapDown: (details) {
-        // 计算点击在哪个格子上
-        final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-        if (renderBox == null) return;
-        
-        final localPosition = renderBox.globalToLocal(details.globalPosition);
-        
-        // 计算网格偏移（居中显示）
+    return LayoutBuilder(
+      builder: (context, constraints) {
         final gridWidth = _grid.cols * 48.0;
         final gridHeight = _grid.rows * 48.0;
-        final offsetX = (renderBox.size.width - gridWidth) / 2;
-        final offsetY = (renderBox.size.height - gridHeight) / 2;
         
-        final cellX = (localPosition.dx - offsetX) / 48.0;
-        final cellY = (localPosition.dy - offsetY) / 48.0;
-        
-        final col = cellX.floor();
-        final row = cellY.floor();
-        
-        if (row >= 0 && row < _grid.rows && col >= 0 && col < _grid.cols) {
-          _onGridTap(row, col);
-        }
-      },
-      child: Center(
-        child: InteractiveViewer(
-          minScale: 0.8,
-          maxScale: 2.0,
-          child: CustomPaint(
-            size: Size(
-              _grid.cols * 48.0,
-              _grid.rows * 48.0,
-            ),
-            painter: GridPainter(
-              grid: _grid,
-              playerAnswers: _playerAnswers,
-              focusRow: _focusRow,
-              focusCol: _focusCol,
-              errorCells: _errorCells,
-              onCellTap: _onGridTap,
+        return GestureDetector(
+          onTapUp: (details) {
+            // 获取点击位置
+            final RenderBox box = context.findRenderObject() as RenderBox;
+            final localPosition = box.globalToLocal(details.globalPosition);
+            
+            // 计算网格偏移（居中显示）
+            final offsetX = (constraints.maxWidth - gridWidth) / 2;
+            final offsetY = (constraints.maxHeight - gridHeight) / 2;
+            
+            final cellX = (localPosition.dx - offsetX) / 48.0;
+            final cellY = (localPosition.dy - offsetY) / 48.0;
+            
+            final col = cellX.floor();
+            final row = cellY.floor();
+            
+            if (row >= 0 && row < _grid.rows && col >= 0 && col < _grid.cols) {
+              _onGridTap(row, col);
+            }
+          },
+          child: Center(
+            child: SizedBox(
+              width: gridWidth,
+              height: gridHeight,
+              child: CustomPaint(
+                painter: GridPainter(
+                  grid: _grid,
+                  playerAnswers: _playerAnswers,
+                  focusRow: _focusRow,
+                  focusCol: _focusCol,
+                  errorCells: _errorCells,
+                  onCellTap: _onGridTap,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
