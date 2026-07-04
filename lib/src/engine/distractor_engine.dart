@@ -192,7 +192,6 @@ class DistractorEngine {
   }) {
     final exclude = <String>{targetChar};
     if (excludeChars != null) exclude.addAll(excludeChars);
-    exclude.addAll(allAnswerChars); // 不能把其他答案的字当干扰项
 
     final distractors = <String>[];
 
@@ -227,10 +226,11 @@ class DistractorEngine {
       }
     }
 
-    // 兜底：从所有答案中取同位置的字（最后的保险）
+    // 兜底：从常见汉字中随机选取
     if (distractors.length < count) {
-      final fallback = allAnswerChars
-          .where((c) => !exclude.contains(c) && !distractors.contains(c))
+      const fallbackChars = '的一是不了人我在有他这中大来上个国到说们为子和你地出会也时要就可以生';
+      final fallback = fallbackChars.split('')
+          .where((c) => !exclude.contains(c) && !distractors.contains(c) && c != targetChar)
           .toList();
       fallback.shuffle();
       for (final c in fallback) {

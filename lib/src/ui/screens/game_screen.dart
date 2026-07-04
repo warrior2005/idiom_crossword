@@ -366,9 +366,26 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     return GestureDetector(
       onTapDown: (details) {
         // 计算点击在哪个格子上
-        final renderBox = context.findRenderObject() as RenderBox?;
+        final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
         if (renderBox == null) return;
-        // ... 简化处理，实际需要配合 InteractiveViewer 做坐标变换
+        
+        final localPosition = renderBox.globalToLocal(details.globalPosition);
+        
+        // 计算网格偏移（居中显示）
+        final gridWidth = _grid.cols * 48.0;
+        final gridHeight = _grid.rows * 48.0;
+        final offsetX = (renderBox.size.width - gridWidth) / 2;
+        final offsetY = (renderBox.size.height - gridHeight) / 2;
+        
+        final cellX = (localPosition.dx - offsetX) / 48.0;
+        final cellY = (localPosition.dy - offsetY) / 48.0;
+        
+        final col = cellX.floor();
+        final row = cellY.floor();
+        
+        if (row >= 0 && row < _grid.rows && col >= 0 && col < _grid.cols) {
+          _onGridTap(row, col);
+        }
       },
       child: Center(
         child: InteractiveViewer(
