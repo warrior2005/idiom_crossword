@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../engine/grid_engine.dart';
-import '../engine/distractor_engine.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../engine/grid_engine.dart';
+import '../../engine/distractor_engine.dart';
+import '../widgets/level_display.dart';
+import '../../state/player_state.dart';
+import '../../data/growth_manager.dart';
 
 /// 游戏主界面
 /// 
@@ -21,16 +25,16 @@ import '../engine/distractor_engine.dart';
 ///   │  提示/撤销/重置   │
 ///   └──────────────────┘
 
-class GameScreen extends StatefulWidget {
+class GameScreen extends ConsumerStatefulWidget {
   final CrosswordLevel level;
 
   const GameScreen({super.key, required this.level});
 
   @override
-  State<GameScreen> createState() => _GameScreenState();
+  ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends ConsumerState<GameScreen> {
   late CrosswordGrid _grid;
   final DistractorEngine _distractorEngine = DistractorEngine();
 
@@ -207,20 +211,72 @@ class _GameScreenState extends State<GameScreen> {
     }
     if (allDone) {
       HapticFeedback.heavyImpact();
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('恭喜过关！'),
-          content: Text('你完成了 "${widget.level.title}"'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('继续'),
-            ),
+      _onLevelComplete();
+    }
+  }
+
+  /// 处理关卡完成，计算经验值并更新玩家状态
+  void _onLevelComplete() async {
+    final player = ref.read(playerProvider.notifier);
+    final result = await player.completeLevel(
+      widget.level.levelId,
+      widget.level.idioms.map((i) => i.difficulty).toList(),
+    );
+    
+    if (result.leveledUp && result.reward != null) {
+      _showRewardDialog(result.newLevel, result.reward!);
+    } else {
+      _showCompletionDialog();
+    }
+  }
+
+  /// 显示升级奖励对话框
+  void _showRewardDialog(int newLevel, LevelReward reward) {
+    final title = GrowthManager.titleForLevel(newLevel);
+    final rewardText = reward.type == RewardType.functional
+        ? '${reward.item == "hint_card" ? "提示卡" : "复活卡"} x${reward.quantity}'
+        : '装饰: ${reward.item}';
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('恭喜升级！'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('你已升到 Lv.$newLevel $title'),
+            const SizedBox(height: 12),
+            Text('获得奖励: $rewardText'),
           ],
         ),
-      );
-    }
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _showCompletionDialog();
+            },
+            child: const Text('继续'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 显示过关对话框
+  void _showCompletionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('恭喜过关！'),
+        content: Text('你完成了 "${widget.level.title}"'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('继续'),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 点击网格中的格子切换焦点
@@ -243,6 +299,12 @@ class _GameScreenState extends State<GameScreen> {
         title: Text(widget.level.title),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: LevelDisplay(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
