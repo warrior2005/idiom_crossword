@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/player_state.dart';
+import '../../state/database_provider.dart';
 import 'game_screen.dart';
 import 'collection_screen.dart';
 import 'shop_screen.dart';
 import '../../engine/integrated_generator.dart';
 import '../../engine/crossing_graph.dart';
+import '../../engine/spiral_difficulty.dart';
 import '../../engine/grid_engine.dart' as engine;
 
 /// 首页
@@ -104,7 +106,6 @@ class HomeScreen extends ConsumerWidget {
   }
 
   void _startGame(BuildContext context, WidgetRef ref) async {
-    // 显示加载对话框
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -126,38 +127,39 @@ class HomeScreen extends ConsumerWidget {
     );
 
     try {
-      // 使用示例成语数据（Web 测试用）
-      final sampleIdioms = const [
-        engine.Idiom(text: '一鸣惊人', meaning: '比喻平时默默无闻，突然做出惊人的成绩', difficulty: 5),
-        engine.Idiom(text: '人山人海', meaning: '形容聚集的人非常多', difficulty: 3),
-        engine.Idiom(text: '海阔天空', meaning: '形容大自然的广阔，也比喻想象或说话毫无拘束', difficulty: 4),
-        engine.Idiom(text: '空前绝后', meaning: '从前没有过，今后也不会再有', difficulty: 6),
-        engine.Idiom(text: '后发制人', meaning: '等对方先动手，再抓住有利时机反击', difficulty: 7),
-        engine.Idiom(text: '画蛇添足', meaning: '比喻做了多余的事，反而把事情弄坏了', difficulty: 2),
-        engine.Idiom(text: '足智多谋', meaning: '形容善于料事和用计', difficulty: 5),
-        engine.Idiom(text: '谋事在人', meaning: '按自己的意愿去谋划', difficulty: 8),
-        engine.Idiom(text: '天长地久', meaning: '形容时间长久', difficulty: 3),
-        engine.Idiom(text: '九牛一毛', meaning: '比喻极大数量中微不足道的一部分', difficulty: 4),
-        engine.Idiom(text: '马到成功', meaning: '形容工作刚开始就取得成功', difficulty: 2),
-        engine.Idiom(text: '功成名就', meaning: '功业建立了，名声也有了', difficulty: 6),
-        engine.Idiom(text: '名落孙山', meaning: '指考试或选拔没有被录取', difficulty: 5),
-        engine.Idiom(text: '山穷水尽', meaning: '比喻无路可走陷入绝境', difficulty: 4),
-        engine.Idiom(text: '尽心尽力', meaning: '用尽全部心思和力量', difficulty: 3),
-      ];
+      final db = ref.read(databaseProvider);
+      final player = ref.read(playerProvider);
+      final nextLevel = player.completedLevels + 1;
 
-      // 构建交叉图
-      final graph = CrossingGraph(idioms: sampleIdioms);
+      final spiral = SpiralDifficulty.calculate(nextLevel);
+      final minD = (spiral.mainMin - 2).clamp(1, 50);
+      final maxD = (spiral.mainMax + 2).clamp(1, 50);
 
-      // 生成关卡
+      final dbIdioms = await db.findIdiomsByDifficulty(minD, maxD, 300);
+      if (dbIdioms.length < 5) {
+        if (context.mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('数据库中没有足够的成语')),
+          );
+        }
+        return;
+      }
+
+      final engineIdioms = dbIdioms.map((i) => engine.Idiom(
+        text: i.word,
+        pinyin: i.pinyin,
+        meaning: i.explanation,
+        difficulty: i.difficulty,
+        source: i.derivation ?? '',
+      )).toList();
+
+      final graph = CrossingGraph(idioms: engineIdioms);
       final generator = IntegratedGenerator(graph: graph);
-      final level = generator.generate(
-        targetSize: 5,
-        minDifficulty: 1,
-        maxDifficulty: 10,
-      );
+      final level = generator.generateSpiral(levelNumber: nextLevel);
 
       if (context.mounted) {
-        Navigator.pop(context); // 关闭加载对话框
+        Navigator.pop(context);
 
         if (level != null) {
           Navigator.push(

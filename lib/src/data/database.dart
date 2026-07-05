@@ -10,6 +10,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
@@ -186,15 +187,15 @@ class AppDatabase extends _$AppDatabase {
 
         // 创建额外索引
         await customStatement(
-          'CREATE INDEX idx_ici_char ON idiom_char_index(char)');
+          'CREATE INDEX IF NOT EXISTS idx_ici_char ON idiom_char_index(char)');
         await customStatement(
-          'CREATE INDEX idx_ici_char_pos ON idiom_char_index(char, position)');
+          'CREATE INDEX IF NOT EXISTS idx_ici_char_pos ON idiom_char_index(char, position)');
         await customStatement(
-          'CREATE INDEX idx_idiom_difficulty ON idioms(difficulty)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_difficulty ON idioms(difficulty)');
         await customStatement(
-          'CREATE INDEX idx_idiom_first_char ON idioms(first_char)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_first_char ON idioms(first_char)');
         await customStatement(
-          'CREATE INDEX idx_idiom_last_char ON idioms(last_char)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_last_char ON idioms(last_char)');
       },
       onUpgrade: (m, from, to) async {
         if (from < 2) {
@@ -205,7 +206,7 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(decorationTable);
           // 创建关卡历史索引
           await customStatement(
-            'CREATE INDEX idx_lh_level ON level_history(level_number)');
+            'CREATE INDEX IF NOT EXISTS idx_lh_level ON level_history(level_number)');
         }
       },
     );
@@ -404,6 +405,12 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'idiom_crossword.db'));
+
+    if (!await file.exists()) {
+      final data = await rootBundle.load('assets/data/idiom_crossword.db');
+      await file.writeAsBytes(data.buffer.asUint8List());
+    }
+
     return NativeDatabase.createInBackground(file);
   });
 }
