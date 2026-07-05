@@ -123,26 +123,19 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final cell = _grid.cellAt(_focusRow, _focusCol);
     if (cell.isGiven) return;
 
-    // 填入
     setState(() {
       _playerAnswers[(_focusRow, _focusCol)] = char;
       _usedCandidateSlots.add((row, col));
       _fillHistory.add((row: _focusRow, col: _focusCol, candRow: row, candCol: col));
+      _checkCompletionForCurrentIdiom();
     });
 
-    // 检查当前成语是否完整
-    _checkCompletionForCurrentIdiom();
-
-    // 震动反馈
     HapticFeedback.lightImpact();
-
-    // 移到下一个空白格
     _moveToNextEmptyCell();
   }
 
   /// 检查当前焦点所在成语的完成状态
   void _checkCompletionForCurrentIdiom() {
-    // 找到包含当前格子的所有成语放置
     for (final placement in widget.level.placements) {
       for (int k = 0; k < placement.idiom.text.length; k++) {
         if (placement.cellAt(k) == (_focusRow, _focusCol)) {
@@ -155,13 +148,19 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 检查一个成语是否已被完整且正确地填入
   void _checkIdiomCompletion(Placement placement) {
+    // 先清除这个 placement 的旧错误标记，再重新计算
+    for (int k = 0; k < placement.idiom.text.length; k++) {
+      final (r, c) = placement.cellAt(k);
+      if (_grid.cellAt(r, c).isGiven) continue;
+      _errorCells.remove((r, c));
+    }
+
     bool allFilled = true;
     bool allCorrect = true;
 
     for (int k = 0; k < placement.idiom.text.length; k++) {
       final (r, c) = placement.cellAt(k);
       final cell = _grid.cellAt(r, c);
-
       if (cell.isGiven) continue;
 
       final filled = _playerAnswers[(r, c)];
@@ -174,7 +173,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
 
     if (allFilled && allCorrect) {
-      // 成语完成！
       HapticFeedback.mediumImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -182,17 +180,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           duration: const Duration(milliseconds: 800),
         ),
       );
-    } else if (allFilled && !allCorrect) {
-      // 全部填了但有错（延迟清除错误标记）
-      Future.delayed(const Duration(milliseconds: 600), () {
-        if (mounted) {
-          setState(() {
-            for (final cell in _errorCells.toList()) {
-              _errorCells.remove(cell);
-            }
-          });
-        }
-      });
     }
   }
 
@@ -615,6 +602,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     setState(() {
       _playerAnswers.remove((entry.row, entry.col));
       _usedCandidateSlots.remove((entry.candRow, entry.candCol));
+      _errorCells.remove((entry.row, entry.col));
     });
     _focusRow = entry.row;
     _focusCol = entry.col;
@@ -630,6 +618,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (_focusRow < 0 || _focusCol < 0) return;
     setState(() {
       _playerAnswers.remove((_focusRow, _focusCol));
+      _errorCells.remove((_focusRow, _focusCol));
     });
   }
 
