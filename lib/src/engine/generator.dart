@@ -212,10 +212,15 @@ class DifficultyEvaluator {
 
     // 因素1：成语数量
     final idiomCount = level.idioms.length;
-    if (idiomCount <= 3) score += 1;
-    else if (idiomCount <= 5) score += 2;
-    else if (idiomCount <= 8) score += 3;
-    else score += 4;
+    if (idiomCount <= 3) {
+      score += 1;
+    } else if (idiomCount <= 5) {
+      score += 2;
+    } else if (idiomCount <= 8) {
+      score += 3;
+    } else {
+      score += 4;
+    }
 
     // 因素2：成语本身的平均难度
     final avgDifficulty = level.idioms
@@ -225,8 +230,11 @@ class DifficultyEvaluator {
 
     // 因素3：提示比例（提示越少越难）
     final fillableRatio = level.fillableCells / level.idioms.length;
-    if (fillableRatio > 6) score += 2;
-    else if (fillableRatio > 4) score += 1;
+    if (fillableRatio > 6) {
+      score += 2;
+    } else if (fillableRatio > 4) {
+      score += 1;
+    }
 
     return (score / 3).round().clamp(1, 5);
   }

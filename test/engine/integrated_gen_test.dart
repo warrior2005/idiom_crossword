@@ -18,7 +18,9 @@ void main() {
   final sw = Stopwatch()..start();
   final graph = CrossingGraph(idioms: idioms);
   final gen = IntegratedGenerator(graph: graph);
-  print('图: ${graph.nodeCount}节点, ${graph.uniqueCharCount}字, ${sw.elapsedMilliseconds}ms\n');
+  print(
+    '图: ${graph.nodeCount}节点, ${graph.uniqueCharCount}字, ${sw.elapsedMilliseconds}ms\n',
+  );
 
   // 测试场景
   final tests = [
@@ -69,15 +71,21 @@ void main() {
     var ok = 0;
     for (var i = 0; i < 30; i++) {
       if (gen.generate(
-          targetSize: size,
-          minDifficulty: minD,
-          maxDifficulty: maxD,
-          maxAttempts: 10) != null) {
+            targetSize: size,
+            minDifficulty: minD,
+            maxDifficulty: maxD,
+            maxAttempts: 10,
+          ) !=
+          null) {
         ok++;
       }
     }
     final pct = (ok / 30 * 100).toStringAsFixed(0);
-    final icon = ok >= 24 ? '✓' : ok >= 15 ? '△' : '✗';
+    final icon = ok >= 24
+        ? '✓'
+        : ok >= 15
+        ? '△'
+        : '✗';
     print('  $icon $label (${size}成语): $ok/30 ($pct%)');
   }
   print('\n=== 完成 ===');
@@ -85,18 +93,15 @@ void main() {
 
 List<Idiom> _loadFromDb(String dbPath) {
   final jsonStr = File(
-      r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json')
-      .readAsStringSync();
+    r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json',
+  ).readAsStringSync();
   final data = json.decode(jsonStr) as Map<String, dynamic>;
   final scores = data['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];
   for (final entry in scores.entries) {
-    final word = entry.key as String;
+    final word = entry.key;
     if (word.length != 4) continue;
-    idioms.add(Idiom(
-      text: word,
-      difficulty: (entry.value as num).toInt(),
-    ));
+    idioms.add(Idiom(text: word, difficulty: (entry.value as num).toInt()));
   }
   return idioms;
 }
@@ -106,8 +111,10 @@ void _printGrid(CrosswordGrid grid) {
   for (var r = 0; r < grid.rows; r++) {
     for (var c = 0; c < grid.cols; c++) {
       if (grid.cellAt(r, c).state != CellState.blocked) {
-        minR = min(minR, r); maxR = max(maxR, r);
-        minC = min(minC, c); maxC = max(maxC, c);
+        minR = min(minR, r);
+        maxR = max(maxR, r);
+        minC = min(minC, c);
+        maxC = max(maxC, c);
       }
     }
   }

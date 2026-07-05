@@ -3,7 +3,6 @@
 /// 流程：图构建 → 子图选取 → 布局 → 关卡
 /// 替代原来的 CrosswordGenerator（纯回溯）
 
-import 'dart:math';
 import 'crossing_graph.dart';
 import 'subgraph_selector.dart';
 import 'layout_engine.dart';
@@ -13,13 +12,11 @@ class GraphPipelineGenerator {
   final CrossingGraph graph;
   final SubgraphSelector selector;
   final LayoutEngine layout;
-  final Random _random;
 
   GraphPipelineGenerator({required List<Idiom> idiomPool})
       : graph = CrossingGraph(idioms: idiomPool),
         selector = SubgraphSelector(graph: CrossingGraph(idioms: [])), // temp
-        layout = LayoutEngine(graph: CrossingGraph(idioms: [])),       // temp
-        _random = Random() {
+        layout = LayoutEngine(graph: CrossingGraph(idioms: [])) {       // temp
     selector.graph = graph;
     layout.graph = graph;
   }

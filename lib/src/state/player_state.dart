@@ -35,16 +35,19 @@ class PlayerState {
   }
 }
 
-class PlayerNotifier extends StateNotifier<PlayerState> {
-  PlayerNotifier() : super(const PlayerState(
-    level: 1,
-    totalXp: 0,
-    xpToNextLevel: 100,
-    title: '童生',
-    completedLevels: 0,
-    functionalItems: {},
-    ownedDecorations: {},
-  ));
+class PlayerNotifier extends Notifier<PlayerState> {
+  @override
+  PlayerState build() {
+    return const PlayerState(
+      level: 1,
+      totalXp: 0,
+      xpToNextLevel: 100,
+      title: '童生',
+      completedLevels: 0,
+      functionalItems: {},
+      ownedDecorations: {},
+    );
+  }
 
   Future<ExperienceResult> completeLevel(
     int levelNumber,
@@ -98,6 +101,6 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   }
 }
 
-final playerProvider = StateNotifierProvider<PlayerNotifier, PlayerState>(
-  (ref) => PlayerNotifier(),
+final playerProvider = NotifierProvider<PlayerNotifier, PlayerState>(
+  PlayerNotifier.new,
 );

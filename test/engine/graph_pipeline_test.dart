@@ -13,19 +13,16 @@ void main() {
 
   // 1. 加载数据
   final jsonStr = File(
-      r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json')
-      .readAsStringSync();
+    r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json',
+  ).readAsStringSync();
   final Map<String, dynamic> rawData = json.decode(jsonStr);
   final scores = rawData['scores'] as Map<String, dynamic>;
 
   final allIdioms = <Idiom>[];
   for (final entry in scores.entries) {
-    final word = entry.key as String;
+    final word = entry.key;
     if (word.length != 4) continue;
-    allIdioms.add(Idiom(
-      text: word,
-      difficulty: (entry.value as num).toInt(),
-    ));
+    allIdioms.add(Idiom(text: word, difficulty: (entry.value as num).toInt()));
   }
   print('加载成语: ${allIdioms.length} 条');
 
@@ -33,9 +30,11 @@ void main() {
   print('正在构建交叉图...');
   final stopwatch = Stopwatch()..start();
   final pipeline = GraphPipelineGenerator(idiomPool: allIdioms);
-  print('图构建完成: ${pipeline.graph.nodeCount} 节点, '
-      '${pipeline.graph.uniqueCharCount} 个不同汉字, '
-      '耗时 ${stopwatch.elapsedMilliseconds}ms\n');
+  print(
+    '图构建完成: ${pipeline.graph.nodeCount} 节点, '
+    '${pipeline.graph.uniqueCharCount} 个不同汉字, '
+    '耗时 ${stopwatch.elapsedMilliseconds}ms\n',
+  );
 
   // 3. 多场景测试
   final testCases = [
@@ -65,13 +64,19 @@ void main() {
       final lvl = result.level;
       final sg = result.subgraph;
       print('  ✓ 第${result.attempt}次成功');
-      print('  成语(${lvl.idioms.length}): ${lvl.idioms.map((i) => i.text).join(", ")}');
-      print('  难度: ${lvl.idioms.map((i) => i.difficulty).join(", ")} '
-          '(平均${sg.avgDifficulty.toStringAsFixed(0)})');
+      print(
+        '  成语(${lvl.idioms.length}): ${lvl.idioms.map((i) => i.text).join(", ")}',
+      );
+      print(
+        '  难度: ${lvl.idioms.map((i) => i.difficulty).join(", ")} '
+        '(平均${sg.avgDifficulty.toStringAsFixed(0)})',
+      );
       print('  网格: ${lvl.grid.rows}×${lvl.grid.cols}');
       print('  需填格: ${lvl.fillableCells}');
-      print('  子图密度: ${sg.density.toStringAsFixed(2)} '
-          '(${sg.edges.length}/${tc.size*(tc.size-1)~/2})');
+      print(
+        '  子图密度: ${sg.density.toStringAsFixed(2)} '
+        '(${sg.edges.length}/${tc.size * (tc.size - 1) ~/ 2})',
+      );
 
       print('  网格可视化:');
       _printGrid(lvl.grid);
@@ -115,9 +120,15 @@ void main() {
 
     final rate = (success / trials * 100).toStringAsFixed(0);
     final avgAtt = (totalAttempts / trials).toStringAsFixed(1);
-    final icon = success >= 16 ? '✓' : success >= 8 ? '△' : '✗';
-    print('  $icon $label ($size成语, 难度$minD-$maxD): '
-        '$success/$trials ($rate%), 平均${avgAtt}次');
+    final icon = success >= 16
+        ? '✓'
+        : success >= 8
+        ? '△'
+        : '✗';
+    print(
+      '  $icon $label ($size成语, 难度$minD-$maxD): '
+      '$success/$trials ($rate%), 平均${avgAtt}次',
+    );
   }
 
   print('\n=== 完成 ===');

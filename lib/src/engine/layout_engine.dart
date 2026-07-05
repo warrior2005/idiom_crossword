@@ -54,9 +54,8 @@ class LayoutResult {
 
 class LayoutEngine {
   CrossingGraph graph;
-  final Random _random;
 
-  LayoutEngine({required this.graph}) : _random = Random();
+  LayoutEngine({required this.graph});
 
   /// 主入口
   LayoutResult? layout({

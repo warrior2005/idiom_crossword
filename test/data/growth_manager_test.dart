@@ -24,14 +24,14 @@ void main() {
   final reward1 = GrowthManager.rewardForLevel(1);
   assert(reward1 != null, 'level 1 should have reward');
   assert(reward1!.type == RewardType.functional, 'level 1 reward should be functional');
-  assert(reward1.item == 'hint_card', 'level 1 reward item should be hint_card');
-  assert(reward1.quantity == 3, 'level 1 reward quantity should be 3');
+  assert(reward1!.item == 'hint_card', 'level 1 reward item should be hint_card');
+  assert(reward1!.quantity == 3, 'level 1 reward quantity should be 3');
   print('  ✓ level 1: functional hint_card x3');
 
   final reward3 = GrowthManager.rewardForLevel(3);
   assert(reward3 != null, 'level 3 should have reward');
   assert(reward3!.type == RewardType.decoration, 'level 3 reward should be decoration');
-  assert(reward3.item == 'grid_skin_bamboo', 'level 3 reward item should be grid_skin_bamboo');
+  assert(reward3!.item == 'grid_skin_bamboo', 'level 3 reward item should be grid_skin_bamboo');
   print('  ✓ level 3: decoration grid_skin_bamboo');
 
   // 测试 4：称号系统

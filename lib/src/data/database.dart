@@ -231,7 +231,7 @@ class AppDatabase extends _$AppDatabase {
     return (select(idioms).join([
       innerJoin(idiomCharIndex, idiomCharIndex.idiomId.equalsExp(idioms.id)),
     ])
-      ..where(idiomCharIndex.char.isIn(chars) & idioms.id.isNotEquals(excludeId)))
+      ..where(idiomCharIndex.char.isIn(chars) & idioms.id.equals(excludeId).not()))
         .map((row) => row.readTable(idioms))
         .get();
   }
@@ -239,8 +239,8 @@ class AppDatabase extends _$AppDatabase {
   /// 按难度获取一批成语
   Future<List<Idiom>> findIdiomsByDifficulty(int min, int max, int limit) {
     return (select(idioms)
-      ..where(idioms.difficulty.isBetweenValues(min, max))
-      ..orderBy([OrderingTerm.random()])
+      ..where((t) => t.difficulty.isBetweenValues(min, max))
+      ..orderBy([(_) => OrderingTerm.random()])
       ..limit(limit))
         .get();
   }
@@ -252,8 +252,8 @@ class AppDatabase extends _$AppDatabase {
 
   Future<Idiom?> _findReversible(int idiomId) async {
     final pair = await (select(idiomReversiblePair)
-      ..where(idiomReversiblePair.idiomIdA.equals(idiomId) |
-              idiomReversiblePair.idiomIdB.equals(idiomId)))
+      ..where((t) => t.idiomIdA.equals(idiomId) |
+              t.idiomIdB.equals(idiomId)))
         .getSingleOrNull();
     if (pair == null) return null;
     final otherId = pair.idiomIdA == idiomId ? pair.idiomIdB : pair.idiomIdA;
@@ -263,8 +263,8 @@ class AppDatabase extends _$AppDatabase {
   /// 找形近/音近字
   Future<List<String>> findSimilarChars(String char, String type) {
     return (select(charSimilar)
-      ..where(charSimilar.char.equals(char) & charSimilar.simType.equals(type))
-      ..orderBy([OrderingTerm.desc(charSimilar.simScore)]))
+      ..where((t) => t.char.equals(char) & t.simType.equals(type))
+      ..orderBy([(t) => OrderingTerm.desc(t.simScore)]))
         .map((row) => row.similar)
         .get();
   }

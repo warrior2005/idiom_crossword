@@ -127,7 +127,7 @@ class HomeScreen extends ConsumerWidget {
 
     try {
       // 使用示例成语数据（Web 测试用）
-      final sampleIdioms = [
+      final sampleIdioms = const [
         engine.Idiom(text: '一鸣惊人', meaning: '比喻平时默默无闻，突然做出惊人的成绩', difficulty: 5),
         engine.Idiom(text: '人山人海', meaning: '形容聚集的人非常多', difficulty: 3),
         engine.Idiom(text: '海阔天空', meaning: '形容大自然的广阔，也比喻想象或说话毫无拘束', difficulty: 4),

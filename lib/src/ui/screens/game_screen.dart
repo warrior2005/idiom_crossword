@@ -314,7 +314,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('恭喜升级！'),
+        title: const Text('恭喜升级！'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -668,8 +668,8 @@ class GridPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final cellSize = 48.0;
-    final cellPadding = 2.0;
+    const cellSize = 48.0;
+    const cellPadding = 2.0;
 
     for (int r = 0; r < grid.rows; r++) {
       for (int c = 0; c < grid.cols; c++) {

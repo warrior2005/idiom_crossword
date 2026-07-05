@@ -1,10 +1,10 @@
 name: idiom_crossword
-description: 成语填字游戏 - 类似成语小秀才的填字拼图游戏
+description: 成语填字游戏
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.0.1+1
 
 environment:
-  sdk: '>=3.2.0 <4.0.0'
+  sdk: ^3.9.2
   flutter: '>=3.16.0'
 
 dependencies:
@@ -12,39 +12,39 @@ dependencies:
     sdk: flutter
 
   # 状态管理
-  flutter_riverpod: ^2.4.9
+  flutter_riverpod: ^3.3.2
 
   # 本地数据库
-  drift: ^2.16.0
-  sqlite3_flutter_libs: ^0.5.20
-  path_provider: ^2.1.2
-  path: ^1.9.0
+  drift: ^2.34.0
+  sqlite3: ^3.3.4
+  path_provider: ^2.1.6
+  path: ^1.9.1
 
   # 动画增强
-  flutter_animate: ^4.5.0
+  flutter_animate: ^4.5.2
 
   # 音频
-  audioplayers: ^5.2.1
+  audioplayers: ^6.8.1
 
   # 设备能力
-  haptic_feedback: ^0.5.1
-  games_services: ^3.0.0  # Game Center 集成
+  haptic_feedback: ^0.6.4+3
+  games_services: ^5.1.0  # Game Center 集成
 
   # 工具
-  collection: ^1.18.0
-  freezed_annotation: ^2.4.1
-  json_annotation: ^4.8.1
+  collection: ^1.19.1
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^6.0.0
 
   # 代码生成
   drift_dev: ^2.16.0
-  build_runner: ^2.4.7
-  freezed: ^2.4.6
-  json_serializable: ^6.7.1
+  build_runner: ^2.15.0
+  freezed: ^3.2.5
+  json_serializable: ^6.14.0
 
 flutter:
   uses-material-design: true

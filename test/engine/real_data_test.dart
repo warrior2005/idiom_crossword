@@ -12,12 +12,12 @@ void main() {
 
   // 1. 加载数据
   final jsonStr = File(
-      r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json')
-      .readAsStringSync();
+    r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json',
+  ).readAsStringSync();
   final Map<String, dynamic> rawData = json.decode(jsonStr);
   final scores = rawData['scores'] as Map<String, dynamic>;
   final rawList = scores.entries
-      .where((e) => (e.key as String).length == 4)
+      .where((e) => (e.key).length == 4)
       .map((e) => {'word': e.key, 'difficulty': e.value})
       .toList();
   print('加载成语: ${rawList.length} 条');
@@ -30,10 +30,7 @@ void main() {
     final word = item['word'] as String;
     final diff = item['difficulty'] as int;
 
-    final idiom = Idiom(
-      text: word,
-      difficulty: diff,
-    );
+    final idiom = Idiom(text: word, difficulty: diff);
     allIdioms.add(idiom);
 
     final d = idiom.difficulty;
@@ -110,7 +107,9 @@ void main() {
       print('  网格: ${lvl.grid.rows}×${lvl.grid.cols}');
       print('  需填格: ${lvl.fillableCells}');
       print('  填充密度: ${(bestResult.density * 100).toStringAsFixed(0)}%');
-      print('  平均难度: ${(lvl.idioms.map((i) => i.difficulty).reduce((a, b) => a + b) / lvl.idioms.length).toStringAsFixed(1)}');
+      print(
+        '  平均难度: ${(lvl.idioms.map((i) => i.difficulty).reduce((a, b) => a + b) / lvl.idioms.length).toStringAsFixed(1)}',
+      );
 
       // 打印网格
       print('  网格可视化:');
@@ -184,9 +183,15 @@ void _runBatchTest(List<Idiom> allIdioms) {
       }
 
       final rate = (success / trials * 100).toStringAsFixed(0);
-      final icon = success >= 4 ? '✓' : success >= 2 ? '△' : '✗';
-      print('  $icon 难度~$diff, ${target}成语: ${success}/${trials} ($rate%) '
-          '[池:${pool.length}]');
+      final icon = success >= 4
+          ? '✓'
+          : success >= 2
+          ? '△'
+          : '✗';
+      print(
+        '  $icon 难度~$diff, ${target}成语: ${success}/${trials} ($rate%) '
+        '[池:${pool.length}]',
+      );
     }
   }
 }
