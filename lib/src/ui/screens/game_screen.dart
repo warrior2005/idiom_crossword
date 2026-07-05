@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -357,7 +359,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _onGridTap(int row, int col) {
     final cell = _grid.cellAt(row, col);
     // 只能点击非 given 的格子（包括已填入和未填入的）
-    if (cell.state != CellState.filled || cell.isGiven) return;
+    if (cell.state == CellState.blocked || cell.isGiven) return;
 
     setState(() {
       _focusRow = row;
@@ -441,20 +443,29 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final gridWidth = _grid.cols * 48.0;
-        final gridHeight = _grid.rows * 48.0;
-        
+        final availableWidth = constraints.maxWidth;
+        final availableHeight = constraints.maxHeight;
+
+        final cellSize = 48.0;
+        final maxCellWidth = availableWidth / _grid.cols;
+        final maxCellHeight = availableHeight / _grid.rows;
+        final actualCellSize = min(cellSize, min(maxCellWidth, maxCellHeight));
+
+        final gridWidth = _grid.cols * actualCellSize;
+        final gridHeight = _grid.rows * actualCellSize;
+
         return Listener(
+          behavior: HitTestBehavior.opaque,
           onPointerDown: (event) {
-            final offsetX = (constraints.maxWidth - gridWidth) / 2;
-            final offsetY = (constraints.maxHeight - gridHeight) / 2;
-            
-            final cellX = (event.localPosition.dx - offsetX) / 48.0;
-            final cellY = (event.localPosition.dy - offsetY) / 48.0;
-            
+            final offsetX = (availableWidth - gridWidth) / 2;
+            final offsetY = (availableHeight - gridHeight) / 2;
+
+            final cellX = (event.localPosition.dx - offsetX) / actualCellSize;
+            final cellY = (event.localPosition.dy - offsetY) / actualCellSize;
+
             final col = cellX.floor();
             final row = cellY.floor();
-            
+
             if (row >= 0 && row < _grid.rows && col >= 0 && col < _grid.cols) {
               _onGridTap(row, col);
             }
@@ -471,6 +482,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   focusCol: _focusCol,
                   errorCells: _errorCells,
                   onCellTap: _onGridTap,
+                  cellSize: actualCellSize,
                 ),
               ),
             ),
@@ -656,6 +668,7 @@ class GridPainter extends CustomPainter {
   final int focusCol;
   final Set<(int, int)> errorCells;
   final void Function(int row, int col) onCellTap;
+  final double cellSize;
 
   GridPainter({
     required this.grid,
@@ -664,34 +677,36 @@ class GridPainter extends CustomPainter {
     required this.focusCol,
     required this.errorCells,
     required this.onCellTap,
+    required this.cellSize,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    const cellSize = 48.0;
     const cellPadding = 2.0;
+    final s = cellSize;
+    final fontSize = 26.0 * (s / 48.0);
 
     for (int r = 0; r < grid.rows; r++) {
       for (int c = 0; c < grid.cols; c++) {
         final cell = grid.cellAt(r, c);
         if (cell.state == CellState.blocked) continue;
 
-        final x = c * cellSize;
-        final y = r * cellSize;
+        final x = c * s;
+        final y = r * s;
         final rect = Rect.fromLTWH(
             x + cellPadding, y + cellPadding,
-            cellSize - cellPadding * 2, cellSize - cellPadding * 2);
+            s - cellPadding * 2, s - cellPadding * 2);
 
         // 背景色
         Color bgColor;
         if (cell.isGiven) {
-          bgColor = const Color(0xFFD4C5B0); // 已给出的字：深米色
+          bgColor = const Color(0xFFD4C5B0);
         } else if (errorCells.contains((r, c))) {
-          bgColor = const Color(0xFFFFCDD2); // 错误：浅红
+          bgColor = const Color(0xFFFFCDD2);
         } else if (focusRow == r && focusCol == c) {
-          bgColor = const Color(0xFFFFF9C4); // 焦点：浅黄
+          bgColor = const Color(0xFFFFF9C4);
         } else {
-          bgColor = const Color(0xFFFFF8F0); // 普通：象牙白
+          bgColor = const Color(0xFFFFF8F0);
         }
 
         final paint = Paint()
@@ -716,7 +731,7 @@ class GridPainter extends CustomPainter {
             ..color = Colors.brown.shade400
             ..style = PaintingStyle.fill;
           canvas.drawCircle(
-            Offset(x + cellSize / 2, y + cellSize / 2 - 14),
+            Offset(x + s / 2, y + s / 2 - 14 * s / 48),
             2.5,
             dotPaint,
           );
@@ -730,7 +745,7 @@ class GridPainter extends CustomPainter {
           text: TextSpan(
             text: displayChar,
             style: TextStyle(
-              fontSize: 26,
+              fontSize: fontSize,
               fontWeight: cell.isGiven ? FontWeight.w700 : FontWeight.w500,
               color: cell.isGiven
                   ? Colors.brown.shade900
@@ -745,8 +760,8 @@ class GridPainter extends CustomPainter {
         textPainter.paint(
           canvas,
           Offset(
-            x + (cellSize - textPainter.width) / 2,
-            y + (cellSize - textPainter.height) / 2,
+            x + (s - textPainter.width) / 2,
+            y + (s - textPainter.height) / 2,
           ),
         );
       }
@@ -757,8 +772,5 @@ class GridPainter extends CustomPainter {
   bool shouldRepaint(covariant GridPainter oldDelegate) => true;
 
   @override
-  bool hitTest(Offset position) {
-    // 触发 onTapDown 回调需要配合 GestureDetector
-    return super.hitTest(position) ?? false;
-  }
+  bool hitTest(Offset position) => true;
 }
