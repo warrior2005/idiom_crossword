@@ -63,6 +63,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   // 格子 → 候选字槽位（清除用）
   final Map<(int, int), (int, int)> _cellToCandidateSlot = {};
 
+  // 已完成成语
+  final Set<(int, int)> _completedCells = {};
+  final List<({String word, String meaning})> _completedIdiomList = [];
+  int? _selectedCompletedIndex;
+
   @override
   void initState() {
     super.initState();
@@ -122,6 +127,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   /// 玩家点击候选字
   void _onCandidateTap(int row, int col, String char) {
     if (_focusRow < 0 || _focusCol < 0) return;
+    if (_completedCells.contains((_focusRow, _focusCol))) return;
 
     final cell = _grid.cellAt(_focusRow, _focusCol);
     if (cell.isGiven) return;
@@ -176,15 +182,26 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       }
     }
 
-    if (allFilled && allCorrect) {
-      HapticFeedback.mediumImpact();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('✓ ${placement.idiom.text}'),
-          duration: const Duration(milliseconds: 800),
-        ),
-      );
+    if (!allFilled || !allCorrect) return;
+
+    // 成语完成
+    HapticFeedback.mediumImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('✓ ${placement.idiom.text}'),
+        duration: const Duration(milliseconds: 800),
+      ),
+    );
+
+    // 记录已完成格子
+    for (int k = 0; k < placement.idiom.text.length; k++) {
+      final (r, c) = placement.cellAt(k);
+      if (!_grid.cellAt(r, c).isGiven) {
+        _completedCells.add((r, c));
+      }
     }
+    _completedIdiomList.add((word: placement.idiom.text, meaning: placement.idiom.meaning));
+    _selectedCompletedIndex = _completedIdiomList.length - 1;
   }
 
   /// 自动移到下一个空白格（沿当前成语方向移动）
@@ -353,8 +370,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   /// 点击网格中的格子切换焦点
   void _onGridTap(int row, int col) {
     final cell = _grid.cellAt(row, col);
-    // 只能点击非 given 的格子（包括已填入和未填入的）
     if (cell.state == CellState.blocked || cell.isGiven) return;
+    if (_completedCells.contains((row, col))) return;
 
     setState(() {
       _focusRow = row;
@@ -385,14 +402,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             // 进度条
             _buildProgressBar(),
 
+            // 已完成成语 tags + 释义
+            _buildCompletedIdiomsSection(),
+
             // 填字网格（占据上半部分）
             Expanded(
               flex: 5,
               child: _buildGrid(),
             ),
-
-            // 当前成语提示
-            _buildCurrentIdiomHint(),
 
             // 候选字盘（下半部分）
             Expanded(
@@ -476,6 +493,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   focusRow: _focusRow,
                   focusCol: _focusCol,
                   errorCells: _errorCells,
+                  completedCells: _completedCells,
                   onCellTap: _onGridTap,
                   cellSize: actualCellSize,
                 ),
@@ -487,31 +505,66 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildCurrentIdiomHint() {
-    // 找到当前焦点所属成语的释义
-    String? hint;
-    if (_focusRow >= 0 && _focusCol >= 0) {
-      for (final placement in widget.level.placements) {
-        for (int k = 0; k < placement.idiom.text.length; k++) {
-          if (placement.cellAt(k) == (_focusRow, _focusCol)) {
-            hint = placement.idiom.meaning;
-            break;
-          }
-        }
-      }
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: Text(
-        hint ?? '点击格子查看提示',
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.brown.shade600,
-          fontStyle: hint != null ? FontStyle.normal : FontStyle.italic,
-        ),
-        textAlign: TextAlign.center,
-      ),
+  Widget _buildCompletedIdiomsSection() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_completedIdiomList.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: _completedIdiomList.asMap().entries.map((entry) {
+                final i = entry.key;
+                final item = entry.value;
+                final isSelected = _selectedCompletedIndex == i;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedCompletedIndex = isSelected ? null : i;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.green.shade100
+                          : const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? Colors.green.shade700
+                            : Colors.green.shade300,
+                      ),
+                    ),
+                    child: Text(
+                      item.word,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green.shade800,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        if (_selectedCompletedIndex != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+            child: Text(
+              _completedIdiomList[_selectedCompletedIndex!].meaning,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.brown.shade600,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+      ],
     );
   }
 
@@ -602,7 +655,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _undo() {
     if (_fillHistory.isEmpty) return;
-    final entry = _fillHistory.removeLast();
+    final entry = _fillHistory.last;
+    if (_completedCells.contains((entry.row, entry.col))) return;
+    _fillHistory.removeLast();
     setState(() {
       _playerAnswers.remove((entry.row, entry.col));
       _usedCandidateSlots.remove((entry.candRow, entry.candCol));
@@ -621,6 +676,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _clearCell() {
     if (_focusRow < 0 || _focusCol < 0) return;
+    if (_completedCells.contains((_focusRow, _focusCol))) return;
     setState(() {
       _playerAnswers.remove((_focusRow, _focusCol));
       _errorCells.remove((_focusRow, _focusCol));
@@ -637,6 +693,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _errorCells.clear();
       _fillHistory.clear();
       _cellToCandidateSlot.clear();
+      _completedCells.clear();
+      _completedIdiomList.clear();
+      _selectedCompletedIndex = null;
       _findFirstEmptyCell();
     });
   }
@@ -677,6 +736,7 @@ class GridPainter extends CustomPainter {
   final int focusRow;
   final int focusCol;
   final Set<(int, int)> errorCells;
+  final Set<(int, int)> completedCells;
   final void Function(int row, int col) onCellTap;
   final double cellSize;
 
@@ -686,6 +746,7 @@ class GridPainter extends CustomPainter {
     required this.focusRow,
     required this.focusCol,
     required this.errorCells,
+    required this.completedCells,
     required this.onCellTap,
     required this.cellSize,
   });
@@ -711,6 +772,8 @@ class GridPainter extends CustomPainter {
         Color bgColor;
         if (cell.isGiven) {
           bgColor = const Color(0xFFD4C5B0);
+        } else if (completedCells.contains((r, c))) {
+          bgColor = const Color(0xFFC8E6C9);
         } else if (errorCells.contains((r, c))) {
           bgColor = const Color(0xFFFFCDD2);
         } else if (focusRow == r && focusCol == c) {
@@ -734,18 +797,6 @@ class GridPainter extends CustomPainter {
           ..strokeWidth = (focusRow == r && focusCol == c) ? 2.5 : 1.0;
         canvas.drawRRect(
             RRect.fromRectAndRadius(rect, const Radius.circular(4)), borderPaint);
-
-        // 交叉点标记
-        if (cell.isIntersection) {
-          final dotPaint = Paint()
-            ..color = Colors.brown.shade400
-            ..style = PaintingStyle.fill;
-          canvas.drawCircle(
-            Offset(x + s / 2, y + s / 2 - 14 * s / 48),
-            2.5,
-            dotPaint,
-          );
-        }
 
         // 文字
         final displayChar = cell.isGiven 
