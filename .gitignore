@@ -41,3 +41,11 @@ scripts/_*.py
 
 # AI agents
 .superpowers/
+
+# sqlite临时文件
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+*.db-wal
+*.db-shm
+*.db-journal

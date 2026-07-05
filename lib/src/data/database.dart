@@ -413,12 +413,10 @@ LazyDatabase _openConnection() {
     }
 
     // 预构建 DB 的 created_at 是 TEXT 格式 "2026-06-15 08:12:26"
-    // Drift DateTimeColumn 需要 INTEGER（Unix 时间戳秒数）
-    // 打开一次做格式转换 + 设置 user_version 跳过 onCreate
+    // Drift DateTimeColumn 能直接解析 ISO-8601 TEXT，无需转换
+    // 设置 user_version 跳过 onCreate（表和数据已存在）
     final conn = sqlite3.open(file.path);
     try {
-      conn.execute("UPDATE idiom SET created_at = CAST(strftime('%s', created_at) AS INTEGER) "
-          "WHERE typeof(created_at) = 'text'");
       conn.execute('PRAGMA user_version = 2');
     } finally {
       conn.dispose();

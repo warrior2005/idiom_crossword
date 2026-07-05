@@ -57,6 +57,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   // 错误提示（闪烁效果用）
   final Set<(int, int)> _errorCells = {};
 
+  // 填入历史（撤销用）
+  final List<({int row, int col, int candRow, int candCol})> _fillHistory = [];
+
   @override
   void initState() {
     super.initState();
@@ -124,6 +127,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     setState(() {
       _playerAnswers[(_focusRow, _focusCol)] = char;
       _usedCandidateSlots.add((row, col));
+      _fillHistory.add((row: _focusRow, col: _focusCol, candRow: row, candCol: col));
     });
 
     // 检查当前成语是否完整
@@ -606,9 +610,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   void _undo() {
-    // 找到最后填入的格子并清除
-    // 简化实现
-    setState(() {});
+    if (_fillHistory.isEmpty) return;
+    final entry = _fillHistory.removeLast();
+    setState(() {
+      _playerAnswers.remove((entry.row, entry.col));
+      _usedCandidateSlots.remove((entry.candRow, entry.candCol));
+    });
+    _focusRow = entry.row;
+    _focusCol = entry.col;
+    _currentDirection = null;
   }
 
   void _showHint() {
@@ -627,6 +637,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     setState(() {
       _playerAnswers.clear();
       _errorCells.clear();
+      _fillHistory.clear();
       _findFirstEmptyCell();
     });
   }
