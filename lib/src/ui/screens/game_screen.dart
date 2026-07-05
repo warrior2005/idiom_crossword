@@ -60,6 +60,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   // 填入历史（撤销用）
   final List<({int row, int col, int candRow, int candCol})> _fillHistory = [];
 
+  // 格子 → 候选字槽位（清除用）
+  final Map<(int, int), (int, int)> _cellToCandidateSlot = {};
+
   @override
   void initState() {
     super.initState();
@@ -127,6 +130,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _playerAnswers[(_focusRow, _focusCol)] = char;
       _usedCandidateSlots.add((row, col));
       _fillHistory.add((row: _focusRow, col: _focusCol, candRow: row, candCol: col));
+      _cellToCandidateSlot[(_focusRow, _focusCol)] = (row, col);
       _checkCompletionForCurrentIdiom();
     });
 
@@ -603,6 +607,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _playerAnswers.remove((entry.row, entry.col));
       _usedCandidateSlots.remove((entry.candRow, entry.candCol));
       _errorCells.remove((entry.row, entry.col));
+      _cellToCandidateSlot.remove((entry.row, entry.col));
     });
     _focusRow = entry.row;
     _focusCol = entry.col;
@@ -619,6 +624,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     setState(() {
       _playerAnswers.remove((_focusRow, _focusCol));
       _errorCells.remove((_focusRow, _focusCol));
+      final candSlot = _cellToCandidateSlot.remove((_focusRow, _focusCol));
+      if (candSlot != null) {
+        _usedCandidateSlots.remove(candSlot);
+      }
     });
   }
 
@@ -627,6 +636,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _playerAnswers.clear();
       _errorCells.clear();
       _fillHistory.clear();
+      _cellToCandidateSlot.clear();
       _findFirstEmptyCell();
     });
   }
