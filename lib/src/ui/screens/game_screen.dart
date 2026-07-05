@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import '../../engine/grid_engine.dart';
 import '../../engine/distractor_engine.dart';
 import '../widgets/level_display.dart';
@@ -399,9 +400,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 进度条
-            _buildProgressBar(),
-
             // 已完成成语 tags + 释义
             _buildCompletedIdiomsSection(),
 
@@ -420,33 +418,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             // 底部工具栏
             _buildToolbar(),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgressBar() {
-    int totalCells = 0;
-    int filledCells = 0;
-    for (int r = 0; r < _grid.rows; r++) {
-      for (int c = 0; c < _grid.cols; c++) {
-        final cell = _grid.cellAt(r, c);
-        if (cell.state == CellState.filled && !cell.isGiven) {
-          totalCells++;
-          if (_playerAnswers.containsKey((r, c))) filledCells++;
-        }
-      }
-    }
-    final progress = totalCells > 0 ? filledCells / totalCells : 0.0;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: LinearProgressIndicator(
-          value: progress,
-          backgroundColor: Colors.brown.shade100,
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.brown.shade700),
         ),
       ),
     );
@@ -511,10 +482,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       children: [
         if (_completedIdiomList.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: Wrap(
-              spacing: 8,
-              runSpacing: 4,
+              spacing: 6,
+              runSpacing: 3,
               children: _completedIdiomList.asMap().entries.map((entry) {
                 final i = entry.key;
                 final item = entry.value;
@@ -526,12 +497,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? Colors.green.shade100
                           : const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: isSelected
                             ? Colors.green.shade700
@@ -541,7 +512,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     child: Text(
                       item.word,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Colors.green.shade800,
                       ),
@@ -552,14 +523,19 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             ),
           ),
         if (_selectedCompletedIndex != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-            child: Text(
+          Container(
+            height: 36,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: AutoSizeText(
               _completedIdiomList[_selectedCompletedIndex!].meaning,
+              maxLines: 2,
+              minFontSize: 10,
+              stepGranularity: 1,
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.brown.shade600,
-                height: 1.4,
+                height: 1.3,
               ),
               textAlign: TextAlign.center,
             ),
@@ -570,14 +546,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   Widget _buildCandidateBoardWidget() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: _candidateBoard.asMap().entries.map((entry) {
           final rowIndex = entry.key;
           final row = entry.value;
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(vertical: 3),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: row.asMap().entries.map((cellEntry) {
@@ -585,24 +561,24 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 final char = cellEntry.value;
                 final isUsed = _usedCandidateSlots.contains((rowIndex, colIndex));
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: SizedBox(
-                    width: 40,
-                    height: 44,
+                    width: 34,
+                    height: 36,
                     child: Material(
                       color: isUsed
                           ? Colors.brown.shade100
                           : Colors.brown.shade50,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(6),
                       elevation: isUsed ? 0 : 1,
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(6),
                         onTap: isUsed ? null : () => _onCandidateTap(rowIndex, colIndex, char),
                         child: Center(
                           child: Text(
                             char,
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 18,
                               fontWeight: FontWeight.w500,
                               color: isUsed
                                   ? Colors.brown.shade300
