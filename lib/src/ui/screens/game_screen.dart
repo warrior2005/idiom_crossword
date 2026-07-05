@@ -93,7 +93,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _candidateBoard = _distractorEngine.generateCandidateBoard(
       correctAnswers: correctAnswers,
       rows: 3,
-      countPerRow: 8, // iPhone 宽度可以放下 8 个
+      countPerRow: 10,
     );
   }
 
@@ -619,11 +619,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             label: '清除',
             onTap: _clearCell,
           ),
-          _ToolbarButton(
-            icon: Icons.refresh,
-            label: '重置',
-            onTap: _resetLevel,
-          ),
         ],
       ),
     );
@@ -663,18 +658,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     });
   }
 
-  void _resetLevel() {
-    setState(() {
-      _playerAnswers.clear();
-      _errorCells.clear();
-      _fillHistory.clear();
-      _cellToCandidateSlot.clear();
-      _completedCells.clear();
-      _completedIdiomList.clear();
-      _selectedCompletedIndex = null;
-      _findFirstEmptyCell();
-    });
-  }
 }
 
 /// 底部工具栏按钮
