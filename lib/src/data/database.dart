@@ -13,6 +13,7 @@ import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:sqlite3/sqlite3.dart';
 
 part 'database.g.dart';
 
@@ -409,6 +410,18 @@ LazyDatabase _openConnection() {
     if (!await file.exists()) {
       final data = await rootBundle.load('assets/data/idiom_crossword.db');
       await file.writeAsBytes(data.buffer.asUint8List());
+    }
+
+    // 预构建 DB 的 created_at 是 TEXT 格式 "2026-06-15 08:12:26"
+    // Drift DateTimeColumn 需要 INTEGER（Unix 时间戳秒数）
+    // 打开一次做格式转换 + 设置 user_version 跳过 onCreate
+    final conn = sqlite3.open(file.path);
+    try {
+      conn.execute("UPDATE idiom SET created_at = CAST(strftime('%s', created_at) AS INTEGER) "
+          "WHERE typeof(created_at) = 'text'");
+      conn.execute('PRAGMA user_version = 2');
+    } finally {
+      conn.dispose();
     }
 
     return NativeDatabase.createInBackground(file);
