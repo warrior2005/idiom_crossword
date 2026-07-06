@@ -134,6 +134,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (cell.isGiven) return;
 
     setState(() {
+      // 覆盖填入时，释放旧字占用的候选槽位
+      final oldSlot = _cellToCandidateSlot[(_focusRow, _focusCol)];
+      if (oldSlot != null) {
+        _usedCandidateSlots.remove(oldSlot);
+      }
       _playerAnswers[(_focusRow, _focusCol)] = char;
       _usedCandidateSlots.add((row, col));
       _fillHistory.add((row: _focusRow, col: _focusCol, candRow: row, candCol: col));
