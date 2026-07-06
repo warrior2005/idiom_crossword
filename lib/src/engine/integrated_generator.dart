@@ -36,6 +36,85 @@ class IntegratedGenerator {
 
   IntegratedGenerator({required this.graph}) : _random = Random();
 
+  // ============================================================
+  // Pattern collision disambiguation
+  // ============================================================
+
+  /// Return the visible pattern string for a placement.
+  /// Given characters appear as-is, non-given appear as '_'.
+  static String visiblePattern(Placement p, CrosswordGrid grid) {
+    final buf = StringBuffer();
+    for (int k = 0; k < p.idiom.text.length; k++) {
+      final (r, c) = p.cellAt(k);
+      final cell = grid.cellAt(r, c);
+      buf.write(cell.isGiven ? cell.character : '_');
+    }
+    return buf.toString();
+  }
+
+  /// Resolve pattern collisions by pre-filling extra characters.
+  static void disambiguate(List<Placement> placements, CrosswordGrid grid) {
+    for (int iter = 0; iter < 20; iter++) {
+      final collisions = _findCollisions(placements, grid);
+      if (collisions.isEmpty) return;
+      final (a, b) = collisions.first;
+      _resolveCollision(a, b, placements, grid);
+    }
+  }
+
+  static List<(Placement, Placement)> _findCollisions(
+      List<Placement> placements, CrosswordGrid grid) {
+    final result = <(Placement, Placement)>[];
+    for (int i = 0; i < placements.length; i++) {
+      for (int j = i + 1; j < placements.length; j++) {
+        final a = placements[i];
+        final b = placements[j];
+        final patternA = visiblePattern(a, grid);
+        final patternB = visiblePattern(b, grid);
+        if (patternA != patternB) continue;
+        if (_countGiven(patternA) >= a.idiom.text.length - 1) continue;
+        if (_countGiven(patternB) >= b.idiom.text.length - 1) continue;
+        result.add((a, b));
+      }
+    }
+    return result;
+  }
+
+  static int _countGiven(String pattern) {
+    return pattern.split('').where((c) => c != '_').length;
+  }
+
+  static void _resolveCollision(
+      Placement a, Placement b,
+      List<Placement> placements, CrosswordGrid grid) {
+    final candidates = <_PreFillCandidate>[];
+    for (final p in [a, b]) {
+      for (int k = 0; k < p.idiom.text.length; k++) {
+        final (r, c) = p.cellAt(k);
+        final cell = grid.cellAt(r, c);
+        if (cell.isGiven) continue;
+        final crossingCount = placements.where((other) {
+          for (int k2 = 0; k2 < other.idiom.text.length; k2++) {
+            if (other.cellAt(k2) == (r, c)) return true;
+          }
+          return false;
+        }).length;
+        candidates.add(_PreFillCandidate(
+          row: r, col: c, placement: p, isCrossing: crossingCount > 1,
+        ));
+      }
+    }
+    candidates.sort((a, b) =>
+        a.isCrossing ? (b.isCrossing ? 0 : 1) : (b.isCrossing ? -1 : 0));
+
+    for (final cand in candidates) {
+      final cell = grid.cellAt(cand.row, cand.col);
+      cell.isGiven = true;
+      if (_findCollisions(placements, grid).isEmpty) return;
+      cell.isGiven = false;
+    }
+  }
+
   /// 生成关卡：边扩展子图边布局
   /// 返回 null 表示生成失败
   CrosswordLevel? generate({
@@ -398,6 +477,15 @@ class IntegratedGenerator {
       grid.cellAt(r, c).isGiven = true;
     }
 
+    // 消歧义：在 pattern 碰撞的 placement 中预填额外字
+    IntegratedGenerator.disambiguate(placements, grid);
+    for (int r = 0; r < grid.rows; r++) {
+      for (int c = 0; c < grid.cols; c++) {
+        final cell = grid.cellAt(r, c);
+        if (cell.isGiven) givenChars.add(cell.character);
+      }
+    }
+
     return CrosswordLevel(
       levelId: 0,
       grid: grid,
@@ -459,5 +547,19 @@ class _CrossOption {
     required this.startCol,
     required this.crossRow,
     required this.crossCol,
+  });
+}
+
+class _PreFillCandidate {
+  final int row;
+  final int col;
+  final Placement placement;
+  final bool isCrossing;
+
+  const _PreFillCandidate({
+    required this.row,
+    required this.col,
+    required this.placement,
+    required this.isCrossing,
   });
 }
