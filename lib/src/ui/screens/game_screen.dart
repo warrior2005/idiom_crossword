@@ -604,6 +604,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildToolbar() {
+    final playerState = ref.watch(playerProvider);
+    final hintCount = playerState.functionalItems['hint_card'] ?? 0;
+    final canHint = hintCount > 0 &&
+        _focusRow >= 0 &&
+        _focusCol >= 0 &&
+        !_completedCells.contains((_focusRow, _focusCol)) &&
+        !_grid.cellAt(_focusRow, _focusCol).isGiven &&
+        !_hasCorrectAnswer();
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -616,8 +625,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           ),
           _ToolbarButton(
             icon: Icons.lightbulb_outline,
-            label: '提示',
-            onTap: _showHint,
+            label: hintCount.toString(),
+            onTap: canHint ? _showHint : null,
           ),
           _ToolbarButton(
             icon: Icons.delete_outline,
@@ -627,6 +636,18 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ],
       ),
     );
+  }
+
+  bool _hasCorrectAnswer() {
+    if (_focusRow < 0 || _focusCol < 0) return false;
+    for (final placement in widget.level.placements) {
+      for (int k = 0; k < placement.idiom.text.length; k++) {
+        if (placement.cellAt(k) == (_focusRow, _focusCol)) {
+          return _playerAnswers[(_focusRow, _focusCol)] == placement.idiom.text[k];
+        }
+      }
+    }
+    return false;
   }
 
   void _undo() {
@@ -647,7 +668,59 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _showHint() {
     if (_focusRow < 0 || _focusCol < 0) return;
-    // TODO: 逐步提示系统
+    if (_completedCells.contains((_focusRow, _focusCol))) return;
+    final cell = _grid.cellAt(_focusRow, _focusCol);
+    if (cell.isGiven) return;
+
+    // 找到焦点格子的正确字
+    String? correctChar;
+    for (final placement in widget.level.placements) {
+      for (int k = 0; k < placement.idiom.text.length; k++) {
+        if (placement.cellAt(k) == (_focusRow, _focusCol)) {
+          correctChar = placement.idiom.text[k];
+          break;
+        }
+      }
+      if (correctChar != null) break;
+    }
+    if (correctChar == null || _playerAnswers[(_focusRow, _focusCol)] == correctChar) return;
+
+    // 消耗一张提示卡
+    ref.read(playerProvider.notifier).useHintCard();
+
+    // 找一个未被使用的候选字槽位
+    int? candRow, candCol;
+    for (int r = 0; r < _candidateBoard.length; r++) {
+      for (int c = 0; c < _candidateBoard[r].length; c++) {
+        if (_candidateBoard[r][c] == correctChar &&
+            !_usedCandidateSlots.contains((r, c))) {
+          candRow = r;
+          candCol = c;
+          break;
+        }
+      }
+      if (candRow != null) break;
+    }
+
+    setState(() {
+      _playerAnswers[(_focusRow, _focusCol)] = correctChar!;
+      _errorCells.remove((_focusRow, _focusCol));
+      if (candRow != null) {
+        final cr = candRow;
+        final cc = candCol!;
+        _usedCandidateSlots.add((cr, cc));
+        _fillHistory.add((
+          row: _focusRow,
+          col: _focusCol,
+          candRow: cr,
+          candCol: cc,
+        ));
+        _cellToCandidateSlot[(_focusRow, _focusCol)] = (cr, cc);
+      }
+      _checkCompletionForCurrentIdiom();
+    });
+
+    HapticFeedback.lightImpact();
   }
 
   void _clearCell() {
@@ -669,24 +742,34 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 class _ToolbarButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _ToolbarButton({
     required this.icon,
     required this.label,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final enabled = onTap != null;
     return InkWell(
       onTap: onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Colors.brown.shade700),
+          Icon(
+            icon,
+            color: enabled ? Colors.brown.shade700 : Colors.brown.shade300,
+          ),
           const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 11, color: Colors.brown.shade600)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: enabled ? Colors.brown.shade600 : Colors.brown.shade300,
+            ),
+          ),
         ],
       ),
     );
