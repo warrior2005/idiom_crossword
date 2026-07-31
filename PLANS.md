@@ -427,4 +427,5 @@ idiom_crossword/
 - [ ] `flutter analyze`、`flutter test`、`dart format --set-exit-if-changed` 全绿（CI 已自动执行）
 - [ ] `flutter build ios --no-codesign` 通过
 - [ ] 关卡样本人工复核（`assets/data/level_samples_report.md`）
-- [ ] 隐私政策/App Store 审核素材
+- [ ] 隐私政策（`docs/AppStore/privacy_policy.md`，草稿）与商店描述（`docs/AppStore/description.md`，草稿）核对
+- [ ] 更新日志（`CHANGELOG.md`）随版本更新
