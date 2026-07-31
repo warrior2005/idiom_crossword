@@ -7,6 +7,8 @@
 /// 注意：这个文件依赖于 drift 的代码生成。
 /// 如果暂时不想引入 drift，可以先手写 SQLite 的 Dart 封装。
 
+library;
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'dart:io';
@@ -84,7 +86,7 @@ class IdiomReversiblePair extends Table {
 class CharSimilar extends Table {
   TextColumn get char => text()();
   TextColumn get similar => text()();
-  TextColumn get simType => text().check(simType.equals('shape') | simType.equals('sound'))();
+  TextColumn get simType => text()();
   RealColumn get simScore => real().withDefault(const Constant(0.5))();
 
   @override
@@ -95,8 +97,7 @@ class CharSimilar extends Table {
 class UserProgress extends Table {
   TextColumn get userId => text()();
   IntColumn get level => integer()();
-  TextColumn get state => text().check(
-      state.equals('locked') | state.equals('unlocked') | state.equals('completed') | state.equals('perfect'))();
+  TextColumn get state => text()();
   DateTimeColumn get completedAt => dateTime().nullable()();
   IntColumn get timeSpent => integer().withDefault(const Constant(0))(); // 秒
   IntColumn get hintsUsed => integer().withDefault(const Constant(0))();
@@ -419,7 +420,7 @@ LazyDatabase _openConnection() {
     try {
       conn.execute('PRAGMA user_version = 2');
     } finally {
-      conn.dispose();
+      conn.close();
     }
 
     return NativeDatabase.createInBackground(file);

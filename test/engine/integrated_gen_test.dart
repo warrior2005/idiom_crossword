@@ -1,4 +1,6 @@
-/// 一体化生成器实测：重点测 6-8 成语
+// ignore_for_file: avoid_print
+
+// 一体化生成器实测：重点测 6-8 成语
 
 import 'dart:convert';
 import 'dart:io';
@@ -10,9 +12,7 @@ import 'package:idiom_crossword/src/engine/integrated_generator.dart';
 void main() {
   print('=== 一体化生成器实测 ===\n');
 
-  // 从 SQLite 数据库加载
-  final db = r'D:\HanaWorkspace\idiom_crossword\assets\data\idiom_crossword.db';
-  final idioms = _loadFromDb(db);
+  final idioms = _loadFromDb();
 
   print('建图...');
   final sw = Stopwatch()..start();
@@ -86,15 +86,13 @@ void main() {
         : ok >= 15
         ? '△'
         : '✗';
-    print('  $icon $label (${size}成语): $ok/30 ($pct%)');
+    print('  $icon $label ($size成语): $ok/30 ($pct%)');
   }
   print('\n=== 完成 ===');
 }
 
-List<Idiom> _loadFromDb(String dbPath) {
-  final jsonStr = File(
-    r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json',
-  ).readAsStringSync();
+List<Idiom> _loadFromDb() {
+  final jsonStr = File('assets/data/scoring_progress.json').readAsStringSync();
   final data = json.decode(jsonStr) as Map<String, dynamic>;
   final scores = data['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];

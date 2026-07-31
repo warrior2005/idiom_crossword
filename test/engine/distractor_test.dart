@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:idiom_crossword/src/engine/distractor_engine.dart';
 
 /// 干扰字引擎测试

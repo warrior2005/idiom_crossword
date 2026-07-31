@@ -8,6 +8,8 @@
 ///   查询时 O(1) 找到共享某字的所有成语，再过滤
 ///   避免存储 1000 万条显式边
 
+library;
+
 import 'grid_engine.dart';
 
 /// 交叉图中一条边的信息
@@ -95,20 +97,17 @@ class CrossingGraph {
     final occurrences = _charIndex[char];
     if (occurrences == null) return [];
 
-    final filtered = occurrences
-        .where((o) => posInA == null || o.position == posInA)
-        .toList();
-
     final edges = <CrossEdge>[];
-    for (int i = 0; i < filtered.length; i++) {
-      for (int j = i + 1; j < filtered.length; j++) {
-        if (posInB != null && filtered[j].position != posInB) continue;
+    for (int i = 0; i < occurrences.length; i++) {
+      if (posInA != null && occurrences[i].position != posInA) continue;
+      for (int j = i + 1; j < occurrences.length; j++) {
+        if (posInB != null && occurrences[j].position != posInB) continue;
         edges.add(CrossEdge(
-          idiomA: filtered[i].idiomIdx,
-          idiomB: filtered[j].idiomIdx,
+          idiomA: occurrences[i].idiomIdx,
+          idiomB: occurrences[j].idiomIdx,
           sharedChar: char,
-          posInA: filtered[i].position,
-          posInB: filtered[j].position,
+          posInA: occurrences[i].position,
+          posInB: occurrences[j].position,
         ));
       }
     }

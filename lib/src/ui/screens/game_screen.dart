@@ -115,12 +115,22 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 获取格子所属成语的方向
   Direction? _getDirectionForCell(int row, int col) {
-    for (final placement in widget.level.placements) {
-      for (int k = 0; k < placement.idiom.text.length; k++) {
-        if (placement.cellAt(k) == (row, col)) {
-          return placement.direction;
-        }
-      }
+    final placements = _placementsContaining(row, col);
+    return placements.isEmpty ? null : placements.first.direction;
+  }
+
+  /// 所有经过 (row, col) 的成语放置
+  List<Placement> _placementsContaining(int row, int col) {
+    final target = (row, col);
+    return widget.level.placements
+        .where((p) => p.cells.any((c) => c == target))
+        .toList();
+  }
+
+  /// (row, col) 的正确字（该格可能属于多个成语，答案一致）
+  String? _correctCharForCell(int row, int col) {
+    for (final placement in _placementsContaining(row, col)) {
+      return placement.idiom.text[placement.cells.indexOf((row, col))];
     }
     return null;
   }
@@ -152,13 +162,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 检查当前焦点所在成语的完成状态
   void _checkCompletionForCurrentIdiom() {
-    for (final placement in widget.level.placements) {
-      for (int k = 0; k < placement.idiom.text.length; k++) {
-        if (placement.cellAt(k) == (_focusRow, _focusCol)) {
-          _checkIdiomCompletion(placement);
-          return;
-        }
-      }
+    // 焦点格可能同时属于横、纵两个成语，需要都检查
+    for (final placement in _placementsContaining(_focusRow, _focusCol)) {
+      _checkIdiomCompletion(placement);
     }
   }
 
@@ -213,14 +219,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   /// 自动移到下一个空白格（沿当前成语方向移动）
   void _moveToNextEmptyCell() {
     // 找到包含当前格子的所有成语
-    final List<(Placement, int)> containingPlacements = [];
-    for (final placement in widget.level.placements) {
-      for (int k = 0; k < placement.idiom.text.length; k++) {
-        if (placement.cellAt(k) == (_focusRow, _focusCol)) {
-          containingPlacements.add((placement, k));
-        }
-      }
-    }
+    final containingPlacements = _placementsContaining(_focusRow, _focusCol)
+        .map((p) => (p, p.cells.indexOf((_focusRow, _focusCol))))
+        .toList();
 
     // 优先沿当前方向继续
     if (_currentDirection != null) {
@@ -470,7 +471,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   focusCol: _focusCol,
                   errorCells: _errorCells,
                   completedCells: _completedCells,
-                  onCellTap: _onGridTap,
                   cellSize: actualCellSize,
                 ),
               ),
@@ -640,14 +640,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   bool _hasCorrectAnswer() {
     if (_focusRow < 0 || _focusCol < 0) return false;
-    for (final placement in widget.level.placements) {
-      for (int k = 0; k < placement.idiom.text.length; k++) {
-        if (placement.cellAt(k) == (_focusRow, _focusCol)) {
-          return _playerAnswers[(_focusRow, _focusCol)] == placement.idiom.text[k];
-        }
-      }
-    }
-    return false;
+    return _playerAnswers[(_focusRow, _focusCol)] ==
+        _correctCharForCell(_focusRow, _focusCol);
   }
 
   void _undo() {
@@ -673,16 +667,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (cell.isGiven) return;
 
     // 找到焦点格子的正确字
-    String? correctChar;
-    for (final placement in widget.level.placements) {
-      for (int k = 0; k < placement.idiom.text.length; k++) {
-        if (placement.cellAt(k) == (_focusRow, _focusCol)) {
-          correctChar = placement.idiom.text[k];
-          break;
-        }
-      }
-      if (correctChar != null) break;
-    }
+    final correctChar = _correctCharForCell(_focusRow, _focusCol);
     if (correctChar == null || _playerAnswers[(_focusRow, _focusCol)] == correctChar) return;
 
     // 消耗一张提示卡
@@ -703,7 +688,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
 
     setState(() {
-      _playerAnswers[(_focusRow, _focusCol)] = correctChar!;
+      _playerAnswers[(_focusRow, _focusCol)] = correctChar;
       _errorCells.remove((_focusRow, _focusCol));
       if (candRow != null) {
         final cr = candRow;
@@ -784,7 +769,6 @@ class GridPainter extends CustomPainter {
   final int focusCol;
   final Set<(int, int)> errorCells;
   final Set<(int, int)> completedCells;
-  final void Function(int row, int col) onCellTap;
   final double cellSize;
 
   GridPainter({
@@ -794,7 +778,6 @@ class GridPainter extends CustomPainter {
     required this.focusCol,
     required this.errorCells,
     required this.completedCells,
-    required this.onCellTap,
     required this.cellSize,
   });
 

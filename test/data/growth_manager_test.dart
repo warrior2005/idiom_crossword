@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:idiom_crossword/src/data/growth_manager.dart';
 
 /// 成长系统管理器测试
@@ -9,15 +11,15 @@ void main() {
   print('--- 测试 1: 经验值公式 ---');
   _testXpFormula(1, 100, 'level 1');
   _testXpFormula(2, 160, 'level 2');
-  _testXpFormula(5, 409, 'level 5');
-  _testXpFormula(10, 1074, 'level 10');
+  _testXpFormula(5, 655, 'level 5');
+  _testXpFormula(10, 6872, 'level 10');
 
   // 测试 2：根据经验值计算等级
   print('\n--- 测试 2: 根据经验值计算等级 ---');
   _testLevelFromXp(0, 1, '0 XP');
   _testLevelFromXp(100, 2, '100 XP');
   _testLevelFromXp(260, 3, '260 XP');
-  _testLevelFromXp(10000, 10, '10000 XP');
+  _testLevelFromXp(10000, 9, '10000 XP');
 
   // 测试 3：升级奖励
   print('\n--- 测试 3: 升级奖励 ---');

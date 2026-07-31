@@ -9,6 +9,8 @@
 ///     3. 所有成语构成一个连通图（以交叉点为边）
 ///     4. 没有孤立成语（每个成语至少与另一个成语交叉）
 
+library;
+
 class Idiom {
   final String text;       // 成语原文，如 "画蛇添足"
   final String pinyin;     // 拼音

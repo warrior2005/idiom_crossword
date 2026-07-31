@@ -47,13 +47,12 @@ class _PlacedNode {
 
 class LayoutResult {
   final CrosswordLevel level;
-  final List<_PlacedNode> placedNodes;
 
-  const LayoutResult({required this.level, required this.placedNodes});
+  const LayoutResult({required this.level});
 }
 
 class LayoutEngine {
-  CrossingGraph graph;
+  final CrossingGraph graph;
 
   LayoutEngine({required this.graph});
 
@@ -415,7 +414,6 @@ class LayoutEngine {
         givenCharacters: givenChars,
         title: '难度 ${avgDiff.toInt()}',
       ),
-      placedNodes: placed.values.toList(),
     );
   }
 }

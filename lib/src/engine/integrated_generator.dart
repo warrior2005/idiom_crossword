@@ -5,6 +5,8 @@
 ///   从种子开始，每次找一个邻居尝试放置，放得下就加入子图，放不下就换邻居。
 ///   这样保证输出的子图一定是几何可布局的。
 
+library;
+
 import 'dart:math';
 import 'crossing_graph.dart';
 import 'grid_engine.dart';
@@ -142,13 +144,14 @@ class IntegratedGenerator {
     if (candidates.length < targetSize) return null;
 
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
-      final result = _tryGenerate(candidates, targetSize);
+      final result = _tryGenerate(candidates, targetSize, levelNumber);
       if (result != null) return result;
     }
     return null;
   }
 
-  CrosswordLevel? _tryGenerate(Set<int> candidates, int targetSize) {
+  CrosswordLevel? _tryGenerate(
+      Set<int> candidates, int targetSize, int? levelNumber) {
     final occupied = <(int, int), int>{}; // 已占用的格子
     final placed = <int, _PlacedNode>{}; // 已放置的节点
 
@@ -241,7 +244,7 @@ class IntegratedGenerator {
     if (placed.length < targetSize) return null;
 
     // 3. 构建 CrosswordLevel
-    return _buildLevel(placed);
+    return _buildLevel(placed, levelNumber);
   }
 
   /// 计算四字成语的倒装形式（ABCD → CDAB）
@@ -415,7 +418,7 @@ class IntegratedGenerator {
   }
 
   /// 构建 CrosswordLevel
-  CrosswordLevel _buildLevel(Map<int, _PlacedNode> placed) {
+  CrosswordLevel _buildLevel(Map<int, _PlacedNode> placed, int? levelNumber) {
     int minRow = 999, maxRow = -999;
     int minCol = 999, maxCol = -999;
 
@@ -487,46 +490,48 @@ class IntegratedGenerator {
     }
 
     return CrosswordLevel(
-      levelId: 0,
+      levelId: levelNumber ?? 0,
       grid: grid,
       placements: placements,
       givenCharacters: givenChars,
-      title: '',
+      title: levelNumber == null ? '' : '第 $levelNumber 关',
     );
   }
 
   /// 生成螺旋难度关卡
   /// 
   /// [levelNumber] 关卡编号 (1-based)
-  /// [totalLevels] 总关卡数
   CrosswordLevel? generateSpiral({
     required int levelNumber,
-    int totalLevels = 10000,
     int maxAttempts = 50,
   }) {
     final spiral = SpiralDifficulty.calculate(levelNumber);
-    final (mainCount, tailCount, previewCount) = 
-        SpiralDifficulty.selectIdiomCounts(levelNumber);
-    
-    final targetSize = mainCount + tailCount + previewCount;
-    
-    // First try with main range
+
+    // 先按主体难度区间生成
     var level = generate(
-      targetSize: targetSize,
+      targetSize: _targetSizeFor(levelNumber),
       minDifficulty: spiral.mainMin,
       maxDifficulty: spiral.mainMax,
       maxAttempts: maxAttempts ~/ 2,
+      levelNumber: levelNumber,
     );
-    
-    // If failed, try with wider range
+
+    // 失败则放宽难度区间再试
     level ??= generate(
-      targetSize: targetSize,
+      targetSize: _targetSizeFor(levelNumber),
       minDifficulty: (spiral.mainMin - 2).clamp(1, 50),
       maxDifficulty: (spiral.mainMax + 2).clamp(1, 50),
       maxAttempts: maxAttempts ~/ 2,
+      levelNumber: levelNumber,
     );
-    
+
     return level;
+  }
+
+  static int _targetSizeFor(int levelNumber) {
+    final (mainCount, tailCount, previewCount) =
+        SpiralDifficulty.selectIdiomCounts(levelNumber);
+    return mainCount + tailCount + previewCount;
   }
 }
 

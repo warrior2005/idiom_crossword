@@ -26,6 +26,26 @@ class PlayerState {
     return currentLevelXp / xpToNextLevel;
   }
 
+  PlayerState copyWith({
+    int? level,
+    int? totalXp,
+    int? xpToNextLevel,
+    String? title,
+    int? completedLevels,
+    Map<String, int>? functionalItems,
+    Set<String>? ownedDecorations,
+  }) {
+    return PlayerState(
+      level: level ?? this.level,
+      totalXp: totalXp ?? this.totalXp,
+      xpToNextLevel: xpToNextLevel ?? this.xpToNextLevel,
+      title: title ?? this.title,
+      completedLevels: completedLevels ?? this.completedLevels,
+      functionalItems: functionalItems ?? this.functionalItems,
+      ownedDecorations: ownedDecorations ?? this.ownedDecorations,
+    );
+  }
+
   int _xpForPreviousLevels() {
     int total = 0;
     for (int i = 1; i < level; i++) {
@@ -60,14 +80,13 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final leveledUp = newLevel > oldLevel;
     final reward = leveledUp ? GrowthManager.rewardForLevel(newLevel) : null;
 
-    state = PlayerState(
+    state = state.copyWith(
       level: newLevel,
       totalXp: newTotalXp,
       xpToNextLevel: GrowthManager.xpForLevel(newLevel + 1),
       title: GrowthManager.titleForLevel(newLevel),
       completedLevels: state.completedLevels + 1,
       functionalItems: _applyReward(state.functionalItems, reward),
-      ownedDecorations: state.ownedDecorations,
     );
 
     return ExperienceResult(
@@ -88,14 +107,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
   Future<void> useHintCard() async {
     final current = state.functionalItems['hint_card'] ?? 0;
     if (current > 0) {
-      state = PlayerState(
-        level: state.level,
-        totalXp: state.totalXp,
-        xpToNextLevel: state.xpToNextLevel,
-        title: state.title,
-        completedLevels: state.completedLevels,
+      state = state.copyWith(
         functionalItems: {...state.functionalItems, 'hint_card': current - 1},
-        ownedDecorations: state.ownedDecorations,
       );
     }
   }

@@ -1,6 +1,8 @@
-/// 连通图管道：真实数据实测
-///
-/// 测试不同难度、不同成语数量的生成效果
+// ignore_for_file: avoid_print
+
+// 连通图管道：真实数据实测
+//
+// 测试不同难度、不同成语数量的生成效果
 
 import 'dart:convert';
 import 'dart:io';
@@ -12,9 +14,7 @@ void main() {
   print('=== 连通图管道实测（29502条真实成语）===\n');
 
   // 1. 加载数据
-  final jsonStr = File(
-    r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json',
-  ).readAsStringSync();
+  final jsonStr = File('assets/data/scoring_progress.json').readAsStringSync();
   final Map<String, dynamic> rawData = json.decode(jsonStr);
   final scores = rawData['scores'] as Map<String, dynamic>;
 
@@ -127,7 +127,7 @@ void main() {
         : '✗';
     print(
       '  $icon $label ($size成语, 难度$minD-$maxD): '
-      '$success/$trials ($rate%), 平均${avgAtt}次',
+      '$success/$trials ($rate%), 平均$avgAtt次',
     );
   }
 

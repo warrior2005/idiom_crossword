@@ -1,4 +1,6 @@
-/// 用真实成语数据实测关卡生成器
+// ignore_for_file: avoid_print
+
+// 用真实成语数据实测关卡生成器
 
 import 'dart:convert';
 import 'dart:io';
@@ -11,9 +13,7 @@ void main() {
   print('=== 关卡生成器实测（29502条真实成语）===\n');
 
   // 1. 加载数据
-  final jsonStr = File(
-    r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json',
-  ).readAsStringSync();
+  final jsonStr = File('assets/data/scoring_progress.json').readAsStringSync();
   final Map<String, dynamic> rawData = json.decode(jsonStr);
   final scores = rawData['scores'] as Map<String, dynamic>;
   final rawList = scores.entries
@@ -48,7 +48,7 @@ void main() {
   ];
 
   for (final (label, minDiff, maxDiff, targetCount) in testCases) {
-    print('--- $label (难度$minDiff-$maxDiff, 目标${targetCount}个成语) ---');
+    print('--- $label (难度$minDiff-$maxDiff, 目标$targetCount个成语) ---');
 
     // 筛选该难度区间的成语
     final pool = allIdioms
@@ -189,7 +189,7 @@ void _runBatchTest(List<Idiom> allIdioms) {
           ? '△'
           : '✗';
       print(
-        '  $icon 难度~$diff, ${target}成语: ${success}/${trials} ($rate%) '
+        '  $icon 难度~$diff, $target成语: $success/$trials ($rate%) '
         '[池:${pool.length}]',
       );
     }

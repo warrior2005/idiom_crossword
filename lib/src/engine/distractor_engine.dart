@@ -13,6 +13,8 @@
 /// 对于 MVP 阶段，我们可以用一个内置的常见形近/音近字映射表，
 ///   覆盖 2000 个常用汉字，约 15000 条相似关系。
 
+library;
+
 /// 形近字组：一组在视觉上容易混淆的汉字
 /// 
 /// 数据来源：教育部《通用规范汉字表》中的形近字辨析 + 人工整理
@@ -190,6 +192,7 @@ class DistractorEngine {
   }) {
     final exclude = <String>{targetChar};
     if (excludeChars != null) exclude.addAll(excludeChars);
+    exclude.addAll(allAnswerChars);
 
     final distractors = <String>[];
 
@@ -253,6 +256,7 @@ class DistractorEngine {
     // 计算总干扰字数 = 格子总数 - 正确答案数
     final totalSlots = rows * countPerRow;
     final correctCount = correctAnswers.length;
+    if (correctCount == 0) return [];
     final distractorCount = totalSlots - correctCount;
 
     // 为每个正确答案生成干扰字

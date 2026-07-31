@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:idiom_crossword/src/engine/grid_engine.dart';
@@ -5,15 +7,17 @@ import 'package:idiom_crossword/src/engine/crossing_graph.dart';
 import 'package:idiom_crossword/src/engine/integrated_generator.dart';
 
 void main() {
-  final data = json.decode(
-      File(r'D:\HanaWorkspace\idiom_crossword\assets\data\idiom_scored_final.json')
-          .readAsStringSync()) as List;
+  final raw = json.decode(
+    File('assets/data/scoring_progress.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+  final scores = raw['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];
-  for (final item in data) {
-    if (item is! Map) continue;
+  for (final entry in scores.entries) {
+    if (entry.key.length != 4) continue;
     idioms.add(Idiom(
-        text: item['word'] as String,
-        difficulty: item['difficulty'] as int));
+      text: entry.key,
+      difficulty: (entry.value as num).toInt(),
+    ));
   }
 
   final gen = IntegratedGenerator(graph: CrossingGraph(idioms: idioms));

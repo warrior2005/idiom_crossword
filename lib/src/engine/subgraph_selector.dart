@@ -33,7 +33,7 @@ class SubgraphResult {
 }
 
 class SubgraphSelector {
-  CrossingGraph graph;
+  final CrossingGraph graph;
   final Random _random;
 
   SubgraphSelector({required this.graph}) : _random = Random();

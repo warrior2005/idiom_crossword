@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:idiom_crossword/src/engine/spiral_difficulty.dart';
 
 /// 螺旋难度计算器测试

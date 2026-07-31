@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:idiom_crossword/src/engine/grid_engine.dart';
 import 'package:idiom_crossword/src/engine/generator.dart';
 
