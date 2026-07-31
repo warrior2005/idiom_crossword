@@ -13,6 +13,13 @@ import 'settings_screen.dart';
 import 'custom_level_screen.dart';
 import '../widgets/level_loading_dialog.dart';
 
+/// 今日每日挑战是否已完成（通关记录变化时自动刷新）
+final dailyCompletedProvider = FutureProvider<bool>((ref) async {
+  ref.watch(playerProvider);
+  final db = ref.watch(databaseProvider);
+  return db.isLevelCompleted(dailyLevelNumber());
+});
+
 /// 首页
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -20,6 +27,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider);
+    final dailyDone = ref.watch(dailyCompletedProvider).value ?? false;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F0E8),
@@ -95,8 +103,8 @@ class HomeScreen extends ConsumerWidget {
 
               // 每日挑战按钮
               _MenuButton(
-                icon: Icons.calendar_today,
-                label: '每日挑战',
+                icon: dailyDone ? Icons.check_circle : Icons.calendar_today,
+                label: dailyDone ? '每日挑战 ✓' : '每日挑战',
                 onTap: () => _startDaily(context, ref),
               ),
               const SizedBox(height: 16),

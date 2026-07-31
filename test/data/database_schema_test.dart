@@ -43,6 +43,28 @@ void main() {
     expect(custom.placements.length, 6);
     expect(custom.placements.first.idiom.difficulty, inInclusiveRange(1, 30));
 
+    // 每日挑战全链路确定性：同一天种子 + 非随机取数 → 两次生成一致
+    final dailyNumber = dailyLevelNumber(DateTime.utc(2026, 7, 31));
+    final dailyA = await generateLevel(
+      db,
+      dailyNumber,
+      seed: 20454,
+      targetSize: 6,
+      difficultyRange: (10, 40),
+    );
+    final dailyB = await generateLevel(
+      db,
+      dailyNumber,
+      seed: 20454,
+      targetSize: 6,
+      difficultyRange: (10, 40),
+    );
+    expect(dailyA, isNotNull);
+    String signature(engine.CrosswordLevel l) => l.placements
+        .map((p) => '${p.idiom.text}@${p.startRow},${p.startCol}:${p.direction.index}')
+        .join('|');
+    expect(signature(dailyA!), signature(dailyB!));
+
     // 倒装对查询
     final first = idioms.first;
     final reversible = await db.findReversibleForm(first.id);
