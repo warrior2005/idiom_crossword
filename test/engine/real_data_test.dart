@@ -43,8 +43,8 @@ void main() {
   final testCases = [
     ('简单关', 10, 25, 5),
     ('中等关', 26, 45, 6),
-    ('困难关', 46, 70, 7),
-    ('混合关', 15, 60, 6),
+    ('困难关', 41, 50, 7),
+    ('混合关', 15, 40, 6),
   ];
 
   for (final (label, minDiff, maxDiff, targetCount) in testCases) {
@@ -160,13 +160,15 @@ void _printGrid(CrosswordGrid grid, List<Placement> placements) {
 
 /// 批量测试生成成功率
 void _runBatchTest(List<Idiom> allIdioms) {
-  final difficulties = [25, 40, 55, 70];
+  final difficulties = [20, 35, 45, 50];
   final targets = [5, 6, 7, 8];
 
   for (final diff in difficulties) {
     for (final target in targets) {
       final pool = allIdioms
-          .where((i) => i.difficulty >= diff - 10 && i.difficulty <= diff + 10)
+          .where((i) =>
+              i.difficulty >= (diff - 10).clamp(1, 50) &&
+              i.difficulty <= (diff + 10).clamp(1, 50))
           .toList();
 
       if (pool.length < target * 3) continue;
