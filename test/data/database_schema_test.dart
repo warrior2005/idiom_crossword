@@ -77,6 +77,13 @@ void main() {
     await db.unlockAchievement('firstLevel'); // 幂等
     expect(await db.getUnlockedAchievementIds(), {'firstLevel'});
 
+    // 设置
+    expect(await db.getSetting('sound_enabled'), isNull);
+    await db.setSetting('sound_enabled', 'false');
+    expect(await db.getSetting('sound_enabled'), 'false');
+    await db.setSetting('sound_enabled', 'true'); // 覆盖式
+    expect(await db.getSetting('sound_enabled'), 'true');
+
     // 关卡存档（断点续玩）
     expect(await db.getLevelState(first.id), isNull);
     await db.saveLevelState(
@@ -92,7 +99,7 @@ void main() {
 
     // schema 版本应与 database.dart 一致
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 5);
+    expect(version.data.values.first, 6);
 
     await db.close();
     await tmpDir.delete(recursive: true);

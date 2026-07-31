@@ -312,6 +312,7 @@ idiom_crossword/
 - 2026-07-31: 修正引擎基准测试中 1-50 评分制前的过期难度区间（76-100/55-70 等），graph_pipeline/real_data/integrated_gen 测试数据与当前评分体系一致
 - 2026-07-31: 完成音效（PRD P3）：脚本生成 5 个 WAV 素材（填入/正确/错误/成语完成/过关），引入 audioplayers，GameAudio 单例接入游戏事件，iOS 构建仍通过（60MB）
 - 2026-07-31: 生成关卡样本质量报告（tool/level_samples_report.dart，固定种子可复现），每难度段位 3 关含网格可视化与交叉数/难度指标，供 1.6 人工复核
+- 2026-07-31: 新增设置界面（schema v6 settings_table）：音效开关持久化，启动时恢复，首页入口
 
 ---
 

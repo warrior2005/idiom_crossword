@@ -181,6 +181,15 @@ class AchievementTable extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// 键值设置（音效开关等）
+class SettingsTable extends Table {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column> get primaryKey => {key};
+}
+
 // ============================================================
 // 数据库
 // ============================================================
@@ -198,13 +207,14 @@ class AchievementTable extends Table {
     DecorationTable,
     LevelStateTable,
     AchievementTable,
+    SettingsTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -246,6 +256,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 5) {
           // 成就表
           await m.createTable(achievementTable);
+        }
+        if (from < 6) {
+          // 键值设置表
+          await m.createTable(settingsTable);
         }
       },
     );
@@ -521,6 +535,22 @@ class AppDatabase extends _$AppDatabase {
     await into(achievementTable).insert(
       AchievementTableCompanion(id: Value(id)),
       mode: InsertMode.insertOrIgnore,
+    );
+  }
+
+  /// 读取设置项，未设置返回 null
+  Future<String?> getSetting(String key) async {
+    final row = await (select(settingsTable)
+      ..where((t) => t.key.equals(key)))
+        .getSingleOrNull();
+    return row?.value;
+  }
+
+  /// 写入设置项（覆盖式）
+  Future<void> setSetting(String key, String value) async {
+    await into(settingsTable).insert(
+      SettingsTableCompanion(key: Value(key), value: Value(value)),
+      mode: InsertMode.insertOrReplace,
     );
   }
 

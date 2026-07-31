@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/state/database_provider.dart';
 import 'src/state/player_state.dart';
 import 'src/ui/screens/home_screen.dart';
+import 'src/audio/game_audio.dart';
+import 'src/ui/screens/settings_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +29,10 @@ Future<void> main() async {
     await container
         .read(playerProvider.notifier)
         .loadFromDatabase(container.read(databaseProvider));
+    final soundEnabled = await container
+        .read(databaseProvider)
+        .getSetting(soundEnabledKey);
+    GameAudio.instance.muted = soundEnabled == 'false';
   } catch (_) {
     // 数据库不可用时以默认进度启动，进入游戏时会给出错误提示
   }
