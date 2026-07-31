@@ -111,6 +111,7 @@ class SavedGameState {
   final List<List<String>> candidateBoard;
   final int hintUsesThisLevel;
   final bool idiomHintUsed;
+  final int errorsMade;
   final int? focusRow;
   final int? focusCol;
   final Direction? direction;
@@ -123,6 +124,7 @@ class SavedGameState {
     required this.candidateBoard,
     required this.hintUsesThisLevel,
     required this.idiomHintUsed,
+    required this.errorsMade,
     this.focusRow,
     this.focusCol,
     this.direction,
@@ -147,6 +149,7 @@ String encodeGameState(SavedGameState state) {
     'board': state.candidateBoard,
     'hints': state.hintUsesThisLevel,
     'idiomHint': state.idiomHintUsed ? 1 : 0,
+    'errors': state.errorsMade,
     'focus':
         (state.focusRow == null || state.focusCol == null)
             ? null
@@ -203,6 +206,7 @@ SavedGameState? decodeGameState(String source) {
       candidateBoard: board,
       hintUsesThisLevel: data['hints'] as int,
       idiomHintUsed: (data['idiomHint'] as int) == 1,
+      errorsMade: data['errors'] as int,
       focusRow: focus == null ? null : focus[0] as int,
       focusCol: focus == null ? null : focus[1] as int,
       direction: dirRaw == null ? null : Direction.values[dirRaw],

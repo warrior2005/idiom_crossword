@@ -143,6 +143,7 @@ class LevelHistory extends Table {
   TextColumn get idiomsUsed => text()(); // JSON array of idiom IDs
   IntColumn get timeSpentMs => integer().nullable()();
   IntColumn get hintsUsed => integer().withDefault(const Constant(0))();
+  IntColumn get errorsMade => integer().withDefault(const Constant(0))();
 
   @override
   List<Set<Column>> get uniqueKeys => [];
@@ -193,7 +194,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -228,6 +229,10 @@ class AppDatabase extends _$AppDatabase {
           // 未完成关卡存档表
           await m.createTable(levelStateTable);
         }
+        if (from < 4) {
+          // 关卡历史补充错误填写次数（统计用）
+          await m.addColumn(levelHistory, levelHistory.errorsMade);
+        }
       },
     );
   }
@@ -258,12 +263,22 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// 按难度获取一批成语
-  Future<List<Idiom>> findIdiomsByDifficulty(int min, int max, int limit) {
-    return (select(idioms)
+  Future<List<Idiom>> findIdiomsByDifficulty(
+    int min,
+    int max,
+    int limit, {
+    bool randomOrder = true,
+  }) {
+    final query = select(idioms)
       ..where((t) => t.difficulty.isBetweenValues(min, max))
-      ..orderBy([(_) => OrderingTerm.random()])
-      ..limit(limit))
-        .get();
+      ..limit(limit);
+    if (randomOrder) {
+      query.orderBy([(_) => OrderingTerm.random()]);
+    } else {
+      // 固定顺序（按 id），供每日挑战的确定性生成使用
+      query.orderBy([(t) => OrderingTerm.asc(t.id)]);
+    }
+    return query.get();
   }
 
   /// 找倒装形式
@@ -381,6 +396,7 @@ class AppDatabase extends _$AppDatabase {
     required List<int> idiomsUsed,
     int? timeSpentMs,
     int hintsUsed = 0,
+    int errorsMade = 0,
   }) async {
     await into(levelHistory).insert(LevelHistoryCompanion(
       levelNumber: Value(levelNumber),
@@ -388,13 +404,29 @@ class AppDatabase extends _$AppDatabase {
       idiomsUsed: Value(idiomsUsed.join(',')),
       timeSpentMs: Value(timeSpentMs),
       hintsUsed: Value(hintsUsed),
+      errorsMade: Value(errorsMade),
     ));
   }
 
   /// 已通关的关卡编号集合
   Future<Set<int>> getCompletedLevelNumbers() async {
-    final rows = await (select(levelHistory)).get();
+    // 排除每日挑战专用关卡号段（level_number >= 1000000）
+    final rows = await (select(levelHistory)
+      ..where((t) => t.levelNumber.isSmallerThanValue(1000000)))
+        .get();
     return rows.map((r) => r.levelNumber).toSet();
+  }
+
+  /// 全部通关记录（含每日挑战，按关卡号升序）
+  Future<List<LevelHistoryData>> getLevelHistory() async {
+    return await (select(levelHistory)
+      ..orderBy([(t) => OrderingTerm.asc(t.levelNumber)]))
+        .get();
+  }
+
+  /// 收藏数量
+  Future<int> getCollectionCount() async {
+    return await (select(collection)).get().then((rows) => rows.length);
   }
 
   /// 该关卡是否已通关（重玩不重复发放奖励）

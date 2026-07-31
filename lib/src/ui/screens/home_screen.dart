@@ -7,6 +7,7 @@ import 'game_screen.dart';
 import 'collection_screen.dart';
 import 'shop_screen.dart';
 import 'level_select_screen.dart';
+import 'stats_screen.dart';
 import '../widgets/level_loading_dialog.dart';
 
 /// 首页
@@ -21,9 +22,10 @@ class HomeScreen extends ConsumerWidget {
       backgroundColor: const Color(0xFFF5F0E8),
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               // 标题
               Text(
                 '成语填字',
@@ -69,6 +71,14 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 40),
 
+              // 每日挑战按钮
+              _MenuButton(
+                icon: Icons.calendar_today,
+                label: '每日挑战',
+                onTap: () => _startDaily(context, ref),
+              ),
+              const SizedBox(height: 16),
+
               // 开始游戏按钮
               _MenuButton(
                 icon: Icons.play_arrow_rounded,
@@ -108,7 +118,19 @@ class HomeScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const ShopScreen()),
                 ),
               ),
-            ],
+              const SizedBox(height: 16),
+
+              // 统计按钮
+              _MenuButton(
+                icon: Icons.insert_chart_outlined,
+                label: '统计',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const StatsScreen()),
+                ),
+              ),
+              ],
+            ),
           ),
         ),
       ),
@@ -140,6 +162,62 @@ class HomeScreen extends ConsumerWidget {
           );
         }
       }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('错误: $e')),
+        );
+      }
+    }
+  }
+
+  /// 每日挑战：全服同题（按日期种子确定性生成），完成后次日刷新
+  Future<void> _startDaily(BuildContext context, WidgetRef ref) async {
+    final db = ref.read(databaseProvider);
+    final levelNumber = dailyLevelNumber();
+
+    if (await db.isLevelCompleted(levelNumber)) {
+      if (context.mounted) {
+        showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('今日挑战已完成'),
+            content: const Text('明天再来挑战新的关卡吧！'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('好的'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
+    if (!context.mounted) return;
+    showLevelLoadingDialog(context);
+    try {
+      final level = await generateLevel(
+        db,
+        levelNumber,
+        seed: epochDay(),
+        targetSize: 6,
+        difficultyRange: (10, 40),
+      );
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      if (level == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('每日挑战生成失败，请重试')),
+        );
+        return;
+      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+      );
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);

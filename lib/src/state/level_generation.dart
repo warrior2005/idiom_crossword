@@ -1,9 +1,27 @@
+import 'dart:math';
+
 import '../data/database.dart';
 import '../engine/crossing_graph.dart';
 import '../engine/grid_engine.dart' as engine;
 import '../engine/integrated_generator.dart';
 import '../engine/spiral_difficulty.dart';
 import 'level_state_codec.dart';
+
+/// 每日挑战专用关卡号段起点（1000000+epochDay，与普通关卡区分）
+const int dailyLevelOffset = 1000000;
+
+/// 今日每日挑战关卡号
+int dailyLevelNumber([DateTime? now]) {
+  final day = (now ?? DateTime.now())
+      .toUtc()
+      .difference(DateTime.utc(1970))
+      .inDays;
+  return dailyLevelOffset + day;
+}
+
+/// 距 1970 的天数（每日挑战种子）
+int epochDay([DateTime? now]) =>
+    (now ?? DateTime.now()).toUtc().difference(DateTime.utc(1970)).inDays;
 
 /// 按关卡编号生成一关（首页/关卡选择共用）
 ///
@@ -13,12 +31,19 @@ Future<engine.CrosswordLevel?> generateLevel(
   AppDatabase db,
   int levelNumber, {
   int maxAttempts = 50,
+  int? seed,
+  int? targetSize,
+  (int, int)? difficultyRange,
 }) async {
-  final spiral = SpiralDifficulty.calculate(levelNumber);
-  final minD = (spiral.mainMin - 2).clamp(1, 50);
-  final maxD = (spiral.mainMax + 2).clamp(1, 50);
+  final (minD, maxD) = difficultyRange ??
+      _spiralRange(levelNumber);
 
-  final dbIdioms = await db.findIdiomsByDifficulty(minD, maxD, 300);
+  final dbIdioms = await db.findIdiomsByDifficulty(
+    minD,
+    maxD,
+    300,
+    randomOrder: seed == null,
+  );
   if (dbIdioms.length < 5) return null;
 
   final engineIdioms = dbIdioms.map((i) => engine.Idiom(
@@ -30,8 +55,29 @@ Future<engine.CrosswordLevel?> generateLevel(
       )).toList();
 
   final graph = CrossingGraph(idioms: engineIdioms);
-  return IntegratedGenerator(graph: graph)
-      .generateSpiral(levelNumber: levelNumber, maxAttempts: maxAttempts);
+  final generator = IntegratedGenerator(
+    graph: graph,
+    random: seed == null ? null : Random(seed),
+  );
+  if (targetSize != null) {
+    return generator.generate(
+      targetSize: targetSize,
+      minDifficulty: minD,
+      maxDifficulty: maxD,
+      maxAttempts: maxAttempts,
+      levelNumber: levelNumber,
+    );
+  }
+  return generator.generateSpiral(levelNumber: levelNumber, maxAttempts: maxAttempts);
+}
+
+/// 螺旋基准难度放宽 ±2 的区间
+(int, int) _spiralRange(int levelNumber) {
+  final spiral = SpiralDifficulty.calculate(levelNumber);
+  return (
+    (spiral.mainMin - 2).clamp(1, 50),
+    (spiral.mainMax + 2).clamp(1, 50),
+  );
 }
 
 /// 进入关卡：优先恢复未完成存档，没有存档才新生成

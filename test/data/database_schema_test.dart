@@ -55,9 +55,16 @@ void main() {
       idiomsUsed: [first.id],
       timeSpentMs: 12345,
       hintsUsed: 2,
+      errorsMade: 3,
     );
     expect(await db.isLevelCompleted(7), isTrue);
     expect(await db.getCompletedLevelNumbers(), contains(7));
+    final history = await db.getLevelHistory();
+    expect(history.single.errorsMade, 3);
+    expect(history.single.timeSpentMs, 12345);
+
+    // 统计查询
+    expect(await db.getCollectionCount(), 1);
 
     // 装饰
     expect(await db.getOwnedDecorationIds(), isEmpty);
@@ -79,7 +86,7 @@ void main() {
 
     // schema 版本应与 database.dart 一致
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 3);
+    expect(version.data.values.first, 4);
 
     await db.close();
     await tmpDir.delete(recursive: true);
@@ -146,6 +153,7 @@ void main() {
       ],
       hintUsesThisLevel: 2,
       idiomHintUsed: true,
+      errorsMade: 1,
       focusRow: 0,
       focusCol: 2,
       direction: engine.Direction.vertical,

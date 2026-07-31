@@ -70,7 +70,9 @@ class SpiralDifficulty {
   /// 返回：(主体数量, 长尾数量, 预览数量)
   static (int mainCount, int tailCount, int previewCount) selectIdiomCounts(
     int levelNumber,
+    {Random? random}
   ) {
+    final rng = random ?? _random;
     if (levelNumber <= 5) {
       // 教学关：固定 5 条
       return (5, 0, 0);
@@ -79,9 +81,9 @@ class SpiralDifficulty {
       return (5, 1, 0);
     } else {
       // 正式关：8-12 条（7-9 主体 + 1-2 长尾 + 0-1 预览）
-      final mainCount = 7 + _random.nextInt(3); // 7-9
-      final tailCount = 1 + _random.nextInt(2); // 1-2
-      final previewCount = _random.nextInt(2); // 0-1
+      final mainCount = 7 + rng.nextInt(3); // 7-9
+      final tailCount = 1 + rng.nextInt(2); // 1-2
+      final previewCount = rng.nextInt(2); // 0-1
       return (mainCount, tailCount, previewCount);
     }
   }

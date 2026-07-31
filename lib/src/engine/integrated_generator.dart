@@ -36,7 +36,8 @@ class IntegratedGenerator {
   final CrossingGraph graph;
   final Random _random;
 
-  IntegratedGenerator({required this.graph}) : _random = Random();
+  IntegratedGenerator({required this.graph, Random? random})
+      : _random = random ?? Random();
 
   // ============================================================
   // Pattern collision disambiguation

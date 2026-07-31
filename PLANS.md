@@ -304,6 +304,10 @@ idiom_crossword/
 - 2026-07-31: 确认 drift 生成表名以当前 drift_dev 为准（idioms/level_state_table），构建脚本与 onCreate 索引同步对齐
 - 2026-07-31: 修复 IntegratedGenerator 允许平行（同方向）成语共享格子的缺陷，交叉强制横纵交替；新增 level_quality_test（5 个难度段位 ×10 关，校验连通性/难度区间/字符正确性，全部通过）
 - 2026-07-31: 性能基准：各段位平均生成 1-4ms（目标 <100ms）；iOS release 构建验证通过（51.7MB < 80MB）
+- 2026-07-31: schema v4：level_history 增加 errors_made（错误填写统计），构建/验证脚本与数据库同步
+- 2026-07-31: 新增统计面板（通关数/累计经验/平均用时/提示次数/填错次数/最长连胜/收藏数 + 最近通关明细）
+- 2026-07-31: 新增每日挑战：按日期种子确定性生成（全服同题），每日关卡号段独立（1000000+epochDay），完成态次日刷新，通关不进入关卡选择页
+- 2026-07-31: IntegratedGenerator 支持注入 Random 种子，selectIdiomCounts 支持指定随机源，findIdiomsByDifficulty 支持非随机顺序；同种子生成结果一致（回归测试覆盖）
 
 ---
 

@@ -77,6 +77,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   int _hintUsesThisLevel = 0; // 一字提示次数（前 3 次免费，之后消耗提示卡）
   bool _idiomHintUsed = false; // 成语提示每关一次
   bool _revealedAll = false; // 全图揭示后本关不计入通关
+  int _errorsMade = 0; // 错误填写次数（统计用）
   late DateTime _levelStartTime;
 
   // 断点续玩
@@ -156,6 +157,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _cellToCandidateSlot.addAll(state.cellToCandidateSlot);
         _hintUsesThisLevel = state.hintUsesThisLevel;
         _idiomHintUsed = state.idiomHintUsed;
+        _errorsMade = state.errorsMade;
         if (state.focusRow != null && state.focusCol != null) {
           _focusRow = state.focusRow!;
           _focusCol = state.focusCol!;
@@ -225,6 +227,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               _candidateBoard.map((r) => List<String>.from(r)).toList(),
           hintUsesThisLevel: _hintUsesThisLevel,
           idiomHintUsed: _idiomHintUsed,
+          errorsMade: _errorsMade,
           focusRow: _focusRow < 0 ? null : _focusRow,
           focusCol: _focusCol < 0 ? null : _focusCol,
           direction: _currentDirection,
@@ -287,6 +290,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final filledRow = _focusRow;
     final filledCol = _focusCol;
     final isCorrect = char == _correctCharForCell(filledRow, filledCol);
+    if (!isCorrect) _errorsMade++;
 
     setState(() {
       // 覆盖填入时，释放旧字占用的候选槽位
@@ -491,6 +495,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       idiomsUsed: idiomIds,
       timeSpentMs: DateTime.now().difference(_levelStartTime).inMilliseconds,
       hintsUsed: _hintUsesThisLevel,
+      errorsMade: _errorsMade,
     );
     await db.clearLevelState(widget.level.levelId);
     _levelFinished = true;
@@ -536,6 +541,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 显示过关对话框（带庆祝动画，可进入下一关）
   void _showCompletionDialog(ExperienceResult result) {
+    final isDaily = _isDaily;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -548,7 +554,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           child: Opacity(opacity: t.clamp(0.0, 1.0), child: child),
         ),
         child: AlertDialog(
-          title: const Text('🎉 恭喜过关！'),
+          title: Text(isDaily ? '🎉 每日挑战完成！' : '🎉 恭喜过关！'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -572,18 +578,22 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               },
               child: const Text('返回'),
             ),
-            FilledButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                _startNextLevel();
-              },
-              child: const Text('下一关'),
-            ),
+            if (!isDaily)
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  _startNextLevel();
+                },
+                child: const Text('下一关'),
+              ),
           ],
         ),
       ),
     );
   }
+
+  /// 每日挑战关卡（专用关卡号段）
+  bool get _isDaily => widget.level.levelId >= dailyLevelOffset;
 
   /// 重玩已通关关卡：不再发放奖励
   void _showReplayCompleteDialog() {

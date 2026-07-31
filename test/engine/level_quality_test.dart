@@ -4,11 +4,13 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/engine/crossing_graph.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart';
 import 'package:idiom_crossword/src/engine/integrated_generator.dart';
+import 'package:idiom_crossword/src/state/level_generation.dart';
 
 void main() {
   final allIdioms = _loadIdioms();
@@ -91,6 +93,42 @@ void main() {
       print('  ${band.label}: $success/10 成功，平均生成 ${avg}ms');
     });
   }
+
+  test('同一种子生成结果确定（每日挑战全服同题）', () {
+    const seed = 20454;
+    final gen1 =
+        IntegratedGenerator(graph: CrossingGraph(idioms: allIdioms), random: Random(seed));
+    final gen2 =
+        IntegratedGenerator(graph: CrossingGraph(idioms: allIdioms), random: Random(seed));
+
+    final l1 = gen1.generate(
+      targetSize: 6,
+      minDifficulty: 10,
+      maxDifficulty: 40,
+      maxAttempts: 30,
+      levelNumber: dailyLevelOffset + seed,
+    );
+    final l2 = gen2.generate(
+      targetSize: 6,
+      minDifficulty: 10,
+      maxDifficulty: 40,
+      maxAttempts: 30,
+      levelNumber: dailyLevelOffset + seed,
+    );
+
+    expect(l1, isNotNull);
+    String signature(CrosswordLevel level) => level.placements
+        .map((p) => '${p.idiom.text}@${p.startRow},${p.startCol}:${p.direction.index}')
+        .join('|');
+    expect(signature(l1!), signature(l2!));
+  });
+
+  test('每日挑战关卡号与种子由日期推导', () {
+    final now = DateTime.utc(2026, 7, 31);
+    expect(epochDay(now), dailyLevelNumber(now) - dailyLevelOffset);
+    expect(dailyLevelNumber(DateTime.utc(1970)), dailyLevelOffset);
+    expect(dailyLevelNumber(now), greaterThan(dailyLevelOffset));
+  });
 }
 
 List<Idiom> _loadIdioms() {
