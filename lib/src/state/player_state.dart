@@ -107,6 +107,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       title: GrowthManager.titleForLevel(newLevel),
       completedLevels: state.completedLevels + 1,
       functionalItems: _applyReward(state.functionalItems, reward),
+      ownedDecorations: _applyDecorationReward(state.ownedDecorations, reward),
     );
 
     final db = ref.read(databaseProvider);
@@ -147,6 +148,12 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final updated = Map<String, int>.from(items);
     updated[reward.item] = (updated[reward.item] ?? 0) + reward.quantity;
     return updated;
+  }
+
+  Set<String> _applyDecorationReward(
+      Set<String> owned, LevelReward? reward) {
+    if (reward == null || reward.type != RewardType.decoration) return owned;
+    return {...owned, reward.item};
   }
 
   Future<void> useHintCard() async {

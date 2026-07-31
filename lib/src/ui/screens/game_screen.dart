@@ -1341,6 +1341,11 @@ class GridPainter extends CustomPainter {
           bgColor = const Color(0xFFFFF8F0);
         }
 
+        // 交叉点底色加深约 10%（PRD 6.2）
+        if (cell.isIntersection) {
+          bgColor = Color.lerp(bgColor, Colors.black, 0.08)!;
+        }
+
         final paint = Paint()
           ..color = bgColor
           ..style = PaintingStyle.fill;
