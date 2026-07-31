@@ -349,6 +349,8 @@ class IntegratedGenerator {
         // 格子已被其他成语占用，检查字符是否一致
         final otherPlaced = placed[occ];
         if (otherPlaced == null) return false;
+        // 平行（同方向）成语不共享格子，交叉必须是横纵交替
+        if (otherPlaced.direction == opt.direction) return false;
         final otherWord = graph.idioms[occ].text;
         final otherLen = otherWord.length;
         int? otherPos;
@@ -396,8 +398,9 @@ class IntegratedGenerator {
         for (int pb = 0; pb < otherWord.length; pb++) {
           final (otherR, otherC) = otherPlaced.cellAt(pb, otherLen);
           // 两个成语的格子重叠时，字符必须一致
-          if (r == otherR && c == otherC && word[pa] != otherWord[pb]) {
-            return false;
+          if (r == otherR && c == otherC) {
+            if (otherPlaced.direction == opt.direction) return false;
+            if (word[pa] != otherWord[pb]) return false;
           }
         }
       }

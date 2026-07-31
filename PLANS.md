@@ -209,7 +209,7 @@ idiom_crossword/
 | Integration Tests | ✅ 完成 | 成长系统端到端测试 |
 | 游戏 UI | 🟡 基础完成 | 核心界面已实现，待打磨 |
 | 关卡生成接入 | 🟡 基础完成 | 螺旋难度已集成，待 UI 完善 |
-| iOS 构建验证 | 🔲 待做 | 尚未验证 |
+| iOS 构建验证 | ✅ 通过 | flutter build ios --no-codesign 成功，51.7MB |
 
 ---
 
@@ -223,7 +223,7 @@ idiom_crossword/
 | 1.2 | 更新 database.dart Schema | 1.1 | 与 database_schema_v2.dart 对齐，废弃字段已移除 | ✅ |
 | 1.3 | 编写数据导入脚本 | 1.2 | Python 脚本从 scoring_progress.json + to_score.json 生成 idiom_crossword.db | ✅ |
 | 1.4 | 执行导入并验证 | 1.3 | SQLite 文件生成，含 idiom(29502行) + idiom_char_index(118008行)，索引查询正常 | ✅ |
-| 1.5 | 生成各难度关卡样本 | 1.4 | 从 1-15 分段到 41-50 分段各产出 10 个可用关卡 | 🔲 |
+| 1.5 | 生成各难度关卡样本 | 1.4 | 从 1-15 分段到 41-50 分段各产出 10 个可用关卡 | ✅ level_quality_test 5 段位×10 关全通过 |
 | 1.6 | 关卡质量复核 | 1.5 | 每级难度抽 3 关人工验证（成语合理性、交叉自然度、干扰字质量） | 🔲 |
 | 1.7 | 最终归档 | - | 清理中间文件，数据清洗完成，孤儿条目已移除 | ✅ |
 
@@ -285,8 +285,8 @@ idiom_crossword/
 
 | # | 任务 | 依赖 | 验收标准 | 状态 |
 |---|------|------|----------|------|
-| 4.1 | 性能优化 | Phase 2-3 | 关卡生成 < 100ms，UI 渲染 60fps | 🔲 |
-| 4.2 | iOS 适配测试 | 4.1 | iPhone SE ~ Pro Max 屏幕适配，刘海屏/灵动岛安全区 | 🔲 |
+| 4.1 | 性能优化 | Phase 2-3 | 关卡生成 < 100ms，UI 渲染 60fps | 🟡 生成实测 1-4ms 达标；UI 帧率待真机验证 |
+| 4.2 | iOS 适配测试 | 4.1 | iPhone SE ~ Pro Max 屏幕适配，刘海屏/灵动岛安全区 | 🟡 构建验证通过（51.7MB），真机适配待做 |
 | 4.3 | TestFlight 内测 | 4.2 | 至少 5 人完整通关 20 关无崩溃 | 🔲 |
 | 4.4 | App Store 提交 | 4.3 | 通过审核上线 | 🔲 |
 
@@ -302,6 +302,8 @@ idiom_crossword/
 - 2026-07-31: 新增 CrosswordLevel/游戏进度 JSON 编解码器与往返测试；database_schema_test 覆盖 level_state DAO 与 user_version=3
 - 2026-07-31: 填入正确字时格子短暂高亮闪烁（基础动画补齐）
 - 2026-07-31: 确认 drift 生成表名以当前 drift_dev 为准（idioms/level_state_table），构建脚本与 onCreate 索引同步对齐
+- 2026-07-31: 修复 IntegratedGenerator 允许平行（同方向）成语共享格子的缺陷，交叉强制横纵交替；新增 level_quality_test（5 个难度段位 ×10 关，校验连通性/难度区间/字符正确性，全部通过）
+- 2026-07-31: 性能基准：各段位平均生成 1-4ms（目标 <100ms）；iOS release 构建验证通过（51.7MB < 80MB）
 
 ---
 

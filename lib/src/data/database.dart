@@ -75,7 +75,9 @@ class IdiomCharIndex extends Table {
 
 /// 倒装成语对
 class IdiomReversiblePair extends Table {
+  @ReferenceName('pairsAsFirst')
   IntColumn get idiomIdA => integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
+  @ReferenceName('pairsAsSecond')
   IntColumn get idiomIdB => integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
 
   @override
