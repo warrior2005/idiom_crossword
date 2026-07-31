@@ -9,7 +9,9 @@ import '../../engine/distractor_engine.dart';
 import '../widgets/level_display.dart';
 import '../../state/database_provider.dart';
 import '../../state/player_state.dart';
+import '../../state/level_generation.dart';
 import '../../data/growth_manager.dart';
+import '../widgets/level_loading_dialog.dart';
 
 /// 游戏主界面
 /// 
@@ -70,12 +72,19 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   final List<({String word, String meaning})> _completedIdiomList = [];
   int? _selectedCompletedIndex;
 
+  // 本关提示使用情况
+  int _hintUsesThisLevel = 0; // 一字提示次数（前 3 次免费，之后消耗提示卡）
+  bool _idiomHintUsed = false; // 成语提示每关一次
+  bool _revealedAll = false; // 全图揭示后本关不计入通关
+  late DateTime _levelStartTime;
+
   @override
   void initState() {
     super.initState();
     _grid = widget.level.grid;
     _buildCandidateBoard();
     _findFirstEmptyCell();
+    _levelStartTime = DateTime.now();
   }
 
   /// 构建候选字盘
@@ -292,6 +301,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 检查整关是否完成
   void _checkLevelComplete() {
+    if (_revealedAll) return;
     bool allDone = true;
     for (final placement in widget.level.placements) {
       for (int k = 0; k < placement.idiom.text.length; k++) {
@@ -313,33 +323,51 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 处理关卡完成，计算经验值并更新玩家状态
   void _onLevelComplete() async {
+    final db = ref.read(databaseProvider);
+
+    // 重玩已通关的关卡不重复发放奖励
+    if (await db.isLevelCompleted(widget.level.levelId)) {
+      _showReplayCompleteDialog();
+      return;
+    }
+
     final player = ref.read(playerProvider.notifier);
     final result = await player.completeLevel(
       widget.level.levelId,
       widget.level.idioms.map((i) => i.difficulty).toList(),
     );
 
-    // 通关成语自动收录
-    final db = ref.read(databaseProvider);
+    // 通关成语自动收录 + 记录关卡历史
+    final idiomIds = <int>[];
     for (final idiom in widget.level.idioms) {
       final id = await db.findIdiomIdByWord(idiom.text);
-      if (id != null) await db.addToCollection(id);
+      if (id != null) {
+        idiomIds.add(id);
+        await db.addToCollection(id);
+      }
     }
-    
+    await db.addLevelHistory(
+      levelNumber: widget.level.levelId,
+      xpGained: result.xpGained,
+      idiomsUsed: idiomIds,
+      timeSpentMs: DateTime.now().difference(_levelStartTime).inMilliseconds,
+      hintsUsed: _hintUsesThisLevel,
+    );
+
     if (result.leveledUp && result.reward != null) {
-      _showRewardDialog(result.newLevel, result.reward!);
+      _showRewardDialog(result.newLevel, result.reward!, result);
     } else {
-      _showCompletionDialog();
+      _showCompletionDialog(result);
     }
   }
 
   /// 显示升级奖励对话框
-  void _showRewardDialog(int newLevel, LevelReward reward) {
+  void _showRewardDialog(int newLevel, LevelReward reward, ExperienceResult result) {
     final title = GrowthManager.titleForLevel(newLevel);
     final rewardText = reward.type == RewardType.functional
         ? '${reward.item == "hint_card" ? "提示卡" : "复活卡"} x${reward.quantity}'
         : '装饰: ${reward.item}';
-    
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -356,7 +384,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              _showCompletionDialog();
+              _showCompletionDialog(result);
             },
             child: const Text('继续'),
           ),
@@ -365,21 +393,103 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  /// 显示过关对话框
-  void _showCompletionDialog() {
+  /// 显示过关对话框（带庆祝动画，可进入下一关）
+  void _showCompletionDialog(ExperienceResult result) {
     showDialog(
       context: context,
+      barrierDismissible: false,
+      builder: (ctx) => TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.elasticOut,
+        builder: (ctx, t, child) => Transform.scale(
+          scale: t,
+          child: Opacity(opacity: t.clamp(0.0, 1.0), child: child),
+        ),
+        child: AlertDialog(
+          title: const Text('🎉 恭喜过关！'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('你完成了 "${widget.level.title}"'),
+              const SizedBox(height: 8),
+              Text(
+                '获得经验 +${result.xpGained}',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.brown.shade700,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                if (mounted) Navigator.of(context).pop();
+              },
+              child: const Text('返回'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _startNextLevel();
+              },
+              child: const Text('下一关'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 重玩已通关关卡：不再发放奖励
+  void _showReplayCompleteDialog() {
+    showDialog<void>(
+      context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('恭喜过关！'),
-        content: Text('你完成了 "${widget.level.title}"'),
+        title: const Text('本关已完成'),
+        content: const Text('重玩关卡不重复发放经验与收藏。'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('继续'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              if (mounted) Navigator.of(context).pop();
+            },
+            child: const Text('返回'),
           ),
         ],
       ),
     );
+  }
+
+  /// 直接进入下一关
+  Future<void> _startNextLevel() async {
+    showLevelLoadingDialog(context);
+    try {
+      final db = ref.read(databaseProvider);
+      final level = await generateLevel(db, widget.level.levelId + 1);
+      if (!mounted) return;
+      Navigator.pop(context); // 关闭加载框
+      if (level == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('下一关生成失败，请重试')),
+        );
+        return;
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+      );
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('错误: $e')),
+        );
+      }
+    }
   }
 
   /// 点击网格中的格子切换焦点
@@ -404,8 +514,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         title: Text(widget.level.title),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: const [
-          Padding(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.visibility_off),
+            tooltip: '揭示全部',
+            color: Colors.brown.shade700,
+            onPressed: _revealAll,
+          ),
+          const Padding(
             padding: EdgeInsets.only(right: 16),
             child: LevelDisplay(),
           ),
@@ -614,12 +730,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildToolbar() {
     final playerState = ref.watch(playerProvider);
     final hintCount = playerState.functionalItems['hint_card'] ?? 0;
-    final canHint = hintCount > 0 &&
-        _focusRow >= 0 &&
+    final freeHintsLeft = max(0, 3 - _hintUsesThisLevel);
+    final focusReady = _focusRow >= 0 &&
         _focusCol >= 0 &&
         !_completedCells.contains((_focusRow, _focusCol)) &&
         !_grid.cellAt(_focusRow, _focusCol).isGiven &&
         !_hasCorrectAnswer();
+    final canSingleHint = focusReady && (freeHintsLeft > 0 || hintCount > 0);
+    final canIdiomHint = focusReady && !_idiomHintUsed;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -633,8 +751,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           ),
           _ToolbarButton(
             icon: Icons.lightbulb_outline,
-            label: hintCount.toString(),
-            onTap: canHint ? _showHint : null,
+            label: freeHintsLeft > 0 ? '一字×$freeHintsLeft' : '提示卡×$hintCount',
+            onTap: canSingleHint ? _showHint : null,
+          ),
+          _ToolbarButton(
+            icon: Icons.auto_awesome,
+            label: '成语',
+            onTap: canIdiomHint ? _showIdiomHint : null,
           ),
           _ToolbarButton(
             icon: Icons.delete_outline,
@@ -668,7 +791,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _currentDirection = null;
   }
 
-  void _showHint() {
+  /// 一字提示：前 3 次免费，之后消耗提示卡
+  Future<void> _showHint() async {
     if (_focusRow < 0 || _focusCol < 0) return;
     if (_completedCells.contains((_focusRow, _focusCol))) return;
     final cell = _grid.cellAt(_focusRow, _focusCol);
@@ -678,42 +802,145 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final correctChar = _correctCharForCell(_focusRow, _focusCol);
     if (correctChar == null || _playerAnswers[(_focusRow, _focusCol)] == correctChar) return;
 
-    // 消耗一张提示卡
-    ref.read(playerProvider.notifier).useHintCard();
-
-    // 找一个未被使用的候选字槽位
-    int? candRow, candCol;
-    for (int r = 0; r < _candidateBoard.length; r++) {
-      for (int c = 0; c < _candidateBoard[r].length; c++) {
-        if (_candidateBoard[r][c] == correctChar &&
-            !_usedCandidateSlots.contains((r, c))) {
-          candRow = r;
-          candCol = c;
-          break;
-        }
-      }
-      if (candRow != null) break;
+    final freeLeft = 3 - _hintUsesThisLevel;
+    final hintCards = ref.read(playerProvider).functionalItems['hint_card'] ?? 0;
+    if (freeLeft <= 0 && hintCards <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('本关一字提示次数已用完，且没有提示卡')),
+      );
+      return;
     }
+    if (freeLeft <= 0) {
+      await ref.read(playerProvider.notifier).useHintCard();
+    }
+    _hintUsesThisLevel++;
 
     setState(() {
-      _playerAnswers[(_focusRow, _focusCol)] = correctChar;
-      _errorCells.remove((_focusRow, _focusCol));
-      if (candRow != null) {
-        final cr = candRow;
-        final cc = candCol!;
-        _usedCandidateSlots.add((cr, cc));
-        _fillHistory.add((
-          row: _focusRow,
-          col: _focusCol,
-          candRow: cr,
-          candCol: cc,
-        ));
-        _cellToCandidateSlot[(_focusRow, _focusCol)] = (cr, cc);
-      }
+      _applyAnswer(_focusRow, _focusCol, correctChar);
       _checkCompletionForCurrentIdiom();
     });
 
     HapticFeedback.lightImpact();
+  }
+
+  /// 成语提示：揭示当前焦点所在成语的全部空格（每关一次，免费）
+  void _showIdiomHint() {
+    if (_focusRow < 0 || _focusCol < 0 || _idiomHintUsed) return;
+    final placements = _placementsContaining(_focusRow, _focusCol);
+    if (placements.isEmpty) return;
+
+    final placement = placements.first;
+    if (_isPlacementComplete(placement)) return;
+
+    _idiomHintUsed = true;
+    setState(() {
+      for (int k = 0; k < placement.idiom.text.length; k++) {
+        final (r, c) = placement.cellAt(k);
+        if (_grid.cellAt(r, c).isGiven ||
+            _playerAnswers.containsKey((r, c))) {
+          continue;
+        }
+        _applyAnswer(r, c, placement.idiom.text[k]);
+      }
+      _checkIdiomCompletion(placement);
+    });
+    HapticFeedback.mediumImpact();
+  }
+
+  /// 全图揭示：填满全部答案，视为放弃本关（不计入通关）
+  void _revealAll() {
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('揭示全部答案？'),
+        content: const Text('将直接显示全部答案，并视为放弃本关，不计入通关。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('揭示'),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed != true || !mounted) return;
+      setState(() {
+        _revealedAll = true;
+        for (final placement in widget.level.placements) {
+          for (int k = 0; k < placement.idiom.text.length; k++) {
+            final (r, c) = placement.cellAt(k);
+            if (_grid.cellAt(r, c).isGiven ||
+                _playerAnswers.containsKey((r, c))) {
+              continue;
+            }
+            _applyAnswer(r, c, placement.idiom.text[k]);
+          }
+        }
+      });
+      _focusRow = -1;
+      _focusCol = -1;
+      HapticFeedback.mediumImpact();
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          title: const Text('已揭示全部答案'),
+          content: const Text('本关视为放弃，不计入通关。'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                if (mounted) Navigator.of(context).pop();
+              },
+              child: const Text('返回'),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  /// 找候选字盘中未被使用的正确答案槽位
+  (int, int)? _findFreeCandidateSlot(String char) {
+    for (int r = 0; r < _candidateBoard.length; r++) {
+      for (int c = 0; c < _candidateBoard[r].length; c++) {
+        if (_candidateBoard[r][c] == char &&
+            !_usedCandidateSlots.contains((r, c))) {
+          return (r, c);
+        }
+      }
+    }
+    return null;
+  }
+
+  /// 在格子里填入答案并记录候选槽位占用（需在 setState 内调用）
+  void _applyAnswer(int row, int col, String char) {
+    _playerAnswers[(row, col)] = char;
+    _errorCells.remove((row, col));
+    final slot = _findFreeCandidateSlot(char);
+    if (slot != null) {
+      _usedCandidateSlots.add(slot);
+      _fillHistory.add((
+        row: row,
+        col: col,
+        candRow: slot.$1,
+        candCol: slot.$2,
+      ));
+      _cellToCandidateSlot[(row, col)] = slot;
+    }
+  }
+
+  /// 一个成语的所有空格是否已正确填满
+  bool _isPlacementComplete(Placement placement) {
+    for (int k = 0; k < placement.idiom.text.length; k++) {
+      final (r, c) = placement.cellAt(k);
+      if (_grid.cellAt(r, c).isGiven) continue;
+      if (_playerAnswers[(r, c)] != placement.idiom.text[k]) return false;
+    }
+    return true;
   }
 
   void _clearCell() {

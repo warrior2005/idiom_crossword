@@ -1,5 +1,11 @@
 import sqlite3
-conn=sqlite3.connect(r'D:\HanaWorkspace\idiom_crossword\assets\data\idiom_crossword.db')
+
+import os
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
+DB_PATH = os.path.join(PROJECT_DIR, 'assets', 'data', 'idiom_crossword.db')
+
+conn = sqlite3.connect(DB_PATH)
 cur=conn.cursor()
 
 cur.execute("SELECT count(DISTINCT idiom_id) FROM idiom_char_index WHERE char='人'")
@@ -24,5 +30,30 @@ cur.execute("""
 print('\n与"画蛇添足"有共享字的成语:')
 for r in cur.fetchall():
     print(f'  {r[0]} ({r[1]}分)')
+
+# ============================================================
+# v2 Schema 校验
+# ============================================================
+cur.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+tables = [r[0] for r in cur.fetchall()]
+print(f'\n表清单: {", ".join(tables)}')
+
+expected_tables = {
+    'idiom', 'idiom_char_index', 'idiom_reversible_pair', 'char_similar',
+    'user_progress', 'player_progress_table', 'collection', 'level_history',
+    'decoration_table',
+}
+missing = expected_tables - set(tables)
+print(f'缺失表: {sorted(missing) if missing else "无"}')
+
+cur.execute('PRAGMA user_version')
+print(f'user_version: {cur.fetchone()[0]}')
+
+cur.execute('SELECT COUNT(*) FROM idiom')
+print(f'成语总数: {cur.fetchone()[0]}')
+cur.execute('SELECT COUNT(*) FROM player_progress_table')
+print(f'player_progress_table 行数: {cur.fetchone()[0]}')
+cur.execute('SELECT COUNT(*) FROM level_history')
+print(f'level_history 行数: {cur.fetchone()[0]}')
 
 conn.close()

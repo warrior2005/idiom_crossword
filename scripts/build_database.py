@@ -1,24 +1,27 @@
 """成语填字游戏 — SQLite 数据库构建脚本
 
 数据源:
-  - assets/data/scoring_progress.json  → 人工难度评分（1-50）
-  - assets/data/to_score.json          → 拼音、释义等元数据
+  - assets/data/scoring_progress.json → 人工难度评分（1-50）
+  - assets/data/to_score.json         → 拼音、释义等元数据
+  - assets/data/idiom.json            → 出处、例句等扩展字段
 
 输出:
-  - assets/data/idiom_crossword.db     → SQLite 数据库
+  - assets/data/idiom_crossword.db    → SQLite 数据库（对齐 Drift v2 Schema）
 
-表结构:
-  - idiom              成语主表（29502 行）
-  - idiom_char_index   倒排索引表（每成语 4 行 = 118008 行）
+表结构（与 lib/src/data/database.dart 生成的表名一致）:
+  - idiom                成语主表（29502 行）
+  - idiom_char_index     倒排索引表（每成语 4 行 = 118008 行）
+  - idiom_reversible_pair 倒装对
+  - char_similar / user_progress / player_progress / collection /
+    level_history / decoration        运行时表（建空表，user_version=2）
 
 使用:
   python scripts/build_database.py
 """
 
 import json
-import sqlite3
 import os
-import re
+import sqlite3
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
@@ -33,13 +36,13 @@ def load_data():
     with open(os.path.join(DATA_DIR, 'scoring_progress.json'), 'r', encoding='utf-8') as f:
         progress = json.load(f)
 
+    with open(os.path.join(DATA_DIR, 'idiom.json'), 'r', encoding='utf-8') as f:
+        idiom_raw = json.load(f)
+
     scores = progress['scores']
-
-    # to_score 是 {word, old_score, hint, pinyin} 格式的列表
-    # 构建按 word 索引的查找表
     meta = {item['word']: item for item in to_score}
-
-    return scores, meta
+    extra = {item['word']: item for item in idiom_raw}
+    return scores, meta, extra
 
 
 def extract_pinyin_abbr(pinyin):
@@ -50,13 +53,15 @@ def extract_pinyin_abbr(pinyin):
     return ''.join(p[0].lower() for p in parts if p)
 
 
-def build_db(scores, meta):
-    """构建 SQLite 数据库"""
+def build_db(scores, meta, extra):
+    """构建与 Drift v2 Schema 对齐的 SQLite 数据库"""
     db_path = os.path.join(DATA_DIR, 'idiom_crossword.db')
 
-    # 删除旧文件
-    if os.path.exists(db_path):
-        os.remove(db_path)
+    # 删除旧文件及可能的 WAL 残留
+    for suffix in ('', '-wal', '-shm'):
+        path = db_path + suffix
+        if os.path.exists(path):
+            os.remove(path)
 
     conn = sqlite3.connect(db_path)
     conn.execute('PRAGMA journal_mode=WAL')
@@ -65,28 +70,38 @@ def build_db(scores, meta):
     cur = conn.cursor()
 
     # ============================================================
-    # 建表
+    # 建表（与 lib/src/data/database.dart 的表定义一一对应）
     # ============================================================
     cur.execute('''
         CREATE TABLE idiom (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            word        TEXT    NOT NULL UNIQUE,
-            pinyin      TEXT    NOT NULL,
-            pinyin_abbr TEXT    NOT NULL,
-            explanation TEXT    NOT NULL,
-            derivation  TEXT,
-            example     TEXT,
-            first_char  TEXT    NOT NULL,
-            last_char   TEXT    NOT NULL,
-            difficulty  INTEGER NOT NULL,
-            reversible  INTEGER NOT NULL DEFAULT 0,
-            emotion     TEXT,
-            category    TEXT,
-            era         TEXT,
-            source_type TEXT,
-            abbr        TEXT,
-            created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
-            updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            word          TEXT    NOT NULL UNIQUE,
+            pinyin        TEXT    NOT NULL,
+            pinyin_abbr   TEXT    NOT NULL,
+            explanation   TEXT    NOT NULL,
+            derivation    TEXT,
+            example       TEXT,
+            first_char    TEXT    NOT NULL,
+            last_char     TEXT    NOT NULL,
+            difficulty    INTEGER NOT NULL,
+            reversible    INTEGER NOT NULL DEFAULT 0,
+            difficulty_original            INTEGER,
+            difficulty_rank                INTEGER,
+            difficulty_percentile          REAL,
+            difficulty_method              TEXT,
+            variant_group_id               INTEGER,
+            canonical_word                 TEXT,
+            is_canonical                   INTEGER,
+            semantic_difficulty            INTEGER,
+            surface_penalty                REAL,
+            surface_difficulty_score       INTEGER,
+            difficulty_base_before_variant_penalty INTEGER,
+            difficulty_rebalanced_v1       INTEGER,
+            emotion        TEXT,
+            category       TEXT,
+            era            TEXT,
+            source_type    TEXT,
+            created_at     INTEGER NOT NULL DEFAULT (strftime('%s','now'))
         )
     ''')
 
@@ -101,11 +116,6 @@ def build_db(scores, meta):
         )
     ''')
 
-    cur.execute('CREATE INDEX idx_ici_char ON idiom_char_index(char)')
-    cur.execute('CREATE INDEX idx_ici_char_pos ON idiom_char_index(char, position)')
-    cur.execute('CREATE INDEX idx_ici_first ON idiom_char_index(char) WHERE is_first = 1')
-    cur.execute('CREATE INDEX idx_ici_last ON idiom_char_index(char) WHERE is_last = 1')
-
     cur.execute('''
         CREATE TABLE idiom_reversible_pair (
             idiom_id_a  INTEGER NOT NULL REFERENCES idiom(id) ON DELETE CASCADE,
@@ -114,9 +124,80 @@ def build_db(scores, meta):
         )
     ''')
 
+    cur.execute('''
+        CREATE TABLE char_similar (
+            char      TEXT NOT NULL,
+            similar   TEXT NOT NULL,
+            sim_type  TEXT NOT NULL,
+            sim_score REAL NOT NULL DEFAULT 0.5,
+            PRIMARY KEY (char, similar)
+        )
+    ''')
+
+    cur.execute('''
+        CREATE TABLE user_progress (
+            user_id      TEXT    NOT NULL,
+            level        INTEGER NOT NULL,
+            state        TEXT    NOT NULL,
+            completed_at INTEGER,
+            time_spent   INTEGER NOT NULL DEFAULT 0,
+            hints_used   INTEGER NOT NULL DEFAULT 0,
+            errors_made  INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (user_id, level)
+        )
+    ''')
+
+    cur.execute('''
+        CREATE TABLE player_progress_table (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            level            INTEGER NOT NULL DEFAULT 1,
+            total_xp         INTEGER NOT NULL DEFAULT 0,
+            completed_levels INTEGER NOT NULL DEFAULT 0,
+            hint_cards       INTEGER NOT NULL DEFAULT 0,
+            revive_cards     INTEGER NOT NULL DEFAULT 0,
+            created_at       INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            updated_at       INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )
+    ''')
+
+    cur.execute('''
+        CREATE TABLE collection (
+            idiom_id     INTEGER NOT NULL REFERENCES idiom(id) ON DELETE CASCADE,
+            collected_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            PRIMARY KEY (idiom_id)
+        )
+    ''')
+
+    cur.execute('''
+        CREATE TABLE level_history (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            level_number  INTEGER NOT NULL,
+            completed_at  INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            xp_gained     INTEGER NOT NULL,
+            idioms_used   TEXT NOT NULL,
+            time_spent_ms INTEGER,
+            hints_used    INTEGER NOT NULL DEFAULT 0
+        )
+    ''')
+
+    cur.execute('''
+        CREATE TABLE decoration_table (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            decoration_type TEXT NOT NULL,
+            decoration_id   TEXT NOT NULL,
+            owned_at        INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+            is_active       INTEGER NOT NULL DEFAULT 0,
+            UNIQUE (decoration_type, decoration_id)
+        )
+    ''')
+
+    # 与 database.dart onCreate 中的索引保持一致
+    cur.execute('CREATE INDEX idx_ici_char ON idiom_char_index(char)')
+    cur.execute('CREATE INDEX idx_ici_char_pos ON idiom_char_index(char, position)')
     cur.execute('CREATE INDEX idx_idiom_difficulty ON idiom(difficulty)')
     cur.execute('CREATE INDEX idx_idiom_first_char ON idiom(first_char)')
     cur.execute('CREATE INDEX idx_idiom_last_char ON idiom(last_char)')
+    cur.execute('CREATE INDEX idx_lh_level ON level_history(level_number)')
 
     # ============================================================
     # 导入数据
@@ -133,16 +214,12 @@ def build_db(scores, meta):
     for word in sorted_words:
         score = scores[word]
         info = meta.get(word, {})
+        raw = extra.get(word, {})
         pinyin = info.get('pinyin', '')
         abbr = extract_pinyin_abbr(pinyin)
         explanation = info.get('hint', '')
-        derivation = ''
-        example = ''
-
-        # 从 explanation 中分离出处和例句（原始数据混在 hint 里）
-        # hint 格式: "释义。出处《xxx》。◇例句。"
-        # 简单策略：explanation 就是 hint 全文，derivation 留空
-        # 后续可从原始 idiom.json 获取更细粒度数据
+        derivation = raw.get('derivation', '')
+        example = raw.get('example', '')
 
         idiom_id += 1
         word_to_id[word] = idiom_id
@@ -157,12 +234,7 @@ def build_db(scores, meta):
             word[0],
             word[-1],
             score,
-            0,  # reversible 后续标注
-            None,  # emotion
-            None,  # category
-            None,  # era
-            None,  # source_type
-            abbr,  # 复用 pinyin_abbr
+            0,  # reversible 稍后按倒装对标注
         ))
 
         # 倒排索引
@@ -177,39 +249,21 @@ def build_db(scores, meta):
 
         # 批量写入
         if len(idiom_inserts) >= batch_size:
-            cur.executemany('''
-                INSERT INTO idiom (id, word, pinyin, pinyin_abbr, explanation,
-                    derivation, example, first_char, last_char, difficulty,
-                    reversible, emotion, category, era, source_type, abbr)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', idiom_inserts)
-            cur.executemany('''
-                INSERT INTO idiom_char_index (idiom_id, char, position, is_first, is_last)
-                VALUES (?, ?, ?, ?, ?)
-            ''', index_inserts)
+            _flush(conn, idiom_inserts, index_inserts, idiom_id, len(scores))
             idiom_inserts = []
             index_inserts = []
-            print(f'  已导入 {idiom_id}/{len(scores)} ...')
 
     # 写入剩余
     if idiom_inserts:
-        cur.executemany('''
-            INSERT INTO idiom (id, word, pinyin, pinyin_abbr, explanation,
-                derivation, example, first_char, last_char, difficulty,
-                reversible, emotion, category, era, source_type, abbr)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', idiom_inserts)
-        cur.executemany('''
-            INSERT INTO idiom_char_index (idiom_id, char, position, is_first, is_last)
-            VALUES (?, ?, ?, ?, ?)
-        ''', index_inserts)
+        _flush(conn, idiom_inserts, index_inserts, idiom_id, len(scores))
 
     conn.commit()
 
     # ============================================================
-    # 检测倒装对（ABCD ↔ CDAB）
+    # 检测倒装对（ABCD ↔ CDAB）并标注 reversible
     # ============================================================
     reversible_pairs = []
+    reversible_ids = set()
     seen_pairs = set()
     for word in sorted_words:
         if len(word) != 4:
@@ -224,70 +278,109 @@ def build_db(scores, meta):
             if (a, b) not in seen_pairs:
                 reversible_pairs.append((a, b))
                 seen_pairs.add((a, b))
+                reversible_ids.update((a, b))
 
     cur.executemany(
         'INSERT INTO idiom_reversible_pair (idiom_id_a, idiom_id_b) VALUES (?, ?)',
         reversible_pairs
     )
+    if reversible_ids:
+        placeholders = ','.join('?' * len(reversible_ids))
+        cur.execute(
+            f'UPDATE idiom SET reversible = 1 WHERE id IN ({placeholders})',
+            sorted(reversible_ids),
+        )
     conn.commit()
 
     # ============================================================
-    # 验证
+    # 版本标记：跳过 Drift 的 onCreate / onUpgrade
     # ============================================================
+    conn.execute('PRAGMA user_version = 2')
+    conn.commit()
+    conn.close()
+
+    # 切回 DELETE 日志模式，避免打包时带上 -wal/-shm 残留
+    conn = sqlite3.connect(db_path)
+    conn.execute('PRAGMA journal_mode=DELETE')
+    conn.close()
+    for suffix in ('-wal', '-shm'):
+        path = db_path + suffix
+        if os.path.exists(path):
+            os.remove(path)
+
+    verify(db_path, idiom_id)
+
+
+def _flush(conn, idiom_inserts, index_inserts, idiom_id, total):
+    cur = conn.cursor()
+    cur.executemany('''
+        INSERT INTO idiom (id, word, pinyin, pinyin_abbr, explanation,
+            derivation, example, first_char, last_char, difficulty, reversible)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', idiom_inserts)
+    cur.executemany('''
+        INSERT INTO idiom_char_index (idiom_id, char, position, is_first, is_last)
+        VALUES (?, ?, ?, ?, ?)
+    ''', index_inserts)
+    conn.commit()
+    print(f'  已导入 {idiom_id}/{total} ...')
+
+
+def verify(db_path, expected_idioms):
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+
     cur.execute('SELECT COUNT(*) FROM idiom')
     idiom_count = cur.fetchone()[0]
     cur.execute('SELECT COUNT(*) FROM idiom_char_index')
     index_count = cur.fetchone()[0]
-
-    cur.execute('SELECT MIN(difficulty), MAX(difficulty), AVG(difficulty) FROM idiom')
-    d_min, d_max, d_avg = cur.fetchone()
-
+    cur.execute('SELECT MIN(difficulty), MAX(difficulty) FROM idiom')
+    d_min, d_max = cur.fetchone()
     cur.execute('SELECT COUNT(DISTINCT char) FROM idiom_char_index')
     unique_chars = cur.fetchone()[0]
-
     cur.execute('SELECT COUNT(*) FROM idiom_reversible_pair')
     reversible_count = cur.fetchone()[0]
+    cur.execute('SELECT COUNT(*) FROM idiom_char_index WHERE is_first = 1')
+    first_count = cur.fetchone()[0]
+    cur.execute('SELECT COUNT(*) FROM idiom WHERE derivation != ""')
+    derivation_count = cur.fetchone()[0]
+    cur.execute('PRAGMA user_version')
+    user_version = cur.fetchone()[0]
 
+    tables = [r[0] for r in cur.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+    )]
     conn.close()
+
+    assert idiom_count == expected_idioms, f'成语数量不符: {idiom_count} != {expected_idioms}'
+    assert index_count == expected_idioms * 4, f'倒排索引数量不符: {index_count}'
+    assert user_version == 2, f'user_version 应为 2，实际 {user_version}'
 
     print(f'\n--- 构建完成 ---')
     print(f'成语表: {idiom_count} 行')
-    print(f'倒排索引: {index_count} 行 (预期 {idiom_count * 4})')
+    print(f'倒排索引: {index_count} 行 (预期 {expected_idioms * 4})')
+    print(f'含出处: {derivation_count} 条')
     print(f'倒装对: {reversible_count} 对')
-    print(f'难度范围: {d_min} ~ {d_max} (均值 {d_avg:.1f})')
-    print(f'唯一汉字: {unique_chars}')
+    print(f'难度范围: {d_min} ~ {d_max}')
+    print(f'唯一汉字: {unique_chars}，首字索引: {first_count} 行')
+    print(f'user_version: {user_version}')
+    print(f'表: {", ".join(tables)}')
     print(f'文件大小: {os.path.getsize(db_path) / 1024 / 1024:.1f} MB')
     print(f'输出: {db_path}')
-
-    # 快速抽样
-    cur2 = sqlite3.connect(db_path)
-    print('\n--- 抽样验证（按难度 = 14 取 5 条）---')
-    for row in cur2.execute('SELECT word, difficulty, pinyin_abbr FROM idiom WHERE difficulty = 14 LIMIT 5'):
-        print(f'  {row[0]} | {row[1]} | {row[2]}')
-
-    print('\n--- 抽样验证（倒装对取 5 对）---')
-    for row in cur2.execute('''
-        SELECT i1.word, i2.word FROM idiom_reversible_pair r
-        JOIN idiom i1 ON r.idiom_id_a = i1.id
-        JOIN idiom i2 ON r.idiom_id_b = i2.id
-        LIMIT 5
-    '''):
-        print(f'  {row[0]} ↔ {row[1]}')
-    cur2.close()
 
 
 if __name__ == '__main__':
     print('=== 成语数据库构建 ===\n')
     print('加载数据...')
-    scores, meta = load_data()
+    scores, meta, extra = load_data()
     print(f'  评分条目: {len(scores)}')
     print(f'  元数据条目: {len(meta)}')
+    print(f'  扩展字段条目: {len(extra)}')
 
-    # 检查一致性
     missing_meta = [w for w in scores if w not in meta]
     if missing_meta:
         print(f'  ⚠ 缺失元数据: {len(missing_meta)} 条')
         for w in missing_meta[:5]:
             print(f'    {w}')
 
-    build_db(scores, meta)
+    build_db(scores, meta, extra)

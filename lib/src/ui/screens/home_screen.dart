@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/player_state.dart';
 import '../../state/database_provider.dart';
+import '../../state/level_generation.dart';
 import 'game_screen.dart';
 import 'collection_screen.dart';
 import 'shop_screen.dart';
-import '../../engine/integrated_generator.dart';
-import '../../engine/crossing_graph.dart';
-import '../../engine/spiral_difficulty.dart';
-import '../../engine/grid_engine.dart' as engine;
+import 'level_select_screen.dart';
+import '../widgets/level_loading_dialog.dart';
 
 /// 首页
 class HomeScreen extends ConsumerWidget {
@@ -78,6 +77,17 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
 
+              // 关卡选择按钮
+              _MenuButton(
+                icon: Icons.grid_view_rounded,
+                label: '选择关卡',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LevelSelectScreen()),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // 收藏按钮
               _MenuButton(
                 icon: Icons.collections_bookmark,
@@ -106,57 +116,13 @@ class HomeScreen extends ConsumerWidget {
   }
 
   void _startGame(BuildContext context, WidgetRef ref) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('正在生成关卡...'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    showLevelLoadingDialog(context);
 
     try {
       final db = ref.read(databaseProvider);
       final player = ref.read(playerProvider);
       final nextLevel = player.completedLevels + 1;
-
-      final spiral = SpiralDifficulty.calculate(nextLevel);
-      final minD = (spiral.mainMin - 2).clamp(1, 50);
-      final maxD = (spiral.mainMax + 2).clamp(1, 50);
-
-      final dbIdioms = await db.findIdiomsByDifficulty(minD, maxD, 300);
-      if (dbIdioms.length < 5) {
-        if (context.mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('数据库中没有足够的成语')),
-          );
-        }
-        return;
-      }
-
-      final engineIdioms = dbIdioms.map((i) => engine.Idiom(
-        text: i.word,
-        pinyin: i.pinyin,
-        meaning: i.explanation,
-        difficulty: i.difficulty,
-        source: i.derivation ?? '',
-      )).toList();
-
-      final graph = CrossingGraph(idioms: engineIdioms);
-      final generator = IntegratedGenerator(graph: graph);
-      final level = generator.generateSpiral(levelNumber: nextLevel);
+      final level = await generateLevel(db, nextLevel);
 
       if (context.mounted) {
         Navigator.pop(context);

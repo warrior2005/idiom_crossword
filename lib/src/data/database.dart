@@ -176,7 +176,7 @@ class DecorationTable extends Table {
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
   int get schemaVersion => 2;
@@ -193,11 +193,11 @@ class AppDatabase extends _$AppDatabase {
         await customStatement(
           'CREATE INDEX IF NOT EXISTS idx_ici_char_pos ON idiom_char_index(char, position)');
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_difficulty ON idioms(difficulty)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_difficulty ON idiom(difficulty)');
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_first_char ON idioms(first_char)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_first_char ON idiom(first_char)');
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_last_char ON idioms(last_char)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_last_char ON idiom(last_char)');
       },
       onUpgrade: (m, from, to) async {
         if (from < 2) {
@@ -371,6 +371,21 @@ class AppDatabase extends _$AppDatabase {
       timeSpentMs: Value(timeSpentMs),
       hintsUsed: Value(hintsUsed),
     ));
+  }
+
+  /// 已通关的关卡编号集合
+  Future<Set<int>> getCompletedLevelNumbers() async {
+    final rows = await (select(levelHistory)).get();
+    return rows.map((r) => r.levelNumber).toSet();
+  }
+
+  /// 该关卡是否已通关（重玩不重复发放奖励）
+  Future<bool> isLevelCompleted(int levelNumber) async {
+    final row = await (select(levelHistory)
+      ..where((t) => t.levelNumber.equals(levelNumber))
+      ..limit(1))
+        .getSingleOrNull();
+    return row != null;
   }
 
   /// 添加装饰道具
