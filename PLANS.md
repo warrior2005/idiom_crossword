@@ -337,6 +337,7 @@ idiom_crossword/
 - 2026-07-31: 新增 PlayerNotifier 成长流程集成测试（内存数据库），发现并修复装饰奖励未写入 PlayerState.ownedDecorations 的 bug（此前装饰奖励仅落库、UI 不显示拥有状态）
 - 2026-07-31: 新增数据驱动界面的 widget 测试（收藏/成就/统计，内存数据库 + Provider 覆盖）
 - 2026-07-31: 新增 GitHub Actions CI（flutter analyze + flutter test，push/PR 触发）
+- 2026-07-31: 生成正式应用图标（scripts/generate_icon.py，纯 Python 渲染田字格主题，输出全套 iOS 尺寸），iOS 构建验证通过
 
 ---
 
