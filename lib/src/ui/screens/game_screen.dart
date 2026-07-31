@@ -7,6 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import '../../engine/grid_engine.dart';
 import '../../engine/distractor_engine.dart';
 import '../widgets/level_display.dart';
+import '../../state/database_provider.dart';
 import '../../state/player_state.dart';
 import '../../data/growth_manager.dart';
 
@@ -317,6 +318,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       widget.level.levelId,
       widget.level.idioms.map((i) => i.difficulty).toList(),
     );
+
+    // 通关成语自动收录
+    final db = ref.read(databaseProvider);
+    for (final idiom in widget.level.idioms) {
+      final id = await db.findIdiomIdByWord(idiom.text);
+      if (id != null) await db.addToCollection(id);
+    }
     
     if (result.leveledUp && result.reward != null) {
       _showRewardDialog(result.newLevel, result.reward!);

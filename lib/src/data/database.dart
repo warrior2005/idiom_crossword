@@ -347,6 +347,15 @@ class AppDatabase extends _$AppDatabase {
     return result != null;
   }
 
+  /// 按成语原文查找成语 ID（通关后自动收录用）
+  Future<int?> findIdiomIdByWord(String word) async {
+    final row = await (select(idioms)
+      ..where((t) => t.word.equals(word))
+      ..limit(1))
+        .getSingleOrNull();
+    return row?.id;
+  }
+
   /// 添加关卡历史记录
   Future<void> addLevelHistory({
     required int levelNumber,
@@ -382,6 +391,14 @@ class AppDatabase extends _$AppDatabase {
       ..orderBy([(t) => OrderingTerm.desc(t.ownedAt)]))
         .map((row) => row.decorationId)
         .get();
+  }
+
+  /// 获取所有已拥有装饰（格式 type_id，与 PlayerState.ownedDecorations 一致）
+  Future<Set<String>> getOwnedDecorationIds() async {
+    final rows = await (select(decorationTable)).get();
+    return rows
+        .map((r) => '${r.decorationType}_${r.decorationId}')
+        .toSet();
   }
 
   /// 设置当前使用的装饰

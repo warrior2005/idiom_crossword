@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'database_provider.dart';
+import '../data/database.dart';
 import '../data/growth_manager.dart';
 
 class PlayerState {
@@ -69,6 +71,24 @@ class PlayerNotifier extends Notifier<PlayerState> {
     );
   }
 
+  /// 从数据库加载已保存的进度（应用启动时调用一次）
+  Future<void> loadFromDatabase(AppDatabase db) async {
+    final progress = await db.getPlayerProgress();
+    if (progress == null) return;
+    state = PlayerState(
+      level: progress.level,
+      totalXp: progress.totalXp,
+      xpToNextLevel: GrowthManager.xpForLevel(progress.level + 1),
+      title: GrowthManager.titleForLevel(progress.level),
+      completedLevels: progress.completedLevels,
+      functionalItems: {
+        'hint_card': progress.hintCards,
+        'revive_card': progress.reviveCards,
+      },
+      ownedDecorations: await db.getOwnedDecorationIds(),
+    );
+  }
+
   Future<ExperienceResult> completeLevel(
     int levelNumber,
     List<int> idiomDifficulties,
@@ -89,12 +109,37 @@ class PlayerNotifier extends Notifier<PlayerState> {
       functionalItems: _applyReward(state.functionalItems, reward),
     );
 
+    final db = ref.read(databaseProvider);
+    await _persist(db);
+    if (reward != null && reward.type == RewardType.decoration) {
+      final (type, id) = _splitDecorationId(reward.item);
+      await db.addDecoration(type, id);
+    }
+
     return ExperienceResult(
       xpGained: xp,
       leveledUp: leveledUp,
       newLevel: newLevel,
       reward: reward,
     );
+  }
+
+  /// 把当前状态写回数据库
+  Future<void> _persist(AppDatabase db) {
+    return db.updatePlayerProgress(
+      level: state.level,
+      totalXp: state.totalXp,
+      completedLevels: state.completedLevels,
+      hintCards: state.functionalItems['hint_card'] ?? 0,
+      reviveCards: state.functionalItems['revive_card'] ?? 0,
+    );
+  }
+
+  /// 'grid_skin_bamboo' -> ('grid_skin', 'bamboo')
+  (String, String) _splitDecorationId(String item) {
+    final sep = item.lastIndexOf('_');
+    if (sep <= 0) return (item, '');
+    return (item.substring(0, sep), item.substring(sep + 1));
   }
 
   Map<String, int> _applyReward(Map<String, int> items, LevelReward? reward) {
@@ -110,6 +155,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       state = state.copyWith(
         functionalItems: {...state.functionalItems, 'hint_card': current - 1},
       );
+      await _persist(ref.read(databaseProvider));
     }
   }
 }

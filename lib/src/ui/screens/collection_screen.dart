@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../state/database_provider.dart';
 
 /// 收藏成语详情
 class CollectionItem {
@@ -16,13 +17,26 @@ class CollectionItem {
   });
 }
 
+/// 收藏列表（从数据库加载，按收藏时间倒序）
+final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final rows = await db.getCollectionWithDetails();
+  return rows
+      .map((i) => CollectionItem(
+            word: i.word,
+            explanation: i.explanation,
+            difficulty: i.difficulty,
+            collectedAt: i.createdAt,
+          ))
+      .toList();
+});
+
 class CollectionScreen extends ConsumerWidget {
   const CollectionScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Web 测试用：空收藏列表
-    final collection = <CollectionItem>[];
+    final collectionAsync = ref.watch(collectionProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F0E8),
@@ -31,66 +45,73 @@ class CollectionScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: collection.isEmpty
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.bookmark_border,
-                    size: 64,
-                    color: Colors.brown,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    '还没有收藏任何成语',
-                    style: TextStyle(
-                      fontSize: 18,
+      body: collectionAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(
+          child: Text('加载失败: $e', style: const TextStyle(color: Colors.brown)),
+        ),
+        data: (collection) => collection.isEmpty
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.bookmark_border,
+                      size: 64,
                       color: Colors.brown,
                     ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    '通关后自动收录',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.brown,
+                    SizedBox(height: 16),
+                    Text(
+                      '还没有收藏任何成语',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.brown,
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 8),
+                    Text(
+                      '通关后自动收录',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.brown,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.all(8),
+                itemCount: collection.length,
+                itemBuilder: (context, index) {
+                  final item = collection[index];
+                  return Card(
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    child: ListTile(
+                      title: Text(
+                        item.word,
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      subtitle: Text(item.explanation),
+                      trailing: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _difficultyColor(item.difficulty),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${item.difficulty}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: collection.length,
-              itemBuilder: (context, index) {
-                final item = collection[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  child: ListTile(
-                    title: Text(
-                      item.word,
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                    subtitle: Text(item.explanation),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _difficultyColor(item.difficulty),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        '${item.difficulty}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+      ),
     );
   }
 

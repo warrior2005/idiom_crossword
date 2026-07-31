@@ -22,22 +22,6 @@ class LevelReward {
   });
 }
 
-class PlayerProgress {
-  final int level;
-  final int totalXp;
-  final int completedLevels;
-  final Map<String, int> functionalItems; // hint_card: 5, revive_card: 2
-  final Set<String> ownedDecorations; // grid_skin_bamboo, avatar_frame_wusha
-
-  const PlayerProgress({
-    required this.level,
-    required this.totalXp,
-    required this.completedLevels,
-    required this.functionalItems,
-    required this.ownedDecorations,
-  });
-}
-
 class ExperienceResult {
   final int xpGained;
   final bool leveledUp;
