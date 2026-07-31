@@ -209,11 +209,11 @@ idiom_crossword/
 | GraphPipeline（管道连接） | ✅ 完成 | 连通 CrossingGraph→LayoutEngine |
 | SpiralDifficulty（螺旋难度） | ✅ 完成 | 10000+ 关难度分布计算 |
 | GrowthManager（成长系统） | ✅ 完成 | XP/等级/奖励/称号管理 |
-| Database Schema（v2） | ✅ 完成 | 含玩家进度/收藏/关卡历史/装饰表 |
+| Database Schema（v6） | ✅ 完成 | 12 张表：进度/收藏/历史/装饰/存档/成就/设置 |
 | 数据评分 | ✅ 100% | 29502/29502，variant_normalized_v2，1-50 均匀分布 |
 | SQLite 数据库 | ✅ 完成 | idiom_crossword.db (14.5MB)，7 索引生效 |
 | PRD 文档 | ✅ 完成 | 10 章完整（v2.0 含成长系统） |
-| 单元测试 | ✅ 完成 | 9 个测试文件，涵盖引擎+成长系统 |
+| 单元/集成测试 | ✅ 完成 | 29 个测试：引擎/成长/成就/编解码/DB 迁移/UI/完整通关流程 |
 | 成长系统设计 | ✅ 完成 | 科举仕途 20 级，螺旋难度模型 |
 | Player State（Riverpod） | ✅ 完成 | 玩家状态管理 |
 | Level Display Widget | ✅ 完成 | 等级徽章+经验进度条 |
@@ -221,9 +221,18 @@ idiom_crossword/
 | Shop Screen | ✅ 完成 | 商城界面（IAP 占位） |
 | Game Screen Integration | ✅ 完成 | 成长系统已集成 |
 | Integration Tests | ✅ 完成 | 成长系统端到端测试 |
-| 游戏 UI | 🟡 基础完成 | 核心界面已实现，待打磨 |
-| 关卡生成接入 | 🟡 基础完成 | 螺旋难度已集成，待 UI 完善 |
-| iOS 构建验证 | ✅ 通过 | flutter build ios --no-codesign 成功，51.7MB |
+| 游戏 UI | ✅ 完成 | 主界面/关卡选择/统计/成就/设置/学习/自定义/收藏搜索 |
+| 关卡生成接入 | ✅ 完成 | 螺旋难度混排（主体+长尾+预览）已落地 |
+| 每日挑战 | ✅ 完成 | 日期种子确定性生成，全服同题，完成态次日刷新 |
+| 成就系统 | ✅ 完成 | 8 徽章，事件驱动解锁 |
+| 统计面板 | ✅ 完成 | 通关/经验/用时/提示/错误/连胜/收藏 |
+| 音效 | ✅ 完成 | 自生成 WAV + audioplayers，设置可开关 |
+| 断点续玩 | ✅ 完成 | level_state 存档/恢复 |
+| 排行榜 | 🟡 代码就绪 | Game Center 集成，需 App Store Connect 配置 |
+| 自定义关卡/学习模式 | ✅ 完成 | PRD 5.3 两项落地 |
+| 图标 | ✅ 完成 | 田字格主题，全套 iOS 尺寸 |
+| iOS 构建验证 | ✅ 通过 | flutter build ios --no-codesign 成功，60.6MB，资源齐全 |
+| CI | ✅ 通过 | analyze/test/format/iOS 构建 |
 
 ---
 
@@ -385,3 +394,26 @@ idiom_crossword/
 | 最终校验 | `scripts/final_check.py` |
 | 成长系统设计 | `docs/superpowers/specs/2026-07-04-growth-system-design.md` |
 | 实现计划 | `docs/superpowers/plans/2026-07-04-growth-system-implementation.md` |
+
+---
+
+## 九、发布检查清单（外部步骤，待设备/账号就绪）
+
+### App Store Connect 配置
+- [ ] 创建 App（Bundle ID：`com.sunnywarrior.idiomCrossword`，显示名"成语填字"）
+- [ ] 创建 Game Center 排行榜 `idiom_daily_challenge`（单位：秒，按最小排序）
+- [ ] 上传 1024×1024 图标（`ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png`）
+- [ ] 配置内购商品（提示卡×10 / 复活卡×5 / 装饰）并实现 `storekit` 校验（当前为占位）
+
+### 真机验证（TestFlight 前）
+- [ ] iPhone SE ~ Pro Max 屏幕适配（安全区/灵动岛）
+- [ ] 冷启动 < 2s、UI 60fps（PRD 7.2）
+- [ ] 断点续玩：中途退出再进入恢复
+- [ ] 每日挑战：跨日刷新、完成态、Game Center 上报
+- [ ] 首局引导、提示额度、全图揭示、重玩不重复发奖
+
+### 提交前
+- [ ] `flutter analyze`、`flutter test`、`dart format --set-exit-if-changed` 全绿（CI 已自动执行）
+- [ ] `flutter build ios --no-codesign` 通过
+- [ ] 关卡样本人工复核（`assets/data/level_samples_report.md`）
+- [ ] 隐私政策/App Store 审核素材

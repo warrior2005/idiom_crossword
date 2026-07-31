@@ -11,6 +11,7 @@ import 'package:idiom_crossword/src/ui/screens/collection_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/shop_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/stats_screen.dart';
+import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/audio/game_audio.dart';
 
 /// 数据驱动界面的 widget 测试（内存数据库 + Provider 覆盖）
@@ -132,5 +133,17 @@ void main() {
     await tester.tap(find.text('¥6'));
     await tester.pump();
     expect(find.text('内购功能即将上线'), findsOneWidget);
+  });
+
+  testWidgets('首页：每日挑战在数据库无成语时提示生成失败', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory()); // 空库，无成语
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const HomeScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('每日挑战'));
+    await tester.pumpAndSettle();
+    expect(find.text('每日挑战生成失败，请重试'), findsOneWidget);
   });
 }
