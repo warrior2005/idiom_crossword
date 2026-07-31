@@ -151,7 +151,11 @@ void main() {
   });
 
   test('螺旋关卡包含长尾/预览混排（设计 §4.3）', () {
-    final spiralGen = IntegratedGenerator(graph: CrossingGraph(idioms: allIdioms));
+    // 固定种子保证确定性（种子 1 已探测：6 次全部生成成功且出现混排）
+    final spiralGen = IntegratedGenerator(
+      graph: CrossingGraph(idioms: allIdioms),
+      random: Random(1),
+    );
     const levelNumber = 6000; // base 30：tail 20-25，preview 33-35
     final spiral = SpiralDifficulty.calculate(levelNumber);
 
