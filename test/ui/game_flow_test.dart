@@ -112,6 +112,33 @@ void main() {
     final history = await db.getLevelHistory();
     expect(history.single.hintsUsed, 1);
   });
+
+  testWidgets('长按空格显示所属成语及其拼音（PRD 6.3）', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [databaseProvider.overrideWithValue(db)],
+      child: MaterialApp(home: GameScreen(level: _buildLevel())),
+    ));
+    await tester.pumpAndSettle();
+
+    final gridRect = tester.getRect(
+      find.byWidgetPredicate(
+          (w) => w is CustomPaint && w.painter is GridPainter),
+    );
+    final cellSize = gridRect.width / 5;
+    final snakeCell = Offset(
+      gridRect.left + 2 * cellSize + cellSize / 2,
+      gridRect.top + 1 * cellSize + cellSize / 2,
+    );
+
+    await tester.longPressAt(snakeCell);
+    await tester.pumpAndSettle();
+    expect(find.text('该字属于：'), findsOneWidget);
+    expect(find.text('画蛇添足'), findsOneWidget);
+    expect(find.text('hua she tian zu'), findsOneWidget);
+  });
 }
 
 /// 轮询直到 [condition] 成立或超时

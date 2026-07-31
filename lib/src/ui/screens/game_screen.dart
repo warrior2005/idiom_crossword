@@ -843,6 +843,77 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     HapticFeedback.selectionClick();
   }
 
+  /// 由手势坐标换算网格格子（网格居中布局，需扣除偏移）
+  (int, int)? _cellFromOffset(
+    Offset local,
+    double availableWidth,
+    double availableHeight,
+    double gridWidth,
+    double gridHeight,
+    double cellSize,
+  ) {
+    final offsetX = (availableWidth - gridWidth) / 2;
+    final offsetY = (availableHeight - gridHeight) / 2;
+    final col = ((local.dx - offsetX) / cellSize).floor();
+    final row = ((local.dy - offsetY) / cellSize).floor();
+    if (row >= 0 && row < _grid.rows && col >= 0 && col < _grid.cols) {
+      return (row, col);
+    }
+    return null;
+  }
+
+  /// 长按空格：显示该字所属的成语及其拼音（PRD 6.3）
+  void _showCellIdioms(int row, int col) {
+    final placements = _placementsContaining(row, col);
+    if (placements.isEmpty) return;
+    HapticFeedback.selectionClick();
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '该字属于：',
+                style: TextStyle(fontSize: 14, color: Colors.brown.shade600),
+              ),
+              const SizedBox(height: 8),
+              for (final p in placements)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      Text(
+                        p.idiom.text,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.brown,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          p.idiom.pinyin,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.brown.shade500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -900,21 +971,29 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         final gridWidth = _grid.cols * actualCellSize;
         final gridHeight = _grid.rows * actualCellSize;
 
-        return Listener(
+        return GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onPointerDown: (event) {
-            final offsetX = (availableWidth - gridWidth) / 2;
-            final offsetY = (availableHeight - gridHeight) / 2;
-
-            final cellX = (event.localPosition.dx - offsetX) / actualCellSize;
-            final cellY = (event.localPosition.dy - offsetY) / actualCellSize;
-
-            final col = cellX.floor();
-            final row = cellY.floor();
-
-            if (row >= 0 && row < _grid.rows && col >= 0 && col < _grid.cols) {
-              _onGridTap(row, col);
-            }
+          onTapDown: (details) {
+            final cell = _cellFromOffset(
+              details.localPosition,
+              availableWidth,
+              availableHeight,
+              gridWidth,
+              gridHeight,
+              actualCellSize,
+            );
+            if (cell != null) _onGridTap(cell.$1, cell.$2);
+          },
+          onLongPressStart: (details) {
+            final cell = _cellFromOffset(
+              details.localPosition,
+              availableWidth,
+              availableHeight,
+              gridWidth,
+              gridHeight,
+              actualCellSize,
+            );
+            if (cell != null) _showCellIdioms(cell.$1, cell.$2);
           },
           child: Center(
             child: SizedBox(
