@@ -36,7 +36,8 @@ class SubgraphSelector {
   final CrossingGraph graph;
   final Random _random;
 
-  SubgraphSelector({required this.graph}) : _random = Random();
+  SubgraphSelector({required this.graph, Random? random})
+      : _random = random ?? Random();
 
   /// 选取一个连通子图
   ///

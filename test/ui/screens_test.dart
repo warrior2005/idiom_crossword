@@ -14,6 +14,7 @@ import 'package:idiom_crossword/src/ui/screens/stats_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/level_select_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/learning_screen.dart';
+import 'package:idiom_crossword/src/ui/screens/custom_level_screen.dart';
 import 'package:idiom_crossword/src/audio/game_audio.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 
@@ -198,5 +199,19 @@ void main() {
     await tester.pumpWidget(_wrap(db, const HomeScreen()));
     await tester.pumpAndSettle();
     expect(find.text('每日挑战 ✓'), findsOneWidget);
+  });
+
+  testWidgets('自定义关卡页：渲染参数控件，空库生成失败提示', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const CustomLevelScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('难度区间'), findsOneWidget);
+    expect(find.text('成语数量'), findsOneWidget);
+
+    await tester.tap(find.text('开始挑战'));
+    await tester.pumpAndSettle();
+    expect(find.text('关卡生成失败，请调整参数后重试'), findsOneWidget);
   });
 }

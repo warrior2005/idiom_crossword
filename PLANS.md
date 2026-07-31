@@ -213,7 +213,7 @@ idiom_crossword/
 | 数据评分 | ✅ 100% | 29502/29502，variant_normalized_v2，1-50 均匀分布 |
 | SQLite 数据库 | ✅ 完成 | idiom_crossword.db (14.5MB)，7 索引生效 |
 | PRD 文档 | ✅ 完成 | 10 章完整（v2.0 含成长系统） |
-| 单元/集成测试 | ✅ 完成 | 29 个测试：引擎/成长/成就/编解码/DB 迁移/UI/完整通关流程 |
+| 单元/集成测试 | ✅ 完成 | 44 个测试；真实代码覆盖率约 79%（不含生成代码） |
 | 成长系统设计 | ✅ 完成 | 科举仕途 20 级，螺旋难度模型 |
 | Player State（Riverpod） | ✅ 完成 | 玩家状态管理 |
 | Level Display Widget | ✅ 完成 | 等级徽章+经验进度条 |
@@ -354,6 +354,7 @@ idiom_crossword/
 - 2026-07-31: CI 增加 macOS iOS 构建 job；统一 dart format 并纳入 CI 校验；新增设置页（音效开关持久化）与商城（购买提示）widget 测试
 - 2026-07-31: PRD 6.3 手势：再次点击已聚焦的已填格即清除该字（候选槽位释放），端到端测试覆盖 填入→清除→重填→通关
 - 2026-07-31: CI 增加数据库一致性校验步骤（python3 scripts/verify_db.py）；新增学习模式、每日挑战完成态 widget 测试；启动时进度与音效偏好并行加载
+- 2026-08-01: 覆盖审计并补测：crossing_graph/subgraph_selector 单元测试、自定义关卡页 widget 测试（SubgraphSelector 支持注入随机种子）；真实代码覆盖率约 79%
 
 ---
 
