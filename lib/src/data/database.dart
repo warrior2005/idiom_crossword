@@ -19,6 +19,9 @@ import 'package:sqlite3/sqlite3.dart';
 
 part 'database.g.dart';
 
+/// 当前数据库 schema 版本（与预构建数据库的 PRAGMA user_version 保持一致）
+const int currentSchemaVersion = 6;
+
 // ============================================================
 // 表定义
 // ============================================================
@@ -214,7 +217,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => currentSchemaVersion;
 
   @override
   MigrationStrategy get migration {
@@ -589,16 +592,21 @@ LazyDatabase _openConnection() {
     if (!await file.exists()) {
       final data = await rootBundle.load('assets/data/idiom_crossword.db');
       await file.writeAsBytes(data.buffer.asUint8List());
-    }
-
-    // 预构建 DB 的 created_at 是 TEXT 格式 "2026-06-15 08:12:26"
-    // Drift DateTimeColumn 能直接解析 ISO-8601 TEXT，无需转换
-    // 设置 user_version 跳过 onCreate（表和数据已存在）
-    final conn = sqlite3.open(file.path);
-    try {
-      conn.execute('PRAGMA user_version = 2');
-    } finally {
+    } else {
+      // 兼容性检查：当前 schema 主表为 idioms（旧版预构建库是 idiom 单数，
+      // 与 drift 生成结构不兼容，无法迁移），不兼容则用新资产重建。
+      // 同构旧版本（v2-v5）由 drift 的 onUpgrade 正常升级。
+      final conn = sqlite3.open(file.path);
+      final hasIdioms = conn
+          .select(
+              "SELECT name FROM sqlite_master WHERE type='table' AND name='idioms'")
+          .isNotEmpty;
       conn.close();
+      if (!hasIdioms) {
+        await file.delete();
+        final data = await rootBundle.load('assets/data/idiom_crossword.db');
+        await file.writeAsBytes(data.buffer.asUint8List());
+      }
     }
 
     return NativeDatabase.createInBackground(file);

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:drift/native.dart';
+import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/level_state_codec.dart';
@@ -232,5 +233,24 @@ void main() {
 
     expect(decodeLevel('not json'), isNull);
     expect(decodeGameState('not json'), isNull);
+  });
+
+  test('v5 数据库可正常升级到 v6（onUpgrade 迁移）', () async {
+    final tmpDir = await Directory.systemTemp.createTemp('idiom_migrate');
+    final tmpDb = File('${tmpDir.path}/migrate.db');
+    await File('assets/data/idiom_crossword.db').copy(tmpDb.path);
+
+    // 模拟 v5 状态：移除 settings_table 并把 user_version 置为 5
+    final conn = sqlite.sqlite3.open(tmpDb.path);
+    conn.execute('DROP TABLE settings_table');
+    conn.execute('PRAGMA user_version = 5');
+    conn.close();
+
+    final db = AppDatabase(NativeDatabase(tmpDb));
+    expect(await db.getSetting('sound_enabled'), isNull);
+    await db.setSetting('sound_enabled', 'true');
+    expect(await db.getSetting('sound_enabled'), 'true');
+    await db.close();
+    await tmpDir.delete(recursive: true);
   });
 }

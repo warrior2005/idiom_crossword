@@ -340,6 +340,7 @@ idiom_crossword/
 - 2026-07-31: 生成正式应用图标（scripts/generate_icon.py，纯 Python 渲染田字格主题，输出全套 iOS 尺寸），iOS 构建验证通过
 - 2026-07-31: 排行榜（PRD 5.3 P4）：Game Center 集成（games_services），每日挑战用时自动上报、首页排行榜入口，未登录/未配置时静默降级；iOS 构建验证通过
 - 2026-07-31: 首局新手引导：首次开始游戏展示玩法说明（交叉推理/填字规则），设置项持久化只展示一次
+- 2026-07-31: 修复关键缺陷：_openConnection 硬编码 PRAGMA user_version=2（schema 已到 6），真机路径会让 drift 误跑迁移、与预构建表冲突导致首次查询崩溃；改为兼容性检查（主表不存在则重建），并新增 v5→v6 迁移回归测试
 
 ---
 
