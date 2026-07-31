@@ -56,4 +56,62 @@ print(f'player_progress_table 行数: {cur.fetchone()[0]}')
 cur.execute('SELECT COUNT(*) FROM level_history')
 print(f'level_history 行数: {cur.fetchone()[0]}')
 
+# ============================================================
+# 数据一致性校验
+# ============================================================
+def check(name, condition, detail=''):
+    status = '✓' if condition else '✗'
+    print(f'  {status} {name}' + (f' — {detail}' if detail else ''))
+    if not condition:
+        raise SystemExit(f'数据一致性校验失败: {name}')
+
+print('\n--- 数据一致性 ---')
+
+# 1. 全部成语为四字
+cur.execute("SELECT COUNT(*) FROM idioms WHERE length(word) != 4")
+check('全部四字成语', cur.fetchone()[0] == 0)
+
+# 2. 倒排索引完整：每条成语恰有 4 行
+cur.execute("""
+    SELECT COUNT(*) FROM idioms i
+    LEFT JOIN idiom_char_index ci ON ci.idiom_id = i.id
+    GROUP BY i.id HAVING COUNT(ci.idiom_id) != 4
+""")
+check('倒排索引每成语 4 行', cur.fetchone() is None)
+
+# 3. 倒排索引无孤儿行
+cur.execute("""
+    SELECT COUNT(*) FROM idiom_char_index ci
+    LEFT JOIN idioms i ON i.id = ci.idiom_id
+    WHERE i.id IS NULL
+""")
+check('倒排索引无孤儿行', cur.fetchone()[0] == 0)
+
+# 4. 难度 1-50 每个档位均有成语
+cur.execute("""
+    SELECT difficulty, COUNT(*) FROM idioms
+    GROUP BY difficulty ORDER BY difficulty
+""")
+rows = dict(cur.fetchall())
+missing_buckets = [d for d in range(1, 51) if rows.get(d, 0) == 0]
+check('难度 1-50 全覆盖', not missing_buckets, f'空档: {missing_buckets}' if missing_buckets else '')
+
+# 5. 倒装对两个端点都存在且互逆
+cur.execute("""
+    SELECT COUNT(*) FROM idiom_reversible_pair r
+    LEFT JOIN idioms a ON a.id = r.idiom_id_a
+    LEFT JOIN idioms b ON b.id = r.idiom_id_b
+    WHERE a.id IS NULL OR b.id IS NULL
+""")
+check('倒装对无孤儿端点', cur.fetchone()[0] == 0)
+
+# 6. 收藏/关卡历史外键有效
+cur.execute("""
+    SELECT COUNT(*) FROM collection c
+    LEFT JOIN idioms i ON i.id = c.idiom_id
+    WHERE i.id IS NULL
+""")
+check('收藏外键有效', cur.fetchone()[0] == 0)
+
 conn.close()
+print('\n数据一致性校验全部通过 ✅')

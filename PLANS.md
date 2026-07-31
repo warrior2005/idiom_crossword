@@ -379,6 +379,8 @@ idiom_crossword/
 | 旧版备份 | `assets/data/idiom_crossword_v1.db`（重平衡 v1）、`idiom_crossword_old.db`（原始 LLM 评分） |
 | 数据库构建脚本 | `scripts/build_database.py` |
 | 数据库验证脚本 | `scripts/verify_db.py` |
+| 音效生成脚本 | `scripts/generate_audio.py` |
+| 图标生成脚本 | `scripts/generate_icon.py` |
 | 核心生成器 | `lib/src/engine/integrated_generator.dart` |
 | 交叉图 | `lib/src/engine/crossing_graph.dart` |
 | 布局引擎 | `lib/src/engine/layout_engine.dart` |
@@ -386,10 +388,16 @@ idiom_crossword/
 | 螺旋难度计算器 | `lib/src/engine/spiral_difficulty.dart` |
 | 成长系统管理器 | `lib/src/data/growth_manager.dart` |
 | 玩家状态管理 | `lib/src/state/player_state.dart` |
+| 成就管理 | `lib/src/data/achievement_manager.dart` |
+| 关卡生成/存档/每日挑战 | `lib/src/state/level_generation.dart`、`level_state_codec.dart` |
+| Game Center 排行榜 | `lib/src/state/leaderboard_service.dart` |
 | 生成器测试 | `test/engine/integrated_gen_test.dart` |
 | 螺旋难度测试 | `test/engine/spiral_difficulty_test.dart` |
 | 成长系统测试 | `test/data/growth_manager_test.dart` |
 | 集成测试 | `test/integration/growth_system_test.dart` |
+| 数据库端到端测试 | `test/data/database_schema_test.dart` |
+| 界面/流程测试 | `test/ui/screens_test.dart`、`game_flow_test.dart` |
+| 关卡样本报告 | `assets/data/level_samples_report.md`（tool/level_samples_report.dart 生成） |
 | 评分分布 | `assets/data/score_distribution.md` |
 | 最终校验 | `scripts/final_check.py` |
 | 成长系统设计 | `docs/superpowers/specs/2026-07-04-growth-system-design.md` |
