@@ -201,6 +201,13 @@ def build_db(scores, meta, extra):
         )
     ''')
 
+    cur.execute('''
+        CREATE TABLE achievement_table (
+            id          TEXT PRIMARY KEY,
+            unlocked_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )
+    ''')
+
     # 与 database.dart onCreate 中的索引保持一致
     cur.execute('CREATE INDEX idx_ici_char ON idiom_char_index(char)')
     cur.execute('CREATE INDEX idx_ici_char_pos ON idiom_char_index(char, position)')
@@ -305,7 +312,7 @@ def build_db(scores, meta, extra):
     # ============================================================
     # 版本标记：跳过 Drift 的 onCreate / onUpgrade
     # ============================================================
-    conn.execute('PRAGMA user_version = 4')
+    conn.execute('PRAGMA user_version = 5')
     conn.commit()
     conn.close()
 
@@ -364,7 +371,7 @@ def verify(db_path, expected_idioms):
 
     assert idiom_count == expected_idioms, f'成语数量不符: {idiom_count} != {expected_idioms}'
     assert index_count == expected_idioms * 4, f'倒排索引数量不符: {index_count}'
-    assert user_version == 4, f'user_version 应为 4，实际 {user_version}'
+    assert user_version == 5, f'user_version 应为 5，实际 {user_version}'
 
     print(f'\n--- 构建完成 ---')
     print(f'成语表: {idiom_count} 行')

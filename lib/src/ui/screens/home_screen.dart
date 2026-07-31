@@ -8,6 +8,7 @@ import 'collection_screen.dart';
 import 'shop_screen.dart';
 import 'level_select_screen.dart';
 import 'stats_screen.dart';
+import 'achievements_screen.dart';
 import '../widgets/level_loading_dialog.dart';
 
 /// 首页
@@ -129,7 +130,18 @@ class HomeScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const StatsScreen()),
                 ),
               ),
-              ],
+              const SizedBox(height: 16),
+
+              // 成就按钮
+              _MenuButton(
+                icon: Icons.emoji_events_outlined,
+                label: '成就',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+                ),
+              ),
+            ],
             ),
           ),
         ),

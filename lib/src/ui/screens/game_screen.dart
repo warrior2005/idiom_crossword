@@ -12,6 +12,7 @@ import '../../state/player_state.dart';
 import '../../state/level_generation.dart';
 import '../../state/level_state_codec.dart';
 import '../../data/growth_manager.dart';
+import '../../data/achievement_manager.dart';
 import '../widgets/level_loading_dialog.dart';
 
 /// 游戏主界面
@@ -78,6 +79,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   bool _idiomHintUsed = false; // 成语提示每关一次
   bool _revealedAll = false; // 全图揭示后本关不计入通关
   int _errorsMade = 0; // 错误填写次数（统计用）
+  int _correctStreak = 0; // 连续答对字数（成就）
+  bool _streak10Handled = false; // 十连击成就本会话已触发
   late DateTime _levelStartTime;
 
   // 断点续玩
@@ -158,6 +161,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _hintUsesThisLevel = state.hintUsesThisLevel;
         _idiomHintUsed = state.idiomHintUsed;
         _errorsMade = state.errorsMade;
+        _correctStreak = state.correctStreak;
         if (state.focusRow != null && state.focusCol != null) {
           _focusRow = state.focusRow!;
           _focusCol = state.focusCol!;
@@ -228,6 +232,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           hintUsesThisLevel: _hintUsesThisLevel,
           idiomHintUsed: _idiomHintUsed,
           errorsMade: _errorsMade,
+          correctStreak: _correctStreak,
           focusRow: _focusRow < 0 ? null : _focusRow,
           focusCol: _focusCol < 0 ? null : _focusCol,
           direction: _currentDirection,
@@ -236,6 +241,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     } catch (_) {
       // 存档失败不影响游戏进行
     }
+  }
+
+  /// 解锁成就并提示（幂等）
+  Future<void> _unlockAndNotify(AchievementId id) async {
+    try {
+      await ref.read(databaseProvider).unlockAchievement(id.name);
+    } catch (_) {}
+    if (!mounted) return;
+    final def = achievementDefs.firstWhere((d) => d.id == id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('🏅 解锁成就：${def.title}'),
+        duration: const Duration(milliseconds: 1500),
+      ),
+    );
   }
 
   /// 正确填字时的闪烁反馈
@@ -290,7 +310,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final filledRow = _focusRow;
     final filledCol = _focusCol;
     final isCorrect = char == _correctCharForCell(filledRow, filledCol);
-    if (!isCorrect) _errorsMade++;
+    if (isCorrect) {
+      _correctStreak++;
+      if (_correctStreak >= 10 && !_streak10Handled) {
+        _streak10Handled = true;
+        _unlockAndNotify(AchievementId.streak10);
+      }
+    } else {
+      _errorsMade++;
+      _correctStreak = 0;
+    }
 
     setState(() {
       // 覆盖填入时，释放旧字占用的候选槽位
@@ -497,18 +526,47 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       hintsUsed: _hintUsesThisLevel,
       errorsMade: _errorsMade,
     );
+
+    // 成就判定
+    final alreadyUnlocked = <AchievementId>{};
+    for (final s in await db.getUnlockedAchievementIds()) {
+      for (final id in AchievementId.values) {
+        if (id.name == s) alreadyUnlocked.add(id);
+      }
+    }
+    final newly = AchievementManager.evaluateOnLevelComplete(
+      alreadyUnlocked: alreadyUnlocked,
+      levelNumber: widget.level.levelId,
+      completedLevels: ref.read(playerProvider).completedLevels,
+      isDaily: _isDaily,
+      hintsUsed: _hintUsesThisLevel,
+      errorsMade: _errorsMade,
+      timeSpentMs: DateTime.now().difference(_levelStartTime).inMilliseconds,
+      collectionCount: await db.getCollectionCount(),
+    );
+    for (final id in newly) {
+      await db.unlockAchievement(id.name);
+    }
+    final newDefs =
+        achievementDefs.where((d) => newly.contains(d.id)).toList();
+
     await db.clearLevelState(widget.level.levelId);
     _levelFinished = true;
 
     if (result.leveledUp && result.reward != null) {
-      _showRewardDialog(result.newLevel, result.reward!, result);
+      _showRewardDialog(result.newLevel, result.reward!, result, newDefs);
     } else {
-      _showCompletionDialog(result);
+      _showCompletionDialog(result, newDefs);
     }
   }
 
   /// 显示升级奖励对话框
-  void _showRewardDialog(int newLevel, LevelReward reward, ExperienceResult result) {
+  void _showRewardDialog(
+    int newLevel,
+    LevelReward reward,
+    ExperienceResult result,
+    List<AchievementDef> newAchievements,
+  ) {
     final title = GrowthManager.titleForLevel(newLevel);
     final rewardText = reward.type == RewardType.functional
         ? '${reward.item == "hint_card" ? "提示卡" : "复活卡"} x${reward.quantity}'
@@ -530,7 +588,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              _showCompletionDialog(result);
+              _showCompletionDialog(result, newAchievements);
             },
             child: const Text('继续'),
           ),
@@ -540,7 +598,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   /// 显示过关对话框（带庆祝动画，可进入下一关）
-  void _showCompletionDialog(ExperienceResult result) {
+  void _showCompletionDialog(
+    ExperienceResult result,
+    List<AchievementDef> newAchievements,
+  ) {
     final isDaily = _isDaily;
     showDialog(
       context: context,
@@ -568,6 +629,18 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   color: Colors.brown.shade700,
                 ),
               ),
+              if (newAchievements.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '🏅 解锁成就：'
+                  '${newAchievements.map((d) => d.title).join('、')}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.orange.shade800,
+                  ),
+                ),
+              ],
             ],
           ),
           actions: [

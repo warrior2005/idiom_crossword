@@ -41,7 +41,7 @@ print(f'\n表清单: {", ".join(tables)}')
 expected_tables = {
     'idioms', 'idiom_char_index', 'idiom_reversible_pair', 'char_similar',
     'user_progress', 'player_progress_table', 'collection', 'level_history',
-    'decoration_table', 'level_state_table',
+    'decoration_table', 'level_state_table', 'achievement_table',
 }
 missing = expected_tables - set(tables)
 print(f'缺失表: {sorted(missing) if missing else "无"}')

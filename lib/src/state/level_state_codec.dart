@@ -112,6 +112,7 @@ class SavedGameState {
   final int hintUsesThisLevel;
   final bool idiomHintUsed;
   final int errorsMade;
+  final int correctStreak;
   final int? focusRow;
   final int? focusCol;
   final Direction? direction;
@@ -125,6 +126,7 @@ class SavedGameState {
     required this.hintUsesThisLevel,
     required this.idiomHintUsed,
     required this.errorsMade,
+    required this.correctStreak,
     this.focusRow,
     this.focusCol,
     this.direction,
@@ -150,6 +152,7 @@ String encodeGameState(SavedGameState state) {
     'hints': state.hintUsesThisLevel,
     'idiomHint': state.idiomHintUsed ? 1 : 0,
     'errors': state.errorsMade,
+    'streak': state.correctStreak,
     'focus':
         (state.focusRow == null || state.focusCol == null)
             ? null
@@ -207,6 +210,7 @@ SavedGameState? decodeGameState(String source) {
       hintUsesThisLevel: data['hints'] as int,
       idiomHintUsed: (data['idiomHint'] as int) == 1,
       errorsMade: data['errors'] as int,
+      correctStreak: data['streak'] as int,
       focusRow: focus == null ? null : focus[0] as int,
       focusCol: focus == null ? null : focus[1] as int,
       direction: dirRaw == null ? null : Direction.values[dirRaw],

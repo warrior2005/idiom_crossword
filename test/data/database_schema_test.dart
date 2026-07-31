@@ -71,6 +71,12 @@ void main() {
     await db.addDecoration('grid_skin', 'bamboo');
     expect(await db.getOwnedDecorationIds(), contains('grid_skin_bamboo'));
 
+    // 成就
+    expect(await db.getUnlockedAchievementIds(), isEmpty);
+    await db.unlockAchievement('firstLevel');
+    await db.unlockAchievement('firstLevel'); // 幂等
+    expect(await db.getUnlockedAchievementIds(), {'firstLevel'});
+
     // 关卡存档（断点续玩）
     expect(await db.getLevelState(first.id), isNull);
     await db.saveLevelState(
@@ -86,7 +92,7 @@ void main() {
 
     // schema 版本应与 database.dart 一致
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 4);
+    expect(version.data.values.first, 5);
 
     await db.close();
     await tmpDir.delete(recursive: true);
@@ -154,6 +160,7 @@ void main() {
       hintUsesThisLevel: 2,
       idiomHintUsed: true,
       errorsMade: 1,
+      correctStreak: 3,
       focusRow: 0,
       focusCol: 2,
       direction: engine.Direction.vertical,
@@ -167,6 +174,8 @@ void main() {
     expect(restoredState.candidateBoard[1][1], '守');
     expect(restoredState.hintUsesThisLevel, 2);
     expect(restoredState.idiomHintUsed, isTrue);
+    expect(restoredState.errorsMade, 1);
+    expect(restoredState.correctStreak, 3);
     expect(restoredState.focusCol, 2);
     expect(restoredState.direction, engine.Direction.vertical);
 

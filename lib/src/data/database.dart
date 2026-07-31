@@ -172,6 +172,15 @@ class LevelStateTable extends Table {
   Set<Column> get primaryKey => {levelNumber};
 }
 
+/// 已解锁成就
+class AchievementTable extends Table {
+  TextColumn get id => text()(); // AchievementId.name
+  DateTimeColumn get unlockedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ============================================================
 // 数据库
 // ============================================================
@@ -188,13 +197,14 @@ class LevelStateTable extends Table {
     LevelHistory,
     DecorationTable,
     LevelStateTable,
+    AchievementTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -232,6 +242,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 4) {
           // 关卡历史补充错误填写次数（统计用）
           await m.addColumn(levelHistory, levelHistory.errorsMade);
+        }
+        if (from < 5) {
+          // 成就表
+          await m.createTable(achievementTable);
         }
       },
     );
@@ -494,6 +508,20 @@ class AppDatabase extends _$AppDatabase {
     await (delete(levelStateTable)
       ..where((t) => t.levelNumber.equals(levelNumber)))
         .go();
+  }
+
+  /// 已解锁成就 ID 集合
+  Future<Set<String>> getUnlockedAchievementIds() async {
+    final rows = await (select(achievementTable)).get();
+    return rows.map((r) => r.id).toSet();
+  }
+
+  /// 解锁成就（重复调用幂等）
+  Future<void> unlockAchievement(String id) async {
+    await into(achievementTable).insert(
+      AchievementTableCompanion(id: Value(id)),
+      mode: InsertMode.insertOrIgnore,
+    );
   }
 
   /// 设置当前使用的装饰
