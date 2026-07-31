@@ -24,12 +24,11 @@ Future<void> main() async {
   // 先加载已保存的玩家进度，避免启动后闪回默认值
   final container = ProviderContainer();
   try {
-    await container
-        .read(playerProvider.notifier)
-        .loadFromDatabase(container.read(databaseProvider));
-    final soundEnabled = await container
-        .read(databaseProvider)
-        .getSetting(soundEnabledKey);
+    final db = container.read(databaseProvider);
+    final (_, soundEnabled) = await (
+      container.read(playerProvider.notifier).loadFromDatabase(db),
+      db.getSetting(soundEnabledKey),
+    ).wait;
     GameAudio.instance.muted = soundEnabled == 'false';
   } catch (_) {
     // 数据库不可用时以默认进度启动，进入游戏时会给出错误提示

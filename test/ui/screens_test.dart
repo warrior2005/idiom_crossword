@@ -13,7 +13,9 @@ import 'package:idiom_crossword/src/ui/screens/shop_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/stats_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/level_select_screen.dart';
+import 'package:idiom_crossword/src/ui/screens/learning_screen.dart';
 import 'package:idiom_crossword/src/audio/game_audio.dart';
+import 'package:idiom_crossword/src/state/level_generation.dart';
 
 /// 数据驱动界面的 widget 测试（内存数据库 + Provider 覆盖）
 
@@ -167,5 +169,34 @@ void main() {
     await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
     expect(find.text('关卡生成失败，请重试'), findsOneWidget);
+  });
+
+  testWidgets('学习模式：展示释义/出处/例句', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.update(db.idioms).write(const IdiomsCompanion(
+          derivation: Value('语出《战国策》'),
+          example: Value('他画蛇添足，多此一举。'),
+        ));
+
+    await tester.pumpWidget(_wrap(db, const LearningScreen(words: ['画蛇添足'])));
+    await tester.pumpAndSettle();
+    expect(find.text('画蛇添足'), findsOneWidget);
+    expect(find.textContaining('语出《战国策》'), findsOneWidget);
+    expect(find.textContaining('多此一举'), findsOneWidget);
+  });
+
+  testWidgets('首页：每日挑战完成后按钮显示完成态', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.addLevelHistory(
+      levelNumber: dailyLevelNumber(),
+      xpGained: 20,
+      idiomsUsed: const [],
+    );
+
+    await tester.pumpWidget(_wrap(db, const HomeScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('每日挑战 ✓'), findsOneWidget);
   });
 }

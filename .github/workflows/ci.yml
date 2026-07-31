@@ -17,6 +17,7 @@ jobs:
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed lib test tool
       - run: flutter analyze
+      - run: python3 scripts/verify_db.py
       - run: flutter test
 
   build-ios:
