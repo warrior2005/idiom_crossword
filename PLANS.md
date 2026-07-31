@@ -335,6 +335,8 @@ idiom_crossword/
 - 2026-07-31: README 重写为项目说明（功能/技术栈/目录/构建测试命令）
 - 2026-07-31: PRD 6.2 交叉点底色加深约 10%（此前交叉点在绘制上无区分）
 - 2026-07-31: 新增 PlayerNotifier 成长流程集成测试（内存数据库），发现并修复装饰奖励未写入 PlayerState.ownedDecorations 的 bug（此前装饰奖励仅落库、UI 不显示拥有状态）
+- 2026-07-31: 新增数据驱动界面的 widget 测试（收藏/成就/统计，内存数据库 + Provider 覆盖）
+- 2026-07-31: 新增 GitHub Actions CI（flutter analyze + flutter test，push/PR 触发）
 
 ---
 
