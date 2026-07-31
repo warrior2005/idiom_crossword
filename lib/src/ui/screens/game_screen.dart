@@ -824,6 +824,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (cell.state == CellState.blocked || cell.isGiven) return;
     if (_completedCells.contains((row, col))) return;
 
+    // PRD 6.3：再次点击已聚焦的已填格 → 清除该字
+    if (row == _focusRow &&
+        col == _focusCol &&
+        _playerAnswers.containsKey((row, col))) {
+      _clearCell();
+      return;
+    }
+
     setState(() {
       _focusRow = row;
       _focusCol = col;

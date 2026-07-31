@@ -22,6 +22,26 @@ void main() {
     await tester.pumpAndSettle();
 
     // 依次填入 蛇 → 添 → 足（焦点自动前进到下一空格）
+    for (final ch in ['蛇']) {
+      await tester.tap(find.text(ch));
+      await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    }
+
+    // PRD 6.3：点击已聚焦的已填格两次 → 清除该字（候选槽位释放）
+    final gridRect = tester.getRect(
+      find.byWidgetPredicate((w) => w is CustomPaint && w.painter is GridPainter),
+    );
+    final cellSize = gridRect.width / 5;
+    final snakeCell = Offset(
+      gridRect.left + 2 * cellSize + cellSize / 2,
+      gridRect.top + 1 * cellSize + cellSize / 2,
+    );
+    await tester.tapAt(snakeCell); // 聚焦已填格
+    await tester.pump();
+    await tester.tapAt(snakeCell); // 再次点击 → 清除
+    await tester.pump();
+
+    // 槽位已释放：重新填入 蛇 → 添 → 足 可正常通关
     for (final ch in ['蛇', '添', '足']) {
       await tester.tap(find.text(ch));
       await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
