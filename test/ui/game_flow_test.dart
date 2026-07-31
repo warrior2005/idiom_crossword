@@ -66,6 +66,52 @@ void main() {
     expect(progress.completedLevels, 1);
     expect(await db.getCompletedLevelNumbers(), {1});
   });
+
+  testWidgets('一字提示揭示答案后通关，提示次数落库', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [databaseProvider.overrideWithValue(db)],
+      child: MaterialApp(home: GameScreen(level: _buildLevel())),
+    ));
+    await tester.pumpAndSettle();
+
+    // 一字提示揭示焦点格（蛇），焦点停留在该格
+    await tester.tap(find.text('一字×3'));
+    await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    expect(find.text('一字×2'), findsOneWidget);
+
+    // 点击"添"空格聚焦后填入，焦点自动前进到"足"再填入
+    final gridRect = tester.getRect(
+      find.byWidgetPredicate(
+          (w) => w is CustomPaint && w.painter is GridPainter),
+    );
+    final cellSize = gridRect.width / 5;
+    Offset cellCenter(int col, int row) => Offset(
+          gridRect.left + col * cellSize + cellSize / 2,
+          gridRect.top + row * cellSize + cellSize / 2,
+        );
+    await tester.tapAt(cellCenter(3, 1));
+    await tester.pump();
+    await tester.tap(find.text('添'));
+    await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    await tester.tap(find.text('足'));
+    await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+
+    await _pumpUntil(
+      tester,
+      () => find.text('🎉 恭喜过关！').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    expect(find.text('🎉 恭喜过关！'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 800));
+
+    final history = await db.getLevelHistory();
+    expect(history.single.hintsUsed, 1);
+  });
 }
 
 /// 轮询直到 [condition] 成立或超时

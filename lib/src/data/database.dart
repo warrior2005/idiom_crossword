@@ -449,6 +449,14 @@ class AppDatabase extends _$AppDatabase {
     return row?.id;
   }
 
+  /// 批量按成语原文查找 ID（通关收录用，减少串行查询）
+  Future<Map<String, int>> findIdiomIdsByWords(List<String> words) async {
+    if (words.isEmpty) return {};
+    final rows =
+        await (select(idioms)..where((t) => t.word.isIn(words))).get();
+    return {for (final row in rows) row.word: row.id};
+  }
+
   /// 按成语原文查找完整记录（学习模式展示释义/出处/例句用）
   Future<Idiom?> findIdiomByWord(String word) async {
     return await (select(idioms)

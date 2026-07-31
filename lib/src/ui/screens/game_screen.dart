@@ -539,8 +539,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     // 通关成语自动收录 + 记录关卡历史
     final idiomIds = <int>[];
+    final idByWord = await db.findIdiomIdsByWords(
+      widget.level.idioms.map((i) => i.text).toList(),
+    );
     for (final idiom in widget.level.idioms) {
-      final id = await db.findIdiomIdByWord(idiom.text);
+      final id = idByWord[idiom.text];
       if (id != null) {
         idiomIds.add(id);
         await db.addToCollection(id);
