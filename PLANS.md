@@ -338,6 +338,8 @@ idiom_crossword/
 - 2026-07-31: 新增数据驱动界面的 widget 测试（收藏/成就/统计，内存数据库 + Provider 覆盖）
 - 2026-07-31: 新增 GitHub Actions CI（flutter analyze + flutter test，push/PR 触发）
 - 2026-07-31: 生成正式应用图标（scripts/generate_icon.py，纯 Python 渲染田字格主题，输出全套 iOS 尺寸），iOS 构建验证通过
+- 2026-07-31: 排行榜（PRD 5.3 P4）：Game Center 集成（games_services），每日挑战用时自动上报、首页排行榜入口，未登录/未配置时静默降级；iOS 构建验证通过
+- 2026-07-31: 首局新手引导：首次开始游戏展示玩法说明（交叉推理/填字规则），设置项持久化只展示一次
 
 ---
 

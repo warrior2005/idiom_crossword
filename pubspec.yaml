@@ -23,6 +23,9 @@ dependencies:
   # 音效
   audioplayers: ^6.8.1
 
+  # Game Center（排行榜）
+  games_services: ^5.1.0
+
   auto_size_text: ^3.0.0
 
 dev_dependencies:

@@ -11,6 +11,7 @@ import 'stats_screen.dart';
 import 'achievements_screen.dart';
 import 'settings_screen.dart';
 import 'custom_level_screen.dart';
+import '../../state/leaderboard_service.dart';
 import '../widgets/level_loading_dialog.dart';
 
 /// 今日每日挑战是否已完成（通关记录变化时自动刷新）
@@ -192,6 +193,14 @@ class HomeScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // 排行榜按钮
+              _MenuButton(
+                icon: Icons.leaderboard_outlined,
+                label: '排行榜',
+                onTap: () => LeaderboardService.show(),
+              ),
             ],
             ),
           ),
@@ -209,22 +218,48 @@ class HomeScreen extends ConsumerWidget {
       final nextLevel = player.completedLevels + 1;
       final level = await loadOrGenerateLevel(db, nextLevel);
 
-      if (context.mounted) {
-        Navigator.pop(context);
+      if (!context.mounted) return;
+      Navigator.pop(context);
 
-        if (level != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => GameScreen(level: level),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('关卡生成失败，请重试')),
-          );
-        }
+      if (level == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('关卡生成失败，请重试')),
+        );
+        return;
       }
+
+      // 首局展示一次新手引导
+      final firstGame = player.completedLevels == 0 &&
+          await db.getSetting(tutorialShownKey) != 'true';
+      if (firstGame) {
+        await db.setSetting(tutorialShownKey, 'true');
+        if (!context.mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('欢迎来到成语填字'),
+            content: const Text(
+              '1. 点击下方候选字，填入选中空格\n'
+              '2. 一个字可能同时属于横、纵两个成语\n'
+              '3. 交叉点同时满足两条线索才是正确解\n\n'
+              '填满所有空格即可过关！',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('开始'),
+              ),
+            ],
+          ),
+        );
+      }
+      if (!context.mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => GameScreen(level: level),
+        ),
+      );
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);

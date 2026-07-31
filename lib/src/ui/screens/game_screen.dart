@@ -11,6 +11,7 @@ import '../../state/database_provider.dart';
 import '../../state/player_state.dart';
 import '../../state/level_generation.dart';
 import '../../state/level_state_codec.dart';
+import '../../state/leaderboard_service.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
 import '../../audio/game_audio.dart';
@@ -565,6 +566,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     await db.clearLevelState(widget.level.levelId);
     _levelFinished = true;
+    if (_isDaily) {
+      // 每日挑战用时上报 Game Center 排行榜
+      await LeaderboardService.submitDailyTime(
+        DateTime.now().difference(_levelStartTime),
+      );
+    }
 
     if (result.leveledUp && result.reward != null) {
       _showRewardDialog(result.newLevel, result.reward!, result, newDefs);

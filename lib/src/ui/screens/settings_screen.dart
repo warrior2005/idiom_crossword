@@ -6,6 +6,9 @@ import '../../state/database_provider.dart';
 /// 音效开关设置项键名
 const String soundEnabledKey = 'sound_enabled';
 
+/// 新手引导是否已展示
+const String tutorialShownKey = 'tutorial_shown';
+
 /// 音效开关（持久化到 settings 表）
 final soundEnabledProvider =
     AsyncNotifierProvider<SoundSettingNotifier, bool>(SoundSettingNotifier.new);
