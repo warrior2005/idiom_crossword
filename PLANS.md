@@ -30,30 +30,44 @@ idiom_crossword/
 │       │   ├── graph_pipeline.dart  # 管道连接器（连通 CrossingGraph → LayoutEngine）
 │       │   └── distractor_engine.dart # 干扰字引擎（形近+音近+部首）
 │       ├── data/                    # 数据层（⭐ 成长系统已完成）
-│       │   ├── database.dart        # 数据库 DAO（玩家进度/收藏/关卡历史/装饰）
-│       │   ├── database_schema_v2.dart # 数据库 Schema v2
-│       │   └── growth_manager.dart  # 成长系统管理器（XP/等级/奖励/称号）
+│       │   ├── database.dart        # 数据库 DAO（进度/收藏/历史/装饰/存档/成就/设置）
+│       │   ├── growth_manager.dart  # 成长系统管理器（XP/等级/奖励/称号）
+│       │   └── achievement_manager.dart # 成就定义与解锁判定
 │       ├── state/                   # 状态管理（⭐ 已完成）
-│       │   └── player_state.dart    # 玩家状态（Riverpod）
+│       │   ├── player_state.dart    # 玩家状态（Riverpod）
+│       │   ├── database_provider.dart # 数据库 Provider
+│       │   ├── level_generation.dart # 关卡生成/断点恢复/每日挑战入口
+│       │   └── level_state_codec.dart # 关卡与进度 JSON 编解码
+│       ├── audio/                   # 音效
+│       │   └── game_audio.dart      # 音效单例（audioplayers）
 │       └── ui/                      # UI 层（⭐ 已完成）
 │           ├── screens/
-│           │   ├── game_screen.dart     # 游戏主界面（已集成成长系统）
+│           │   ├── game_screen.dart     # 游戏主界面（提示/断点续玩/成就/音效）
 │           │   ├── collection_screen.dart # 成语收藏界面
-│           │   └── shop_screen.dart     # 商城界面
+│           │   ├── shop_screen.dart     # 商城界面
+│           │   ├── level_select_screen.dart # 关卡选择
+│           │   ├── stats_screen.dart    # 统计面板
+│           │   ├── achievements_screen.dart # 成就
+│           │   └── settings_screen.dart # 设置（音效开关）
 │           └── widgets/
-│               └── level_display.dart   # 等级显示组件
-├── scripts/                         # Python 工具脚本（全部历史存档，保留 score_bN.py 评分记录）
+│               ├── level_display.dart   # 等级显示组件
+│               └── level_loading_dialog.dart # 关卡生成加载框
+├── assets/audio/                    # 自生成音效（fill/correct/wrong/idiom/complete.wav）
+├── scripts/                         # Python 工具脚本（评分存档 + 数据库/音频构建）
+├── tool/                            # Dart 工具脚本
+│   └── level_samples_report.dart    # 关卡样本质量报告生成
 └── test/                            # 测试文件
     ├── engine/
     │   ├── crossword_test.dart      # 填字基础单元测试
     │   ├── distractor_test.dart     # 干扰字引擎测试
     │   ├── graph_pipeline_test.dart # 管道测试（旧版）
     │   ├── integrated_gen_test.dart # 一体化生成器测试（⭐ 核心验证）
-    │   ├── quick_check.dart         # 快速验证脚本
     │   ├── real_data_test.dart      # 真实数据测试
-    │   └── spiral_difficulty_test.dart # 螺旋难度测试
+    │   └── level_quality_test.dart  # 难度段位生成质量验证
     ├── data/
-    │   └── growth_manager_test.dart # 成长系统测试
+    │   ├── growth_manager_test.dart # 成长系统测试
+    │   ├── achievement_manager_test.dart # 成就判定测试
+    │   └── database_schema_test.dart # 数据库端到端回归
     └── integration/
         └── growth_system_test.dart  # 成长系统集成测试
 ```

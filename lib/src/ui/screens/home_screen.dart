@@ -71,6 +71,25 @@ class HomeScreen extends ConsumerWidget {
                   color: Colors.brown.shade500,
                 ),
               ),
+              const SizedBox(height: 8),
+              // 经验进度条
+              SizedBox(
+                width: 220,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: player.xpProgress.clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: Colors.brown.shade100,
+                    color: Colors.brown.shade400,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${player.xpProgress.toStringAsFixed(0)}% 升至 Lv.${player.level + 1}',
+                style: TextStyle(fontSize: 11, color: Colors.brown.shade400),
+              ),
               const SizedBox(height: 40),
 
               // 每日挑战按钮

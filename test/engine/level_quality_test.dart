@@ -52,12 +52,16 @@ void main() {
         expect(level.title, '第 ${i + 1} 关');
 
         // 全部成语在难度区间内
+        final seenTexts = <String>{};
         for (final idiom in level.idioms) {
           expect(
             idiom.difficulty,
             inInclusiveRange(band.minD, band.maxD),
             reason: '${band.label} 成语 ${idiom.text} 难度应落在区间内',
           );
+          expect(idiom.text.length, 4, reason: '成语应为四字');
+          expect(seenTexts.add(idiom.text), isTrue,
+              reason: '${band.label} 关卡内成语 ${idiom.text} 不应重复');
         }
 
         // 每个成语的字都正确落入网格
@@ -83,6 +87,21 @@ void main() {
         // 起始提示字非空且不剧透全部答案
         expect(level.givenCharacters, isNotEmpty);
         expect(level.fillableCells, greaterThan(0));
+
+        // 提示比例合理（太多提示失去挑战，太少无法起手）
+        final filledCount = level.placements
+            .expand((p) => p.cells)
+            .toSet()
+            .length;
+        var givenCells = 0;
+        for (var r = 0; r < level.grid.rows; r++) {
+          for (var c = 0; c < level.grid.cols; c++) {
+            if (level.grid.cellAt(r, c).isGiven) givenCells++;
+          }
+        }
+        final givenRatio = filledCount == 0 ? 0.0 : givenCells / filledCount;
+        expect(givenRatio, inInclusiveRange(0.15, 0.6),
+            reason: '${band.label} 提示比例应合理，实际 ${givenRatio.toStringAsFixed(2)}');
       }
 
       expect(success, greaterThanOrEqualTo(8),
