@@ -20,6 +20,9 @@ dependencies:
   path_provider: ^2.1.6
   path: ^1.9.1
 
+  # 音效
+  audioplayers: ^6.8.1
+
   auto_size_text: ^3.0.0
 
 dev_dependencies:
@@ -36,5 +39,6 @@ flutter:
 
   assets:
     - assets/data/
+    - assets/audio/
 
   # fonts 暂不配置，iOS 使用系统自带苹方和宋体，生僻字后续引入 fallback

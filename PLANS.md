@@ -310,6 +310,8 @@ idiom_crossword/
 - 2026-07-31: IntegratedGenerator 支持注入 Random 种子，selectIdiomCounts 支持指定随机源，findIdiomsByDifficulty 支持非随机顺序；同种子生成结果一致（回归测试覆盖）
 - 2026-07-31: 完成成就系统（PRD P3）：8 个徽章（首战告捷/十连击/不靠提示/百关斩/每日打卡/成语收藏家/速战速决/零失误），schema v5 新增 achievement_table，通关与连对事件驱动解锁，成就界面 + 首页入口
 - 2026-07-31: 修正引擎基准测试中 1-50 评分制前的过期难度区间（76-100/55-70 等），graph_pipeline/real_data/integrated_gen 测试数据与当前评分体系一致
+- 2026-07-31: 完成音效（PRD P3）：脚本生成 5 个 WAV 素材（填入/正确/错误/成语完成/过关），引入 audioplayers，GameAudio 单例接入游戏事件，iOS 构建仍通过（60MB）
+- 2026-07-31: 生成关卡样本质量报告（tool/level_samples_report.dart，固定种子可复现），每难度段位 3 关含网格可视化与交叉数/难度指标，供 1.6 人工复核
 
 ---
 

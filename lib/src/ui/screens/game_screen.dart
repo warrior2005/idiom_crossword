@@ -13,6 +13,7 @@ import '../../state/level_generation.dart';
 import '../../state/level_state_codec.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
+import '../../audio/game_audio.dart';
 import '../widgets/level_loading_dialog.dart';
 
 /// 游戏主界面
@@ -335,6 +336,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     });
 
     HapticFeedback.lightImpact();
+    GameAudio.instance.play(isCorrect ? 'correct.wav' : 'wrong.wav');
     _moveToNextEmptyCell();
     if (isCorrect) _flashCellAt(filledRow, filledCol);
     _saveState();
@@ -378,6 +380,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     // 成语完成
     HapticFeedback.mediumImpact();
+    GameAudio.instance.play('idiom.wav');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('✓ ${placement.idiom.text}'),
@@ -487,6 +490,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
     if (allDone) {
       HapticFeedback.heavyImpact();
+      GameAudio.instance.play('complete.wav');
       _onLevelComplete();
     }
   }
@@ -1049,6 +1053,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     });
 
     HapticFeedback.lightImpact();
+    GameAudio.instance.play('fill.wav');
     _saveState();
   }
 
