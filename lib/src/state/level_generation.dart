@@ -34,6 +34,7 @@ Future<engine.CrosswordLevel?> generateLevel(
   int? seed,
   int? targetSize,
   (int, int)? difficultyRange,
+  String? title,
 }) async {
   final (minD, maxD) = difficultyRange ??
       _spiralRange(levelNumber);
@@ -60,13 +61,23 @@ Future<engine.CrosswordLevel?> generateLevel(
     random: seed == null ? null : Random(seed),
   );
   if (targetSize != null) {
-    return generator.generate(
+    final level = generator.generate(
       targetSize: targetSize,
       minDifficulty: minD,
       maxDifficulty: maxD,
       maxAttempts: maxAttempts,
       levelNumber: levelNumber,
     );
+    return level == null || title == null
+        ? level
+        : engine.CrosswordLevel(
+            levelId: level.levelId,
+            grid: level.grid,
+            placements: level.placements,
+            givenCharacters: level.givenCharacters,
+            title: title,
+            storyHint: level.storyHint,
+          );
   }
   return generator.generateSpiral(levelNumber: levelNumber, maxAttempts: maxAttempts);
 }

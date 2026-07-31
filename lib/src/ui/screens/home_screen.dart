@@ -10,6 +10,7 @@ import 'level_select_screen.dart';
 import 'stats_screen.dart';
 import 'achievements_screen.dart';
 import 'settings_screen.dart';
+import 'custom_level_screen.dart';
 import '../widgets/level_loading_dialog.dart';
 
 /// 首页
@@ -115,6 +116,17 @@ class HomeScreen extends ConsumerWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const LevelSelectScreen()),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 自定义关卡按钮
+              _MenuButton(
+                icon: Icons.tune,
+                label: '自定义关卡',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CustomLevelScreen()),
                 ),
               ),
               const SizedBox(height: 16),

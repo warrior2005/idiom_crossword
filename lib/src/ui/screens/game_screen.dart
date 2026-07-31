@@ -15,6 +15,7 @@ import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
 import '../../audio/game_audio.dart';
 import '../widgets/level_loading_dialog.dart';
+import 'learning_screen.dart';
 
 /// 游戏主界面
 /// 
@@ -36,8 +37,9 @@ import '../widgets/level_loading_dialog.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   final CrosswordLevel level;
+  final bool isCustom; // 自定义练习关：不计入通关进度与成就
 
-  const GameScreen({super.key, required this.level});
+  const GameScreen({super.key, required this.level, this.isCustom = false});
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -499,6 +501,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _onLevelComplete() async {
     final db = ref.read(databaseProvider);
 
+    // 自定义练习关：只提示完成，不发放奖励/记录历史
+    if (widget.isCustom) {
+      _levelFinished = true;
+      _showCustomCompleteDialog();
+      return;
+    }
+
     // 重玩已通关的关卡不重复发放奖励
     if (await db.isLevelCompleted(widget.level.levelId)) {
       await db.clearLevelState(widget.level.levelId);
@@ -663,7 +672,47 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 },
                 child: const Text('下一关'),
               ),
+            TextButton(
+              onPressed: () => _showLearning(ctx),
+              child: const Text('复习成语'),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// 自定义练习关完成对话框
+  void _showCustomCompleteDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('🎉 完成！'),
+        content: const Text('自定义关卡为练习模式，不计入通关进度。'),
+        actions: [
+          TextButton(
+            onPressed: () => _showLearning(ctx),
+            child: const Text('复习成语'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              if (mounted) Navigator.of(context).pop();
+            },
+            child: const Text('返回'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 打开本关成语学习页（释义/出处/例句）
+  void _showLearning(BuildContext dialogContext) {
+    Navigator.of(dialogContext).push(
+      MaterialPageRoute(
+        builder: (_) => LearningScreen(
+          words: widget.level.idioms.map((i) => i.text).toList(),
         ),
       ),
     );

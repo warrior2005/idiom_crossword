@@ -417,6 +417,14 @@ class AppDatabase extends _$AppDatabase {
     return row?.id;
   }
 
+  /// 按成语原文查找完整记录（学习模式展示释义/出处/例句用）
+  Future<Idiom?> findIdiomByWord(String word) async {
+    return await (select(idioms)
+      ..where((t) => t.word.equals(word))
+      ..limit(1))
+        .getSingleOrNull();
+  }
+
   /// 添加关卡历史记录
   Future<void> addLevelHistory({
     required int levelNumber,

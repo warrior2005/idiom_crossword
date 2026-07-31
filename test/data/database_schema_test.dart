@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/level_state_codec.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
+import 'package:idiom_crossword/src/state/level_generation.dart';
 
 void main() {
   test('prebuilt DB matches drift v2 schema end to end', () async {
@@ -20,6 +21,27 @@ void main() {
     expect(idioms.length, 10);
     expect(idioms.first.word.length, 4);
     expect(idioms.first.createdAt, isNotNull);
+
+    // 学习模式用：按词查询完整资料（含出处/例句）
+    final byWord = await db.findIdiomByWord(idioms.first.word);
+    expect(byWord, isNotNull);
+    expect(byWord!.explanation, isNotEmpty);
+    expect(byWord.derivation, isNotNull);
+    expect(byWord.example, isNotNull);
+
+    // 自定义关卡：固定难度区间 + 目标数量 + 标题
+    final custom = await generateLevel(
+      db,
+      0,
+      targetSize: 6,
+      difficultyRange: (1, 30),
+      title: '自定义关卡',
+    );
+    expect(custom, isNotNull);
+    expect(custom!.levelId, 0);
+    expect(custom.title, '自定义关卡');
+    expect(custom.placements.length, 6);
+    expect(custom.placements.first.idiom.difficulty, inInclusiveRange(1, 30));
 
     // 倒装对查询
     final first = idioms.first;
