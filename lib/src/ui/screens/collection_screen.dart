@@ -31,11 +31,18 @@ final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
       .toList();
 });
 
-class CollectionScreen extends ConsumerWidget {
+class CollectionScreen extends ConsumerStatefulWidget {
   const CollectionScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CollectionScreen> createState() => _CollectionScreenState();
+}
+
+class _CollectionScreenState extends ConsumerState<CollectionScreen> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
     final collectionAsync = ref.watch(collectionProvider);
 
     return Scaffold(
@@ -50,8 +57,37 @@ class CollectionScreen extends ConsumerWidget {
         error: (e, _) => Center(
           child: Text('加载失败: $e', style: const TextStyle(color: Colors.brown)),
         ),
-        data: (collection) => collection.isEmpty
-            ? const Center(
+        data: (collection) {
+          final filtered = _query.isEmpty
+              ? collection
+              : collection
+                  .where((c) =>
+                      c.word.contains(_query) ||
+                      c.explanation.contains(_query))
+                  .toList();
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: '搜索成语或释义',
+                    prefixIcon: const Icon(Icons.search),
+                    isDense: true,
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.brown.shade200),
+                    ),
+                  ),
+                  onChanged: (v) => setState(() => _query = v.trim()),
+                ),
+              ),
+              Expanded(
+                child: collection.isEmpty
+                    ? const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -79,11 +115,21 @@ class CollectionScreen extends ConsumerWidget {
                   ],
                 ),
               )
-            : ListView.builder(
+                    : filtered.isEmpty
+                        ? const Center(
+                            child: Text(
+                              '没有找到匹配的成语',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.brown,
+                              ),
+                            ),
+                          )
+                : ListView.builder(
                 padding: const EdgeInsets.all(8),
-                itemCount: collection.length,
+                itemCount: filtered.length,
                 itemBuilder: (context, index) {
-                  final item = collection[index];
+                  final item = filtered[index];
                   return Card(
                     margin:
                         const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -111,6 +157,10 @@ class CollectionScreen extends ConsumerWidget {
                   );
                 },
               ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

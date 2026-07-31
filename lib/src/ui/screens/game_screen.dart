@@ -505,7 +505,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     // 自定义练习关：只提示完成，不发放奖励/记录历史
     if (widget.isCustom) {
       _levelFinished = true;
-      _showCustomCompleteDialog();
+      _showCustomCompleteDialog(
+        DateTime.now().difference(_levelStartTime).inMilliseconds,
+      );
       return;
     }
 
@@ -532,11 +534,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         await db.addToCollection(id);
       }
     }
+    final timeSpentMs = DateTime.now().difference(_levelStartTime).inMilliseconds;
     await db.addLevelHistory(
       levelNumber: widget.level.levelId,
       xpGained: result.xpGained,
       idiomsUsed: idiomIds,
-      timeSpentMs: DateTime.now().difference(_levelStartTime).inMilliseconds,
+      timeSpentMs: timeSpentMs,
       hintsUsed: _hintUsesThisLevel,
       errorsMade: _errorsMade,
     );
@@ -555,7 +558,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       isDaily: _isDaily,
       hintsUsed: _hintUsesThisLevel,
       errorsMade: _errorsMade,
-      timeSpentMs: DateTime.now().difference(_levelStartTime).inMilliseconds,
+      timeSpentMs: timeSpentMs,
       collectionCount: await db.getCollectionCount(),
     );
     for (final id in newly) {
@@ -574,9 +577,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
 
     if (result.leveledUp && result.reward != null) {
-      _showRewardDialog(result.newLevel, result.reward!, result, newDefs);
+      _showRewardDialog(
+        result.newLevel,
+        result.reward!,
+        result,
+        newDefs,
+        timeSpentMs,
+      );
     } else {
-      _showCompletionDialog(result, newDefs);
+      _showCompletionDialog(result, newDefs, timeSpentMs);
     }
   }
 
@@ -586,6 +595,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     LevelReward reward,
     ExperienceResult result,
     List<AchievementDef> newAchievements,
+    int timeSpentMs,
   ) {
     final title = GrowthManager.titleForLevel(newLevel);
     final rewardText = reward.type == RewardType.functional
@@ -608,7 +618,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              _showCompletionDialog(result, newAchievements);
+              _showCompletionDialog(result, newAchievements, timeSpentMs);
             },
             child: const Text('继续'),
           ),
@@ -621,6 +631,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _showCompletionDialog(
     ExperienceResult result,
     List<AchievementDef> newAchievements,
+    int timeSpentMs,
   ) {
     final isDaily = _isDaily;
     showDialog(
@@ -648,6 +659,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   fontWeight: FontWeight.w600,
                   color: Colors.brown.shade700,
                 ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '用时 ${_formatDuration(timeSpentMs)} · '
+                '提示 $_hintUsesThisLevel · 填错 $_errorsMade',
+                style: TextStyle(fontSize: 13, color: Colors.brown.shade500),
               ),
               if (newAchievements.isNotEmpty) ...[
                 const SizedBox(height: 8),
@@ -690,13 +707,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   /// 自定义练习关完成对话框
-  void _showCustomCompleteDialog() {
+  void _showCustomCompleteDialog(int timeSpentMs) {
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         title: const Text('🎉 完成！'),
-        content: const Text('自定义关卡为练习模式，不计入通关进度。'),
+        content: Text(
+          '自定义关卡为练习模式，不计入通关进度。\n\n'
+          '用时 ${_formatDuration(timeSpentMs)} · '
+          '提示 $_hintUsesThisLevel · 填错 $_errorsMade',
+        ),
         actions: [
           TextButton(
             onPressed: () => _showLearning(ctx),
@@ -727,6 +748,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 每日挑战关卡（专用关卡号段）
   bool get _isDaily => widget.level.levelId >= dailyLevelOffset;
+
+  String _formatDuration(int ms) {
+    if (ms <= 0) return '—';
+    final seconds = (ms / 1000).round();
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return m > 0 ? '$m分$s秒' : '$s秒';
+  }
 
   /// 重玩已通关关卡：不再发放奖励
   void _showReplayCompleteDialog() {

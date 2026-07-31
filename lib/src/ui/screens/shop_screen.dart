@@ -35,6 +35,12 @@ class ShopScreen extends ConsumerWidget {
   }
 }
 
+void _showComingSoon(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('内购功能即将上线')),
+  );
+}
+
 class _FunctionalItemsTab extends StatelessWidget {
   final PlayerState player;
 
@@ -48,17 +54,13 @@ class _FunctionalItemsTab extends StatelessWidget {
           name: '提示卡×10',
           description: '揭示单个空格答案',
           price: '¥6',
-          onPurchase: () {
-            // TODO: Implement IAP
-          },
+          onPurchase: () => _showComingSoon(context),
         ),
         _ShopItem(
           name: '复活卡×5',
           description: '失败后可继续当前关',
           price: '¥12',
-          onPurchase: () {
-            // TODO: Implement IAP
-          },
+          onPurchase: () => _showComingSoon(context),
         ),
       ],
     );
@@ -79,22 +81,19 @@ class _DecorationItemsTab extends StatelessWidget {
           description: '限定装饰',
           price: '¥18',
           isOwned: player.ownedDecorations.contains('grid_skin_dragon'),
-          onPurchase: () {
-            // TODO: Implement IAP
-          },
+          onPurchase: () => _showComingSoon(context),
         ),
         _ShopItem(
           name: '獬豸冠头像框',
           description: '限定装饰',
           price: '¥12',
           isOwned: player.ownedDecorations.contains('avatar_frame_xiezhi'),
-          onPurchase: () {
-            // TODO: Implement IAP
-          },
+          onPurchase: () => _showComingSoon(context),
         ),
       ],
     );
   }
+
 }
 
 class _ShopItem extends StatelessWidget {

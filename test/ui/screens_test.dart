@@ -52,6 +52,14 @@ void main() {
     await tester.pumpWidget(_wrap(db, const CollectionScreen()));
     await tester.pumpAndSettle();
     expect(find.text('画蛇添足'), findsOneWidget);
+
+    // 搜索过滤：命中保留，未命中显示空态
+    await tester.enterText(find.byType(TextField), '画蛇');
+    await tester.pumpAndSettle();
+    expect(find.text('画蛇添足'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '不存在');
+    await tester.pumpAndSettle();
+    expect(find.text('没有找到匹配的成语'), findsOneWidget);
   });
 
   testWidgets('成就页：解锁状态与进度', (tester) async {
