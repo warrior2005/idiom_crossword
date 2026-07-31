@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/engine/crossing_graph.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart';
 import 'package:idiom_crossword/src/engine/integrated_generator.dart';
+import 'package:idiom_crossword/src/engine/spiral_difficulty.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 
 void main() {
@@ -147,6 +148,27 @@ void main() {
     expect(epochDay(now), dailyLevelNumber(now) - dailyLevelOffset);
     expect(dailyLevelNumber(DateTime.utc(1970)), dailyLevelOffset);
     expect(dailyLevelNumber(now), greaterThan(dailyLevelOffset));
+  });
+
+  test('螺旋关卡包含长尾/预览混排（设计 §4.3）', () {
+    final spiralGen = IntegratedGenerator(graph: CrossingGraph(idioms: allIdioms));
+    const levelNumber = 6000; // base 30：tail 20-25，preview 33-35
+    final spiral = SpiralDifficulty.calculate(levelNumber);
+
+    var mixed = false;
+    for (var i = 0; i < 6; i++) {
+      final level = spiralGen.generateSpiral(levelNumber: levelNumber, maxAttempts: 30);
+      expect(level, isNotNull, reason: '6000 关应能生成');
+      final inMain = level!.idioms
+          .where((x) =>
+              x.difficulty >= spiral.mainMin && x.difficulty <= spiral.mainMax)
+          .length;
+      if (inMain < level.idioms.length) {
+        mixed = true;
+        break;
+      }
+    }
+    expect(mixed, isTrue, reason: '高阶螺旋关应包含主体区间外的长尾/预览成语');
   });
 }
 

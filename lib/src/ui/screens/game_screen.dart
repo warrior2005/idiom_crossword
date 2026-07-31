@@ -1361,17 +1361,24 @@ class GridPainter extends CustomPainter {
         final displayChar = cell.isGiven 
             ? cell.character 
             : (playerAnswers[(r, c)] ?? '');
+        // 已填但所属成语尚未完成 → 半透明（"暂定"状态，PRD 6.2）
+        final tentative = !cell.isGiven &&
+            playerAnswers.containsKey((r, c)) &&
+            !completedCells.contains((r, c));
+        final textColor = cell.isGiven
+            ? Colors.brown.shade900
+            : playerAnswers.containsKey((r, c))
+                ? Colors.brown.shade800
+                : Colors.brown.shade400;
         final textPainter = TextPainter(
           text: TextSpan(
             text: displayChar,
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: cell.isGiven ? FontWeight.w700 : FontWeight.w500,
-              color: cell.isGiven
-                  ? Colors.brown.shade900
-                  : playerAnswers.containsKey((r, c))
-                      ? Colors.brown.shade800
-                      : Colors.brown.shade400,
+              color: tentative
+                  ? textColor.withValues(alpha: 0.5)
+                  : textColor,
             ),
           ),
           textDirection: TextDirection.ltr,

@@ -82,12 +82,14 @@ Future<engine.CrosswordLevel?> generateLevel(
   return generator.generateSpiral(levelNumber: levelNumber, maxAttempts: maxAttempts);
 }
 
-/// 螺旋基准难度放宽 ±2 的区间
+/// 螺旋基准难度放宽 ±2，并覆盖长尾/预览区间的取数范围
 (int, int) _spiralRange(int levelNumber) {
   final spiral = SpiralDifficulty.calculate(levelNumber);
+  final tailMin = spiral.tailMin <= 0 ? spiral.mainMin : spiral.tailMin;
+  final previewMax = spiral.previewMax <= 0 ? spiral.mainMax : spiral.previewMax;
   return (
-    (spiral.mainMin - 2).clamp(1, 50),
-    (spiral.mainMax + 2).clamp(1, 50),
+    (tailMin - 2).clamp(1, 50),
+    (previewMax + 2).clamp(1, 50),
   );
 }
 

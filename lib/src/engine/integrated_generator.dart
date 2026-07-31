@@ -127,6 +127,7 @@ class IntegratedGenerator {
     int maxAttempts = 50,
     int? levelNumber,
     SpiralDifficultyResult? spiralResult,
+    Set<int>? candidatePool,
   }) {
     // 如果提供了 spiralResult，使用螺旋难度范围
     if (spiralResult != null) {
@@ -134,12 +135,16 @@ class IntegratedGenerator {
       maxDifficulty = spiralResult.mainMax;
     }
     
-    // 候选池
+    // 候选池：提供时直接使用（螺旋混排），否则按难度过滤
     final candidates = <int>{};
-    for (int i = 0; i < graph.idioms.length; i++) {
-      final d = graph.idioms[i].difficulty;
-      if (d >= minDifficulty && d <= maxDifficulty) {
-        candidates.add(i);
+    if (candidatePool != null) {
+      candidates.addAll(candidatePool);
+    } else {
+      for (int i = 0; i < graph.idioms.length; i++) {
+        final d = graph.idioms[i].difficulty;
+        if (d >= minDifficulty && d <= maxDifficulty) {
+          candidates.add(i);
+        }
       }
     }
     if (candidates.length < targetSize) return null;
@@ -510,32 +515,59 @@ class IntegratedGenerator {
     int maxAttempts = 50,
   }) {
     final spiral = SpiralDifficulty.calculate(levelNumber);
+    final (mainCount, tailCount, previewCount) =
+        SpiralDifficulty.selectIdiomCounts(levelNumber, random: _random);
+    final targetSize = mainCount + tailCount + previewCount;
 
-    // 先按主体难度区间生成
-    var level = generate(
-      targetSize: _targetSizeFor(levelNumber),
+    // 设计 §4.3 混排：主体为主（约 70%），混入长尾与预览
+    final mixedPool = <int>{
+      ..._idsInRange(spiral.mainMin, spiral.mainMax, mainCount * 6),
+      ..._idsInRange(spiral.tailMin, spiral.tailMax, tailCount * 8),
+      ..._idsInRange(spiral.previewMin, spiral.previewMax, previewCount * 10),
+    };
+
+    var level = mixedPool.length >= targetSize
+        ? generate(
+            targetSize: targetSize,
+            minDifficulty: 1,
+            maxDifficulty: 50,
+            maxAttempts: maxAttempts ~/ 2,
+            levelNumber: levelNumber,
+            candidatePool: mixedPool,
+          )
+        : null;
+
+    // 混排失败时退回纯主体区间
+    level ??= generate(
+      targetSize: targetSize,
       minDifficulty: spiral.mainMin,
       maxDifficulty: spiral.mainMax,
-      maxAttempts: maxAttempts ~/ 2,
+      maxAttempts: maxAttempts ~/ 3,
       levelNumber: levelNumber,
     );
 
-    // 失败则放宽难度区间再试
+    // 仍失败则放宽难度区间（剩余尝试次数）
     level ??= generate(
-      targetSize: _targetSizeFor(levelNumber),
+      targetSize: targetSize,
       minDifficulty: (spiral.mainMin - 2).clamp(1, 50),
       maxDifficulty: (spiral.mainMax + 2).clamp(1, 50),
-      maxAttempts: maxAttempts ~/ 2,
+      maxAttempts: maxAttempts - (maxAttempts ~/ 2) - (maxAttempts ~/ 3),
       levelNumber: levelNumber,
     );
 
     return level;
   }
 
-  static int _targetSizeFor(int levelNumber) {
-    final (mainCount, tailCount, previewCount) =
-        SpiralDifficulty.selectIdiomCounts(levelNumber);
-    return mainCount + tailCount + previewCount;
+  /// 从图中按难度区间随机取 [take] 个成语 ID（不足则全部）
+  Set<int> _idsInRange(int minD, int maxD, int take) {
+    if (minD <= 0 || maxD < minD) return {};
+    final ids = <int>[];
+    for (int i = 0; i < graph.idioms.length; i++) {
+      final d = graph.idioms[i].difficulty;
+      if (d >= minD && d <= maxD) ids.add(i);
+    }
+    ids.shuffle(_random);
+    return ids.take(take).toSet();
   }
 }
 
