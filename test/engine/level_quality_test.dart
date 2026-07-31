@@ -61,8 +61,11 @@ void main() {
             reason: '${band.label} 成语 ${idiom.text} 难度应落在区间内',
           );
           expect(idiom.text.length, 4, reason: '成语应为四字');
-          expect(seenTexts.add(idiom.text), isTrue,
-              reason: '${band.label} 关卡内成语 ${idiom.text} 不应重复');
+          expect(
+            seenTexts.add(idiom.text),
+            isTrue,
+            reason: '${band.label} 关卡内成语 ${idiom.text} 不应重复',
+          );
         }
 
         // 每个成语的字都正确落入网格
@@ -78,11 +81,12 @@ void main() {
         // 连通性：每个成语至少与另一个成语有交叉
         expect(level.placements.length, targetSize);
         for (final placement in level.placements) {
-          final hasCross = level.placements.any((other) =>
-              other != placement &&
-              level.grid.findIntersection(placement, other) != null);
-          expect(hasCross, isTrue,
-              reason: '${placement.idiom.text} 应有交叉点');
+          final hasCross = level.placements.any(
+            (other) =>
+                other != placement &&
+                level.grid.findIntersection(placement, other) != null,
+          );
+          expect(hasCross, isTrue, reason: '${placement.idiom.text} 应有交叉点');
         }
 
         // 起始提示字非空且不剧透全部答案
@@ -101,12 +105,18 @@ void main() {
           }
         }
         final givenRatio = filledCount == 0 ? 0.0 : givenCells / filledCount;
-        expect(givenRatio, inInclusiveRange(0.15, 0.6),
-            reason: '${band.label} 提示比例应合理，实际 ${givenRatio.toStringAsFixed(2)}');
+        expect(
+          givenRatio,
+          inInclusiveRange(0.15, 0.6),
+          reason: '${band.label} 提示比例应合理，实际 ${givenRatio.toStringAsFixed(2)}',
+        );
       }
 
-      expect(success, greaterThanOrEqualTo(8),
-          reason: '${band.label} 成功率应 ≥ 80%，实际 $success/10');
+      expect(
+        success,
+        greaterThanOrEqualTo(8),
+        reason: '${band.label} 成功率应 ≥ 80%，实际 $success/10',
+      );
       final avg = durations.isEmpty
           ? 0
           : durations.reduce((a, b) => a + b) ~/ durations.length;
@@ -116,10 +126,14 @@ void main() {
 
   test('同一种子生成结果确定（每日挑战全服同题）', () {
     const seed = 20454;
-    final gen1 =
-        IntegratedGenerator(graph: CrossingGraph(idioms: allIdioms), random: Random(seed));
-    final gen2 =
-        IntegratedGenerator(graph: CrossingGraph(idioms: allIdioms), random: Random(seed));
+    final gen1 = IntegratedGenerator(
+      graph: CrossingGraph(idioms: allIdioms),
+      random: Random(seed),
+    );
+    final gen2 = IntegratedGenerator(
+      graph: CrossingGraph(idioms: allIdioms),
+      random: Random(seed),
+    );
 
     final l1 = gen1.generate(
       targetSize: 6,
@@ -138,7 +152,10 @@ void main() {
 
     expect(l1, isNotNull);
     String signature(CrosswordLevel level) => level.placements
-        .map((p) => '${p.idiom.text}@${p.startRow},${p.startCol}:${p.direction.index}')
+        .map(
+          (p) =>
+              '${p.idiom.text}@${p.startRow},${p.startCol}:${p.direction.index}',
+        )
         .join('|');
     expect(signature(l1!), signature(l2!));
   });
@@ -161,11 +178,17 @@ void main() {
 
     var mixed = false;
     for (var i = 0; i < 6; i++) {
-      final level = spiralGen.generateSpiral(levelNumber: levelNumber, maxAttempts: 30);
+      final level = spiralGen.generateSpiral(
+        levelNumber: levelNumber,
+        maxAttempts: 30,
+      );
       expect(level, isNotNull, reason: '6000 关应能生成');
       final inMain = level!.idioms
-          .where((x) =>
-              x.difficulty >= spiral.mainMin && x.difficulty <= spiral.mainMax)
+          .where(
+            (x) =>
+                x.difficulty >= spiral.mainMin &&
+                x.difficulty <= spiral.mainMax,
+          )
           .length;
       if (inMain < level.idioms.length) {
         mixed = true;
@@ -177,14 +200,16 @@ void main() {
 }
 
 List<Idiom> _loadIdioms() {
-  final data = json.decode(
-    File('assets/data/scoring_progress.json').readAsStringSync(),
-  ) as Map<String, dynamic>;
+  final data =
+      json.decode(File('assets/data/scoring_progress.json').readAsStringSync())
+          as Map<String, dynamic>;
   final scores = data['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];
   for (final entry in scores.entries) {
     if (entry.key.length != 4) continue;
-    idioms.add(Idiom(text: entry.key, difficulty: (entry.value as num).toInt()));
+    idioms.add(
+      Idiom(text: entry.key, difficulty: (entry.value as num).toInt()),
+    );
   }
   return idioms;
 }

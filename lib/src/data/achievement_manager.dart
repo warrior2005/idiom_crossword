@@ -29,14 +29,46 @@ class AchievementDef {
 
 /// 全部成就定义（展示顺序即列表顺序）
 const List<AchievementDef> achievementDefs = [
-  AchievementDef(id: AchievementId.firstLevel, title: '首战告捷', description: '完成第 1 关'),
-  AchievementDef(id: AchievementId.streak10, title: '十连击', description: '连续答对 10 个字'),
-  AchievementDef(id: AchievementId.noHint, title: '不靠提示', description: '不使用提示通关一关'),
-  AchievementDef(id: AchievementId.level100, title: '百关斩', description: '累计通关 100 关'),
-  AchievementDef(id: AchievementId.dailyChallenge, title: '每日打卡', description: '完成一次每日挑战'),
-  AchievementDef(id: AchievementId.collector50, title: '成语收藏家', description: '收藏 50 个成语'),
-  AchievementDef(id: AchievementId.speedrun, title: '速战速决', description: '60 秒内通关一关'),
-  AchievementDef(id: AchievementId.flawless, title: '零失误', description: '无错误填写通关一关'),
+  AchievementDef(
+    id: AchievementId.firstLevel,
+    title: '首战告捷',
+    description: '完成第 1 关',
+  ),
+  AchievementDef(
+    id: AchievementId.streak10,
+    title: '十连击',
+    description: '连续答对 10 个字',
+  ),
+  AchievementDef(
+    id: AchievementId.noHint,
+    title: '不靠提示',
+    description: '不使用提示通关一关',
+  ),
+  AchievementDef(
+    id: AchievementId.level100,
+    title: '百关斩',
+    description: '累计通关 100 关',
+  ),
+  AchievementDef(
+    id: AchievementId.dailyChallenge,
+    title: '每日打卡',
+    description: '完成一次每日挑战',
+  ),
+  AchievementDef(
+    id: AchievementId.collector50,
+    title: '成语收藏家',
+    description: '收藏 50 个成语',
+  ),
+  AchievementDef(
+    id: AchievementId.speedrun,
+    title: '速战速决',
+    description: '60 秒内通关一关',
+  ),
+  AchievementDef(
+    id: AchievementId.flawless,
+    title: '零失误',
+    description: '无错误填写通关一关',
+  ),
 ];
 
 class AchievementManager {
@@ -68,10 +100,6 @@ class AchievementManager {
     check(AchievementId.speedrun, timeSpentMs > 0 && timeSpentMs < 60000);
     check(AchievementId.flawless, errorsMade == 0);
 
-    return achievementDefs
-        .map((d) => d.id)
-        .where(unlocked.contains)
-        .toList();
+    return achievementDefs.map((d) => d.id).where(unlocked.contains).toList();
   }
-
 }

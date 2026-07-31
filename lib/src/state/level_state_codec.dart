@@ -23,16 +23,20 @@ String encodeLevel(CrosswordLevel level) {
     }
   }
 
-  final placements = level.placements.map((p) => [
-        p.idiom.text,
-        p.idiom.pinyin,
-        p.idiom.meaning,
-        p.idiom.difficulty,
-        p.idiom.source,
-        p.startRow,
-        p.startCol,
-        p.direction.index,
-      ]).toList();
+  final placements = level.placements
+      .map(
+        (p) => [
+          p.idiom.text,
+          p.idiom.pinyin,
+          p.idiom.meaning,
+          p.idiom.difficulty,
+          p.idiom.source,
+          p.startRow,
+          p.startCol,
+          p.direction.index,
+        ],
+      )
+      .toList();
 
   return jsonEncode({
     'levelId': level.levelId,
@@ -139,9 +143,7 @@ String encodeGameState(SavedGameState state) {
     'answers': state.answers.entries
         .map((e) => [e.key.$1, e.key.$2, e.value])
         .toList(),
-    'used': state.usedCandidateSlots
-        .map((p) => [p.$1, p.$2])
-        .toList(),
+    'used': state.usedCandidateSlots.map((p) => [p.$1, p.$2]).toList(),
     'history': state.fillHistory
         .map((h) => [h.row, h.col, h.candRow, h.candCol])
         .toList(),
@@ -153,10 +155,9 @@ String encodeGameState(SavedGameState state) {
     'idiomHint': state.idiomHintUsed ? 1 : 0,
     'errors': state.errorsMade,
     'streak': state.correctStreak,
-    'focus':
-        (state.focusRow == null || state.focusCol == null)
-            ? null
-            : [state.focusRow, state.focusCol],
+    'focus': (state.focusRow == null || state.focusCol == null)
+        ? null
+        : [state.focusRow, state.focusCol],
     'dir': state.direction?.index,
   });
 }

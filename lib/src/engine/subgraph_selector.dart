@@ -3,7 +3,7 @@ import 'crossing_graph.dart';
 import 'grid_engine.dart';
 
 /// 子图选取器
-/// 
+///
 /// 从交叉图中选取一个满足难度约束的连通子图。
 /// 支持纯难度模式（所有节点都在范围内）和混合模式（允许桥接节点）。
 
@@ -176,8 +176,7 @@ class SubgraphSelector {
         if (!coreCandidates.contains(cur)) continue;
         selected.add(cur);
 
-        final neighbors = graph
-            .getNeighbors(cur, withinPool: coreCandidates);
+        final neighbors = graph.getNeighbors(cur, withinPool: coreCandidates);
         neighbors.shuffle(_random);
 
         for (final n in neighbors) {

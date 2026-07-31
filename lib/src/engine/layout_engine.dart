@@ -38,11 +38,11 @@ class _PlacedNode {
   }
 
   _PlacedNode copy() => _PlacedNode(
-        idiomIdx: idiomIdx,
-        direction: direction,
-        startRow: startRow,
-        startCol: startCol,
-      );
+    idiomIdx: idiomIdx,
+    direction: direction,
+    startRow: startRow,
+    startCol: startCol,
+  );
 }
 
 class LayoutResult {
@@ -86,8 +86,14 @@ class LayoutEngine {
 
     // 多起点重试
     final startPositions = [
-      (10, 5), (5, 5), (5, 10), (10, 10),
-      (7, 3), (3, 7), (12, 8), (8, 12),
+      (10, 5),
+      (5, 5),
+      (5, 10),
+      (10, 10),
+      (7, 3),
+      (3, 7),
+      (12, 8),
+      (8, 12),
     ];
 
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
@@ -122,8 +128,12 @@ class LayoutEngine {
       startRow: startPos.$1,
       startCol: startPos.$2,
     );
-    _markOccupied(placed[sorted[0]]!, graph.idioms[sorted[0]].text.length,
-        occupied, sorted[0]);
+    _markOccupied(
+      placed[sorted[0]]!,
+      graph.idioms[sorted[0]].text.length,
+      occupied,
+      sorted[0],
+    );
 
     // 递归扩展
     final success = _placeRemaining(
@@ -163,19 +173,19 @@ class LayoutEngine {
       if (!placed.containsKey(other)) continue;
 
       final placedOther = placed[other]!;
-      final int posInNode =
-          edge.idiomA == node ? edge.posInA : edge.posInB;
-      final int posInOther =
-          edge.idiomA == node ? edge.posInB : edge.posInA;
+      final int posInNode = edge.idiomA == node ? edge.posInA : edge.posInB;
+      final int posInOther = edge.idiomA == node ? edge.posInB : edge.posInA;
 
       final otherLen = graph.idioms[other].text.length;
       final (crossRow, crossCol) = placedOther.cellAt(posInOther, otherLen);
 
-      constraints.add(_CrossConstraint(
-        posInNode: posInNode,
-        crossRow: crossRow,
-        crossCol: crossCol,
-      ));
+      constraints.add(
+        _CrossConstraint(
+          posInNode: posInNode,
+          crossRow: crossRow,
+          crossCol: crossCol,
+        ),
+      );
     }
 
     if (constraints.isEmpty) return false;
@@ -214,17 +224,28 @@ class LayoutEngine {
         allCrossPoints.add((r, col));
       }
 
-      if (consistent && agreedStartRow != null && agreedStartCol != null &&
-          _canPlaceMulti(node, dir, agreedStartRow, agreedStartCol, idiomLen,
-              allCrossPoints, occupied)) {
-        candidates.add(_PlacementCandidate(
-          node: node,
-          direction: dir,
-          startRow: agreedStartRow,
-          startCol: agreedStartCol,
-          crossRow: constraints.first.crossRow,
-          crossCol: constraints.first.crossCol,
-        ));
+      if (consistent &&
+          agreedStartRow != null &&
+          agreedStartCol != null &&
+          _canPlaceMulti(
+            node,
+            dir,
+            agreedStartRow,
+            agreedStartCol,
+            idiomLen,
+            allCrossPoints,
+            occupied,
+          )) {
+        candidates.add(
+          _PlacementCandidate(
+            node: node,
+            direction: dir,
+            startRow: agreedStartRow,
+            startCol: agreedStartCol,
+            crossRow: constraints.first.crossRow,
+            crossCol: constraints.first.crossCol,
+          ),
+        );
       }
     }
 
@@ -246,8 +267,12 @@ class LayoutEngine {
         startRow: cand.startRow,
         startCol: cand.startCol,
       );
-      _markOccupied(placed[node]!, graph.idioms[node].text.length,
-          occupied, node);
+      _markOccupied(
+        placed[node]!,
+        graph.idioms[node].text.length,
+        occupied,
+        node,
+      );
 
       // 递归
       if (_placeRemaining(
@@ -262,8 +287,12 @@ class LayoutEngine {
       }
 
       // 回溯：撤销放置
-      _unmarkOccupied(placed[node]!, graph.idioms[node].text.length,
-          occupied, node);
+      _unmarkOccupied(
+        placed[node]!,
+        graph.idioms[node].text.length,
+        occupied,
+        node,
+      );
       placed.remove(node);
     }
 
@@ -295,8 +324,7 @@ class LayoutEngine {
     return true;
   }
 
-  int _countNewCells(_PlacementCandidate cand,
-      Map<(int, int), int> occupied) {
+  int _countNewCells(_PlacementCandidate cand, Map<(int, int), int> occupied) {
     int count = 0;
     final len = graph.idioms[cand.node].text.length;
     for (int k = 0; k < len; k++) {
@@ -386,12 +414,14 @@ class LayoutEngine {
         occupiedCells[(r, c)] = idiom.text[k];
       }
 
-      placements.add(Placement(
-        idiom: idiom,
-        startRow: node.startRow - minRow,
-        startCol: node.startCol - minCol,
-        direction: node.direction,
-      ));
+      placements.add(
+        Placement(
+          idiom: idiom,
+          startRow: node.startRow - minRow,
+          startCol: node.startCol - minCol,
+          direction: node.direction,
+        ),
+      );
     }
 
     final givenChars = <String>{};
@@ -401,9 +431,10 @@ class LayoutEngine {
       grid.cellAt(r, c).isGiven = true;
     }
 
-    final avgDiff = placed.keys
-        .map((i) => graph.idioms[i].difficulty)
-        .reduce((a, b) => a + b) /
+    final avgDiff =
+        placed.keys
+            .map((i) => graph.idioms[i].difficulty)
+            .reduce((a, b) => a + b) /
         placed.length;
 
     return LayoutResult(

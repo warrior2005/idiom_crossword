@@ -38,170 +38,173 @@ class HomeScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-              // 标题
-              Text(
-                '成语填字',
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.brown.shade800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '交叉推理，智慧填字',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.brown.shade600,
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // 等级显示
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.brown.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  'Lv.${player.level} ${player.title}',
+                // 标题
+                Text(
+                  '成语填字',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.brown.shade700,
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.brown.shade800,
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '经验: ${player.totalXp}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.brown.shade500,
+                const SizedBox(height: 8),
+                Text(
+                  '交叉推理，智慧填字',
+                  style: TextStyle(fontSize: 16, color: Colors.brown.shade600),
                 ),
-              ),
-              const SizedBox(height: 8),
-              // 经验进度条
-              SizedBox(
-                width: 220,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: player.xpProgress.clamp(0.0, 1.0),
-                    minHeight: 8,
-                    backgroundColor: Colors.brown.shade100,
-                    color: Colors.brown.shade400,
+                const SizedBox(height: 40),
+
+                // 等级显示
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.brown.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Lv.${player.level} ${player.title}',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.brown.shade700,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${player.xpProgress.toStringAsFixed(0)}% 升至 Lv.${player.level + 1}',
-                style: TextStyle(fontSize: 11, color: Colors.brown.shade400),
-              ),
-              const SizedBox(height: 40),
-
-              // 每日挑战按钮
-              _MenuButton(
-                icon: dailyDone ? Icons.check_circle : Icons.calendar_today,
-                label: dailyDone ? '每日挑战 ✓' : '每日挑战',
-                onTap: () => _startDaily(context, ref),
-              ),
-              const SizedBox(height: 16),
-
-              // 开始游戏按钮
-              _MenuButton(
-                icon: Icons.play_arrow_rounded,
-                label: '开始游戏',
-                onTap: () => _startGame(context, ref),
-              ),
-              const SizedBox(height: 16),
-
-              // 关卡选择按钮
-              _MenuButton(
-                icon: Icons.grid_view_rounded,
-                label: '选择关卡',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LevelSelectScreen()),
+                const SizedBox(height: 8),
+                Text(
+                  '经验: ${player.totalXp}',
+                  style: TextStyle(fontSize: 14, color: Colors.brown.shade500),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // 自定义关卡按钮
-              _MenuButton(
-                icon: Icons.tune,
-                label: '自定义关卡',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CustomLevelScreen()),
+                const SizedBox(height: 8),
+                // 经验进度条
+                SizedBox(
+                  width: 220,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      value: player.xpProgress.clamp(0.0, 1.0),
+                      minHeight: 8,
+                      backgroundColor: Colors.brown.shade100,
+                      color: Colors.brown.shade400,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // 收藏按钮
-              _MenuButton(
-                icon: Icons.collections_bookmark,
-                label: '成语收藏',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CollectionScreen()),
+                const SizedBox(height: 4),
+                Text(
+                  '${player.xpProgress.toStringAsFixed(0)}% 升至 Lv.${player.level + 1}',
+                  style: TextStyle(fontSize: 11, color: Colors.brown.shade400),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 40),
 
-              // 商城按钮
-              _MenuButton(
-                icon: Icons.store,
-                label: '商城',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ShopScreen()),
+                // 每日挑战按钮
+                _MenuButton(
+                  icon: dailyDone ? Icons.check_circle : Icons.calendar_today,
+                  label: dailyDone ? '每日挑战 ✓' : '每日挑战',
+                  onTap: () => _startDaily(context, ref),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // 统计按钮
-              _MenuButton(
-                icon: Icons.insert_chart_outlined,
-                label: '统计',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const StatsScreen()),
+                // 开始游戏按钮
+                _MenuButton(
+                  icon: Icons.play_arrow_rounded,
+                  label: '开始游戏',
+                  onTap: () => _startGame(context, ref),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // 成就按钮
-              _MenuButton(
-                icon: Icons.emoji_events_outlined,
-                label: '成就',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+                // 关卡选择按钮
+                _MenuButton(
+                  icon: Icons.grid_view_rounded,
+                  label: '选择关卡',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LevelSelectScreen(),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // 设置按钮
-              _MenuButton(
-                icon: Icons.settings_outlined,
-                label: '设置',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                // 自定义关卡按钮
+                _MenuButton(
+                  icon: Icons.tune,
+                  label: '自定义关卡',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CustomLevelScreen(),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // 排行榜按钮
-              _MenuButton(
-                icon: Icons.leaderboard_outlined,
-                label: '排行榜',
-                onTap: () => LeaderboardService.show(),
-              ),
-            ],
+                // 收藏按钮
+                _MenuButton(
+                  icon: Icons.collections_bookmark,
+                  label: '成语收藏',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CollectionScreen()),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 商城按钮
+                _MenuButton(
+                  icon: Icons.store,
+                  label: '商城',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ShopScreen()),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 统计按钮
+                _MenuButton(
+                  icon: Icons.insert_chart_outlined,
+                  label: '统计',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const StatsScreen()),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 成就按钮
+                _MenuButton(
+                  icon: Icons.emoji_events_outlined,
+                  label: '成就',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AchievementsScreen(),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 设置按钮
+                _MenuButton(
+                  icon: Icons.settings_outlined,
+                  label: '设置',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 排行榜按钮
+                _MenuButton(
+                  icon: Icons.leaderboard_outlined,
+                  label: '排行榜',
+                  onTap: () => LeaderboardService.show(),
+                ),
+              ],
             ),
           ),
         ),
@@ -222,14 +225,15 @@ class HomeScreen extends ConsumerWidget {
       Navigator.pop(context);
 
       if (level == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('关卡生成失败，请重试')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('关卡生成失败，请重试')));
         return;
       }
 
       // 首局展示一次新手引导
-      final firstGame = player.completedLevels == 0 &&
+      final firstGame =
+          player.completedLevels == 0 &&
           await db.getSetting(tutorialShownKey) != 'true';
       if (firstGame) {
         await db.setSetting(tutorialShownKey, 'true');
@@ -256,16 +260,14 @@ class HomeScreen extends ConsumerWidget {
       if (!context.mounted) return;
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => GameScreen(level: level),
-        ),
+        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
       );
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('错误: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('错误: $e')));
       }
     }
   }
@@ -307,9 +309,9 @@ class HomeScreen extends ConsumerWidget {
       if (!context.mounted) return;
       Navigator.pop(context);
       if (level == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('每日挑战生成失败，请重试')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('每日挑战生成失败，请重试')));
         return;
       }
       Navigator.push(
@@ -319,9 +321,9 @@ class HomeScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('错误: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('错误: $e')));
       }
     }
   }
@@ -358,10 +360,7 @@ class _MenuButton extends StatelessWidget {
           children: [
             Icon(icon, size: 24),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 18),
-            ),
+            Text(label, style: const TextStyle(fontSize: 18)),
           ],
         ),
       ),

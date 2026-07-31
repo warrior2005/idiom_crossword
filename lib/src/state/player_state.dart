@@ -150,8 +150,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     return updated;
   }
 
-  Set<String> _applyDecorationReward(
-      Set<String> owned, LevelReward? reward) {
+  Set<String> _applyDecorationReward(Set<String> owned, LevelReward? reward) {
     if (reward == null || reward.type != RewardType.decoration) return owned;
     return {...owned, reward.item};
   }

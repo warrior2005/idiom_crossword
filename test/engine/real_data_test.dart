@@ -166,9 +166,11 @@ void _runBatchTest(List<Idiom> allIdioms) {
   for (final diff in difficulties) {
     for (final target in targets) {
       final pool = allIdioms
-          .where((i) =>
-              i.difficulty >= (diff - 10).clamp(1, 50) &&
-              i.difficulty <= (diff + 10).clamp(1, 50))
+          .where(
+            (i) =>
+                i.difficulty >= (diff - 10).clamp(1, 50) &&
+                i.difficulty <= (diff + 10).clamp(1, 50),
+          )
           .toList();
 
       if (pool.length < target * 3) continue;

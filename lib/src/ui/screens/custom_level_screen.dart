@@ -118,9 +118,9 @@ class _CustomLevelScreenState extends ConsumerState<CustomLevelScreen> {
       if (!mounted) return;
       Navigator.pop(context);
       if (level == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('关卡生成失败，请调整参数后重试')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('关卡生成失败，请调整参数后重试')));
         return;
       }
       Navigator.push(
@@ -132,9 +132,9 @@ class _CustomLevelScreenState extends ConsumerState<CustomLevelScreen> {
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('错误: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('错误: $e')));
       }
     }
   }

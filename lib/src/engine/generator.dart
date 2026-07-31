@@ -1,7 +1,7 @@
 import 'grid_engine.dart';
 
 /// 成语交叉填字生成器
-/// 
+///
 /// 算法策略（三层递进）：
 ///   第一层：模板驱动（MVP 用）—— 预定义网格形状，往里面填成语
 ///   第二层：回溯搜索 —— 从种子成语开始，逐步扩展交叉，约束求解
@@ -11,7 +11,7 @@ import 'grid_engine.dart';
 
 class CrosswordGenerator {
   final List<Idiom> idiomPool;
-  late final Map<String, List<int>> charIndex;  // 字 -> 包含该字的成语索引列表
+  late final Map<String, List<int>> charIndex; // 字 -> 包含该字的成语索引列表
 
   CrosswordGenerator({required this.idiomPool}) {
     _buildIndex();
@@ -192,7 +192,9 @@ class CrosswordGenerator {
 
   /// 选择哪些字作为初始提示给出
   Set<String> _selectGivenChars(
-      CrosswordGrid grid, List<Placement> placements) {
+    CrosswordGrid grid,
+    List<Placement> placements,
+  ) {
     final given = <String>{};
     // 策略：每个成语给出首字作为提示
     for (final placement in placements) {
@@ -223,9 +225,9 @@ class DifficultyEvaluator {
     }
 
     // 因素2：成语本身的平均难度
-    final avgDifficulty = level.idioms
-        .map((i) => i.difficulty)
-        .reduce((a, b) => a + b) / idiomCount;
+    final avgDifficulty =
+        level.idioms.map((i) => i.difficulty).reduce((a, b) => a + b) /
+        idiomCount;
     score += avgDifficulty;
 
     // 因素3：提示比例（提示越少越难）

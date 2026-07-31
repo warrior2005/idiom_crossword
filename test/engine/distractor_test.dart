@@ -13,9 +13,7 @@ void main() {
   print('--- 测试 1: 单字干扰生成 ---');
   final words = ['画', '蛇', '添', '足', '守', '株', '待', '兔'];
   for (final w in words) {
-    final distractors = engine.generate(w,
-        count: 3,
-        allAnswerChars: words);
+    final distractors = engine.generate(w, count: 3, allAnswerChars: words);
     print('  $w → ${distractors.join(", ")}');
   }
 
@@ -30,18 +28,22 @@ void main() {
 
   for (int r = 0; r < board.length; r++) {
     final row = board[r];
-    final marked = row.map((c) {
-      if (correctAnswers.contains(c)) {
-        return '[$c]';  // 正确答案标记
-      }
-      return ' $c ';
-    }).join(' ');
+    final marked = row
+        .map((c) {
+          if (correctAnswers.contains(c)) {
+            return '[$c]'; // 正确答案标记
+          }
+          return ' $c ';
+        })
+        .join(' ');
     print('  第${r + 1}行: $marked');
   }
 
   // 验证：所有正确答案都在候选盘里
   final allCandidates = board.expand((row) => row).toSet();
-  final missing = correctAnswers.where((a) => !allCandidates.contains(a)).toList();
+  final missing = correctAnswers
+      .where((a) => !allCandidates.contains(a))
+      .toList();
   if (missing.isEmpty) {
     print('\n  ✓ 所有正确答案已包含在候选盘中');
   } else {

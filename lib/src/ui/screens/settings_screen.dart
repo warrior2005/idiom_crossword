@@ -10,8 +10,9 @@ const String soundEnabledKey = 'sound_enabled';
 const String tutorialShownKey = 'tutorial_shown';
 
 /// 音效开关（持久化到 settings 表）
-final soundEnabledProvider =
-    AsyncNotifierProvider<SoundSettingNotifier, bool>(SoundSettingNotifier.new);
+final soundEnabledProvider = AsyncNotifierProvider<SoundSettingNotifier, bool>(
+  SoundSettingNotifier.new,
+);
 
 class SoundSettingNotifier extends AsyncNotifier<bool> {
   @override

@@ -1,5 +1,5 @@
 /// 交叉填字引擎核心数据结构
-/// 
+///
 /// 整个问题的形式化定义：
 ///   给定成语集合 I = {i₁, i₂, ..., iₙ}，每个成语 iₖ = c₁c₂c₃c₄
 ///   寻找一个二维网格 G 和路径分配 P = {(iₖ, direction, origin)}
@@ -12,11 +12,11 @@
 library;
 
 class Idiom {
-  final String text;       // 成语原文，如 "画蛇添足"
-  final String pinyin;     // 拼音
-  final String meaning;    // 释义
-  final int difficulty;    // 难度 1-5
-  final String source;     // 出处
+  final String text; // 成语原文，如 "画蛇添足"
+  final String pinyin; // 拼音
+  final String meaning; // 释义
+  final int difficulty; // 难度 1-5
+  final String source; // 出处
 
   const Idiom({
     required this.text,
@@ -40,10 +40,10 @@ enum CellState { empty, filled, blocked }
 class Cell {
   final int row;
   final int col;
-  String character;         // 填入的字
+  String character; // 填入的字
   CellState state;
-  bool isIntersection;      // 是否为交叉点（纵横成语共享）
-  bool isGiven;             // 是否为系统给出的初始字（提示）
+  bool isIntersection; // 是否为交叉点（纵横成语共享）
+  bool isGiven; // 是否为系统给出的初始字（提示）
 
   Cell({
     required this.row,
@@ -95,8 +95,10 @@ class CrosswordGrid {
   late final List<List<Cell>> cells;
 
   CrosswordGrid({required this.rows, required this.cols}) {
-    cells = List.generate(rows, (r) =>
-        List.generate(cols, (c) => Cell(row: r, col: c)));
+    cells = List.generate(
+      rows,
+      (r) => List.generate(cols, (c) => Cell(row: r, col: c)),
+    );
   }
 
   Cell cellAt(int row, int col) => cells[row][col];
@@ -142,7 +144,7 @@ class CrosswordLevel {
   final List<Placement> placements;
   final Set<String> givenCharacters; // 初始给出的字（提示）
   final String title;
-  final String? storyHint;           // 隐藏成语的典故提示
+  final String? storyHint; // 隐藏成语的典故提示
 
   const CrosswordLevel({
     required this.levelId,

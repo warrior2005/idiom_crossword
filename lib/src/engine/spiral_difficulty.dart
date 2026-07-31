@@ -1,7 +1,7 @@
 import 'dart:math';
 
 /// 螺旋难度计算器
-/// 
+///
 /// 根据关卡编号计算该关的难度分布：
 /// - baseDifficulty: 基准难度 (1-50)
 /// - mainRange: 主体难度范围 (base ± 3)
@@ -32,27 +32,35 @@ class SpiralDifficulty {
   static final Random _random = Random();
 
   /// 计算关卡的螺旋难度分布
-  /// 
+  ///
   /// [levelNumber] 关卡编号 (1-based)
   static SpiralDifficultyResult calculate(int levelNumber) {
     // 基准难度 = ceil(关卡编号 / 200)，映射到 1-50
     final baseDifficulty = ((levelNumber - 1) ~/ 200 + 1).clamp(1, 50);
-    
+
     // 主体范围：base ± 3
     final mainMin = (baseDifficulty - 3).clamp(1, 50);
     final mainMax = (baseDifficulty + 3).clamp(1, 50);
-    
+
     // 教学关 (1-5)：无长尾/预览
     final isTeachingLevel = levelNumber <= 5;
 
     // 长尾范围：base - 10 to base - 5（如果 base > 5 且非教学关）
-    final tailMin = (!isTeachingLevel && baseDifficulty > 5) ? (baseDifficulty - 10).clamp(1, 50) : 0;
-    final tailMax = (!isTeachingLevel && baseDifficulty > 5) ? (baseDifficulty - 5).clamp(1, 50) : 0;
-    
+    final tailMin = (!isTeachingLevel && baseDifficulty > 5)
+        ? (baseDifficulty - 10).clamp(1, 50)
+        : 0;
+    final tailMax = (!isTeachingLevel && baseDifficulty > 5)
+        ? (baseDifficulty - 5).clamp(1, 50)
+        : 0;
+
     // 预览范围：base + 3 to base + 5（如果 base < 45 且非教学关）
-    final previewMin = (!isTeachingLevel && baseDifficulty < 45) ? (baseDifficulty + 3).clamp(1, 50) : 0;
-    final previewMax = (!isTeachingLevel && baseDifficulty < 45) ? (baseDifficulty + 5).clamp(1, 50) : 0;
-    
+    final previewMin = (!isTeachingLevel && baseDifficulty < 45)
+        ? (baseDifficulty + 3).clamp(1, 50)
+        : 0;
+    final previewMax = (!isTeachingLevel && baseDifficulty < 45)
+        ? (baseDifficulty + 5).clamp(1, 50)
+        : 0;
+
     return SpiralDifficultyResult(
       baseDifficulty: baseDifficulty,
       mainMin: mainMin,
@@ -63,15 +71,15 @@ class SpiralDifficulty {
       previewMax: previewMax,
     );
   }
-  
+
   /// 根据螺旋难度选择成语数量
-  /// 
+  ///
   /// [levelNumber] 关卡编号
   /// 返回：(主体数量, 长尾数量, 预览数量)
   static (int mainCount, int tailCount, int previewCount) selectIdiomCounts(
-    int levelNumber,
-    {Random? random}
-  ) {
+    int levelNumber, {
+    Random? random,
+  }) {
     final rng = random ?? _random;
     if (levelNumber <= 5) {
       // 教学关：固定 5 条

@@ -37,7 +37,7 @@ class IntegratedGenerator {
   final Random _random;
 
   IntegratedGenerator({required this.graph, Random? random})
-      : _random = random ?? Random();
+    : _random = random ?? Random();
 
   // ============================================================
   // Pattern collision disambiguation
@@ -66,7 +66,9 @@ class IntegratedGenerator {
   }
 
   static List<(Placement, Placement)> _findCollisions(
-      List<Placement> placements, CrosswordGrid grid) {
+    List<Placement> placements,
+    CrosswordGrid grid,
+  ) {
     final result = <(Placement, Placement)>[];
     for (int i = 0; i < placements.length; i++) {
       for (int j = i + 1; j < placements.length; j++) {
@@ -88,8 +90,11 @@ class IntegratedGenerator {
   }
 
   static void _resolveCollision(
-      Placement a, Placement b,
-      List<Placement> placements, CrosswordGrid grid) {
+    Placement a,
+    Placement b,
+    List<Placement> placements,
+    CrosswordGrid grid,
+  ) {
     final candidates = <_PreFillCandidate>[];
     for (final p in [a, b]) {
       for (int k = 0; k < p.idiom.text.length; k++) {
@@ -102,13 +107,19 @@ class IntegratedGenerator {
           }
           return false;
         }).length;
-        candidates.add(_PreFillCandidate(
-          row: r, col: c, placement: p, isCrossing: crossingCount > 1,
-        ));
+        candidates.add(
+          _PreFillCandidate(
+            row: r,
+            col: c,
+            placement: p,
+            isCrossing: crossingCount > 1,
+          ),
+        );
       }
     }
-    candidates.sort((a, b) =>
-        a.isCrossing ? (b.isCrossing ? 0 : 1) : (b.isCrossing ? -1 : 0));
+    candidates.sort(
+      (a, b) => a.isCrossing ? (b.isCrossing ? 0 : 1) : (b.isCrossing ? -1 : 0),
+    );
 
     for (final cand in candidates) {
       final cell = grid.cellAt(cand.row, cand.col);
@@ -134,7 +145,7 @@ class IntegratedGenerator {
       minDifficulty = spiralResult.mainMin;
       maxDifficulty = spiralResult.mainMax;
     }
-    
+
     // 候选池：提供时直接使用（螺旋混排），否则按难度过滤
     final candidates = <int>{};
     if (candidatePool != null) {
@@ -157,7 +168,10 @@ class IntegratedGenerator {
   }
 
   CrosswordLevel? _tryGenerate(
-      Set<int> candidates, int targetSize, int? levelNumber) {
+    Set<int> candidates,
+    int targetSize,
+    int? levelNumber,
+  ) {
     final occupied = <(int, int), int>{}; // 已占用的格子
     final placed = <int, _PlacedNode>{}; // 已放置的节点
 
@@ -186,7 +200,8 @@ class IntegratedGenerator {
       final current = frontier.removeAt(0);
 
       // 找 current 的邻居（在候选池中）
-      final neighbors = graph.getNeighbors(current)
+      final neighbors = graph
+          .getNeighbors(current)
           .where((n) => candidates.contains(n) && !visited.contains(n))
           .toList();
       neighbors.shuffle(_random);
@@ -221,7 +236,8 @@ class IntegratedGenerator {
         final allPlaced = placed.keys.toList()..shuffle(_random);
         for (final pid in allPlaced) {
           if (pid == current) continue;
-          final otherNeighbors = graph.getNeighbors(pid)
+          final otherNeighbors = graph
+              .getNeighbors(pid)
               .where((n) => candidates.contains(n) && !placed.containsKey(n))
               .toList();
           otherNeighbors.shuffle(_random);
@@ -289,15 +305,17 @@ class IntegratedGenerator {
                 ? crossCol - posA
                 : crossCol;
 
-            crossCandidates.add(_CrossOption(
-              posInNode: posA,
-              posInOther: posB,
-              direction: dir,
-              startRow: startRow,
-              startCol: startCol,
-              crossRow: crossRow,
-              crossCol: crossCol,
-            ));
+            crossCandidates.add(
+              _CrossOption(
+                posInNode: posA,
+                posInOther: posB,
+                direction: dir,
+                startRow: startRow,
+                startCol: startCol,
+                crossRow: crossRow,
+                crossCol: crossCol,
+              ),
+            );
           }
         }
       }
@@ -474,12 +492,14 @@ class IntegratedGenerator {
         cellChars[(r, c)] = idiom.text[k];
       }
 
-      placements.add(Placement(
-        idiom: idiom,
-        startRow: node.startRow - minRow,
-        startCol: node.startCol - minCol,
-        direction: node.direction,
-      ));
+      placements.add(
+        Placement(
+          idiom: idiom,
+          startRow: node.startRow - minRow,
+          startCol: node.startCol - minCol,
+          direction: node.direction,
+        ),
+      );
     }
 
     final givenChars = <String>{};
@@ -508,7 +528,7 @@ class IntegratedGenerator {
   }
 
   /// 生成螺旋难度关卡
-  /// 
+  ///
   /// [levelNumber] 关卡编号 (1-based)
   CrosswordLevel? generateSpiral({
     required int levelNumber,

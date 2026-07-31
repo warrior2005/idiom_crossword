@@ -53,20 +53,25 @@ void main() {
       buf.writeln('|------|------|------|------|');
       for (final p in level.placements) {
         final dir = p.direction == Direction.horizontal ? '横' : '纵';
-        buf.writeln('| ${p.idiom.text} | ${p.idiom.difficulty} | $dir | (${p.startRow},${p.startCol}) |');
+        buf.writeln(
+          '| ${p.idiom.text} | ${p.idiom.difficulty} | $dir | (${p.startRow},${p.startCol}) |',
+        );
       }
 
       final crossings = <int>[];
       for (final p in level.placements) {
         final count = level.placements
-            .where((o) =>
-                o != p &&
-                o.direction != p.direction &&
-                level.grid.findIntersection(p, o) != null)
+            .where(
+              (o) =>
+                  o != p &&
+                  o.direction != p.direction &&
+                  level.grid.findIntersection(p, o) != null,
+            )
             .length;
         crossings.add(count);
       }
-      final avgDifficulty = level.placements
+      final avgDifficulty =
+          level.placements
               .map((p) => p.idiom.difficulty)
               .reduce((a, b) => a + b) /
           level.placements.length;
@@ -86,14 +91,16 @@ void main() {
 }
 
 List<Idiom> _loadIdioms() {
-  final data = json.decode(
-    File('assets/data/scoring_progress.json').readAsStringSync(),
-  ) as Map<String, dynamic>;
+  final data =
+      json.decode(File('assets/data/scoring_progress.json').readAsStringSync())
+          as Map<String, dynamic>;
   final scores = data['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];
   for (final entry in scores.entries) {
     if (entry.key.length != 4) continue;
-    idioms.add(Idiom(text: entry.key, difficulty: (entry.value as num).toInt()));
+    idioms.add(
+      Idiom(text: entry.key, difficulty: (entry.value as num).toInt()),
+    );
   }
   return idioms;
 }

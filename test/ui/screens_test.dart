@@ -8,21 +8,28 @@ import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/ui/screens/achievements_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/collection_screen.dart';
+import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
+import 'package:idiom_crossword/src/ui/screens/shop_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/stats_screen.dart';
+import 'package:idiom_crossword/src/audio/game_audio.dart';
 
 /// 数据驱动界面的 widget 测试（内存数据库 + Provider 覆盖）
 
 Future<AppDatabase> _memoryDb() async {
   final db = AppDatabase(NativeDatabase.memory());
-  await db.into(db.idioms).insert(IdiomsCompanion(
-        word: const Value('画蛇添足'),
-        pinyin: const Value('hua she tian zu'),
-        pinyinAbbr: const Value('hstz'),
-        explanation: const Value('比喻做了多余的事'),
-        firstChar: const Value('画'),
-        lastChar: const Value('足'),
-        difficulty: const Value(5),
-      ));
+  await db
+      .into(db.idioms)
+      .insert(
+        IdiomsCompanion(
+          word: const Value('画蛇添足'),
+          pinyin: const Value('hua she tian zu'),
+          pinyinAbbr: const Value('hstz'),
+          explanation: const Value('比喻做了多余的事'),
+          firstChar: const Value('画'),
+          lastChar: const Value('足'),
+          difficulty: const Value(5),
+        ),
+      );
   return db;
 }
 
@@ -96,5 +103,34 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('通关数'), findsOneWidget);
     expect(find.text('第 7 关'), findsOneWidget);
+  });
+
+  testWidgets('设置页：音效开关持久化', (tester) async {
+    GameAudio.instance.muted = false;
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const SettingsScreen()));
+    await tester.pumpAndSettle();
+
+    final switchFinder = find.byType(Switch);
+    expect(tester.widget<Switch>(switchFinder).value, isTrue);
+
+    await tester.tap(switchFinder);
+    await tester.pumpAndSettle();
+    expect(GameAudio.instance.muted, isTrue);
+    expect(await db.getSetting(soundEnabledKey), 'false');
+  });
+
+  testWidgets('商城购买按钮提示即将上线', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const ShopScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('¥6'));
+    await tester.pump();
+    expect(find.text('内购功能即将上线'), findsOneWidget);
   });
 }

@@ -13,10 +13,12 @@ void main() {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await tester.pumpWidget(ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(db)],
-      child: MaterialApp(home: GameScreen(level: _buildLevel())),
-    ));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
     await tester.pumpAndSettle();
 
     // 依次填入 蛇 → 添 → 足（焦点自动前进到下一空格）

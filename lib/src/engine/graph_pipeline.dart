@@ -1,5 +1,5 @@
 /// 连通图方案：关卡生成管道
-/// 
+///
 /// 流程：图构建 → 子图选取 → 布局 → 关卡
 /// 替代原来的 CrosswordGenerator（纯回溯）
 
@@ -16,13 +16,13 @@ class GraphPipelineGenerator {
   late final LayoutEngine layout;
 
   GraphPipelineGenerator({required List<Idiom> idiomPool})
-      : graph = CrossingGraph(idioms: idiomPool) {
+    : graph = CrossingGraph(idioms: idiomPool) {
     selector = SubgraphSelector(graph: graph);
     layout = LayoutEngine(graph: graph);
   }
 
   /// 生成一个关卡
-  /// 
+  ///
   /// [targetSize]: 目标成语数量（建议 4-8）
   /// [minDifficulty], [maxDifficulty]: 难度区间
   /// [maxAttempts]: 最大尝试次数
@@ -104,7 +104,9 @@ class GraphPipelineGenerator {
       for (int i = 0; i < level.placements.length; i++) {
         if (connected.contains(i)) continue;
         if (level.grid.findIntersection(
-                level.placements[cur], level.placements[i]) !=
+              level.placements[cur],
+              level.placements[i],
+            ) !=
             null) {
           connected.add(i);
           queue.add(i);

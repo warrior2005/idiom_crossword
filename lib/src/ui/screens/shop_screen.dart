@@ -36,9 +36,9 @@ class ShopScreen extends ConsumerWidget {
 }
 
 void _showComingSoon(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('内购功能即将上线')),
-  );
+  ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(const SnackBar(content: Text('内购功能即将上线')));
 }
 
 class _FunctionalItemsTab extends StatelessWidget {
@@ -93,7 +93,6 @@ class _DecorationItemsTab extends StatelessWidget {
       ],
     );
   }
-
 }
 
 class _ShopItem extends StatelessWidget {
@@ -120,10 +119,7 @@ class _ShopItem extends StatelessWidget {
         subtitle: Text(description),
         trailing: isOwned
             ? const Chip(label: Text('已拥有'))
-            : ElevatedButton(
-                onPressed: onPurchase,
-                child: Text(price),
-              ),
+            : ElevatedButton(onPressed: onPurchase, child: Text(price)),
       ),
     );
   }

@@ -6,14 +6,14 @@ import '../../state/database_provider.dart';
 /// 本关成语的完整资料（释义/出处/例句）
 final learningDetailsProvider =
     FutureProvider.family<List<Idiom>, List<String>>((ref, words) async {
-  final db = ref.watch(databaseProvider);
-  final rows = <Idiom>[];
-  for (final word in words) {
-    final row = await db.findIdiomByWord(word);
-    if (row != null) rows.add(row);
-  }
-  return rows;
-});
+      final db = ref.watch(databaseProvider);
+      final rows = <Idiom>[];
+      for (final word in words) {
+        final row = await db.findIdiomByWord(word);
+        if (row != null) rows.add(row);
+      }
+      return rows;
+    });
 
 /// 学习模式：通关后复习本关成语的释义、出处与例句
 class LearningScreen extends ConsumerWidget {
@@ -91,7 +91,8 @@ class LearningScreen extends ConsumerWidget {
                     ],
                     const SizedBox(height: 10),
                     _detailRow('释义', idiom.explanation),
-                    if (idiom.derivation != null && idiom.derivation!.isNotEmpty)
+                    if (idiom.derivation != null &&
+                        idiom.derivation!.isNotEmpty)
                       _detailRow('出处', idiom.derivation!),
                     if (idiom.example != null && idiom.example!.isNotEmpty)
                       _detailRow('例句', idiom.example!),

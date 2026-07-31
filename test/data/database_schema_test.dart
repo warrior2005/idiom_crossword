@@ -62,7 +62,10 @@ void main() {
     );
     expect(dailyA, isNotNull);
     String signature(engine.CrosswordLevel l) => l.placements
-        .map((p) => '${p.idiom.text}@${p.startRow},${p.startCol}:${p.direction.index}')
+        .map(
+          (p) =>
+              '${p.idiom.text}@${p.startRow},${p.startCol}:${p.direction.index}',
+        )
         .join('|');
     expect(signature(dailyA!), signature(dailyB!));
 
@@ -152,11 +155,7 @@ void main() {
 
   test('level codec roundtrips a level and game state', () {
     final grid = engine.CrosswordGrid(rows: 2, cols: 3);
-    final cells = [
-      grid.cellAt(0, 0),
-      grid.cellAt(0, 1),
-      grid.cellAt(1, 0),
-    ];
+    final cells = [grid.cellAt(0, 0), grid.cellAt(0, 1), grid.cellAt(1, 0)];
     for (final cell in cells) {
       cell.state = engine.CellState.filled;
     }

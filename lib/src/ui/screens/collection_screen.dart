@@ -22,12 +22,14 @@ final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
   final db = ref.watch(databaseProvider);
   final rows = await db.getCollectionWithDetails();
   return rows
-      .map((i) => CollectionItem(
-            word: i.word,
-            explanation: i.explanation,
-            difficulty: i.difficulty,
-            collectedAt: i.createdAt,
-          ))
+      .map(
+        (i) => CollectionItem(
+          word: i.word,
+          explanation: i.explanation,
+          difficulty: i.difficulty,
+          collectedAt: i.createdAt,
+        ),
+      )
       .toList();
 });
 
@@ -61,10 +63,12 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
           final filtered = _query.isEmpty
               ? collection
               : collection
-                  .where((c) =>
-                      c.word.contains(_query) ||
-                      c.explanation.contains(_query))
-                  .toList();
+                    .where(
+                      (c) =>
+                          c.word.contains(_query) ||
+                          c.explanation.contains(_query),
+                    )
+                    .toList();
 
           return Column(
             children: [
@@ -88,75 +92,74 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               Expanded(
                 child: collection.isEmpty
                     ? const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.bookmark_border,
-                      size: 64,
-                      color: Colors.brown,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      '还没有收藏任何成语',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.brown,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '通关后自动收录',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.brown,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-                    : filtered.isEmpty
-                        ? const Center(
-                            child: Text(
-                              '没有找到匹配的成语',
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.bookmark_border,
+                              size: 64,
+                              color: Colors.brown,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              '还没有收藏任何成语',
                               style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 color: Colors.brown,
                               ),
                             ),
-                          )
-                : ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: filtered.length,
-                itemBuilder: (context, index) {
-                  final item = filtered[index];
-                  return Card(
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    child: ListTile(
-                      title: Text(
-                        item.word,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                      subtitle: Text(item.explanation),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                            SizedBox(height: 8),
+                            Text(
+                              '通关后自动收录',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.brown,
+                              ),
+                            ),
+                          ],
                         ),
-                        decoration: BoxDecoration(
-                          color: _difficultyColor(item.difficulty),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                      )
+                    : filtered.isEmpty
+                    ? const Center(
                         child: Text(
-                          '${item.difficulty}',
-                          style: const TextStyle(color: Colors.white),
+                          '没有找到匹配的成语',
+                          style: TextStyle(fontSize: 15, color: Colors.brown),
                         ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final item = filtered[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 8,
+                            ),
+                            child: ListTile(
+                              title: Text(
+                                item.word,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              subtitle: Text(item.explanation),
+                              trailing: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _difficultyColor(item.difficulty),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '${item.difficulty}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  );
-                },
-              ),
               ),
             ],
           );

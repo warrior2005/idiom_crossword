@@ -1,9 +1,9 @@
 /// Drift 数据库定义
-/// 
+///
 /// 使用方式：
 ///   1. dart run build_runner build
 ///   2. 自动生成 database.g.dart
-/// 
+///
 /// 注意：这个文件依赖于 drift 的代码生成。
 /// 如果暂时不想引入 drift，可以先手写 SQLite 的 Dart 封装。
 
@@ -56,9 +56,9 @@ class Idioms extends Table {
   IntColumn get difficultyRebalancedV1 => integer().nullable()();
 
   // 扩展字段
-  TextColumn get emotion => text().nullable()();   // 褒/贬/中
-  TextColumn get category => text().nullable()();  // 哲理/军事/自然/情感
-  TextColumn get era => text().nullable()();       // 先秦/汉/唐
+  TextColumn get emotion => text().nullable()(); // 褒/贬/中
+  TextColumn get category => text().nullable()(); // 哲理/军事/自然/情感
+  TextColumn get era => text().nullable()(); // 先秦/汉/唐
   TextColumn get sourceType => text().nullable()();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -66,7 +66,8 @@ class Idioms extends Table {
 
 /// 成语倒排索引
 class IdiomCharIndex extends Table {
-  IntColumn get idiomId => integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
+  IntColumn get idiomId =>
+      integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
   TextColumn get char => text()();
   IntColumn get position => integer()();
   BoolColumn get isFirst => boolean().withDefault(const Constant(false))();
@@ -79,9 +80,11 @@ class IdiomCharIndex extends Table {
 /// 倒装成语对
 class IdiomReversiblePair extends Table {
   @ReferenceName('pairsAsFirst')
-  IntColumn get idiomIdA => integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
+  IntColumn get idiomIdA =>
+      integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
   @ReferenceName('pairsAsSecond')
-  IntColumn get idiomIdB => integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
+  IntColumn get idiomIdB =>
+      integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
 
   @override
   Set<Column> get primaryKey => {idiomIdA, idiomIdB};
@@ -130,8 +133,10 @@ class PlayerProgressTable extends Table {
 
 /// 收藏成语表
 class Collection extends Table {
-  IntColumn get idiomId => integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
-  DateTimeColumn get collectedAt => dateTime().withDefault(currentDateAndTime)();
+  IntColumn get idiomId =>
+      integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
+  DateTimeColumn get collectedAt =>
+      dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {idiomId};
@@ -141,7 +146,8 @@ class Collection extends Table {
 class LevelHistory extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get levelNumber => integer()();
-  DateTimeColumn get completedAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get completedAt =>
+      dateTime().withDefault(currentDateAndTime)();
   IntColumn get xpGained => integer()();
   TextColumn get idiomsUsed => text()(); // JSON array of idiom IDs
   IntColumn get timeSpentMs => integer().nullable()();
@@ -155,13 +161,16 @@ class LevelHistory extends Table {
 /// 装饰道具拥有状态表
 class DecorationTable extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get decorationType => text()(); // 'grid_skin', 'avatar_frame', 'title_effect'
+  TextColumn get decorationType =>
+      text()(); // 'grid_skin', 'avatar_frame', 'title_effect'
   TextColumn get decorationId => text()(); // 'bamboo', 'wusha', 'jinbang'
   DateTimeColumn get ownedAt => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isActive => boolean().withDefault(const Constant(false))();
 
   @override
-  List<Set<Column>> get uniqueKeys => [{decorationType, decorationId}];
+  List<Set<Column>> get uniqueKeys => [
+    {decorationType, decorationId},
+  ];
 }
 
 /// 未完成关卡存档（断点续玩）
@@ -199,10 +208,10 @@ class SettingsTable extends Table {
 
 @DriftDatabase(
   tables: [
-    Idioms, 
-    IdiomCharIndex, 
-    IdiomReversiblePair, 
-    CharSimilar, 
+    Idioms,
+    IdiomCharIndex,
+    IdiomReversiblePair,
+    CharSimilar,
     UserProgress,
     PlayerProgressTable,
     Collection,
@@ -227,15 +236,20 @@ class AppDatabase extends _$AppDatabase {
 
         // 创建额外索引
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_ici_char ON idiom_char_index(char)');
+          'CREATE INDEX IF NOT EXISTS idx_ici_char ON idiom_char_index(char)',
+        );
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_ici_char_pos ON idiom_char_index(char, position)');
+          'CREATE INDEX IF NOT EXISTS idx_ici_char_pos ON idiom_char_index(char, position)',
+        );
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_difficulty ON idioms(difficulty)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_difficulty ON idioms(difficulty)',
+        );
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_first_char ON idioms(first_char)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_first_char ON idioms(first_char)',
+        );
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_last_char ON idioms(last_char)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_last_char ON idioms(last_char)',
+        );
       },
       onUpgrade: (m, from, to) async {
         if (from < 2) {
@@ -246,7 +260,8 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(decorationTable);
           // 创建关卡历史索引
           await customStatement(
-            'CREATE INDEX IF NOT EXISTS idx_lh_level ON level_history(level_number)');
+            'CREATE INDEX IF NOT EXISTS idx_lh_level ON level_history(level_number)',
+          );
         }
         if (from < 3) {
           // 未完成关卡存档表
@@ -275,9 +290,11 @@ class AppDatabase extends _$AppDatabase {
   /// 按字查成语（倒排索引查询）
   Future<List<Idiom>> findIdiomsByChar(String char) {
     return (select(idioms).join([
-      innerJoin(idiomCharIndex, idiomCharIndex.idiomId.equalsExp(idioms.id)),
-    ])
-      ..where(idiomCharIndex.char.equals(char)))
+          innerJoin(
+            idiomCharIndex,
+            idiomCharIndex.idiomId.equalsExp(idioms.id),
+          ),
+        ])..where(idiomCharIndex.char.equals(char)))
         .map((row) => row.readTable(idioms))
         .get();
   }
@@ -286,9 +303,13 @@ class AppDatabase extends _$AppDatabase {
   Future<List<Idiom>> findCrossableIdioms(String idiomWord, int excludeId) {
     final chars = idiomWord.split('');
     return (select(idioms).join([
-      innerJoin(idiomCharIndex, idiomCharIndex.idiomId.equalsExp(idioms.id)),
-    ])
-      ..where(idiomCharIndex.char.isIn(chars) & idioms.id.equals(excludeId).not()))
+          innerJoin(
+            idiomCharIndex,
+            idiomCharIndex.idiomId.equalsExp(idioms.id),
+          ),
+        ])..where(
+          idiomCharIndex.char.isIn(chars) & idioms.id.equals(excludeId).not(),
+        ))
         .map((row) => row.readTable(idioms))
         .get();
   }
@@ -318,20 +339,23 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<Idiom?> _findReversible(int idiomId) async {
-    final pair = await (select(idiomReversiblePair)
-      ..where((t) => t.idiomIdA.equals(idiomId) |
-              t.idiomIdB.equals(idiomId)))
-        .getSingleOrNull();
+    final pair =
+        await (select(idiomReversiblePair)..where(
+              (t) => t.idiomIdA.equals(idiomId) | t.idiomIdB.equals(idiomId),
+            ))
+            .getSingleOrNull();
     if (pair == null) return null;
     final otherId = pair.idiomIdA == idiomId ? pair.idiomIdB : pair.idiomIdA;
-    return (select(idioms)..where((t) => t.id.equals(otherId))).getSingleOrNull();
+    return (select(
+      idioms,
+    )..where((t) => t.id.equals(otherId))).getSingleOrNull();
   }
 
   /// 找形近/音近字
   Future<List<String>> findSimilarChars(String char, String type) {
     return (select(charSimilar)
-      ..where((t) => t.char.equals(char) & t.simType.equals(type))
-      ..orderBy([(t) => OrderingTerm.desc(t.simScore)]))
+          ..where((t) => t.char.equals(char) & t.simType.equals(type))
+          ..orderBy([(t) => OrderingTerm.desc(t.simScore)]))
         .map((row) => row.similar)
         .get();
   }
@@ -355,24 +379,28 @@ class AppDatabase extends _$AppDatabase {
   }) async {
     final existing = await getPlayerProgress();
     if (existing != null) {
-      await (update(playerProgressTable)
-        ..where((t) => t.id.equals(existing.id)))
-          .write(PlayerProgressTableCompanion(
-            level: Value(level),
-            totalXp: Value(totalXp),
-            completedLevels: Value(completedLevels),
-            hintCards: Value(hintCards),
-            reviveCards: Value(reviveCards),
-            updatedAt: Value(DateTime.now()),
-          ));
+      await (update(
+        playerProgressTable,
+      )..where((t) => t.id.equals(existing.id))).write(
+        PlayerProgressTableCompanion(
+          level: Value(level),
+          totalXp: Value(totalXp),
+          completedLevels: Value(completedLevels),
+          hintCards: Value(hintCards),
+          reviveCards: Value(reviveCards),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
     } else {
-      await into(playerProgressTable).insert(PlayerProgressTableCompanion(
-        level: Value(level),
-        totalXp: Value(totalXp),
-        completedLevels: Value(completedLevels),
-        hintCards: Value(hintCards),
-        reviveCards: Value(reviveCards),
-      ));
+      await into(playerProgressTable).insert(
+        PlayerProgressTableCompanion(
+          level: Value(level),
+          totalXp: Value(totalXp),
+          completedLevels: Value(completedLevels),
+          hintCards: Value(hintCards),
+          reviveCards: Value(reviveCards),
+        ),
+      );
     }
   }
 
@@ -387,7 +415,7 @@ class AppDatabase extends _$AppDatabase {
   /// 获取收藏的成语ID列表
   Future<List<int>> getCollection() async {
     return await (select(collection)
-      ..orderBy([(t) => OrderingTerm.desc(t.collectedAt)]))
+          ..orderBy([(t) => OrderingTerm.desc(t.collectedAt)]))
         .map((row) => row.idiomId)
         .get();
   }
@@ -395,36 +423,37 @@ class AppDatabase extends _$AppDatabase {
   /// 获取收藏的成语详情列表（按收藏时间倒序）
   Future<List<Idiom>> getCollectionWithDetails() async {
     return await (select(collection).join([
-      innerJoin(idioms, idioms.id.equalsExp(collection.idiomId)),
-    ])
-      ..orderBy([OrderingTerm.desc(collection.collectedAt)]))
+          innerJoin(idioms, idioms.id.equalsExp(collection.idiomId)),
+        ])..orderBy([OrderingTerm.desc(collection.collectedAt)]))
         .map((row) => row.readTable(idioms))
         .get();
   }
 
   /// 检查成语是否在收藏中
   Future<bool> isInCollection(int idiomId) async {
-    final result = await (select(collection)
-      ..where((t) => t.idiomId.equals(idiomId))
-      ..limit(1))
-        .getSingleOrNull();
+    final result =
+        await (select(collection)
+              ..where((t) => t.idiomId.equals(idiomId))
+              ..limit(1))
+            .getSingleOrNull();
     return result != null;
   }
 
   /// 按成语原文查找成语 ID（通关后自动收录用）
   Future<int?> findIdiomIdByWord(String word) async {
-    final row = await (select(idioms)
-      ..where((t) => t.word.equals(word))
-      ..limit(1))
-        .getSingleOrNull();
+    final row =
+        await (select(idioms)
+              ..where((t) => t.word.equals(word))
+              ..limit(1))
+            .getSingleOrNull();
     return row?.id;
   }
 
   /// 按成语原文查找完整记录（学习模式展示释义/出处/例句用）
   Future<Idiom?> findIdiomByWord(String word) async {
     return await (select(idioms)
-      ..where((t) => t.word.equals(word))
-      ..limit(1))
+          ..where((t) => t.word.equals(word))
+          ..limit(1))
         .getSingleOrNull();
   }
 
@@ -437,30 +466,32 @@ class AppDatabase extends _$AppDatabase {
     int hintsUsed = 0,
     int errorsMade = 0,
   }) async {
-    await into(levelHistory).insert(LevelHistoryCompanion(
-      levelNumber: Value(levelNumber),
-      xpGained: Value(xpGained),
-      idiomsUsed: Value(idiomsUsed.join(',')),
-      timeSpentMs: Value(timeSpentMs),
-      hintsUsed: Value(hintsUsed),
-      errorsMade: Value(errorsMade),
-    ));
+    await into(levelHistory).insert(
+      LevelHistoryCompanion(
+        levelNumber: Value(levelNumber),
+        xpGained: Value(xpGained),
+        idiomsUsed: Value(idiomsUsed.join(',')),
+        timeSpentMs: Value(timeSpentMs),
+        hintsUsed: Value(hintsUsed),
+        errorsMade: Value(errorsMade),
+      ),
+    );
   }
 
   /// 已通关的关卡编号集合
   Future<Set<int>> getCompletedLevelNumbers() async {
     // 排除每日挑战专用关卡号段（level_number >= 1000000）
-    final rows = await (select(levelHistory)
-      ..where((t) => t.levelNumber.isSmallerThanValue(1000000)))
-        .get();
+    final rows = await (select(
+      levelHistory,
+    )..where((t) => t.levelNumber.isSmallerThanValue(1000000))).get();
     return rows.map((r) => r.levelNumber).toSet();
   }
 
   /// 全部通关记录（含每日挑战，按关卡号升序）
   Future<List<LevelHistoryData>> getLevelHistory() async {
-    return await (select(levelHistory)
-      ..orderBy([(t) => OrderingTerm.asc(t.levelNumber)]))
-        .get();
+    return await (select(
+      levelHistory,
+    )..orderBy([(t) => OrderingTerm.asc(t.levelNumber)])).get();
   }
 
   /// 收藏数量
@@ -470,10 +501,11 @@ class AppDatabase extends _$AppDatabase {
 
   /// 该关卡是否已通关（重玩不重复发放奖励）
   Future<bool> isLevelCompleted(int levelNumber) async {
-    final row = await (select(levelHistory)
-      ..where((t) => t.levelNumber.equals(levelNumber))
-      ..limit(1))
-        .getSingleOrNull();
+    final row =
+        await (select(levelHistory)
+              ..where((t) => t.levelNumber.equals(levelNumber))
+              ..limit(1))
+            .getSingleOrNull();
     return row != null;
   }
 
@@ -491,8 +523,8 @@ class AppDatabase extends _$AppDatabase {
   /// 获取指定类型的已拥有装饰
   Future<List<String>> getOwnedDecorations(String type) async {
     return await (select(decorationTable)
-      ..where((t) => t.decorationType.equals(type))
-      ..orderBy([(t) => OrderingTerm.desc(t.ownedAt)]))
+          ..where((t) => t.decorationType.equals(type))
+          ..orderBy([(t) => OrderingTerm.desc(t.ownedAt)]))
         .map((row) => row.decorationId)
         .get();
   }
@@ -500,16 +532,14 @@ class AppDatabase extends _$AppDatabase {
   /// 获取所有已拥有装饰（格式 type_id，与 PlayerState.ownedDecorations 一致）
   Future<Set<String>> getOwnedDecorationIds() async {
     final rows = await (select(decorationTable)).get();
-    return rows
-        .map((r) => '${r.decorationType}_${r.decorationId}')
-        .toSet();
+    return rows.map((r) => '${r.decorationType}_${r.decorationId}').toSet();
   }
 
   /// 读取未完成关卡存档
   Future<LevelStateTableData?> getLevelState(int levelNumber) async {
-    return await (select(levelStateTable)
-      ..where((t) => t.levelNumber.equals(levelNumber)))
-        .getSingleOrNull();
+    return await (select(
+      levelStateTable,
+    )..where((t) => t.levelNumber.equals(levelNumber))).getSingleOrNull();
   }
 
   /// 保存未完成关卡存档（覆盖式）
@@ -530,9 +560,9 @@ class AppDatabase extends _$AppDatabase {
 
   /// 清除未完成关卡存档（通关/放弃后调用）
   Future<void> clearLevelState(int levelNumber) async {
-    await (delete(levelStateTable)
-      ..where((t) => t.levelNumber.equals(levelNumber)))
-        .go();
+    await (delete(
+      levelStateTable,
+    )..where((t) => t.levelNumber.equals(levelNumber))).go();
   }
 
   /// 已解锁成就 ID 集合
@@ -551,9 +581,9 @@ class AppDatabase extends _$AppDatabase {
 
   /// 读取设置项，未设置返回 null
   Future<String?> getSetting(String key) async {
-    final row = await (select(settingsTable)
-      ..where((t) => t.key.equals(key)))
-        .getSingleOrNull();
+    final row = await (select(
+      settingsTable,
+    )..where((t) => t.key.equals(key))).getSingleOrNull();
     return row?.value;
   }
 
@@ -568,19 +598,13 @@ class AppDatabase extends _$AppDatabase {
   /// 设置当前使用的装饰
   Future<void> setActiveDecoration(String type, String id) async {
     // 先取消该类型下所有装饰的激活状态
-    await (update(decorationTable)
-      ..where((t) => t.decorationType.equals(type)))
-        .write(const DecorationTableCompanion(
-          isActive: Value(false),
-        ));
+    await (update(decorationTable)..where((t) => t.decorationType.equals(type)))
+        .write(const DecorationTableCompanion(isActive: Value(false)));
     // 激活指定装饰
-    await (update(decorationTable)
-      ..where((t) => 
-        t.decorationType.equals(type) & 
-        t.decorationId.equals(id)))
-        .write(const DecorationTableCompanion(
-          isActive: Value(true),
-        ));
+    await (update(decorationTable)..where(
+          (t) => t.decorationType.equals(type) & t.decorationId.equals(id),
+        ))
+        .write(const DecorationTableCompanion(isActive: Value(true)));
   }
 }
 
@@ -599,7 +623,8 @@ LazyDatabase _openConnection() {
       final conn = sqlite3.open(file.path);
       final hasIdioms = conn
           .select(
-              "SELECT name FROM sqlite_master WHERE type='table' AND name='idioms'")
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='idioms'",
+          )
           .isNotEmpty;
       conn.close();
       if (!hasIdioms) {
@@ -619,22 +644,18 @@ LazyDatabase _openConnection() {
 extension IdiomQueries on AppDatabase {
   /// 按首字匹配（接龙用）
   Future<List<Idiom>> findByFirstChar(String char) {
-    return (select(idioms)
-      ..where((t) => t.firstChar.equals(char)))
-        .get();
+    return (select(idioms)..where((t) => t.firstChar.equals(char))).get();
   }
 
   /// 按末字匹配（倒接龙）
   Future<List<Idiom>> findByLastChar(String char) {
-    return (select(idioms)
-      ..where((t) => t.lastChar.equals(char)))
-        .get();
+    return (select(idioms)..where((t) => t.lastChar.equals(char))).get();
   }
 
   /// 首尾字匹配（循环接龙）
   Future<List<Idiom>> findByFirstOrLastChar(String char) {
-    return (select(idioms)
-      ..where((t) => t.firstChar.equals(char) | t.lastChar.equals(char)))
-        .get();
+    return (select(
+      idioms,
+    )..where((t) => t.firstChar.equals(char) | t.lastChar.equals(char))).get();
   }
 }

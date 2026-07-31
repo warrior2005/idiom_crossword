@@ -1,7 +1,7 @@
 import 'dart:math';
 
 /// 成长系统管理器
-/// 
+///
 /// 负责：
 /// - 经验值计算（暴雪式指数曲线）
 /// - 等级判定
@@ -59,24 +59,92 @@ class GrowthManager {
   static const Map<int, LevelReward> _rewards = {
     1: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 3),
     2: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 2),
-    3: LevelReward(type: RewardType.decoration, item: 'grid_skin_bamboo', quantity: 1),
-    4: LevelReward(type: RewardType.functional, item: 'revive_card', quantity: 1),
-    5: LevelReward(type: RewardType.decoration, item: 'avatar_frame_wusha', quantity: 1),
+    3: LevelReward(
+      type: RewardType.decoration,
+      item: 'grid_skin_bamboo',
+      quantity: 1,
+    ),
+    4: LevelReward(
+      type: RewardType.functional,
+      item: 'revive_card',
+      quantity: 1,
+    ),
+    5: LevelReward(
+      type: RewardType.decoration,
+      item: 'avatar_frame_wusha',
+      quantity: 1,
+    ),
     6: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 3),
-    7: LevelReward(type: RewardType.decoration, item: 'grid_skin_paper', quantity: 1),
-    8: LevelReward(type: RewardType.functional, item: 'revive_card', quantity: 2),
-    9: LevelReward(type: RewardType.decoration, item: 'title_effect_jinbang', quantity: 1),
-    10: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 5),
-    11: LevelReward(type: RewardType.decoration, item: 'grid_skin_dragon', quantity: 1),
-    12: LevelReward(type: RewardType.functional, item: 'revive_card', quantity: 3),
-    13: LevelReward(type: RewardType.decoration, item: 'avatar_frame_xiezhi', quantity: 1),
-    14: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 5),
-    15: LevelReward(type: RewardType.decoration, item: 'grid_skin_gold', quantity: 1),
-    16: LevelReward(type: RewardType.functional, item: 'revive_card', quantity: 5),
-    17: LevelReward(type: RewardType.decoration, item: 'title_effect_tianzi', quantity: 1),
-    18: LevelReward(type: RewardType.decoration, item: 'avatar_frame_sangong', quantity: 1),
-    19: LevelReward(type: RewardType.decoration, item: 'grid_skin_emperor', quantity: 1),
-    20: LevelReward(type: RewardType.decoration, item: 'custom_title_unlock', quantity: 1),
+    7: LevelReward(
+      type: RewardType.decoration,
+      item: 'grid_skin_paper',
+      quantity: 1,
+    ),
+    8: LevelReward(
+      type: RewardType.functional,
+      item: 'revive_card',
+      quantity: 2,
+    ),
+    9: LevelReward(
+      type: RewardType.decoration,
+      item: 'title_effect_jinbang',
+      quantity: 1,
+    ),
+    10: LevelReward(
+      type: RewardType.functional,
+      item: 'hint_card',
+      quantity: 5,
+    ),
+    11: LevelReward(
+      type: RewardType.decoration,
+      item: 'grid_skin_dragon',
+      quantity: 1,
+    ),
+    12: LevelReward(
+      type: RewardType.functional,
+      item: 'revive_card',
+      quantity: 3,
+    ),
+    13: LevelReward(
+      type: RewardType.decoration,
+      item: 'avatar_frame_xiezhi',
+      quantity: 1,
+    ),
+    14: LevelReward(
+      type: RewardType.functional,
+      item: 'hint_card',
+      quantity: 5,
+    ),
+    15: LevelReward(
+      type: RewardType.decoration,
+      item: 'grid_skin_gold',
+      quantity: 1,
+    ),
+    16: LevelReward(
+      type: RewardType.functional,
+      item: 'revive_card',
+      quantity: 5,
+    ),
+    17: LevelReward(
+      type: RewardType.decoration,
+      item: 'title_effect_tianzi',
+      quantity: 1,
+    ),
+    18: LevelReward(
+      type: RewardType.decoration,
+      item: 'avatar_frame_sangong',
+      quantity: 1,
+    ),
+    19: LevelReward(
+      type: RewardType.decoration,
+      item: 'grid_skin_emperor',
+      quantity: 1,
+    ),
+    20: LevelReward(
+      type: RewardType.decoration,
+      item: 'custom_title_unlock',
+      quantity: 1,
+    ),
   };
 
   /// 获取升级奖励
@@ -110,7 +178,7 @@ class GrowthManager {
   static String titleForLevel(int level) => _titles[level] ?? '童生';
 
   /// 计算通关获得的经验值
-  /// 
+  ///
   /// [levelNumber] 关卡编号
   /// [idiomDifficulties] 该关成语的难度列表
   static int calculateXp(int levelNumber, List<int> idiomDifficulties) {
@@ -120,8 +188,8 @@ class GrowthManager {
     if (idiomDifficulties.isEmpty) {
       return 0;
     }
-    final avgDifficulty = idiomDifficulties.reduce((a, b) => a + b) / 
-        idiomDifficulties.length;
+    final avgDifficulty =
+        idiomDifficulties.reduce((a, b) => a + b) / idiomDifficulties.length;
     return (avgDifficulty * 2).round();
   }
 }

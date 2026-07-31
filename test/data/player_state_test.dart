@@ -13,9 +13,9 @@ void main() {
 
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
-    container = ProviderContainer(overrides: [
-      databaseProvider.overrideWithValue(db),
-    ]);
+    container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
   });
 
   tearDown(() async {

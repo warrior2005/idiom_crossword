@@ -89,8 +89,14 @@ class AchievementsScreen extends ConsumerWidget {
                           ),
                         ),
                         trailing: isUnlocked
-                            ? const Icon(Icons.check_circle, color: Colors.green)
-                            : const Icon(Icons.lock_outline, color: Colors.brown),
+                            ? const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                              )
+                            : const Icon(
+                                Icons.lock_outline,
+                                color: Colors.brown,
+                              ),
                       ),
                     );
                   },

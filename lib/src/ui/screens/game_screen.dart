@@ -19,7 +19,7 @@ import '../widgets/level_loading_dialog.dart';
 import 'learning_screen.dart';
 
 /// 游戏主界面
-/// 
+///
 /// 布局：
 ///   ┌──────────────────┐
 ///   │  关卡标题 + 进度   │
@@ -226,21 +226,24 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       await db.saveLevelState(
         levelNumber: widget.level.levelId,
         levelJson: encodeLevel(widget.level),
-        stateJson: encodeGameState(SavedGameState(
-          answers: Map.from(_playerAnswers),
-          usedCandidateSlots: Set.from(_usedCandidateSlots),
-          fillHistory: List.from(_fillHistory),
-          cellToCandidateSlot: Map.from(_cellToCandidateSlot),
-          candidateBoard:
-              _candidateBoard.map((r) => List<String>.from(r)).toList(),
-          hintUsesThisLevel: _hintUsesThisLevel,
-          idiomHintUsed: _idiomHintUsed,
-          errorsMade: _errorsMade,
-          correctStreak: _correctStreak,
-          focusRow: _focusRow < 0 ? null : _focusRow,
-          focusCol: _focusCol < 0 ? null : _focusCol,
-          direction: _currentDirection,
-        )),
+        stateJson: encodeGameState(
+          SavedGameState(
+            answers: Map.from(_playerAnswers),
+            usedCandidateSlots: Set.from(_usedCandidateSlots),
+            fillHistory: List.from(_fillHistory),
+            cellToCandidateSlot: Map.from(_cellToCandidateSlot),
+            candidateBoard: _candidateBoard
+                .map((r) => List<String>.from(r))
+                .toList(),
+            hintUsesThisLevel: _hintUsesThisLevel,
+            idiomHintUsed: _idiomHintUsed,
+            errorsMade: _errorsMade,
+            correctStreak: _correctStreak,
+            focusRow: _focusRow < 0 ? null : _focusRow,
+            focusCol: _focusCol < 0 ? null : _focusCol,
+            direction: _currentDirection,
+          ),
+        ),
       );
     } catch (_) {
       // 存档失败不影响游戏进行
@@ -333,7 +336,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       }
       _playerAnswers[(_focusRow, _focusCol)] = char;
       _usedCandidateSlots.add((row, col));
-      _fillHistory.add((row: _focusRow, col: _focusCol, candRow: row, candCol: col));
+      _fillHistory.add((
+        row: _focusRow,
+        col: _focusCol,
+        candRow: row,
+        candCol: col,
+      ));
       _cellToCandidateSlot[(_focusRow, _focusCol)] = (row, col);
       _checkCompletionForCurrentIdiom();
     });
@@ -398,16 +406,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _completedCells.add((r, c));
       }
     }
-    _completedIdiomList.add((word: placement.idiom.text, meaning: placement.idiom.meaning));
+    _completedIdiomList.add((
+      word: placement.idiom.text,
+      meaning: placement.idiom.meaning,
+    ));
     _selectedCompletedIndex = _completedIdiomList.length - 1;
   }
 
   /// 自动移到下一个空白格（沿当前成语方向移动）
   void _moveToNextEmptyCell() {
     // 找到包含当前格子的所有成语
-    final containingPlacements = _placementsContaining(_focusRow, _focusCol)
-        .map((p) => (p, p.cells.indexOf((_focusRow, _focusCol))))
-        .toList();
+    final containingPlacements = _placementsContaining(
+      _focusRow,
+      _focusCol,
+    ).map((p) => (p, p.cells.indexOf((_focusRow, _focusCol)))).toList();
 
     // 优先沿当前方向继续
     if (_currentDirection != null) {
@@ -435,7 +447,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     for (final (placement, k) in containingPlacements) {
       // 跳过已尝试的方向
       if (placement.direction == _currentDirection) continue;
-      
+
       for (int next = k + 1; next < placement.idiom.text.length; next++) {
         final (nr, nc) = placement.cellAt(next);
         final cell = _grid.cellAt(nr, nc);
@@ -534,7 +546,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         await db.addToCollection(id);
       }
     }
-    final timeSpentMs = DateTime.now().difference(_levelStartTime).inMilliseconds;
+    final timeSpentMs = DateTime.now()
+        .difference(_levelStartTime)
+        .inMilliseconds;
     await db.addLevelHistory(
       levelNumber: widget.level.levelId,
       xpGained: result.xpGained,
@@ -564,8 +578,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     for (final id in newly) {
       await db.unlockAchievement(id.name);
     }
-    final newDefs =
-        achievementDefs.where((d) => newly.contains(d.id)).toList();
+    final newDefs = achievementDefs.where((d) => newly.contains(d.id)).toList();
 
     await db.clearLevelState(widget.level.levelId);
     _levelFinished = true;
@@ -786,9 +799,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       if (!mounted) return;
       Navigator.pop(context); // 关闭加载框
       if (level == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('下一关生成失败，请重试')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('下一关生成失败，请重试')));
         return;
       }
       Navigator.pushReplacement(
@@ -798,9 +811,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('错误: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('错误: $e')));
       }
     }
   }
@@ -844,26 +857,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         child: _restoring
             ? const Center(child: CircularProgressIndicator())
             : Column(
-          children: [
-            // 已完成成语 tags + 释义
-            _buildCompletedIdiomsSection(),
+                children: [
+                  // 已完成成语 tags + 释义
+                  _buildCompletedIdiomsSection(),
 
-            // 填字网格（占据上半部分）
-            Expanded(
-              flex: 5,
-              child: _buildGrid(),
-            ),
+                  // 填字网格（占据上半部分）
+                  Expanded(flex: 5, child: _buildGrid()),
 
-            // 候选字盘（下半部分）
-            Expanded(
-              flex: 3,
-              child: _buildCandidateBoardWidget(),
-            ),
+                  // 候选字盘（下半部分）
+                  Expanded(flex: 3, child: _buildCandidateBoardWidget()),
 
-            // 底部工具栏
-            _buildToolbar(),
-          ],
-            ),
+                  // 底部工具栏
+                  _buildToolbar(),
+                ],
+              ),
       ),
     );
   }
@@ -942,7 +949,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? Colors.green.shade100
@@ -1004,7 +1014,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               children: row.asMap().entries.map((cellEntry) {
                 final colIndex = cellEntry.key;
                 final char = cellEntry.value;
-                final isUsed = _usedCandidateSlots.contains((rowIndex, colIndex));
+                final isUsed = _usedCandidateSlots.contains((
+                  rowIndex,
+                  colIndex,
+                ));
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: SizedBox(
@@ -1018,7 +1031,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       elevation: isUsed ? 0 : 1,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(6),
-                        onTap: isUsed ? null : () => _onCandidateTap(rowIndex, colIndex, char),
+                        onTap: isUsed
+                            ? null
+                            : () => _onCandidateTap(rowIndex, colIndex, char),
                         child: Center(
                           child: Text(
                             char,
@@ -1047,7 +1062,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final playerState = ref.watch(playerProvider);
     final hintCount = playerState.functionalItems['hint_card'] ?? 0;
     final freeHintsLeft = max(0, 3 - _hintUsesThisLevel);
-    final focusReady = _focusRow >= 0 &&
+    final focusReady =
+        _focusRow >= 0 &&
         _focusCol >= 0 &&
         !_completedCells.contains((_focusRow, _focusCol)) &&
         !_grid.cellAt(_focusRow, _focusCol).isGiven &&
@@ -1060,11 +1076,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _ToolbarButton(
-            icon: Icons.undo,
-            label: '撤销',
-            onTap: _undo,
-          ),
+          _ToolbarButton(icon: Icons.undo, label: '撤销', onTap: _undo),
           _ToolbarButton(
             icon: Icons.lightbulb_outline,
             label: freeHintsLeft > 0 ? '一字×$freeHintsLeft' : '提示卡×$hintCount',
@@ -1117,14 +1129,18 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     // 找到焦点格子的正确字
     final correctChar = _correctCharForCell(_focusRow, _focusCol);
-    if (correctChar == null || _playerAnswers[(_focusRow, _focusCol)] == correctChar) return;
+    if (correctChar == null ||
+        _playerAnswers[(_focusRow, _focusCol)] == correctChar) {
+      return;
+    }
 
     final freeLeft = 3 - _hintUsesThisLevel;
-    final hintCards = ref.read(playerProvider).functionalItems['hint_card'] ?? 0;
+    final hintCards =
+        ref.read(playerProvider).functionalItems['hint_card'] ?? 0;
     if (freeLeft <= 0 && hintCards <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('本关一字提示次数已用完，且没有提示卡')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('本关一字提示次数已用完，且没有提示卡')));
       return;
     }
     if (freeLeft <= 0) {
@@ -1155,8 +1171,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     setState(() {
       for (int k = 0; k < placement.idiom.text.length; k++) {
         final (r, c) = placement.cellAt(k);
-        if (_grid.cellAt(r, c).isGiven ||
-            _playerAnswers.containsKey((r, c))) {
+        if (_grid.cellAt(r, c).isGiven || _playerAnswers.containsKey((r, c))) {
           continue;
         }
         _applyAnswer(r, c, placement.idiom.text[k]);
@@ -1281,7 +1296,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     });
     _saveState();
   }
-
 }
 
 /// 底部工具栏按钮
@@ -1290,11 +1304,7 @@ class _ToolbarButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
 
-  const _ToolbarButton({
-    required this.icon,
-    required this.label,
-    this.onTap,
-  });
+  const _ToolbarButton({required this.icon, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1358,8 +1368,11 @@ class GridPainter extends CustomPainter {
         final x = c * s;
         final y = r * s;
         final rect = Rect.fromLTWH(
-            x + cellPadding, y + cellPadding,
-            s - cellPadding * 2, s - cellPadding * 2);
+          x + cellPadding,
+          y + cellPadding,
+          s - cellPadding * 2,
+          s - cellPadding * 2,
+        );
 
         // 背景色
         Color bgColor;
@@ -1386,7 +1399,9 @@ class GridPainter extends CustomPainter {
           ..color = bgColor
           ..style = PaintingStyle.fill;
         canvas.drawRRect(
-            RRect.fromRectAndRadius(rect, const Radius.circular(4)), paint);
+          RRect.fromRectAndRadius(rect, const Radius.circular(4)),
+          paint,
+        );
 
         // 边框
         final borderPaint = Paint()
@@ -1396,30 +1411,31 @@ class GridPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = (focusRow == r && focusCol == c) ? 2.5 : 1.0;
         canvas.drawRRect(
-            RRect.fromRectAndRadius(rect, const Radius.circular(4)), borderPaint);
+          RRect.fromRectAndRadius(rect, const Radius.circular(4)),
+          borderPaint,
+        );
 
         // 文字
-        final displayChar = cell.isGiven 
-            ? cell.character 
+        final displayChar = cell.isGiven
+            ? cell.character
             : (playerAnswers[(r, c)] ?? '');
         // 已填但所属成语尚未完成 → 半透明（"暂定"状态，PRD 6.2）
-        final tentative = !cell.isGiven &&
+        final tentative =
+            !cell.isGiven &&
             playerAnswers.containsKey((r, c)) &&
             !completedCells.contains((r, c));
         final textColor = cell.isGiven
             ? Colors.brown.shade900
             : playerAnswers.containsKey((r, c))
-                ? Colors.brown.shade800
-                : Colors.brown.shade400;
+            ? Colors.brown.shade800
+            : Colors.brown.shade400;
         final textPainter = TextPainter(
           text: TextSpan(
             text: displayChar,
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: cell.isGiven ? FontWeight.w700 : FontWeight.w500,
-              color: tentative
-                  ? textColor.withValues(alpha: 0.5)
-                  : textColor,
+              color: tentative ? textColor.withValues(alpha: 0.5) : textColor,
             ),
           ),
           textDirection: TextDirection.ltr,

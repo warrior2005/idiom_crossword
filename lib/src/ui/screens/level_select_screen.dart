@@ -58,9 +58,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextButton.icon(
-                    onPressed: _page > 0
-                        ? () => setState(() => _page--)
-                        : null,
+                    onPressed: _page > 0 ? () => setState(() => _page--) : null,
                     icon: const Icon(Icons.chevron_left),
                     label: const Text('上一页'),
                   ),
@@ -87,10 +85,10 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                       padding: const EdgeInsets.all(12),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 10,
-                        mainAxisSpacing: 6,
-                        crossAxisSpacing: 6,
-                      ),
+                            crossAxisCount: 10,
+                            mainAxisSpacing: 6,
+                            crossAxisSpacing: 6,
+                          ),
                       itemCount: levels.length,
                       itemBuilder: (context, index) {
                         final level = levels[index];
@@ -120,9 +118,9 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       if (!mounted) return;
       Navigator.pop(context); // 关闭加载框
       if (level == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('关卡生成失败，请重试')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('关卡生成失败，请重试')));
         return;
       }
       await Navigator.push(
@@ -133,9 +131,9 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('错误: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('错误: $e')));
       }
     }
   }

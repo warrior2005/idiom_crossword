@@ -14,11 +14,11 @@ import 'grid_engine.dart';
 
 /// 交叉图中一条边的信息
 class CrossEdge {
-  final int idiomA;      // 成语 A 在池中的索引
-  final int idiomB;      // 成语 B 在池中的索引
+  final int idiomA; // 成语 A 在池中的索引
+  final int idiomB; // 成语 B 在池中的索引
   final String sharedChar;
-  final int posInA;      // 共享字在 A 中的位置 (0-3)
-  final int posInB;      // 共享字在 B 中的位置 (0-3)
+  final int posInA; // 共享字在 A 中的位置 (0-3)
+  final int posInB; // 共享字在 B 中的位置 (0-3)
 
   const CrossEdge({
     required this.idiomA,
@@ -35,11 +35,10 @@ class CrossEdge {
 
 /// 交叉图
 class CrossingGraph {
-  final List<Idiom> idioms;                     // 所有成语（索引即 ID）
+  final List<Idiom> idioms; // 所有成语（索引即 ID）
   final Map<String, List<_CharOccurrence>> _charIndex; // 字 → 出现位置
 
-  CrossingGraph({required this.idioms})
-      : _charIndex = {} {
+  CrossingGraph({required this.idioms}) : _charIndex = {} {
     _buildIndex();
   }
 
@@ -76,13 +75,15 @@ class CrossingGraph {
         if (seen.contains(occ.idiomIdx)) continue;
         seen.add(occ.idiomIdx);
 
-        edges.add(CrossEdge(
-          idiomA: idiomIdx,
-          idiomB: occ.idiomIdx,
-          sharedChar: ch,
-          posInA: posA,
-          posInB: occ.position,
-        ));
+        edges.add(
+          CrossEdge(
+            idiomA: idiomIdx,
+            idiomB: occ.idiomIdx,
+            sharedChar: ch,
+            posInA: posA,
+            posInB: occ.position,
+          ),
+        );
       }
     }
     return edges;
@@ -102,13 +103,15 @@ class CrossingGraph {
       if (posInA != null && occurrences[i].position != posInA) continue;
       for (int j = i + 1; j < occurrences.length; j++) {
         if (posInB != null && occurrences[j].position != posInB) continue;
-        edges.add(CrossEdge(
-          idiomA: occurrences[i].idiomIdx,
-          idiomB: occurrences[j].idiomIdx,
-          sharedChar: char,
-          posInA: occurrences[i].position,
-          posInB: occurrences[j].position,
-        ));
+        edges.add(
+          CrossEdge(
+            idiomA: occurrences[i].idiomIdx,
+            idiomB: occurrences[j].idiomIdx,
+            sharedChar: char,
+            posInA: occurrences[i].position,
+            posInB: occurrences[j].position,
+          ),
+        );
       }
     }
     return edges;

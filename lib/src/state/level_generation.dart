@@ -36,8 +36,7 @@ Future<engine.CrosswordLevel?> generateLevel(
   (int, int)? difficultyRange,
   String? title,
 }) async {
-  final (minD, maxD) = difficultyRange ??
-      _spiralRange(levelNumber);
+  final (minD, maxD) = difficultyRange ?? _spiralRange(levelNumber);
 
   final dbIdioms = await db.findIdiomsByDifficulty(
     minD,
@@ -47,13 +46,17 @@ Future<engine.CrosswordLevel?> generateLevel(
   );
   if (dbIdioms.length < 5) return null;
 
-  final engineIdioms = dbIdioms.map((i) => engine.Idiom(
-        text: i.word,
-        pinyin: i.pinyin,
-        meaning: i.explanation,
-        difficulty: i.difficulty,
-        source: i.derivation ?? '',
-      )).toList();
+  final engineIdioms = dbIdioms
+      .map(
+        (i) => engine.Idiom(
+          text: i.word,
+          pinyin: i.pinyin,
+          meaning: i.explanation,
+          difficulty: i.difficulty,
+          source: i.derivation ?? '',
+        ),
+      )
+      .toList();
 
   final graph = CrossingGraph(idioms: engineIdioms);
   final generator = IntegratedGenerator(
@@ -79,18 +82,20 @@ Future<engine.CrosswordLevel?> generateLevel(
             storyHint: level.storyHint,
           );
   }
-  return generator.generateSpiral(levelNumber: levelNumber, maxAttempts: maxAttempts);
+  return generator.generateSpiral(
+    levelNumber: levelNumber,
+    maxAttempts: maxAttempts,
+  );
 }
 
 /// 螺旋基准难度放宽 ±2，并覆盖长尾/预览区间的取数范围
 (int, int) _spiralRange(int levelNumber) {
   final spiral = SpiralDifficulty.calculate(levelNumber);
   final tailMin = spiral.tailMin <= 0 ? spiral.mainMin : spiral.tailMin;
-  final previewMax = spiral.previewMax <= 0 ? spiral.mainMax : spiral.previewMax;
-  return (
-    (tailMin - 2).clamp(1, 50),
-    (previewMax + 2).clamp(1, 50),
-  );
+  final previewMax = spiral.previewMax <= 0
+      ? spiral.mainMax
+      : spiral.previewMax;
+  return ((tailMin - 2).clamp(1, 50), (previewMax + 2).clamp(1, 50));
 }
 
 /// 进入关卡：优先恢复未完成存档，没有存档才新生成

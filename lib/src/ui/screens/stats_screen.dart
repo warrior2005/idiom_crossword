@@ -31,11 +31,12 @@ final statsProvider = FutureProvider<PlayerStats>((ref) async {
   final db = ref.watch(databaseProvider);
   final history = await db.getLevelHistory();
 
-  final mainLevels = history
-      .where((h) => h.levelNumber < 1000000) // 排除每日挑战关卡号段
-      .map((h) => h.levelNumber)
-      .toList()
-    ..sort();
+  final mainLevels =
+      history
+          .where((h) => h.levelNumber < 1000000) // 排除每日挑战关卡号段
+          .map((h) => h.levelNumber)
+          .toList()
+        ..sort();
 
   var streak = 0;
   var bestStreak = 0;
@@ -57,7 +58,9 @@ final statsProvider = FutureProvider<PlayerStats>((ref) async {
   return PlayerStats(
     totalCompleted: history.length,
     totalXp: totalXp,
-    avgTimeMs: times.isEmpty ? 0 : times.reduce((a, b) => a + b) ~/ times.length,
+    avgTimeMs: times.isEmpty
+        ? 0
+        : times.reduce((a, b) => a + b) ~/ times.length,
     totalHints: totalHints,
     totalErrors: totalErrors,
     longestStreak: bestStreak,
@@ -93,17 +96,41 @@ class StatsScreen extends ConsumerWidget {
               spacing: 12,
               runSpacing: 12,
               children: [
-                _StatCard(icon: Icons.emoji_events, label: '通关数', value: '${stats.totalCompleted}'),
-                _StatCard(icon: Icons.stars, label: '累计经验', value: '${stats.totalXp}'),
+                _StatCard(
+                  icon: Icons.emoji_events,
+                  label: '通关数',
+                  value: '${stats.totalCompleted}',
+                ),
+                _StatCard(
+                  icon: Icons.stars,
+                  label: '累计经验',
+                  value: '${stats.totalXp}',
+                ),
                 _StatCard(
                   icon: Icons.timer_outlined,
                   label: '平均用时',
                   value: _formatDuration(stats.avgTimeMs),
                 ),
-                _StatCard(icon: Icons.lightbulb_outline, label: '提示次数', value: '${stats.totalHints}'),
-                _StatCard(icon: Icons.close, label: '填错次数', value: '${stats.totalErrors}'),
-                _StatCard(icon: Icons.local_fire_department, label: '最长连胜', value: '${stats.longestStreak}'),
-                _StatCard(icon: Icons.bookmark, label: '收藏成语', value: '${stats.collectionCount}'),
+                _StatCard(
+                  icon: Icons.lightbulb_outline,
+                  label: '提示次数',
+                  value: '${stats.totalHints}',
+                ),
+                _StatCard(
+                  icon: Icons.close,
+                  label: '填错次数',
+                  value: '${stats.totalErrors}',
+                ),
+                _StatCard(
+                  icon: Icons.local_fire_department,
+                  label: '最长连胜',
+                  value: '${stats.longestStreak}',
+                ),
+                _StatCard(
+                  icon: Icons.bookmark,
+                  label: '收藏成语',
+                  value: '${stats.collectionCount}',
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -122,19 +149,21 @@ class StatsScreen extends ConsumerWidget {
               data: (history) => Column(
                 children: history
                     .take(10)
-                    .map((h) => ListTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            '第 ${h.levelNumber} 关',
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          subtitle: Text(
-                            '用时 ${_formatDuration(h.timeSpentMs ?? 0)} · '
-                            '提示 ${h.hintsUsed} · 填错 ${h.errorsMade} · '
-                            '+${h.xpGained} 经验',
-                          ),
-                        ))
+                    .map(
+                      (h) => ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          '第 ${h.levelNumber} 关',
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        subtitle: Text(
+                          '用时 ${_formatDuration(h.timeSpentMs ?? 0)} · '
+                          '提示 ${h.hintsUsed} · 填错 ${h.errorsMade} · '
+                          '+${h.xpGained} 经验',
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
             ),
