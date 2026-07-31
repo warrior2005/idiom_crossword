@@ -10,6 +10,7 @@ import '../widgets/level_display.dart';
 import '../../state/database_provider.dart';
 import '../../state/player_state.dart';
 import '../../state/level_generation.dart';
+import '../../state/level_state_codec.dart';
 import '../../data/growth_manager.dart';
 import '../widgets/level_loading_dialog.dart';
 
@@ -78,6 +79,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   bool _revealedAll = false; // 全图揭示后本关不计入通关
   late DateTime _levelStartTime;
 
+  // 断点续玩
+  bool _restoring = true;
+  bool _levelFinished = false; // 通关/放弃后不再写存档
+
+  // 填入正确字时的闪烁反馈
+  (int, int)? _flashCell;
+
   @override
   void initState() {
     super.initState();
@@ -85,6 +93,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _buildCandidateBoard();
     _findFirstEmptyCell();
     _levelStartTime = DateTime.now();
+    _restoreSavedState();
   }
 
   /// 构建候选字盘
@@ -123,6 +132,128 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
   }
 
+  /// 尝试恢复本关未完成存档
+  Future<void> _restoreSavedState() async {
+    try {
+      final saved = await ref
+          .read(databaseProvider)
+          .getLevelState(widget.level.levelId);
+      if (saved == null) {
+        if (mounted) setState(() => _restoring = false);
+        return;
+      }
+      final state = decodeGameState(saved.stateJson);
+      if (state == null) {
+        if (mounted) setState(() => _restoring = false);
+        return;
+      }
+      if (!mounted) return;
+      setState(() {
+        _candidateBoard = state.candidateBoard;
+        _playerAnswers.addAll(state.answers);
+        _usedCandidateSlots.addAll(state.usedCandidateSlots);
+        _fillHistory.addAll(state.fillHistory);
+        _cellToCandidateSlot.addAll(state.cellToCandidateSlot);
+        _hintUsesThisLevel = state.hintUsesThisLevel;
+        _idiomHintUsed = state.idiomHintUsed;
+        if (state.focusRow != null && state.focusCol != null) {
+          _focusRow = state.focusRow!;
+          _focusCol = state.focusCol!;
+          _currentDirection = state.direction;
+        }
+        _recomputeDerivedState();
+        _restoring = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _restoring = false);
+    }
+  }
+
+  /// 根据当前答案重建派生状态（错误格、完成格、完成成语列表）
+  void _recomputeDerivedState() {
+    _errorCells.clear();
+    _completedCells.clear();
+    _completedIdiomList.clear();
+    _selectedCompletedIndex = null;
+
+    for (final placement in widget.level.placements) {
+      var allFilled = true;
+      var allCorrect = true;
+      for (int k = 0; k < placement.idiom.text.length; k++) {
+        final (r, c) = placement.cellAt(k);
+        if (_grid.cellAt(r, c).isGiven) continue;
+        final filled = _playerAnswers[(r, c)];
+        if (filled == null) {
+          allFilled = false;
+        } else if (filled != placement.idiom.text[k]) {
+          allCorrect = false;
+          _errorCells.add((r, c));
+        }
+      }
+      if (allFilled && allCorrect) {
+        for (int k = 0; k < placement.idiom.text.length; k++) {
+          final (r, c) = placement.cellAt(k);
+          if (!_grid.cellAt(r, c).isGiven) {
+            _completedCells.add((r, c));
+          }
+        }
+        _completedIdiomList.add((
+          word: placement.idiom.text,
+          meaning: placement.idiom.meaning,
+        ));
+      }
+    }
+    if (_completedIdiomList.isNotEmpty) {
+      _selectedCompletedIndex = _completedIdiomList.length - 1;
+    }
+  }
+
+  /// 把当前进度写入存档（断点续玩）
+  Future<void> _saveState() async {
+    if (_levelFinished || widget.level.levelId <= 0) return;
+    try {
+      final db = ref.read(databaseProvider);
+      await db.saveLevelState(
+        levelNumber: widget.level.levelId,
+        levelJson: encodeLevel(widget.level),
+        stateJson: encodeGameState(SavedGameState(
+          answers: Map.from(_playerAnswers),
+          usedCandidateSlots: Set.from(_usedCandidateSlots),
+          fillHistory: List.from(_fillHistory),
+          cellToCandidateSlot: Map.from(_cellToCandidateSlot),
+          candidateBoard:
+              _candidateBoard.map((r) => List<String>.from(r)).toList(),
+          hintUsesThisLevel: _hintUsesThisLevel,
+          idiomHintUsed: _idiomHintUsed,
+          focusRow: _focusRow < 0 ? null : _focusRow,
+          focusCol: _focusCol < 0 ? null : _focusCol,
+          direction: _currentDirection,
+        )),
+      );
+    } catch (_) {
+      // 存档失败不影响游戏进行
+    }
+  }
+
+  /// 正确填字时的闪烁反馈
+  void _flashCellAt(int row, int col) {
+    setState(() => _flashCell = (row, col));
+    Future.delayed(const Duration(milliseconds: 260), () {
+      if (mounted && _flashCell == (row, col)) {
+        setState(() => _flashCell = null);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // 中途退出时保存进度；通关/放弃后 _levelFinished 为 true 不再写
+    if (!_levelFinished && widget.level.levelId > 0) {
+      _saveState();
+    }
+    super.dispose();
+  }
+
   /// 获取格子所属成语的方向
   Direction? _getDirectionForCell(int row, int col) {
     final placements = _placementsContaining(row, col);
@@ -153,6 +284,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final cell = _grid.cellAt(_focusRow, _focusCol);
     if (cell.isGiven) return;
 
+    final filledRow = _focusRow;
+    final filledCol = _focusCol;
+    final isCorrect = char == _correctCharForCell(filledRow, filledCol);
+
     setState(() {
       // 覆盖填入时，释放旧字占用的候选槽位
       final oldSlot = _cellToCandidateSlot[(_focusRow, _focusCol)];
@@ -168,6 +303,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     HapticFeedback.lightImpact();
     _moveToNextEmptyCell();
+    if (isCorrect) _flashCellAt(filledRow, filledCol);
+    _saveState();
   }
 
   /// 检查当前焦点所在成语的完成状态
@@ -327,6 +464,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     // 重玩已通关的关卡不重复发放奖励
     if (await db.isLevelCompleted(widget.level.levelId)) {
+      await db.clearLevelState(widget.level.levelId);
+      _levelFinished = true;
       _showReplayCompleteDialog();
       return;
     }
@@ -353,6 +492,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       timeSpentMs: DateTime.now().difference(_levelStartTime).inMilliseconds,
       hintsUsed: _hintUsesThisLevel,
     );
+    await db.clearLevelState(widget.level.levelId);
+    _levelFinished = true;
 
     if (result.leveledUp && result.reward != null) {
       _showRewardDialog(result.newLevel, result.reward!, result);
@@ -469,7 +610,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     showLevelLoadingDialog(context);
     try {
       final db = ref.read(databaseProvider);
-      final level = await generateLevel(db, widget.level.levelId + 1);
+      final level = await loadOrGenerateLevel(db, widget.level.levelId + 1);
       if (!mounted) return;
       Navigator.pop(context); // 关闭加载框
       if (level == null) {
@@ -528,7 +669,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
+        child: _restoring
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
           children: [
             // 已完成成语 tags + 释义
             _buildCompletedIdiomsSection(),
@@ -548,7 +691,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             // 底部工具栏
             _buildToolbar(),
           ],
-        ),
+            ),
       ),
     );
   }
@@ -595,6 +738,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   focusCol: _focusCol,
                   errorCells: _errorCells,
                   completedCells: _completedCells,
+                  flashCell: _flashCell,
                   cellSize: actualCellSize,
                 ),
               ),
@@ -789,6 +933,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _focusRow = entry.row;
     _focusCol = entry.col;
     _currentDirection = null;
+    _saveState();
   }
 
   /// 一字提示：前 3 次免费，之后消耗提示卡
@@ -821,6 +966,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     });
 
     HapticFeedback.lightImpact();
+    _saveState();
   }
 
   /// 成语提示：揭示当前焦点所在成语的全部空格（每关一次，免费）
@@ -845,6 +991,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _checkIdiomCompletion(placement);
     });
     HapticFeedback.mediumImpact();
+    _saveState();
   }
 
   /// 全图揭示：填满全部答案，视为放弃本关（不计入通关）
@@ -865,7 +1012,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           ),
         ],
       ),
-    ).then((confirmed) {
+    ).then((confirmed) async {
       if (confirmed != true || !mounted) return;
       setState(() {
         _revealedAll = true;
@@ -883,6 +1030,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _focusRow = -1;
       _focusCol = -1;
       HapticFeedback.mediumImpact();
+      try {
+        await ref.read(databaseProvider).clearLevelState(widget.level.levelId);
+      } catch (_) {}
+      _levelFinished = true;
+      if (!mounted) return;
       showDialog<void>(
         context: context,
         barrierDismissible: false,
@@ -954,6 +1106,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _usedCandidateSlots.remove(candSlot);
       }
     });
+    _saveState();
   }
 
 }
@@ -1004,6 +1157,7 @@ class GridPainter extends CustomPainter {
   final int focusCol;
   final Set<(int, int)> errorCells;
   final Set<(int, int)> completedCells;
+  final (int, int)? flashCell;
   final double cellSize;
 
   GridPainter({
@@ -1013,6 +1167,7 @@ class GridPainter extends CustomPainter {
     required this.focusCol,
     required this.errorCells,
     required this.completedCells,
+    required this.flashCell,
     required this.cellSize,
   });
 
@@ -1041,6 +1196,8 @@ class GridPainter extends CustomPainter {
           bgColor = const Color(0xFFC8E6C9);
         } else if (errorCells.contains((r, c))) {
           bgColor = const Color(0xFFFFCDD2);
+        } else if (flashCell == (r, c)) {
+          bgColor = const Color(0xFFA5D6A7);
         } else if (focusRow == r && focusCol == c) {
           bgColor = const Color(0xFFFFF9C4);
         } else {

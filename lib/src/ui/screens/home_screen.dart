@@ -122,7 +122,7 @@ class HomeScreen extends ConsumerWidget {
       final db = ref.read(databaseProvider);
       final player = ref.read(playerProvider);
       final nextLevel = player.completedLevels + 1;
-      final level = await generateLevel(db, nextLevel);
+      final level = await loadOrGenerateLevel(db, nextLevel);
 
       if (context.mounted) {
         Navigator.pop(context);

@@ -158,6 +158,17 @@ class DecorationTable extends Table {
   List<Set<Column>> get uniqueKeys => [{decorationType, decorationId}];
 }
 
+/// 未完成关卡存档（断点续玩）
+class LevelStateTable extends Table {
+  IntColumn get levelNumber => integer()();
+  TextColumn get levelJson => text()(); // 完整关卡定义（CrosswordLevel）
+  TextColumn get stateJson => text()(); // 玩家进度（答案、候选盘、历史等）
+  DateTimeColumn get savedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {levelNumber};
+}
+
 // ============================================================
 // 数据库
 // ============================================================
@@ -173,13 +184,14 @@ class DecorationTable extends Table {
     Collection,
     LevelHistory,
     DecorationTable,
+    LevelStateTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -193,11 +205,11 @@ class AppDatabase extends _$AppDatabase {
         await customStatement(
           'CREATE INDEX IF NOT EXISTS idx_ici_char_pos ON idiom_char_index(char, position)');
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_difficulty ON idiom(difficulty)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_difficulty ON idioms(difficulty)');
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_first_char ON idiom(first_char)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_first_char ON idioms(first_char)');
         await customStatement(
-          'CREATE INDEX IF NOT EXISTS idx_idiom_last_char ON idiom(last_char)');
+          'CREATE INDEX IF NOT EXISTS idx_idiom_last_char ON idioms(last_char)');
       },
       onUpgrade: (m, from, to) async {
         if (from < 2) {
@@ -209,6 +221,10 @@ class AppDatabase extends _$AppDatabase {
           // 创建关卡历史索引
           await customStatement(
             'CREATE INDEX IF NOT EXISTS idx_lh_level ON level_history(level_number)');
+        }
+        if (from < 3) {
+          // 未完成关卡存档表
+          await m.createTable(levelStateTable);
         }
       },
     );
@@ -414,6 +430,36 @@ class AppDatabase extends _$AppDatabase {
     return rows
         .map((r) => '${r.decorationType}_${r.decorationId}')
         .toSet();
+  }
+
+  /// 读取未完成关卡存档
+  Future<LevelStateTableData?> getLevelState(int levelNumber) async {
+    return await (select(levelStateTable)
+      ..where((t) => t.levelNumber.equals(levelNumber)))
+        .getSingleOrNull();
+  }
+
+  /// 保存未完成关卡存档（覆盖式）
+  Future<void> saveLevelState({
+    required int levelNumber,
+    required String levelJson,
+    required String stateJson,
+  }) async {
+    await into(levelStateTable).insert(
+      LevelStateTableCompanion(
+        levelNumber: Value(levelNumber),
+        levelJson: Value(levelJson),
+        stateJson: Value(stateJson),
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
+  }
+
+  /// 清除未完成关卡存档（通关/放弃后调用）
+  Future<void> clearLevelState(int levelNumber) async {
+    await (delete(levelStateTable)
+      ..where((t) => t.levelNumber.equals(levelNumber)))
+        .go();
   }
 
   /// 设置当前使用的装饰

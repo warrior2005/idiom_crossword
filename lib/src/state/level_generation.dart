@@ -3,6 +3,7 @@ import '../engine/crossing_graph.dart';
 import '../engine/grid_engine.dart' as engine;
 import '../engine/integrated_generator.dart';
 import '../engine/spiral_difficulty.dart';
+import 'level_state_codec.dart';
 
 /// 按关卡编号生成一关（首页/关卡选择共用）
 ///
@@ -31,4 +32,17 @@ Future<engine.CrosswordLevel?> generateLevel(
   final graph = CrossingGraph(idioms: engineIdioms);
   return IntegratedGenerator(graph: graph)
       .generateSpiral(levelNumber: levelNumber, maxAttempts: maxAttempts);
+}
+
+/// 进入关卡：优先恢复未完成存档，没有存档才新生成
+Future<engine.CrosswordLevel?> loadOrGenerateLevel(
+  AppDatabase db,
+  int levelNumber,
+) async {
+  final saved = await db.getLevelState(levelNumber);
+  if (saved != null) {
+    final restored = decodeLevel(saved.levelJson);
+    if (restored != null) return restored;
+  }
+  return generateLevel(db, levelNumber);
 }

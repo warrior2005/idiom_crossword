@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
+import 'package:idiom_crossword/src/state/level_state_codec.dart';
+import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
 
 void main() {
   test('prebuilt DB matches drift v2 schema end to end', () async {
@@ -62,7 +64,105 @@ void main() {
     await db.addDecoration('grid_skin', 'bamboo');
     expect(await db.getOwnedDecorationIds(), contains('grid_skin_bamboo'));
 
+    // 关卡存档（断点续玩）
+    expect(await db.getLevelState(first.id), isNull);
+    await db.saveLevelState(
+      levelNumber: first.id,
+      levelJson: '{"levelId":1}',
+      stateJson: '{"answers":[]}',
+    );
+    final savedState = await db.getLevelState(first.id);
+    expect(savedState, isNotNull);
+    expect(savedState!.stateJson, contains('answers'));
+    await db.clearLevelState(first.id);
+    expect(await db.getLevelState(first.id), isNull);
+
+    // schema 版本应与 database.dart 一致
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.first, 3);
+
     await db.close();
     await tmpDir.delete(recursive: true);
+  });
+
+  test('level codec roundtrips a level and game state', () {
+    final grid = engine.CrosswordGrid(rows: 2, cols: 3);
+    final cells = [
+      grid.cellAt(0, 0),
+      grid.cellAt(0, 1),
+      grid.cellAt(1, 0),
+    ];
+    for (final cell in cells) {
+      cell.state = engine.CellState.filled;
+    }
+    grid.cellAt(0, 0).character = '画';
+    grid.cellAt(0, 0).isGiven = true;
+    grid.cellAt(0, 1).character = '蛇';
+    grid.cellAt(1, 0).isIntersection = true;
+
+    const idiom = engine.Idiom(
+      text: '画蛇添足',
+      pinyin: 'hua she tian zu',
+      meaning: '比喻做了多余的事',
+      difficulty: 3,
+      source: '《战国策》',
+    );
+    final level = engine.CrosswordLevel(
+      levelId: 7,
+      grid: grid,
+      placements: [
+        engine.Placement(
+          idiom: idiom,
+          startRow: 0,
+          startCol: 0,
+          direction: engine.Direction.horizontal,
+        ),
+      ],
+      givenCharacters: {'画'},
+      title: '第 7 关',
+    );
+
+    final restored = decodeLevel(encodeLevel(level));
+    expect(restored, isNotNull);
+    expect(restored!.levelId, 7);
+    expect(restored.title, '第 7 关');
+    expect(restored.grid.rows, 2);
+    expect(restored.grid.cols, 3);
+    expect(restored.grid.cellAt(0, 0).character, '画');
+    expect(restored.grid.cellAt(0, 0).isGiven, isTrue);
+    expect(restored.grid.cellAt(1, 0).isIntersection, isTrue);
+    expect(restored.placements.single.idiom.text, '画蛇添足');
+    expect(restored.placements.single.idiom.meaning, '比喻做了多余的事');
+    expect(restored.givenCharacters, {'画'});
+
+    const state = SavedGameState(
+      answers: {(0, 1): '蛇'},
+      usedCandidateSlots: {(0, 0)},
+      fillHistory: [(row: 0, col: 1, candRow: 0, candCol: 0)],
+      cellToCandidateSlot: {(0, 1): (0, 0)},
+      candidateBoard: [
+        ['蛇', '添', '足'],
+        ['画', '守', '株'],
+      ],
+      hintUsesThisLevel: 2,
+      idiomHintUsed: true,
+      focusRow: 0,
+      focusCol: 2,
+      direction: engine.Direction.vertical,
+    );
+    final restoredState = decodeGameState(encodeGameState(state));
+    expect(restoredState, isNotNull);
+    expect(restoredState!.answers, {(0, 1): '蛇'});
+    expect(restoredState.usedCandidateSlots, {(0, 0)});
+    expect(restoredState.fillHistory.single.candCol, 0);
+    expect(restoredState.cellToCandidateSlot[(0, 1)], (0, 0));
+    expect(restoredState.candidateBoard[1][1], '守');
+    expect(restoredState.hintUsesThisLevel, 2);
+    expect(restoredState.idiomHintUsed, isTrue);
+    expect(restoredState.focusCol, 2);
+    expect(restoredState.direction, engine.Direction.vertical);
+
+    expect(decodeLevel('not json'), isNull);
+    expect(decodeGameState('not json'), isNull);
   });
 }

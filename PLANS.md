@@ -274,8 +274,8 @@ idiom_crossword/
 | # | 任务 | 依赖 | 验收标准 | 状态 |
 |---|------|------|----------|------|
 | 3.1 | SQLite 数据库集成 | Phase 2 | 存储用户进度、关卡通关数据、设置偏好 | ✅ |
-| 3.2 | 关卡数据导入 | 1.4, 3.1 | 将评分完成的成语和生成关卡批量导入 SQLite | 🔲 |
-| 3.3 | 存档/读档 | 3.1 | 支持保存未完成关卡状态，重启后恢复 | 🔲 |
+| 3.2 | 关卡数据导入 | 1.4, 3.1 | 将评分完成的成语和生成关卡批量导入 SQLite | ✅ |
+| 3.3 | 存档/读档 | 3.1 | 支持保存未完成关卡状态，重启后恢复 | ✅ |
 
 **进度记录**
 - 2026-07-04: 确认 drift + sqlite3_flutter_libs 已在 pubspec.yaml 中配置，待 Phase 2 完成后接入
@@ -298,6 +298,10 @@ idiom_crossword/
 - 2026-07-31: 通关记录写入 level_history（含用时/提示次数/成语 ID），完成状态从数据库读取
 - 2026-07-31: 重建 idiom_crossword.db 与 Drift v2 Schema 完全对齐（9 张表、user_version=2、日期列按 drift 默认 Unix 秒存储），并新增 database_schema_test 端到端回归验证
 - 2026-07-31: 玩家进度持久化：启动加载 player_progress_table，通关/用卡写回，装饰奖励同步入库
+- 2026-07-31: 完成断点续玩（存档/读档）：新增 level_state 表（schema v3），退出未完成关卡自动存档，进入时优先恢复；通关/放弃后清除存档
+- 2026-07-31: 新增 CrosswordLevel/游戏进度 JSON 编解码器与往返测试；database_schema_test 覆盖 level_state DAO 与 user_version=3
+- 2026-07-31: 填入正确字时格子短暂高亮闪烁（基础动画补齐）
+- 2026-07-31: 确认 drift 生成表名以当前 drift_dev 为准（idioms/level_state_table），构建脚本与 onCreate 索引同步对齐
 
 ---
 

@@ -9,11 +9,11 @@
   - assets/data/idiom_crossword.db    → SQLite 数据库（对齐 Drift v2 Schema）
 
 表结构（与 lib/src/data/database.dart 生成的表名一致）:
-  - idiom                成语主表（29502 行）
+  - idioms               成语主表（29502 行）
   - idiom_char_index     倒排索引表（每成语 4 行 = 118008 行）
   - idiom_reversible_pair 倒装对
   - char_similar / user_progress / player_progress / collection /
-    level_history / decoration        运行时表（建空表，user_version=2）
+    level_history / decoration / level_state   运行时表（建空表，user_version=3）
 
 使用:
   python scripts/build_database.py
@@ -73,7 +73,7 @@ def build_db(scores, meta, extra):
     # 建表（与 lib/src/data/database.dart 的表定义一一对应）
     # ============================================================
     cur.execute('''
-        CREATE TABLE idiom (
+        CREATE TABLE idioms (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
             word          TEXT    NOT NULL UNIQUE,
             pinyin        TEXT    NOT NULL,
@@ -107,7 +107,7 @@ def build_db(scores, meta, extra):
 
     cur.execute('''
         CREATE TABLE idiom_char_index (
-            idiom_id  INTEGER NOT NULL REFERENCES idiom(id) ON DELETE CASCADE,
+            idiom_id  INTEGER NOT NULL REFERENCES idioms(id) ON DELETE CASCADE,
             char      TEXT    NOT NULL,
             position  INTEGER NOT NULL,
             is_first  INTEGER NOT NULL DEFAULT 0,
@@ -118,8 +118,8 @@ def build_db(scores, meta, extra):
 
     cur.execute('''
         CREATE TABLE idiom_reversible_pair (
-            idiom_id_a  INTEGER NOT NULL REFERENCES idiom(id) ON DELETE CASCADE,
-            idiom_id_b  INTEGER NOT NULL REFERENCES idiom(id) ON DELETE CASCADE,
+            idiom_id_a  INTEGER NOT NULL REFERENCES idioms(id) ON DELETE CASCADE,
+            idiom_id_b  INTEGER NOT NULL REFERENCES idioms(id) ON DELETE CASCADE,
             PRIMARY KEY (idiom_id_a, idiom_id_b)
         )
     ''')
@@ -162,7 +162,7 @@ def build_db(scores, meta, extra):
 
     cur.execute('''
         CREATE TABLE collection (
-            idiom_id     INTEGER NOT NULL REFERENCES idiom(id) ON DELETE CASCADE,
+            idiom_id     INTEGER NOT NULL REFERENCES idioms(id) ON DELETE CASCADE,
             collected_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
             PRIMARY KEY (idiom_id)
         )
@@ -191,12 +191,21 @@ def build_db(scores, meta, extra):
         )
     ''')
 
+    cur.execute('''
+        CREATE TABLE level_state_table (
+            level_number INTEGER PRIMARY KEY,
+            level_json   TEXT NOT NULL,
+            state_json   TEXT NOT NULL,
+            saved_at     INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+        )
+    ''')
+
     # 与 database.dart onCreate 中的索引保持一致
     cur.execute('CREATE INDEX idx_ici_char ON idiom_char_index(char)')
     cur.execute('CREATE INDEX idx_ici_char_pos ON idiom_char_index(char, position)')
-    cur.execute('CREATE INDEX idx_idiom_difficulty ON idiom(difficulty)')
-    cur.execute('CREATE INDEX idx_idiom_first_char ON idiom(first_char)')
-    cur.execute('CREATE INDEX idx_idiom_last_char ON idiom(last_char)')
+    cur.execute('CREATE INDEX idx_idiom_difficulty ON idioms(difficulty)')
+    cur.execute('CREATE INDEX idx_idiom_first_char ON idioms(first_char)')
+    cur.execute('CREATE INDEX idx_idiom_last_char ON idioms(last_char)')
     cur.execute('CREATE INDEX idx_lh_level ON level_history(level_number)')
 
     # ============================================================
@@ -287,7 +296,7 @@ def build_db(scores, meta, extra):
     if reversible_ids:
         placeholders = ','.join('?' * len(reversible_ids))
         cur.execute(
-            f'UPDATE idiom SET reversible = 1 WHERE id IN ({placeholders})',
+            f'UPDATE idioms SET reversible = 1 WHERE id IN ({placeholders})',
             sorted(reversible_ids),
         )
     conn.commit()
@@ -295,7 +304,7 @@ def build_db(scores, meta, extra):
     # ============================================================
     # 版本标记：跳过 Drift 的 onCreate / onUpgrade
     # ============================================================
-    conn.execute('PRAGMA user_version = 2')
+    conn.execute('PRAGMA user_version = 3')
     conn.commit()
     conn.close()
 
@@ -314,7 +323,7 @@ def build_db(scores, meta, extra):
 def _flush(conn, idiom_inserts, index_inserts, idiom_id, total):
     cur = conn.cursor()
     cur.executemany('''
-        INSERT INTO idiom (id, word, pinyin, pinyin_abbr, explanation,
+        INSERT INTO idioms (id, word, pinyin, pinyin_abbr, explanation,
             derivation, example, first_char, last_char, difficulty, reversible)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', idiom_inserts)
@@ -330,11 +339,11 @@ def verify(db_path, expected_idioms):
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
 
-    cur.execute('SELECT COUNT(*) FROM idiom')
+    cur.execute('SELECT COUNT(*) FROM idioms')
     idiom_count = cur.fetchone()[0]
     cur.execute('SELECT COUNT(*) FROM idiom_char_index')
     index_count = cur.fetchone()[0]
-    cur.execute('SELECT MIN(difficulty), MAX(difficulty) FROM idiom')
+    cur.execute('SELECT MIN(difficulty), MAX(difficulty) FROM idioms')
     d_min, d_max = cur.fetchone()
     cur.execute('SELECT COUNT(DISTINCT char) FROM idiom_char_index')
     unique_chars = cur.fetchone()[0]
@@ -342,7 +351,7 @@ def verify(db_path, expected_idioms):
     reversible_count = cur.fetchone()[0]
     cur.execute('SELECT COUNT(*) FROM idiom_char_index WHERE is_first = 1')
     first_count = cur.fetchone()[0]
-    cur.execute('SELECT COUNT(*) FROM idiom WHERE derivation != ""')
+    cur.execute('SELECT COUNT(*) FROM idioms WHERE derivation != ""')
     derivation_count = cur.fetchone()[0]
     cur.execute('PRAGMA user_version')
     user_version = cur.fetchone()[0]
@@ -354,7 +363,7 @@ def verify(db_path, expected_idioms):
 
     assert idiom_count == expected_idioms, f'成语数量不符: {idiom_count} != {expected_idioms}'
     assert index_count == expected_idioms * 4, f'倒排索引数量不符: {index_count}'
-    assert user_version == 2, f'user_version 应为 2，实际 {user_version}'
+    assert user_version == 3, f'user_version 应为 3，实际 {user_version}'
 
     print(f'\n--- 构建完成 ---')
     print(f'成语表: {idiom_count} 行')

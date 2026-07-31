@@ -116,7 +116,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
     showLevelLoadingDialog(context);
     try {
       final db = ref.read(databaseProvider);
-      final level = await generateLevel(db, levelNumber);
+      final level = await loadOrGenerateLevel(db, levelNumber);
       if (!mounted) return;
       Navigator.pop(context); // 关闭加载框
       if (level == null) {
