@@ -80,8 +80,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   // 本关提示使用情况
   int _hintUsesThisLevel = 0; // 一字提示次数（前 3 次免费，之后消耗提示卡）
-  bool _idiomHintUsed = false; // 成语提示每关一次
-  bool _revealedAll = false; // 全图揭示后本关不计入通关
   int _errorsMade = 0; // 错误填写次数（统计用）
   int _correctStreak = 0; // 连续答对字数（成就）
   final Set<AchievementId> _streakHandled = {}; // 本会话已触发的连击成就
@@ -163,7 +161,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _fillHistory.addAll(state.fillHistory);
         _cellToCandidateSlot.addAll(state.cellToCandidateSlot);
         _hintUsesThisLevel = state.hintUsesThisLevel;
-        _idiomHintUsed = state.idiomHintUsed;
         _errorsMade = state.errorsMade;
         _correctStreak = state.correctStreak;
         if (state.focusRow != null && state.focusCol != null) {
@@ -236,7 +233,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 .map((r) => List<String>.from(r))
                 .toList(),
             hintUsesThisLevel: _hintUsesThisLevel,
-            idiomHintUsed: _idiomHintUsed,
             errorsMade: _errorsMade,
             correctStreak: _correctStreak,
             focusRow: _focusRow < 0 ? null : _focusRow,
@@ -496,7 +492,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 检查整关是否完成
   void _checkLevelComplete() {
-    if (_revealedAll) return;
     bool allDone = true;
     for (final placement in widget.level.placements) {
       for (int k = 0; k < placement.idiom.text.length; k++) {
@@ -888,58 +883,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     return null;
   }
 
-  /// 长按空格：显示该字所属的成语及其拼音（PRD 6.3）
-  void _showCellIdioms(int row, int col) {
-    final placements = _placementsContaining(row, col);
-    if (placements.isEmpty) return;
-    HapticFeedback.selectionClick();
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '该字属于：',
-                style: TextStyle(fontSize: 14, color: Colors.brown.shade600),
-              ),
-              const SizedBox(height: 8),
-              for (final p in placements)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Text(
-                        p.idiom.text,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.brown,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          p.idiom.pinyin,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.brown.shade500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -949,12 +892,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.visibility_off),
-            tooltip: '揭示全部',
-            color: Colors.brown.shade700,
-            onPressed: _revealAll,
-          ),
           const Padding(
             padding: EdgeInsets.only(right: 16),
             child: LevelDisplay(),
@@ -1009,17 +946,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               actualCellSize,
             );
             if (cell != null) _onGridTap(cell.$1, cell.$2);
-          },
-          onLongPressStart: (details) {
-            final cell = _cellFromOffset(
-              details.localPosition,
-              availableWidth,
-              availableHeight,
-              gridWidth,
-              gridHeight,
-              actualCellSize,
-            );
-            if (cell != null) _showCellIdioms(cell.$1, cell.$2);
           },
           child: Center(
             child: SizedBox(
@@ -1192,7 +1118,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         !_grid.cellAt(_focusRow, _focusCol).isGiven &&
         !_hasCorrectAnswer();
     final canSingleHint = focusReady && (freeHintsLeft > 0 || hintCount > 0);
-    final canIdiomHint = focusReady && !_idiomHintUsed;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -1204,11 +1129,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             icon: Icons.lightbulb_outline,
             label: freeHintsLeft > 0 ? '一字×$freeHintsLeft' : '提示卡×$hintCount',
             onTap: canSingleHint ? _showHint : null,
-          ),
-          _ToolbarButton(
-            icon: Icons.auto_awesome,
-            label: '成语',
-            onTap: canIdiomHint ? _showIdiomHint : null,
           ),
           _ToolbarButton(
             icon: Icons.delete_outline,
@@ -1281,91 +1201,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _saveState();
   }
 
-  /// 成语提示：揭示当前焦点所在成语的全部空格（每关一次，免费）
-  void _showIdiomHint() {
-    if (_focusRow < 0 || _focusCol < 0 || _idiomHintUsed) return;
-    final placements = _placementsContaining(_focusRow, _focusCol);
-    if (placements.isEmpty) return;
-
-    final placement = placements.first;
-    if (_isPlacementComplete(placement)) return;
-
-    _idiomHintUsed = true;
-    setState(() {
-      for (int k = 0; k < placement.idiom.text.length; k++) {
-        final (r, c) = placement.cellAt(k);
-        if (_grid.cellAt(r, c).isGiven || _playerAnswers.containsKey((r, c))) {
-          continue;
-        }
-        _applyAnswer(r, c, placement.idiom.text[k]);
-      }
-      _checkIdiomCompletion(placement);
-    });
-    HapticFeedback.mediumImpact();
-    _saveState();
-  }
-
-  /// 全图揭示：填满全部答案，视为放弃本关（不计入通关）
-  void _revealAll() {
-    showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('揭示全部答案？'),
-        content: const Text('将直接显示全部答案，并视为放弃本关，不计入通关。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('揭示'),
-          ),
-        ],
-      ),
-    ).then((confirmed) async {
-      if (confirmed != true || !mounted) return;
-      setState(() {
-        _revealedAll = true;
-        for (final placement in widget.level.placements) {
-          for (int k = 0; k < placement.idiom.text.length; k++) {
-            final (r, c) = placement.cellAt(k);
-            if (_grid.cellAt(r, c).isGiven ||
-                _playerAnswers.containsKey((r, c))) {
-              continue;
-            }
-            _applyAnswer(r, c, placement.idiom.text[k]);
-          }
-        }
-      });
-      _focusRow = -1;
-      _focusCol = -1;
-      HapticFeedback.mediumImpact();
-      try {
-        await ref.read(databaseProvider).clearLevelState(widget.level.levelId);
-      } catch (_) {}
-      _levelFinished = true;
-      if (!mounted) return;
-      showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          title: const Text('已揭示全部答案'),
-          content: const Text('本关视为放弃，不计入通关。'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                if (mounted) Navigator.of(context).pop();
-              },
-              child: const Text('返回'),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
   /// 找候选字盘中未被使用的正确答案槽位
   (int, int)? _findFreeCandidateSlot(String char) {
     for (int r = 0; r < _candidateBoard.length; r++) {
@@ -1394,16 +1229,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       ));
       _cellToCandidateSlot[(row, col)] = slot;
     }
-  }
-
-  /// 一个成语的所有空格是否已正确填满
-  bool _isPlacementComplete(Placement placement) {
-    for (int k = 0; k < placement.idiom.text.length; k++) {
-      final (r, c) = placement.cellAt(k);
-      if (_grid.cellAt(r, c).isGiven) continue;
-      if (_playerAnswers[(r, c)] != placement.idiom.text[k]) return false;
-    }
-    return true;
   }
 
   void _clearCell() {

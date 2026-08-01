@@ -114,7 +114,6 @@ class SavedGameState {
   final Map<(int, int), (int, int)> cellToCandidateSlot;
   final List<List<String>> candidateBoard;
   final int hintUsesThisLevel;
-  final bool idiomHintUsed;
   final int errorsMade;
   final int correctStreak;
   final int? focusRow;
@@ -128,7 +127,6 @@ class SavedGameState {
     required this.cellToCandidateSlot,
     required this.candidateBoard,
     required this.hintUsesThisLevel,
-    required this.idiomHintUsed,
     required this.errorsMade,
     required this.correctStreak,
     this.focusRow,
@@ -152,7 +150,6 @@ String encodeGameState(SavedGameState state) {
         .toList(),
     'board': state.candidateBoard,
     'hints': state.hintUsesThisLevel,
-    'idiomHint': state.idiomHintUsed ? 1 : 0,
     'errors': state.errorsMade,
     'streak': state.correctStreak,
     'focus': (state.focusRow == null || state.focusCol == null)
@@ -209,7 +206,6 @@ SavedGameState? decodeGameState(String source) {
       cellToCandidateSlot: slots,
       candidateBoard: board,
       hintUsesThisLevel: data['hints'] as int,
-      idiomHintUsed: (data['idiomHint'] as int) == 1,
       errorsMade: data['errors'] as int,
       correctStreak: data['streak'] as int,
       focusRow: focus == null ? null : focus[0] as int,

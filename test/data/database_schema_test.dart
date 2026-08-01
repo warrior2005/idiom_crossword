@@ -221,7 +221,6 @@ void main() {
         ['画', '守', '株'],
       ],
       hintUsesThisLevel: 2,
-      idiomHintUsed: true,
       errorsMade: 1,
       correctStreak: 3,
       focusRow: 0,
@@ -236,7 +235,6 @@ void main() {
     expect(restoredState.cellToCandidateSlot[(0, 1)], (0, 0));
     expect(restoredState.candidateBoard[1][1], '守');
     expect(restoredState.hintUsesThisLevel, 2);
-    expect(restoredState.idiomHintUsed, isTrue);
     expect(restoredState.errorsMade, 1);
     expect(restoredState.correctStreak, 3);
     expect(restoredState.focusCol, 2);
