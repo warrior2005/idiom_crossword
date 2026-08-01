@@ -9,19 +9,17 @@ class PlayerStats {
   final int totalCompleted; // 总通关数（含每日挑战）
   final int totalXp; // 累计经验
   final int avgTimeMs; // 平均通关用时
-  final int totalHints; // 累计提示次数
-  final int totalErrors; // 累计错误填写
   final int longestStreak; // 最长连续通关
   final int collectionCount; // 收藏成语数
+  final int dailyCount; // 每日挑战完成数
 
   const PlayerStats({
     required this.totalCompleted,
     required this.totalXp,
     required this.avgTimeMs,
-    required this.totalHints,
-    required this.totalErrors,
     required this.longestStreak,
     required this.collectionCount,
+    required this.dailyCount,
   });
 }
 
@@ -52,8 +50,7 @@ final statsProvider = FutureProvider<PlayerStats>((ref) async {
       .map((h) => h.timeSpentMs!)
       .toList();
   final totalXp = history.fold(0, (sum, h) => sum + h.xpGained);
-  final totalHints = history.fold(0, (sum, h) => sum + h.hintsUsed);
-  final totalErrors = history.fold(0, (sum, h) => sum + h.errorsMade);
+  final dailyCount = history.where((h) => h.levelNumber >= 1000000).length;
 
   return PlayerStats(
     totalCompleted: history.length,
@@ -61,10 +58,9 @@ final statsProvider = FutureProvider<PlayerStats>((ref) async {
     avgTimeMs: times.isEmpty
         ? 0
         : times.reduce((a, b) => a + b) ~/ times.length,
-    totalHints: totalHints,
-    totalErrors: totalErrors,
     longestStreak: bestStreak,
     collectionCount: await db.getCollectionCount(),
+    dailyCount: dailyCount,
   );
 });
 
@@ -92,10 +88,14 @@ class StatsScreen extends ConsumerWidget {
         data: (stats) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
+            // 6 个统计卡片，每行 3 个
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 1.15,
               children: [
                 _StatCard(
                   icon: Icons.emoji_events,
@@ -113,16 +113,6 @@ class StatsScreen extends ConsumerWidget {
                   value: _formatDuration(stats.avgTimeMs),
                 ),
                 _StatCard(
-                  icon: Icons.lightbulb_outline,
-                  label: '提示次数',
-                  value: '${stats.totalHints}',
-                ),
-                _StatCard(
-                  icon: Icons.close,
-                  label: '填错次数',
-                  value: '${stats.totalErrors}',
-                ),
-                _StatCard(
                   icon: Icons.local_fire_department,
                   label: '最长连胜',
                   value: '${stats.longestStreak}',
@@ -132,12 +122,17 @@ class StatsScreen extends ConsumerWidget {
                   label: '收藏成语',
                   value: '${stats.collectionCount}',
                 ),
+                _StatCard(
+                  icon: Icons.calendar_today,
+                  label: '每日挑战',
+                  value: '${stats.dailyCount}',
+                ),
               ],
             ),
             const SizedBox(height: 24),
             Text(
               '最近通关',
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

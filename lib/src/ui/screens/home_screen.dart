@@ -96,7 +96,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${(player.xpProgress * 100).round()}% 升至 '
+                  '${player.xpRemaining}经验 升至 '
                   '${GrowthManager.titleForLevel(player.level + 1)}',
                   style: TextStyle(fontSize: 11, color: Colors.brown.shade400),
                 ),

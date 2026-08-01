@@ -41,7 +41,10 @@ class CollectionScreen extends ConsumerStatefulWidget {
 }
 
 class _CollectionScreenState extends ConsumerState<CollectionScreen> {
+  static const _pageSize = 30;
+
   String _query = '';
+  int _page = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +89,40 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                       borderSide: BorderSide(color: Colors.brown.shade200),
                     ),
                   ),
-                  onChanged: (v) => setState(() => _query = v.trim()),
+                  onChanged: (v) => setState(() {
+                    _query = v.trim();
+                    _page = 0;
+                  }),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _page > 0
+                          ? () => setState(() => _page--)
+                          : null,
+                      icon: const Icon(Icons.chevron_left),
+                      label: const Text('上一页'),
+                    ),
+                    Text(
+                      '共 ${filtered.length} 条',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.brown.shade500,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed:
+                          _page < ((filtered.length / _pageSize).ceil() - 1)
+                          ? () => setState(() => _page++)
+                          : null,
+                      icon: const Icon(Icons.chevron_right),
+                      label: const Text('下一页'),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -126,40 +162,50 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                           style: TextStyle(fontSize: 15, color: Colors.brown),
                         ),
                       )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(8),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
-                          final item = filtered[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 4,
-                              horizontal: 8,
-                            ),
-                            child: ListTile(
-                              title: Text(
-                                item.word,
-                                style: const TextStyle(fontSize: 20),
+                    : () {
+                        final page = _page.clamp(
+                          0,
+                          ((filtered.length / _pageSize).ceil() - 1),
+                        );
+                        final pageItems = filtered.sublist(
+                          page * _pageSize,
+                          ((page + 1) * _pageSize).clamp(0, filtered.length),
+                        );
+                        return ListView.builder(
+                          padding: const EdgeInsets.all(8),
+                          itemCount: pageItems.length,
+                          itemBuilder: (context, index) {
+                            final item = pageItems[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 8,
                               ),
-                              subtitle: Text(item.explanation),
-                              trailing: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
+                              child: ListTile(
+                                title: Text(
+                                  item.word,
+                                  style: const TextStyle(fontSize: 20),
                                 ),
-                                decoration: BoxDecoration(
-                                  color: _difficultyColor(item.difficulty),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '${item.difficulty}',
-                                  style: const TextStyle(color: Colors.white),
+                                subtitle: Text(item.explanation),
+                                trailing: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _difficultyColor(item.difficulty),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    '${item.difficulty}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                        );
+                      }(),
               ),
             ],
           );

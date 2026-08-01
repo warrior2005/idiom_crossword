@@ -1045,74 +1045,80 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildCompletedIdiomsSection() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (_completedIdiomList.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 3,
-              children: _completedIdiomList.asMap().entries.map((entry) {
-                final i = entry.key;
-                final item = entry.value;
-                final isSelected = _selectedCompletedIndex == i;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedCompletedIndex = isSelected ? null : i;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.green.shade100
-                          : const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected
-                            ? Colors.green.shade700
-                            : Colors.green.shade300,
+    // 固定高度区域：出现完成词条/释义时不再挤压网格布局（避免抖动）
+    return Container(
+      height: 88,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Column(
+        children: [
+          if (_completedIdiomList.isNotEmpty)
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _completedIdiomList.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final item = entry.value;
+                    final isSelected = _selectedCompletedIndex == i;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedCompletedIndex = isSelected ? null : i;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.green.shade100
+                                : const Color(0xFFE8F5E9),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Colors.green.shade700
+                                  : Colors.green.shade300,
+                            ),
+                          ),
+                          child: Text(
+                            item.word,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.green.shade800,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      item.word,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.green.shade800,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        if (_selectedCompletedIndex != null)
-          Container(
-            height: 36,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: AutoSizeText(
-              '释义：'
-              '${_completedIdiomList[_selectedCompletedIndex!].meaning}',
-              maxLines: 2,
-              minFontSize: 10,
-              stepGranularity: 1,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.brown.shade600,
-                height: 1.3,
+                    );
+                  }).toList(),
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-      ],
+          if (_selectedCompletedIndex != null)
+            Container(
+              height: 36,
+              alignment: Alignment.center,
+              child: AutoSizeText(
+                '释义：'
+                '${_completedIdiomList[_selectedCompletedIndex!].meaning}',
+                maxLines: 2,
+                minFontSize: 10,
+                stepGranularity: 1,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.brown.shade600,
+                  height: 1.3,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+        ],
+      ),
     );
   }
 

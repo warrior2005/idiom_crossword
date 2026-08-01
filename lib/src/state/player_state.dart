@@ -28,6 +28,13 @@ class PlayerState {
     return currentLevelXp / xpToNextLevel;
   }
 
+  /// 距离升级还差多少经验
+  int get xpRemaining {
+    final currentLevelXp = totalXp - _xpForPreviousLevels();
+    final remaining = xpToNextLevel - currentLevelXp;
+    return remaining < 0 ? 0 : remaining;
+  }
+
   PlayerState copyWith({
     int? level,
     int? totalXp,

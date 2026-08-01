@@ -26,7 +26,7 @@ class LevelDisplay extends ConsumerWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            'Lv.${player.level}',
+            'Lv.${player.level} ${player.title}',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,

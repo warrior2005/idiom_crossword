@@ -35,6 +35,7 @@ void main() {
     expect(state.totalXp, 10);
     expect(state.completedLevels, 1);
     expect(state.xpProgress, closeTo(0.1, 0.001)); // 10/100
+    expect(state.xpRemaining, 90); // 升 2 级还差 90 经验
 
     final progress = await db.getPlayerProgress();
     expect(progress, isNotNull);

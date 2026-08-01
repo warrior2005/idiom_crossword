@@ -29,14 +29,37 @@ class LevelSelectScreen extends ConsumerStatefulWidget {
 }
 
 class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
+  static const _pageSize = 100;
+
+  int _page = 0;
+  bool _pageInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 等下一关编号就绪后定位到对应页
+    ref.listenManual(nextMainLevelProvider, (prev, next) {
+      if (next.hasValue && !_pageInitialized) {
+        _pageInitialized = true;
+        _page = (next.value! - 1) ~/ _pageSize;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final completedAsync = ref.watch(completedLevelsProvider);
     final nextLevelAsync = ref.watch(nextMainLevelProvider);
     final completed = completedAsync.value ?? const <int>{};
     final nextLevel = nextLevelAsync.value ?? 1;
-    // 只展示已完成关卡与当前正在进行的关卡（后续未开启关卡不展示）
-    final levels = ({...completed, nextLevel}).toList()..sort();
+    // 只展示已完成关卡与当前正在进行的关卡，按页展示
+    final allLevels = ({...completed, nextLevel}).toList()..sort();
+    final totalPages = (allLevels.length / _pageSize).ceil();
+    final page = _page.clamp(0, totalPages - 1);
+    final pageLevels = allLevels.sublist(
+      page * _pageSize,
+      ((page + 1) * _pageSize).clamp(0, allLevels.length),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F0E8),
@@ -48,6 +71,35 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: page > 0 ? () => setState(() => _page--) : null,
+                    icon: const Icon(Icons.chevron_left),
+                    label: const Text('上一页'),
+                  ),
+                  Text(
+                    '第 ${page * _pageSize + 1}-'
+                    '${((page + 1) * _pageSize).clamp(0, allLevels.length)} 关',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.brown,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: page < totalPages - 1
+                        ? () => setState(() => _page++)
+                        : null,
+                    icon: const Icon(Icons.chevron_right),
+                    label: const Text('下一页'),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: completedAsync.isLoading || nextLevelAsync.isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -59,9 +111,9 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                             mainAxisSpacing: 6,
                             crossAxisSpacing: 6,
                           ),
-                      itemCount: levels.length,
+                      itemCount: pageLevels.length,
                       itemBuilder: (context, index) {
-                        final level = levels[index];
+                        final level = pageLevels[index];
                         return _LevelCell(
                           levelNumber: level,
                           isCompleted: completed.contains(level),
