@@ -62,10 +62,7 @@ void main() {
     expect(result, isNotNull);
     expect(result!.nodeIndices.length, 4);
     // 至少一个节点来自叶子池（难度 ≥ 25）
-    expect(
-      result.nodeIndices.any((i) => idioms[i].difficulty >= 25),
-      isTrue,
-    );
+    expect(result.nodeIndices.any((i) => idioms[i].difficulty >= 25), isTrue);
     expect(result.edges, isNotEmpty);
   });
 }

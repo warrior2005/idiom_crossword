@@ -177,7 +177,8 @@ def build_db(scores, meta, extra):
             idioms_used   TEXT NOT NULL,
             time_spent_ms INTEGER,
             hints_used    INTEGER NOT NULL DEFAULT 0,
-            errors_made   INTEGER NOT NULL DEFAULT 0
+            errors_made   INTEGER NOT NULL DEFAULT 0,
+            level_json    TEXT
         )
     ''')
 
@@ -319,7 +320,7 @@ def build_db(scores, meta, extra):
     # ============================================================
     # 版本标记：跳过 Drift 的 onCreate / onUpgrade
     # ============================================================
-    conn.execute('PRAGMA user_version = 6')
+    conn.execute('PRAGMA user_version = 7')
     conn.commit()
     conn.close()
 
@@ -378,7 +379,7 @@ def verify(db_path, expected_idioms):
 
     assert idiom_count == expected_idioms, f'成语数量不符: {idiom_count} != {expected_idioms}'
     assert index_count == expected_idioms * 4, f'倒排索引数量不符: {index_count}'
-    assert user_version == 6, f'user_version 应为 6，实际 {user_version}'
+    assert user_version == 7, f'user_version 应为 7，实际 {user_version}'
 
     print(f'\n--- 构建完成 ---')
     print(f'成语表: {idiom_count} 行')

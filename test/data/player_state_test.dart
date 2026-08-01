@@ -34,6 +34,7 @@ void main() {
     final state = container.read(playerProvider);
     expect(state.totalXp, 10);
     expect(state.completedLevels, 1);
+    expect(state.xpProgress, closeTo(0.1, 0.001)); // 10/100
 
     final progress = await db.getPlayerProgress();
     expect(progress, isNotNull);
@@ -55,6 +56,7 @@ void main() {
     expect(state.level, 2);
     expect(state.title, '生员');
     expect(state.functionalItems['hint_card'], 2);
+    expect(state.xpProgress, closeTo(0.0, 0.001)); // 刚升级，本级进度 0
 
     final progress = await db.getPlayerProgress();
     expect(progress!.level, 2);

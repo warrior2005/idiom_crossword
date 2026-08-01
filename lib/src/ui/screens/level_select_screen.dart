@@ -13,6 +13,13 @@ final completedLevelsProvider = FutureProvider<Set<int>>((ref) async {
   return db.getCompletedLevelNumbers();
 });
 
+/// 当前正在进行的关卡（下一个主关卡）
+final nextMainLevelProvider = FutureProvider<int>((ref) async {
+  ref.watch(playerProvider);
+  final db = ref.watch(databaseProvider);
+  return db.getNextMainLevel();
+});
+
 /// 关卡选择：分页展示完成状态，点击进入对应关卡
 class LevelSelectScreen extends ConsumerStatefulWidget {
   const LevelSelectScreen({super.key});
@@ -22,25 +29,14 @@ class LevelSelectScreen extends ConsumerStatefulWidget {
 }
 
 class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
-  static const _pageSize = 100;
-
-  int _page = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    final nextLevel = ref.read(playerProvider).completedLevels + 1;
-    _page = (nextLevel - 1) ~/ _pageSize;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final player = ref.watch(playerProvider);
     final completedAsync = ref.watch(completedLevelsProvider);
+    final nextLevelAsync = ref.watch(nextMainLevelProvider);
     final completed = completedAsync.value ?? const <int>{};
-    final nextLevel = player.completedLevels + 1;
-    final start = _page * _pageSize + 1;
-    final levels = List.generate(_pageSize, (i) => start + i);
+    final nextLevel = nextLevelAsync.value ?? 1;
+    // 只展示已完成关卡与当前正在进行的关卡（后续未开启关卡不展示）
+    final levels = ({...completed, nextLevel}).toList()..sort();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F0E8),
@@ -52,34 +48,8 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton.icon(
-                    onPressed: _page > 0 ? () => setState(() => _page--) : null,
-                    icon: const Icon(Icons.chevron_left),
-                    label: const Text('上一页'),
-                  ),
-                  Text(
-                    '第 $start-${start + _pageSize - 1} 关',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.brown,
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => setState(() => _page++),
-                    icon: const Icon(Icons.chevron_right),
-                    label: const Text('下一页'),
-                  ),
-                ],
-              ),
-            ),
             Expanded(
-              child: completedAsync.isLoading
+              child: completedAsync.isLoading || nextLevelAsync.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : GridView.builder(
                       padding: const EdgeInsets.all(12),
@@ -96,10 +66,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                           levelNumber: level,
                           isCompleted: completed.contains(level),
                           isNext: level == nextLevel,
-                          isUnlocked: level <= nextLevel,
-                          onTap: level <= nextLevel
-                              ? () => _startLevel(level)
-                              : null,
+                          onTap: () => _startLevel(level),
                         );
                       },
                     ),
@@ -144,14 +111,12 @@ class _LevelCell extends StatelessWidget {
   final int levelNumber;
   final bool isCompleted;
   final bool isNext;
-  final bool isUnlocked;
   final VoidCallback? onTap;
 
   const _LevelCell({
     required this.levelNumber,
     required this.isCompleted,
     required this.isNext,
-    required this.isUnlocked,
     required this.onTap,
   });
 
@@ -159,21 +124,16 @@ class _LevelCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color bg;
     final Color fg;
-    IconData? icon;
 
     if (isCompleted) {
       bg = const Color(0xFFC8E6C9);
       fg = Colors.green.shade800;
-      icon = Icons.check;
     } else if (isNext) {
       bg = Colors.brown.shade200;
       fg = Colors.brown.shade900;
-    } else if (isUnlocked) {
+    } else {
       bg = const Color(0xFFFFF8F0);
       fg = Colors.brown.shade700;
-    } else {
-      bg = Colors.brown.shade100;
-      fg = Colors.brown.shade300;
     }
 
     return Material(
@@ -183,16 +143,14 @@ class _LevelCell extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         onTap: onTap,
         child: Center(
-          child: icon != null
-              ? Icon(icon, size: 18, color: fg)
-              : Text(
-                  '$levelNumber',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isNext ? FontWeight.w700 : FontWeight.w500,
-                    color: fg,
-                  ),
-                ),
+          child: Text(
+            '$levelNumber',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isNext ? FontWeight.w700 : FontWeight.w500,
+              color: fg,
+            ),
+          ),
         ),
       ),
     );

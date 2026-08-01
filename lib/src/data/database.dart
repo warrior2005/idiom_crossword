@@ -20,7 +20,7 @@ import 'package:sqlite3/sqlite3.dart';
 part 'database.g.dart';
 
 /// 当前数据库 schema 版本（与预构建数据库的 PRAGMA user_version 保持一致）
-const int currentSchemaVersion = 6;
+const int currentSchemaVersion = 7;
 
 // ============================================================
 // 表定义
@@ -153,6 +153,7 @@ class LevelHistory extends Table {
   IntColumn get timeSpentMs => integer().nullable()();
   IntColumn get hintsUsed => integer().withDefault(const Constant(0))();
   IntColumn get errorsMade => integer().withDefault(const Constant(0))();
+  TextColumn get levelJson => text().nullable()(); // 冻结的关卡定义（重玩同题）
 
   @override
   List<Set<Column>> get uniqueKeys => [];
@@ -278,6 +279,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 6) {
           // 键值设置表
           await m.createTable(settingsTable);
+        }
+        if (from < 7) {
+          // 冻结关卡定义（历史关卡重玩同题）
+          await m.addColumn(levelHistory, levelHistory.levelJson);
         }
       },
     );
@@ -452,8 +457,7 @@ class AppDatabase extends _$AppDatabase {
   /// 批量按成语原文查找 ID（通关收录用，减少串行查询）
   Future<Map<String, int>> findIdiomIdsByWords(List<String> words) async {
     if (words.isEmpty) return {};
-    final rows =
-        await (select(idioms)..where((t) => t.word.isIn(words))).get();
+    final rows = await (select(idioms)..where((t) => t.word.isIn(words))).get();
     return {for (final row in rows) row.word: row.id};
   }
 
@@ -473,6 +477,7 @@ class AppDatabase extends _$AppDatabase {
     int? timeSpentMs,
     int hintsUsed = 0,
     int errorsMade = 0,
+    String? levelJson,
   }) async {
     await into(levelHistory).insert(
       LevelHistoryCompanion(
@@ -482,8 +487,19 @@ class AppDatabase extends _$AppDatabase {
         timeSpentMs: Value(timeSpentMs),
         hintsUsed: Value(hintsUsed),
         errorsMade: Value(errorsMade),
+        levelJson: Value(levelJson),
       ),
     );
+  }
+
+  /// 读取已冻结的关卡定义（历史关卡重玩用，走 level_number 索引）
+  Future<String?> getLevelDefinition(int levelNumber) async {
+    final row =
+        await (select(levelHistory)
+              ..where((t) => t.levelNumber.equals(levelNumber))
+              ..limit(1))
+            .getSingleOrNull();
+    return row?.levelJson;
   }
 
   /// 已通关的关卡编号集合
@@ -493,6 +509,19 @@ class AppDatabase extends _$AppDatabase {
       levelHistory,
     )..where((t) => t.levelNumber.isSmallerThanValue(1000000))).get();
     return rows.map((r) => r.levelNumber).toSet();
+  }
+
+  /// 下一个主关卡编号（排除每日挑战号段 1000000+）
+  Future<int> getNextMainLevel() async {
+    final rows = await (select(
+      levelHistory,
+    )..where((t) => t.levelNumber.isSmallerThanValue(1000000))).get();
+    if (rows.isEmpty) return 1;
+    var max = 0;
+    for (final r in rows) {
+      if (r.levelNumber > max) max = r.levelNumber;
+    }
+    return max + 1;
   }
 
   /// 全部通关记录（含每日挑战，按关卡号升序）

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/player_state.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
+import '../../data/growth_manager.dart';
+import '../../engine/spiral_difficulty.dart';
 import 'game_screen.dart';
 import 'collection_screen.dart';
 import 'shop_screen.dart';
@@ -94,7 +96,8 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${player.xpProgress.toStringAsFixed(0)}% 升至 Lv.${player.level + 1}',
+                  '${(player.xpProgress * 100).round()}% 升至 '
+                  '${GrowthManager.titleForLevel(player.level + 1)}',
                   style: TextStyle(fontSize: 11, color: Colors.brown.shade400),
                 ),
                 const SizedBox(height: 40),
@@ -218,7 +221,7 @@ class HomeScreen extends ConsumerWidget {
     try {
       final db = ref.read(databaseProvider);
       final player = ref.read(playerProvider);
-      final nextLevel = player.completedLevels + 1;
+      final nextLevel = await db.getNextMainLevel();
       final level = await loadOrGenerateLevel(db, nextLevel);
 
       if (!context.mounted) return;
@@ -299,12 +302,19 @@ class HomeScreen extends ConsumerWidget {
     if (!context.mounted) return;
     showLevelLoadingDialog(context);
     try {
+      // 难度跟随当前关卡，并整体上移一档（+2/+6）保持"略难"
+      final spiral = SpiralDifficulty.calculate(
+        ref.read(playerProvider).completedLevels + 1,
+      );
+      final minD = (spiral.mainMin + 2).clamp(1, 50);
+      final maxD = (spiral.mainMax + 6).clamp(1, 50);
       final level = await generateLevel(
         db,
         levelNumber,
         seed: epochDay(),
         targetSize: 6,
-        difficultyRange: (10, 40),
+        difficultyRange: (minD, maxD),
+        title: '每日挑战',
       );
       if (!context.mounted) return;
       Navigator.pop(context);

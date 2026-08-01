@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
 import 'package:idiom_crossword/src/state/database_provider.dart';
+import 'package:idiom_crossword/src/state/level_generation.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 
 /// 完整通关流程端到端测试：候选字填字 → 过关对话框 → 经验/记录落库
@@ -29,7 +30,9 @@ void main() {
 
     // PRD 6.3：点击已聚焦的已填格两次 → 清除该字（候选槽位释放）
     final gridRect = tester.getRect(
-      find.byWidgetPredicate((w) => w is CustomPaint && w.painter is GridPainter),
+      find.byWidgetPredicate(
+        (w) => w is CustomPaint && w.painter is GridPainter,
+      ),
     );
     final cellSize = gridRect.width / 5;
     final snakeCell = Offset(
@@ -50,10 +53,10 @@ void main() {
     // 过关对话框出现（异步完成流程需要轮询）
     await _pumpUntil(
       tester,
-      () => find.text('🎉 恭喜过关！').evaluate().isNotEmpty,
+      () => find.text('恭喜过关！').evaluate().isNotEmpty,
       const Duration(seconds: 5),
     );
-    expect(find.text('🎉 恭喜过关！'), findsOneWidget);
+    expect(find.text('恭喜过关！'), findsOneWidget);
 
     // 排空闪烁动画 / SnackBar 的挂起定时器
     await tester.pump(const Duration(milliseconds: 400));
@@ -65,16 +68,27 @@ void main() {
     expect(progress!.totalXp, 10);
     expect(progress.completedLevels, 1);
     expect(await db.getCompletedLevelNumbers(), {1});
+
+    // 冻结定义：再次进入同一关得到同一题
+    final frozen = await db.getLevelDefinition(1);
+    expect(frozen, isNotNull);
+    final replay = await loadOrGenerateLevel(db, 1);
+    expect(replay, isNotNull);
+    expect(replay!.placements.single.idiom.text, '画蛇添足');
+    expect(replay.grid.rows, 5);
+    expect(replay.grid.cols, 5);
   });
 
   testWidgets('一字提示揭示答案后通关，提示次数落库', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await tester.pumpWidget(ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(db)],
-      child: MaterialApp(home: GameScreen(level: _buildLevel())),
-    ));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
     await tester.pumpAndSettle();
 
     // 一字提示揭示焦点格（蛇），焦点停留在该格
@@ -85,13 +99,14 @@ void main() {
     // 点击"添"空格聚焦后填入，焦点自动前进到"足"再填入
     final gridRect = tester.getRect(
       find.byWidgetPredicate(
-          (w) => w is CustomPaint && w.painter is GridPainter),
+        (w) => w is CustomPaint && w.painter is GridPainter,
+      ),
     );
     final cellSize = gridRect.width / 5;
     Offset cellCenter(int col, int row) => Offset(
-          gridRect.left + col * cellSize + cellSize / 2,
-          gridRect.top + row * cellSize + cellSize / 2,
-        );
+      gridRect.left + col * cellSize + cellSize / 2,
+      gridRect.top + row * cellSize + cellSize / 2,
+    );
     await tester.tapAt(cellCenter(3, 1));
     await tester.pump();
     await tester.tap(find.text('添'));
@@ -101,10 +116,10 @@ void main() {
 
     await _pumpUntil(
       tester,
-      () => find.text('🎉 恭喜过关！').evaluate().isNotEmpty,
+      () => find.text('恭喜过关！').evaluate().isNotEmpty,
       const Duration(seconds: 5),
     );
-    expect(find.text('🎉 恭喜过关！'), findsOneWidget);
+    expect(find.text('恭喜过关！'), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
@@ -117,15 +132,18 @@ void main() {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await tester.pumpWidget(ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(db)],
-      child: MaterialApp(home: GameScreen(level: _buildLevel())),
-    ));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
     await tester.pumpAndSettle();
 
     final gridRect = tester.getRect(
       find.byWidgetPredicate(
-          (w) => w is CustomPaint && w.painter is GridPainter),
+        (w) => w is CustomPaint && w.painter is GridPainter,
+      ),
     );
     final cellSize = gridRect.width / 5;
     final snakeCell = Offset(

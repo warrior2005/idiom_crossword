@@ -84,7 +84,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   bool _revealedAll = false; // 全图揭示后本关不计入通关
   int _errorsMade = 0; // 错误填写次数（统计用）
   int _correctStreak = 0; // 连续答对字数（成就）
-  bool _streak10Handled = false; // 十连击成就本会话已触发
+  final Set<AchievementId> _streakHandled = {}; // 本会话已触发的连击成就
   late DateTime _levelStartTime;
 
   // 断点续玩
@@ -259,7 +259,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final def = achievementDefs.firstWhere((d) => d.id == id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('🏅 解锁成就：${def.title}'),
+        content: Text('解锁成就：${def.title}'),
         duration: const Duration(milliseconds: 1500),
       ),
     );
@@ -319,9 +319,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final isCorrect = char == _correctCharForCell(filledRow, filledCol);
     if (isCorrect) {
       _correctStreak++;
-      if (_correctStreak >= 10 && !_streak10Handled) {
-        _streak10Handled = true;
-        _unlockAndNotify(AchievementId.streak10);
+      const streakThresholds = [
+        (AchievementId.streak10, 10),
+        (AchievementId.streak20, 20),
+        (AchievementId.streak30, 30),
+      ];
+      for (final (id, threshold) in streakThresholds) {
+        if (_correctStreak >= threshold && !_streakHandled.contains(id)) {
+          _streakHandled.add(id);
+          _unlockAndNotify(id);
+        }
       }
     } else {
       _errorsMade++;
@@ -394,7 +401,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     GameAudio.instance.play('idiom.wav');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('✓ ${placement.idiom.text}'),
+        content: Text('√ ${placement.idiom.text}'),
         duration: const Duration(milliseconds: 800),
       ),
     );
@@ -559,6 +566,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       timeSpentMs: timeSpentMs,
       hintsUsed: _hintUsesThisLevel,
       errorsMade: _errorsMade,
+      levelJson: encodeLevel(widget.level),
     );
 
     // 成就判定
@@ -568,15 +576,33 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         if (id.name == s) alreadyUnlocked.add(id);
       }
     }
+    // 从通关历史统计计数类成就的进度（含本次通关）
+    var noHintCompletions = 0;
+    var flawlessCompletions = 0;
+    var speedrunCompletions = 0;
+    var dailyCompletions = 0;
+    for (final h in await db.getLevelHistory()) {
+      if (h.hintsUsed == 0) noHintCompletions++;
+      if (h.errorsMade == 0) flawlessCompletions++;
+      if (h.timeSpentMs != null && h.timeSpentMs! < 60000) {
+        speedrunCompletions++;
+      }
+      if (h.levelNumber >= dailyLevelOffset) dailyCompletions++;
+    }
     final newly = AchievementManager.evaluateOnLevelComplete(
       alreadyUnlocked: alreadyUnlocked,
       levelNumber: widget.level.levelId,
-      completedLevels: ref.read(playerProvider).completedLevels,
+      totalCompleted: ref.read(playerProvider).completedLevels,
+      noHintCompletions: noHintCompletions,
+      flawlessCompletions: flawlessCompletions,
+      speedrunCompletions: speedrunCompletions,
+      dailyCompletions: dailyCompletions,
+      totalXp: ref.read(playerProvider).totalXp,
+      collectionCount: await db.getCollectionCount(),
       isDaily: _isDaily,
       hintsUsed: _hintUsesThisLevel,
       errorsMade: _errorsMade,
       timeSpentMs: timeSpentMs,
-      collectionCount: await db.getCollectionCount(),
     );
     for (final id in newly) {
       await db.unlockAchievement(id.name);
@@ -662,7 +688,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           child: Opacity(opacity: t.clamp(0.0, 1.0), child: child),
         ),
         child: AlertDialog(
-          title: Text(isDaily ? '🎉 每日挑战完成！' : '🎉 恭喜过关！'),
+          title: Text(isDaily ? '每日挑战完成！' : '恭喜过关！'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -685,7 +711,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               if (newAchievements.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
-                  '🏅 解锁成就：'
+                  '解锁成就：'
                   '${newAchievements.map((d) => d.title).join('、')}',
                   style: TextStyle(
                     fontSize: 14,
@@ -728,7 +754,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('🎉 完成！'),
+        title: const Text('完成！'),
         content: Text(
           '自定义关卡为练习模式，不计入通关进度。\n\n'
           '用时 ${_formatDuration(timeSpentMs)} · '
@@ -1073,7 +1099,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: AutoSizeText(
-              _completedIdiomList[_selectedCompletedIndex!].meaning,
+              '释义：'
+              '${_completedIdiomList[_selectedCompletedIndex!].meaning}',
               maxLines: 2,
               minFontSize: 10,
               stepGranularity: 1,

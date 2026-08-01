@@ -37,7 +37,7 @@ class SubgraphSelector {
   final Random _random;
 
   SubgraphSelector({required this.graph, Random? random})
-      : _random = random ?? Random();
+    : _random = random ?? Random();
 
   /// 选取一个连通子图
   ///

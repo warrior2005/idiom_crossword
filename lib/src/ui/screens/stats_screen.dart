@@ -95,6 +95,7 @@ class StatsScreen extends ConsumerWidget {
             Wrap(
               spacing: 12,
               runSpacing: 12,
+              alignment: WrapAlignment.center,
               children: [
                 _StatCard(
                   icon: Icons.emoji_events,
@@ -136,6 +137,7 @@ class StatsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             Text(
               '最近通关',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

@@ -112,13 +112,26 @@ class AchievementsScreen extends ConsumerWidget {
   IconData _iconFor(AchievementId id) {
     return switch (id) {
       AchievementId.firstLevel => Icons.flag,
-      AchievementId.streak10 => Icons.flash_on,
-      AchievementId.noHint => Icons.lightbulb_outline,
+      AchievementId.level10 => Icons.looks_one_outlined,
+      AchievementId.level50 => Icons.looks_two_outlined,
       AchievementId.level100 => Icons.workspace_premium,
-      AchievementId.dailyChallenge => Icons.calendar_today,
+      AchievementId.level500 => Icons.military_tech,
+      AchievementId.level1000 => Icons.emoji_events,
       AchievementId.collector50 => Icons.bookmark,
-      AchievementId.speedrun => Icons.timer,
+      AchievementId.collector100 => Icons.collections_bookmark,
+      AchievementId.collector200 => Icons.bookmarks,
+      AchievementId.streak10 => Icons.flash_on,
+      AchievementId.streak20 => Icons.bolt,
+      AchievementId.streak30 => Icons.electric_bolt,
+      AchievementId.noHint => Icons.lightbulb_outline,
+      AchievementId.noHint10 => Icons.visibility_off,
       AchievementId.flawless => Icons.verified,
+      AchievementId.flawless10 => Icons.verified_user,
+      AchievementId.speedrun => Icons.timer,
+      AchievementId.speedrun10 => Icons.timer_off_outlined,
+      AchievementId.dailyChallenge => Icons.calendar_today,
+      AchievementId.daily7 => Icons.event_repeat,
+      AchievementId.xp100000 => Icons.auto_graph,
     };
   }
 }

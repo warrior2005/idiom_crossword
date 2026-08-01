@@ -104,12 +104,24 @@ void main() {
       timeSpentMs: 12345,
       hintsUsed: 2,
       errorsMade: 3,
+      levelJson: '{"frozen":true}',
     );
     expect(await db.isLevelCompleted(7), isTrue);
     expect(await db.getCompletedLevelNumbers(), contains(7));
     final history = await db.getLevelHistory();
     expect(history.single.errorsMade, 3);
     expect(history.single.timeSpentMs, 12345);
+    expect(await db.getLevelDefinition(7), '{"frozen":true}');
+    expect(await db.getLevelDefinition(8), isNull);
+
+    // 下一主关卡（level_history 最大主关卡 +1）
+    expect(await db.getNextMainLevel(), 8);
+    await db.addLevelHistory(
+      levelNumber: 1000001,
+      xpGained: 1,
+      idiomsUsed: const [],
+    );
+    expect(await db.getNextMainLevel(), 8); // 每日号段不参与
 
     // 统计查询
     expect(await db.getCollectionCount(), 1);
@@ -147,7 +159,7 @@ void main() {
 
     // schema 版本应与 database.dart 一致
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 6);
+    expect(version.data.values.first, 7);
 
     await db.close();
     await tmpDir.delete(recursive: true);
@@ -234,14 +246,15 @@ void main() {
     expect(decodeGameState('not json'), isNull);
   });
 
-  test('v5 数据库可正常升级到 v6（onUpgrade 迁移）', () async {
+  test('v5 数据库可正常升级到当前版本（onUpgrade 迁移）', () async {
     final tmpDir = await Directory.systemTemp.createTemp('idiom_migrate');
     final tmpDb = File('${tmpDir.path}/migrate.db');
     await File('assets/data/idiom_crossword.db').copy(tmpDb.path);
 
-    // 模拟 v5 状态：移除 settings_table 并把 user_version 置为 5
+    // 模拟 v5 状态：移除 settings_table、level_json 列，并把 user_version 置为 5
     final conn = sqlite.sqlite3.open(tmpDb.path);
     conn.execute('DROP TABLE settings_table');
+    conn.execute('ALTER TABLE level_history DROP COLUMN level_json');
     conn.execute('PRAGMA user_version = 5');
     conn.close();
 

@@ -103,10 +103,18 @@ Future<engine.CrosswordLevel?> loadOrGenerateLevel(
   AppDatabase db,
   int levelNumber,
 ) async {
+  // 1) 未完成存档优先（断点续玩）
   final saved = await db.getLevelState(levelNumber);
   if (saved != null) {
     final restored = decodeLevel(saved.levelJson);
     if (restored != null) return restored;
   }
+  // 2) 已通关关卡使用冻结定义（保证每次进入同一题）
+  final frozen = await db.getLevelDefinition(levelNumber);
+  if (frozen != null) {
+    final restored = decodeLevel(frozen);
+    if (restored != null) return restored;
+  }
+  // 3) 否则新生成
   return generateLevel(db, levelNumber);
 }

@@ -80,14 +80,14 @@ void main() {
 
     await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('已解锁 0/8'), findsOneWidget);
+    expect(find.text('已解锁 0/${achievementDefs.length}'), findsOneWidget);
     expect(find.text('首战告捷'), findsOneWidget);
 
     await db.unlockAchievement(AchievementId.firstLevel.name);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('已解锁 1/8'), findsOneWidget);
+    expect(find.text('已解锁 1/${achievementDefs.length}'), findsOneWidget);
   });
 
   testWidgets('统计页：展示通关记录明细', (tester) async {
@@ -157,17 +157,25 @@ void main() {
 
     await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('第 1-100 关'), findsOneWidget);
+    // 无通关记录时只展示当前关卡（第 1 关）
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('2'), findsNothing);
 
-    // 通关第 1 关后重挂载：显示完成勾选
-    await db.addLevelHistory(levelNumber: 1, xpGained: 10, idiomsUsed: const []);
+    // 通关第 1 关后重挂载：展示 1、2 两关，完成关显示数字而非对号
+    await db.addLevelHistory(
+      levelNumber: 1,
+      xpGained: 10,
+      idiomsUsed: const [],
+    );
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.check), findsOneWidget);
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('2'), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsNothing);
 
     // 点击已解锁的第 1 关 → 空库生成失败提示
-    await tester.tap(find.byIcon(Icons.check));
+    await tester.tap(find.text('1'));
     await tester.pumpAndSettle();
     expect(find.text('关卡生成失败，请重试'), findsOneWidget);
   });
@@ -175,10 +183,14 @@ void main() {
   testWidgets('学习模式：展示释义/出处/例句', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
-    await db.update(db.idioms).write(const IdiomsCompanion(
-          derivation: Value('语出《战国策》'),
-          example: Value('他画蛇添足，多此一举。'),
-        ));
+    await db
+        .update(db.idioms)
+        .write(
+          const IdiomsCompanion(
+            derivation: Value('语出《战国策》'),
+            example: Value('他画蛇添足，多此一举。'),
+          ),
+        );
 
     await tester.pumpWidget(_wrap(db, const LearningScreen(words: ['画蛇添足'])));
     await tester.pumpAndSettle();

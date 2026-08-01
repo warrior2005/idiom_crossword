@@ -78,7 +78,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     state = PlayerState(
       level: progress.level,
       totalXp: progress.totalXp,
-      xpToNextLevel: GrowthManager.xpForLevel(progress.level + 1),
+      xpToNextLevel: GrowthManager.xpForLevel(progress.level),
       title: GrowthManager.titleForLevel(progress.level),
       completedLevels: progress.completedLevels,
       functionalItems: {
@@ -103,7 +103,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     state = state.copyWith(
       level: newLevel,
       totalXp: newTotalXp,
-      xpToNextLevel: GrowthManager.xpForLevel(newLevel + 1),
+      xpToNextLevel: GrowthManager.xpForLevel(newLevel),
       title: GrowthManager.titleForLevel(newLevel),
       completedLevels: state.completedLevels + 1,
       functionalItems: _applyReward(state.functionalItems, reward),
