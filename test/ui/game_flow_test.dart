@@ -53,10 +53,12 @@ void main() {
     // 过关对话框出现（异步完成流程需要轮询）
     await _pumpUntil(
       tester,
-      () => find.text('恭喜过关！').evaluate().isNotEmpty,
+      () => find.text('第 1 关 · 通关').evaluate().isNotEmpty,
       const Duration(seconds: 5),
     );
-    expect(find.text('恭喜过关！'), findsOneWidget);
+    expect(find.text('第 1 关 · 通关'), findsOneWidget);
+    expect(find.text('通'), findsOneWidget);
+    expect(find.text('下一关'), findsOneWidget);
 
     // 排空闪烁动画 / SnackBar 的挂起定时器
     await tester.pump(const Duration(milliseconds: 400));
@@ -116,10 +118,10 @@ void main() {
 
     await _pumpUntil(
       tester,
-      () => find.text('恭喜过关！').evaluate().isNotEmpty,
+      () => find.text('第 1 关 · 通关').evaluate().isNotEmpty,
       const Duration(seconds: 5),
     );
-    expect(find.text('恭喜过关！'), findsOneWidget);
+    expect(find.text('第 1 关 · 通关'), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));

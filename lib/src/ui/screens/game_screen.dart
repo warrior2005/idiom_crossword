@@ -17,6 +17,7 @@ import '../widgets/level_loading_dialog.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
+import '../widgets/win_card_dialog.dart';
 import '../widgets/xp_track.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
@@ -624,7 +625,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
   }
 
-  /// 显示升级奖励对话框
+  /// 显示升级奖励 win-card
   void _showRewardDialog(
     int newLevel,
     LevelReward reward,
@@ -637,107 +638,47 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ? '${reward.item == "hint_card" ? "提示卡" : "复活卡"} x${reward.quantity}'
         : '装饰: ${reward.item}';
 
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('恭喜升级！'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('你已升到 Lv.$newLevel $title'),
-            const SizedBox(height: 12),
-            Text('获得奖励: $rewardText'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _showCompletionDialog(result, newAchievements, timeSpentMs);
-            },
-            child: const Text('继续'),
-          ),
-        ],
-      ),
+    showWinCardDialog(
+      context,
+      seal: '升',
+      title: '晋升 Lv.$newLevel $title',
+      subtitle: '获得奖励：$rewardText',
+      xpText: '${result.xpGained > 0 ? '+' : ''}${result.xpGained}',
+      actions: [
+        WinCardAction(label: '继续', primary: true, onTap: () {
+          Navigator.of(context).pop();
+          _showCompletionDialog(result, newAchievements, timeSpentMs);
+        }),
+      ],
     );
   }
 
-  /// 显示过关对话框（带庆祝动画，可进入下一关）
+  /// 显示过关 win-card（可进入下一关）
   void _showCompletionDialog(
     ExperienceResult result,
     List<AchievementDef> newAchievements,
     int timeSpentMs,
   ) {
-    final isDaily = _isDaily;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0.0, end: 1.0),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.elasticOut,
-        builder: (ctx, t, child) => Transform.scale(
-          scale: t,
-          child: Opacity(opacity: t.clamp(0.0, 1.0), child: child),
-        ),
-        child: AlertDialog(
-          title: Text(isDaily ? '每日挑战完成！' : '恭喜过关！'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('你完成了 "${widget.level.title}"'),
-              const SizedBox(height: 8),
-              Text(
-                '获得经验 +${result.xpGained}',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.brown.shade700,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '用时 ${_formatDuration(timeSpentMs)} · '
-                '提示 $_hintUsesThisLevel · 填错 $_errorsMade',
-                style: TextStyle(fontSize: 13, color: Colors.brown.shade500),
-              ),
-              if (newAchievements.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  '解锁成就：'
-                  '${newAchievements.map((d) => d.title).join('、')}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.orange.shade800,
-                  ),
-                ),
-              ],
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                if (mounted) Navigator.of(context).pop();
-              },
-              child: const Text('返回'),
-            ),
-            if (!isDaily)
-              FilledButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  _startNextLevel();
-                },
-                child: const Text('下一关'),
-              ),
-            TextButton(
-              onPressed: () => _showLearning(ctx),
-              child: const Text('复习成语'),
-            ),
-          ],
-        ),
-      ),
+    final xpText = '${result.xpGained > 0 ? '+' : ''}${result.xpGained}';
+    showWinCardDialog(
+      context,
+      seal: '通',
+      title: _isDaily ? '每日挑战 · 完成' : '${widget.level.title} · 通关',
+      subtitle: '用时 ${_formatDuration(timeSpentMs)} · 填错 $_errorsMade',
+      xpText: xpText,
+      idioms: _completedIdiomList.map((i) => '${i.word} ${i.meaning}').toList(),
+      actions: [
+        if (!_isDaily)
+          WinCardAction(label: '下一关', primary: true, onTap: () {
+            Navigator.of(context).pop();
+            _startNextLevel();
+          }),
+        WinCardAction(label: '学习本关成语', ghost: true, onTap: () => _showLearning(context)),
+        WinCardAction(label: '稍后再看', ghost: true, onTap: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }),
+      ],
     );
   }
 
@@ -765,21 +706,18 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 重玩已通关关卡：不再发放奖励
   void _showReplayCompleteDialog() {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('本关已完成'),
-        content: const Text('重玩关卡不重复发放经验与收藏。'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              if (mounted) Navigator.of(context).pop();
-            },
-            child: const Text('返回'),
-          ),
-        ],
-      ),
+    showWinCardDialog(
+      context,
+      seal: '通',
+      title: '本关已完成',
+      subtitle: '重玩关卡不重复发放经验与收藏。',
+      xpText: '+0',
+      actions: [
+        WinCardAction(label: '返回', ghost: true, onTap: () {
+          Navigator.of(context).pop();
+          if (mounted) Navigator.of(context).pop();
+        }),
+      ],
     );
   }
 
