@@ -135,4 +135,27 @@ void main() {
     expect(container.read(playerProvider).completedLevels, 2);
     expect((await db.getPlayerProgress())!.completedLevels, 2);
   });
+
+  test('连续答对跨关卡累计，答错归零并保留最佳', () async {
+    final notifier = container.read(playerProvider.notifier);
+    for (var i = 0; i < 5; i++) {
+      await notifier.recordCorrectFill();
+    }
+    expect(container.read(playerProvider).currentCorrectStreak, 5);
+    expect(container.read(playerProvider).bestCorrectStreak, 5);
+
+    await notifier.recordWrongFill();
+    expect(container.read(playerProvider).currentCorrectStreak, 0);
+    expect(container.read(playerProvider).bestCorrectStreak, 5);
+
+    for (var i = 0; i < 8; i++) {
+      await notifier.recordCorrectFill();
+    }
+    expect(container.read(playerProvider).currentCorrectStreak, 8);
+    expect(container.read(playerProvider).bestCorrectStreak, 8);
+
+    final progress = await db.getPlayerProgress();
+    expect(progress!.currentCorrectStreak, 8);
+    expect(progress.bestCorrectStreak, 8);
+  });
 }

@@ -20,7 +20,7 @@ import 'package:sqlite3/sqlite3.dart';
 part 'database.g.dart';
 
 /// 当前数据库 schema 版本（与预构建数据库的 PRAGMA user_version 保持一致）
-const int currentSchemaVersion = 8;
+const int currentSchemaVersion = 9;
 
 // ============================================================
 // 表定义
@@ -127,6 +127,9 @@ class PlayerProgressTable extends Table {
   IntColumn get completedLevels => integer().withDefault(const Constant(0))();
   IntColumn get hintCards => integer().withDefault(const Constant(0))();
   IntColumn get reviveCards => integer().withDefault(const Constant(0))();
+  IntColumn get currentCorrectStreak =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get bestCorrectStreak => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -289,6 +292,17 @@ class AppDatabase extends _$AppDatabase {
           // 填字尝试次数（正确率统计）
           await m.addColumn(levelHistory, levelHistory.totalFills);
         }
+        if (from < 9) {
+          // 跨关卡连续答对字数（最长连胜统计）
+          await m.addColumn(
+            playerProgressTable,
+            playerProgressTable.currentCorrectStreak,
+          );
+          await m.addColumn(
+            playerProgressTable,
+            playerProgressTable.bestCorrectStreak,
+          );
+        }
       },
     );
   }
@@ -386,6 +400,8 @@ class AppDatabase extends _$AppDatabase {
     required int completedLevels,
     required int hintCards,
     required int reviveCards,
+    int currentCorrectStreak = 0,
+    int bestCorrectStreak = 0,
   }) async {
     final existing = await getPlayerProgress();
     if (existing != null) {
@@ -398,6 +414,8 @@ class AppDatabase extends _$AppDatabase {
           completedLevels: Value(completedLevels),
           hintCards: Value(hintCards),
           reviveCards: Value(reviveCards),
+          currentCorrectStreak: Value(currentCorrectStreak),
+          bestCorrectStreak: Value(bestCorrectStreak),
           updatedAt: Value(DateTime.now()),
         ),
       );
@@ -409,9 +427,40 @@ class AppDatabase extends _$AppDatabase {
           completedLevels: Value(completedLevels),
           hintCards: Value(hintCards),
           reviveCards: Value(reviveCards),
+          currentCorrectStreak: Value(currentCorrectStreak),
+          bestCorrectStreak: Value(bestCorrectStreak),
         ),
       );
     }
+  }
+
+  /// 只更新跨关卡连胜字段（避免与通关进度写入互相覆盖）
+  Future<void> updatePlayerStreak({
+    required int currentCorrectStreak,
+    required int bestCorrectStreak,
+  }) async {
+    final existing = await getPlayerProgress();
+    if (existing == null) {
+      await updatePlayerProgress(
+        level: 1,
+        totalXp: 0,
+        completedLevels: 0,
+        hintCards: 0,
+        reviveCards: 0,
+        currentCorrectStreak: currentCorrectStreak,
+        bestCorrectStreak: bestCorrectStreak,
+      );
+      return;
+    }
+    await (update(
+      playerProgressTable,
+    )..where((t) => t.id.equals(existing.id))).write(
+      PlayerProgressTableCompanion(
+        currentCorrectStreak: Value(currentCorrectStreak),
+        bestCorrectStreak: Value(bestCorrectStreak),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
   }
 
   /// 添加成语到收藏
@@ -472,6 +521,12 @@ class AppDatabase extends _$AppDatabase {
           ..where((t) => t.word.equals(word))
           ..limit(1))
         .getSingleOrNull();
+  }
+
+  /// 按 id 批量取成语（关卡方块小字用）
+  Future<List<Idiom>> findIdiomsByIds(List<int> ids) async {
+    if (ids.isEmpty) return const [];
+    return (select(idioms)..where((t) => t.id.isIn(ids))).get();
   }
 
   /// 按 id 偏移取成语（今日一读按日期确定性取用）；空库返回 null

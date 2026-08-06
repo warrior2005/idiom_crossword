@@ -160,6 +160,7 @@ class HomeScreen extends ConsumerWidget {
               label: '继续第 ${nextMainLevel ?? '…'} 关',
               onTap: () => _startGame(context, ref),
             ),
+            const SizedBox(height: 8),
             // 书卷小径
             const SectionTitle(title: '书卷小径'),
             Row(
@@ -559,6 +560,12 @@ class _TodayIdiom extends ConsumerWidget {
         child: Text('今日一读待收录…', style: bodyStyle(color: AppColors.muted)),
       );
     }
+    final derivation = idiom.derivation?.trim();
+    final hasDerivation =
+        derivation != null &&
+        derivation.isNotEmpty &&
+        derivation != '无' &&
+        derivation != '无。';
     return AppCard(
       padding: const EdgeInsets.all(18),
       child: Row(
@@ -570,9 +577,9 @@ class _TodayIdiom extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (idiom.derivation?.isNotEmpty == true) ...[
+                if (hasDerivation) ...[
                   Text(
-                    '· ${idiom.derivation}',
+                    '· $derivation',
                     style: bodyStyle(size: 12, color: AppColors.muted),
                   ),
                   const SizedBox(height: 6),

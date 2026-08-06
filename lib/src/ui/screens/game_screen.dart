@@ -103,6 +103,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _buildCandidateBoard();
     _findFirstEmptyCell();
     _levelStartTime = DateTime.now();
+    _correctStreak = ref.read(playerProvider).currentCorrectStreak;
     _restoreSavedState();
   }
 
@@ -176,6 +177,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _recomputeDerivedState();
         _restoring = false;
       });
+      ref.read(playerProvider.notifier).setCorrectStreak(_correctStreak);
     } catch (_) {
       if (mounted) setState(() => _restoring = false);
     }
@@ -322,6 +324,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _totalFills++; // 本关填字尝试次数（含错误字），提示填入不计
     if (isCorrect) {
       _correctStreak++;
+      ref.read(playerProvider.notifier).recordCorrectFill();
       const streakThresholds = [
         (AchievementId.streak10, 10),
         (AchievementId.streak20, 20),
@@ -336,6 +339,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     } else {
       _errorsMade++;
       _correctStreak = 0;
+      ref.read(playerProvider.notifier).recordWrongFill();
     }
 
     setState(() {
@@ -645,10 +649,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       subtitle: '获得奖励：$rewardText',
       xpText: '${result.xpGained > 0 ? '+' : ''}${result.xpGained}',
       actions: [
-        WinCardAction(label: '继续', primary: true, onTap: () {
-          Navigator.of(context).pop();
-          _showCompletionDialog(result, newAchievements, timeSpentMs);
-        }),
+        WinCardAction(
+          label: '继续',
+          primary: true,
+          onTap: () {
+            Navigator.of(context).pop();
+            _showCompletionDialog(result, newAchievements, timeSpentMs);
+          },
+        ),
       ],
     );
   }
@@ -669,15 +677,27 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       idioms: _completedIdiomList.map((i) => '${i.word} ${i.meaning}').toList(),
       actions: [
         if (!_isDaily)
-          WinCardAction(label: '下一关', primary: true, onTap: () {
+          WinCardAction(
+            label: '下一关',
+            primary: true,
+            onTap: () {
+              Navigator.of(context).pop();
+              _startNextLevel();
+            },
+          ),
+        WinCardAction(
+          label: '学习本关成语',
+          ghost: true,
+          onTap: () => _showLearning(context),
+        ),
+        WinCardAction(
+          label: '稍后再看',
+          ghost: true,
+          onTap: () {
             Navigator.of(context).pop();
-            _startNextLevel();
-          }),
-        WinCardAction(label: '学习本关成语', ghost: true, onTap: () => _showLearning(context)),
-        WinCardAction(label: '稍后再看', ghost: true, onTap: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
-        }),
+            Navigator.of(context).pop();
+          },
+        ),
       ],
     );
   }
@@ -713,10 +733,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       subtitle: '重玩关卡不重复发放经验与收藏。',
       xpText: '+0',
       actions: [
-        WinCardAction(label: '返回', ghost: true, onTap: () {
-          Navigator.of(context).pop();
-          if (mounted) Navigator.of(context).pop();
-        }),
+        WinCardAction(
+          label: '返回',
+          ghost: true,
+          onTap: () {
+            Navigator.of(context).pop();
+            if (mounted) Navigator.of(context).pop();
+          },
+        ),
       ],
     );
   }
@@ -835,7 +859,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(widget.level.title, style: displayStyle(size: 19, weight: FontWeight.w900)),
+                Text(
+                  widget.level.title,
+                  style: displayStyle(size: 19, weight: FontWeight.w900),
+                ),
                 const SizedBox(width: 8),
                 BadgeSoft(_isDaily ? '每日挑战' : '主线'),
               ],
@@ -876,11 +903,28 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('本关进度', style: bodyStyle(size: 11.5, color: AppColors.muted)),
-              Text.rich(TextSpan(children: [
-                TextSpan(text: '$filled', style: displayStyle(size: 14, weight: FontWeight.w700, color: AppColors.accent)),
-                TextSpan(text: '/$total 字', style: bodyStyle(size: 11.5, color: AppColors.muted)),
-              ])),
+              Text(
+                '本关进度',
+                style: bodyStyle(size: 11.5, color: AppColors.muted),
+              ),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '$filled',
+                      style: displayStyle(
+                        size: 14,
+                        weight: FontWeight.w700,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '/$total 字',
+                      style: bodyStyle(size: 11.5, color: AppColors.muted),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 6),
@@ -967,7 +1011,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: _completedIdiomList.asMap().entries.map((entry) {
+                      children: _completedIdiomList.asMap().entries.map((
+                        entry,
+                      ) {
                         final i = entry.key;
                         final item = entry.value;
                         final isSelected = _selectedCompletedIndex == i;
@@ -1228,7 +1274,12 @@ class _ToolbarButton extends StatelessWidget {
   final String? sub;
   final VoidCallback? onTap;
 
-  const _ToolbarButton({required this.icon, required this.label, this.sub, this.onTap});
+  const _ToolbarButton({
+    required this.icon,
+    required this.label,
+    this.sub,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1239,16 +1290,28 @@ class _ToolbarButton extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppIcon(icon, size: 22, color: enabled ? AppColors.fg : AppColors.faint),
+          AppIcon(
+            icon,
+            size: 22,
+            color: enabled ? AppColors.fg : AppColors.faint,
+          ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: bodyStyle(size: 11, weight: FontWeight.w600, color: enabled ? AppColors.fg : AppColors.faint),
+            style: bodyStyle(
+              size: 11,
+              weight: FontWeight.w600,
+              color: enabled ? AppColors.fg : AppColors.faint,
+            ),
           ),
           if (sub != null)
             Text(
               sub!,
-              style: bodyStyle(size: 10, weight: FontWeight.w700, color: enabled ? AppColors.accent : AppColors.faint),
+              style: bodyStyle(
+                size: 10,
+                weight: FontWeight.w700,
+                color: enabled ? AppColors.accent : AppColors.faint,
+              ),
             ),
         ],
       ),

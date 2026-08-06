@@ -10,6 +10,8 @@ class PlayerState {
   final int xpToNextLevel;
   final String title;
   final int completedLevels;
+  final int currentCorrectStreak;
+  final int bestCorrectStreak;
   final Map<String, int> functionalItems;
   final Set<String> ownedDecorations;
 
@@ -19,6 +21,8 @@ class PlayerState {
     required this.xpToNextLevel,
     required this.title,
     required this.completedLevels,
+    required this.currentCorrectStreak,
+    required this.bestCorrectStreak,
     required this.functionalItems,
     required this.ownedDecorations,
   });
@@ -42,6 +46,8 @@ class PlayerState {
     int? xpToNextLevel,
     String? title,
     int? completedLevels,
+    int? currentCorrectStreak,
+    int? bestCorrectStreak,
     Map<String, int>? functionalItems,
     Set<String>? ownedDecorations,
   }) {
@@ -51,6 +57,8 @@ class PlayerState {
       xpToNextLevel: xpToNextLevel ?? this.xpToNextLevel,
       title: title ?? this.title,
       completedLevels: completedLevels ?? this.completedLevels,
+      currentCorrectStreak: currentCorrectStreak ?? this.currentCorrectStreak,
+      bestCorrectStreak: bestCorrectStreak ?? this.bestCorrectStreak,
       functionalItems: functionalItems ?? this.functionalItems,
       ownedDecorations: ownedDecorations ?? this.ownedDecorations,
     );
@@ -74,6 +82,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
       xpToNextLevel: 100,
       title: '童生',
       completedLevels: 0,
+      currentCorrectStreak: 0,
+      bestCorrectStreak: 0,
       functionalItems: {},
       ownedDecorations: {},
     );
@@ -92,6 +102,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
         completedLevels: mainCompleted.length,
         hintCards: progress.hintCards,
         reviveCards: progress.reviveCards,
+        currentCorrectStreak: progress.currentCorrectStreak,
+        bestCorrectStreak: progress.bestCorrectStreak,
       );
     }
     state = PlayerState(
@@ -100,6 +112,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
       xpToNextLevel: GrowthManager.xpForLevel(progress.level),
       title: GrowthManager.titleForLevel(progress.level),
       completedLevels: mainCompleted.length,
+      currentCorrectStreak: progress.currentCorrectStreak,
+      bestCorrectStreak: progress.bestCorrectStreak,
       functionalItems: {
         'hint_card': progress.hintCards,
         'revive_card': progress.reviveCards,
@@ -147,6 +161,53 @@ class PlayerNotifier extends Notifier<PlayerState> {
     );
   }
 
+  /// 记录一次答对：跨关卡连续连胜 +1，并刷新历史最佳
+  Future<void> recordCorrectFill() async {
+    final current = state.currentCorrectStreak + 1;
+    final best = state.bestCorrectStreak < current
+        ? current
+        : state.bestCorrectStreak;
+    state = state.copyWith(
+      currentCorrectStreak: current,
+      bestCorrectStreak: best,
+    );
+    await ref
+        .read(databaseProvider)
+        .updatePlayerStreak(
+          currentCorrectStreak: current,
+          bestCorrectStreak: best,
+        );
+  }
+
+  /// 记录一次答错：连续连胜归零
+  Future<void> recordWrongFill() async {
+    if (state.currentCorrectStreak == 0) return;
+    state = state.copyWith(currentCorrectStreak: 0);
+    await ref
+        .read(databaseProvider)
+        .updatePlayerStreak(
+          currentCorrectStreak: 0,
+          bestCorrectStreak: state.bestCorrectStreak,
+        );
+  }
+
+  /// 恢复存档时同步连续答对字数
+  Future<void> setCorrectStreak(int value) async {
+    final best = value > state.bestCorrectStreak
+        ? value
+        : state.bestCorrectStreak;
+    state = state.copyWith(
+      currentCorrectStreak: value,
+      bestCorrectStreak: best,
+    );
+    await ref
+        .read(databaseProvider)
+        .updatePlayerStreak(
+          currentCorrectStreak: value,
+          bestCorrectStreak: best,
+        );
+  }
+
   /// 把当前状态写回数据库
   Future<void> _persist(AppDatabase db) {
     return db.updatePlayerProgress(
@@ -155,6 +216,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
       completedLevels: state.completedLevels,
       hintCards: state.functionalItems['hint_card'] ?? 0,
       reviveCards: state.functionalItems['revive_card'] ?? 0,
+      currentCorrectStreak: state.currentCorrectStreak,
+      bestCorrectStreak: state.bestCorrectStreak,
     );
   }
 

@@ -219,9 +219,10 @@ class _RankStrip extends StatelessWidget {
     // 展示：1..level 已完成，level 当前，level+1 下一级（≤20）
     final end = (player.level + 1).clamp(1, titles.length);
     return SizedBox(
-      height: 96,
+      height: 78,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(vertical: 10),
         itemCount: end,
         itemBuilder: (context, i) {
           final lv = i + 1;
@@ -230,12 +231,13 @@ class _RankStrip extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
                 Container(
-                  width: 76,
-                  padding: EdgeInsets.only(
-                    top: isCurrent ? 22 : 12,
-                    bottom: 10,
+                  width: 74,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 6,
                   ),
                   decoration: BoxDecoration(
                     color: isCurrent
@@ -279,7 +281,7 @@ class _RankStrip extends StatelessWidget {
                 ),
                 if (isCurrent)
                   Positioned(
-                    top: 6,
+                    top: -8,
                     left: 0,
                     right: 0,
                     child: Center(

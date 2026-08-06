@@ -33,15 +33,37 @@ final levelWordsProvider = FutureProvider<Map<int, String>>((ref) async {
   final db = ref.watch(databaseProvider);
   final history = await db.getLevelHistory();
   final words = <int, String>{};
+  final missing = <int, int>{}; // 关卡号 -> 第一个成语 id
   for (final h in history) {
-    if (h.levelNumber >= dailyLevelOffset || h.levelJson == null) continue;
-    final level = decodeLevel(h.levelJson!);
-    if (level != null && level.placements.isNotEmpty) {
-      words[h.levelNumber] = level.placements.first.idiom.text;
+    if (h.levelNumber >= dailyLevelOffset) continue;
+    if (h.levelJson != null) {
+      final level = decodeLevel(h.levelJson!);
+      if (level != null && level.placements.isNotEmpty) {
+        words[h.levelNumber] = level.placements.first.idiom.text;
+        continue;
+      }
+    }
+    final firstId = _firstIdiomId(h.idiomsUsed);
+    if (firstId != null && firstId > 0) {
+      missing[h.levelNumber] = firstId;
+    }
+  }
+  if (missing.isNotEmpty) {
+    final rows = await db.findIdiomsByIds(missing.values.toList());
+    final byId = {for (final row in rows) row.id: row.word};
+    for (final entry in missing.entries) {
+      final word = byId[entry.value];
+      if (word != null) words[entry.key] = word;
     }
   }
   return words;
 });
+
+int? _firstIdiomId(String raw) {
+  final cleaned = raw.trim().replaceAll(RegExp(r'[\[\]"]'), '');
+  if (cleaned.isEmpty) return null;
+  return int.tryParse(cleaned.split(',').first.trim());
+}
 
 class LevelSelectScreen extends ConsumerStatefulWidget {
   const LevelSelectScreen({super.key});
@@ -126,9 +148,10 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                             itemBuilder: (context, pageIndex) {
                               final start = pageIndex * _pageSize + 1;
                               return GridView.builder(
+                                clipBehavior: Clip.none,
                                 padding: const EdgeInsets.fromLTRB(
                                   20,
-                                  4,
+                                  12,
                                   20,
                                   12,
                                 ),
@@ -301,8 +324,11 @@ class _LevelNode extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Stack(
+        fit: StackFit.expand,
+        clipBehavior: Clip.none,
         children: [
           Container(
+            key: ValueKey('level-node-$levelNumber'),
             decoration: BoxDecoration(
               color: isNext
                   ? AppColors.accent

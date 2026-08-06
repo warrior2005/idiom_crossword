@@ -179,7 +179,7 @@ void main() {
 
     // schema 版本应与 database.dart 一致
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 8);
+    expect(version.data.values.first, 9);
 
     await db.close();
     await tmpDir.delete(recursive: true);
@@ -298,6 +298,24 @@ void main() {
     );
     final history = await db.getLevelHistory();
     expect(history.single.totalFills, 5);
+  });
+
+  test('schema v9：跨关卡连胜列可写入读取', () async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 10,
+      completedLevels: 1,
+      hintCards: 0,
+      reviveCards: 0,
+      currentCorrectStreak: 7,
+      bestCorrectStreak: 12,
+    );
+    final progress = await db.getPlayerProgress();
+    expect(progress, isNotNull);
+    expect(progress!.currentCorrectStreak, 7);
+    expect(progress.bestCorrectStreak, 12);
   });
 
   test('getIdiomAtOffset：空库返回 null，非空按偏移取', () async {

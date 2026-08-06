@@ -143,6 +143,25 @@ void main() {
     expect(find.text('80%'), findsOneWidget); // (5-1)/5
   });
 
+  testWidgets('统计页：最长连胜按跨关卡连续答对字数统计', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 10,
+      completedLevels: 1,
+      hintCards: 0,
+      reviveCards: 0,
+      bestCorrectStreak: 12,
+    );
+
+    await tester.pumpWidget(_wrap(db, const StatsScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('12 字'), findsOneWidget);
+    expect(find.text('最长连胜 · 连续答对'), findsOneWidget);
+  });
+
   testWidgets('设置页：音效开关持久化', (tester) async {
     GameAudio.instance.muted = false;
     final db = await _memoryDb();
@@ -241,6 +260,37 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('每日挑战 · 今日一题'), findsNothing);
+  });
+
+  testWidgets('关卡页：选关方块保持正方形', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(412, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
+    await tester.pumpAndSettle();
+
+    final rect = tester.getRect(find.byKey(const ValueKey('level-node-1')));
+    expect(rect.width, closeTo(rect.height, 0.1));
+  });
+
+  testWidgets('关卡页：旧通关记录也能显示成语小字', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    final id = await db.findIdiomIdByWord('画蛇添足');
+    await db.addLevelHistory(
+      levelNumber: 1,
+      xpGained: 10,
+      idiomsUsed: [id!],
+      levelJson: null, // 模拟旧数据没有冻结定义
+    );
+
+    await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('画蛇添足'), findsOneWidget);
   });
 
   testWidgets('学习模式：展示释义/出处/例句', (tester) async {

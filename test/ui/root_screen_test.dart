@@ -36,7 +36,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    IndexedStack stack() => tester.widget<IndexedStack>(find.byType(IndexedStack));
+    IndexedStack stack() =>
+        tester.widget<IndexedStack>(find.byType(IndexedStack));
     expect(stack().index, 0);
 
     // 「士」头像 → 我的 Tab
@@ -47,7 +48,11 @@ void main() {
     // 回首页点「选择关卡」→ 切到关卡 Tab
     await tester.tap(find.text('首页'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('选择关卡'), 100, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      find.text('选择关卡'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('选择关卡'));
     await tester.pumpAndSettle();
     expect(stack().index, 1);
@@ -55,7 +60,11 @@ void main() {
     // 回首页点「成语收藏」→ 切到收藏 Tab
     await tester.tap(find.text('首页'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('成语收藏'), 100, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      find.text('成语收藏'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('成语收藏'));
     await tester.pumpAndSettle();
     expect(stack().index, 2);

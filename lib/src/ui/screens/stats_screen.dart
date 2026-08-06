@@ -15,7 +15,7 @@ class PlayerStats {
   final int totalCompleted; // 主线累计通关数（不含每日挑战）
   final int totalXp; // 累计经验
   final int avgTimeMs; // 平均通关用时
-  final int longestStreak; // 最长连续通关
+  final int longestStreak; // 跨关卡最长连续答对字数
   final int collectionCount; // 收藏成语数
   final int dailyCount; // 每日挑战完成数
   final int totalErrors; // 失误次数
@@ -43,9 +43,10 @@ class PlayerStats {
 
 /// 统计面板数据（通关记录变化时自动刷新）
 final statsProvider = FutureProvider<PlayerStats>((ref) async {
-  ref.watch(playerProvider);
+  final player = ref.watch(playerProvider);
   final db = ref.watch(databaseProvider);
   final history = await db.getLevelHistory();
+  final progress = await db.getPlayerProgress();
 
   final mainLevels =
       history
@@ -53,15 +54,6 @@ final statsProvider = FutureProvider<PlayerStats>((ref) async {
           .map((h) => h.levelNumber)
           .toList()
         ..sort();
-
-  var streak = 0;
-  var bestStreak = 0;
-  var prev = 0;
-  for (final level in mainLevels) {
-    streak = (level == prev + 1) ? streak + 1 : 1;
-    if (streak > bestStreak) bestStreak = streak;
-    prev = level;
-  }
 
   final times = history
       .where((h) => h.timeSpentMs != null)
@@ -82,7 +74,10 @@ final statsProvider = FutureProvider<PlayerStats>((ref) async {
     avgTimeMs: times.isEmpty
         ? 0
         : times.reduce((a, b) => a + b) ~/ times.length,
-    longestStreak: bestStreak,
+    longestStreak: max(
+      player.bestCorrectStreak,
+      progress?.bestCorrectStreak ?? 0,
+    ),
     collectionCount: await db.getCollectionCount(),
     dailyCount: dailyCount,
     totalErrors: totalErrors,
@@ -136,7 +131,7 @@ class StatsScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${stats.longestStreak} 关',
+                                '${stats.longestStreak} 字',
                                 style: displayStyle(
                                   size: 22,
                                   weight: FontWeight.w900,
@@ -144,7 +139,7 @@ class StatsScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '最长连胜 · 连续通关',
+                                '最长连胜 · 连续答对',
                                 style: bodyStyle(
                                   size: 11.5,
                                   color: AppColors.muted,
