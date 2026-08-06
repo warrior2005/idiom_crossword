@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/player_state.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
+import '../../state/daily_challenge.dart';
 import '../../data/growth_manager.dart';
 import '../../data/database.dart';
 import '../../engine/spiral_difficulty.dart';
@@ -24,56 +25,6 @@ import '../widgets/vertical_word.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
-/// 今日每日挑战展示信息（确定性生成）
-class DailyInfo {
-  final String word;
-  final int idiomCount;
-  final int avgDifficulty;
-  final int durationSeconds;
-  final String meaning;
-  const DailyInfo({
-    required this.word,
-    required this.idiomCount,
-    required this.avgDifficulty,
-    required this.durationSeconds,
-    required this.meaning,
-  });
-}
-
-final dailyInfoProvider = FutureProvider<DailyInfo?>((ref) async {
-  final db = ref.watch(databaseProvider);
-  final player = ref.watch(playerProvider);
-  final spiral = SpiralDifficulty.calculate(player.completedLevels + 1);
-  final minD = (spiral.mainMin + 2).clamp(1, 50);
-  final maxD = (spiral.mainMax + 6).clamp(1, 50);
-  final level = await generateLevel(
-    db,
-    dailyLevelNumber(),
-    seed: epochDay(),
-    targetSize: 6,
-    difficultyRange: (minD, maxD),
-    title: '每日挑战',
-  );
-  if (level == null || level.placements.isEmpty) return null;
-  final idioms = level.placements.map((p) => p.idiom).toList();
-  final avg =
-      (idioms.map((i) => i.difficulty).reduce((a, b) => a + b) / idioms.length)
-          .round();
-  return DailyInfo(
-    word: idioms.first.text,
-    idiomCount: idioms.length,
-    avgDifficulty: avg,
-    durationSeconds: idioms.length * 45,
-    meaning: idioms.first.meaning,
-  );
-});
-
-final dailyDoneProvider = FutureProvider<bool>((ref) async {
-  ref.watch(playerProvider);
-  final db = ref.watch(databaseProvider);
-  return db.isLevelCompleted(dailyLevelNumber());
-});
-
 /// 今日一读：按日期确定性取一条成语
 final todayIdiomProvider = FutureProvider<Idiom?>((ref) async {
   final db = ref.watch(databaseProvider);
@@ -91,6 +42,8 @@ class HomeScreen extends ConsumerWidget {
     final player = ref.watch(playerProvider);
     final daily = ref.watch(dailyInfoProvider).value;
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
+    final dailyIssue = ref.watch(dailyIssueProvider).value ?? 1;
+    final nextMainLevel = ref.watch(nextMainLevelProvider).value;
     final nextTitle = GrowthManager.titleForLevel(player.level + 1);
 
     return Scaffold(
@@ -169,17 +122,11 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      BadgeSoft(
-                        '第 ${_dailyIssue()} 期',
-                        color: BadgeSoftColor.gold,
-                      ),
+                      BadgeSoft('第 $dailyIssue 期', color: BadgeSoftColor.gold),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    _dailyMeta(daily),
-                    style: bodyStyle(size: 12.5, color: AppColors.muted),
-                  ),
+                  Text.rich(_dailyMeta(daily)),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -210,7 +157,7 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             // 继续第 N 关
             PrimaryButton(
-              label: '继续第 ${player.completedLevels + 1} 关',
+              label: '继续第 ${nextMainLevel ?? '…'} 关',
               onTap: () => _startGame(context, ref),
             ),
             // 书卷小径
@@ -221,7 +168,7 @@ class HomeScreen extends ConsumerWidget {
                   child: _Tile(
                     iconName: 'levels',
                     label: '选择关卡',
-                    desc: '由浅入深 · 循序而进',
+                    desc: '由浅入深 · 循序渐进',
                     onTap: () => _switchTab(context, 1),
                   ),
                 ),
@@ -242,7 +189,7 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             const Center(
               child: Text(
-                '交叉推理 · 一字双关 · 循序而进',
+                '交叉推理 · 一字双关 · 循序渐进',
                 style: TextStyle(
                   fontSize: 10.5,
                   color: AppColors.faint,
@@ -256,18 +203,41 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  String _dailyMeta(DailyInfo? daily) {
-    if (daily == null) return '今日谜面生成中…';
+  InlineSpan _dailyMeta(DailyInfo? daily) {
+    if (daily == null) {
+      return TextSpan(
+        text: '今日谜面生成中…',
+        style: bodyStyle(size: 12.5, color: AppColors.muted),
+      );
+    }
     final diffLabel = switch (daily.avgDifficulty) {
       <= 10 => '入门',
       <= 25 => '进阶',
       <= 40 => '高手',
       _ => '大师',
     };
-    return '今日谜面难度 $diffLabel · ${daily.idiomCount} 条成语 · 约 ${(daily.durationSeconds / 60).ceil()} 分钟';
+    return TextSpan(
+      children: [
+        TextSpan(
+          text: '今日谜面难度 ',
+          style: bodyStyle(size: 12.5, color: AppColors.muted),
+        ),
+        TextSpan(
+          text: diffLabel,
+          style: bodyStyle(
+            size: 12.5,
+            color: AppColors.fg,
+            weight: FontWeight.w700,
+          ),
+        ),
+        TextSpan(
+          text:
+              ' · ${daily.idiomCount} 条成语 · 约 ${(daily.durationSeconds / 60).ceil()} 分钟',
+          style: bodyStyle(size: 12.5, color: AppColors.muted),
+        ),
+      ],
+    );
   }
-
-  int _dailyIssue() => epochDay();
 
   void _switchToMineTab(BuildContext context) {
     if (onSwitchTab != null) {
@@ -551,7 +521,7 @@ class _Tile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AppCard(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -559,17 +529,17 @@ class _Tile extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: AppColors.surface2,
+                color: AppColors.accentPale,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: AppIcon(iconName, size: 20, color: AppColors.fg),
+                child: AppIcon(iconName, size: 20, color: AppColors.accent),
               ),
             ),
-            const SizedBox(height: 10),
-            Text(label, style: displayStyle(size: 14, weight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            Text(label, style: bodyStyle(size: 14.5, weight: FontWeight.w600)),
             const SizedBox(height: 2),
-            Text(desc, style: bodyStyle(size: 10.5, color: AppColors.muted)),
+            Text(desc, style: bodyStyle(size: 11.5, color: AppColors.muted)),
           ],
         ),
       ),
@@ -600,13 +570,13 @@ class _TodayIdiom extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  idiom.derivation?.isNotEmpty == true
-                      ? '· ${idiom.derivation}'
-                      : '· 出处待考',
-                  style: bodyStyle(size: 12, color: AppColors.muted),
-                ),
-                const SizedBox(height: 6),
+                if (idiom.derivation?.isNotEmpty == true) ...[
+                  Text(
+                    '· ${idiom.derivation}',
+                    style: bodyStyle(size: 12, color: AppColors.muted),
+                  ),
+                  const SizedBox(height: 6),
+                ],
                 Text(
                   idiom.explanation,
                   style: bodyStyle(size: 12.5, color: AppColors.muted),

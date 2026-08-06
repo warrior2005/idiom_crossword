@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database_provider.dart';
 import '../data/database.dart';
 import '../data/growth_manager.dart';
+import 'level_generation.dart';
 
 class PlayerState {
   final int level;
@@ -82,12 +83,23 @@ class PlayerNotifier extends Notifier<PlayerState> {
   Future<void> loadFromDatabase(AppDatabase db) async {
     final progress = await db.getPlayerProgress();
     if (progress == null) return;
+    // 每日挑战不计入主线已获关卡；旧数据若把每日也累加过，这里按主线历史修正。
+    final mainCompleted = await db.getCompletedLevelNumbers();
+    if (progress.completedLevels != mainCompleted.length) {
+      await db.updatePlayerProgress(
+        level: progress.level,
+        totalXp: progress.totalXp,
+        completedLevels: mainCompleted.length,
+        hintCards: progress.hintCards,
+        reviveCards: progress.reviveCards,
+      );
+    }
     state = PlayerState(
       level: progress.level,
       totalXp: progress.totalXp,
       xpToNextLevel: GrowthManager.xpForLevel(progress.level),
       title: GrowthManager.titleForLevel(progress.level),
-      completedLevels: progress.completedLevels,
+      completedLevels: mainCompleted.length,
       functionalItems: {
         'hint_card': progress.hintCards,
         'revive_card': progress.reviveCards,
@@ -106,13 +118,16 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final newLevel = GrowthManager.levelFromXp(newTotalXp);
     final leveledUp = newLevel > oldLevel;
     final reward = leveledUp ? GrowthManager.rewardForLevel(newLevel) : null;
+    final isDaily = levelNumber >= dailyLevelOffset;
 
     state = state.copyWith(
       level: newLevel,
       totalXp: newTotalXp,
       xpToNextLevel: GrowthManager.xpForLevel(newLevel),
       title: GrowthManager.titleForLevel(newLevel),
-      completedLevels: state.completedLevels + 1,
+      completedLevels: isDaily
+          ? state.completedLevels
+          : state.completedLevels + 1,
       functionalItems: _applyReward(state.functionalItems, reward),
       ownedDecorations: _applyDecorationReward(state.ownedDecorations, reward),
     );

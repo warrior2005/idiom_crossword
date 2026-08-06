@@ -212,7 +212,11 @@ void main() {
     expect(find.text('选择关卡'), findsOneWidget);
     expect(find.text('1'), findsOneWidget);
 
-    await db.addLevelHistory(levelNumber: 1, xpGained: 10, idiomsUsed: const []);
+    await db.addLevelHistory(
+      levelNumber: 1,
+      xpGained: 10,
+      idiomsUsed: const [],
+    );
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
     await tester.pumpAndSettle();
@@ -222,6 +226,21 @@ void main() {
     await tester.tap(find.text('1'));
     await tester.pumpAndSettle();
     expect(find.text('关卡生成失败，请重试'), findsOneWidget);
+  });
+
+  testWidgets('关卡页：每日挑战已完成时不显示置顶卡', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.addLevelHistory(
+      levelNumber: dailyLevelNumber(),
+      xpGained: 20,
+      idiomsUsed: const [],
+    );
+
+    await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('每日挑战 · 今日一题'), findsNothing);
   });
 
   testWidgets('学习模式：展示释义/出处/例句', (tester) async {
@@ -269,7 +288,11 @@ void main() {
     expect(find.text('书卷小径'), findsOneWidget);
     expect(find.textContaining('农历'), findsOneWidget);
     expect(find.text('往期回顾'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('今日一读'), 100, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      find.text('今日一读'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('今日一读'), findsOneWidget);
   });
 
@@ -294,9 +317,17 @@ void main() {
     expect(find.text('文房四宝 · 商城'), findsOneWidget);
     expect(find.text('提示卡'), findsOneWidget);
     expect(find.text('复活卡'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('功能道具'), 100, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      find.text('功能道具'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('功能道具'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('装饰藏品'), 100, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      find.text('装饰藏品'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('装饰藏品'), findsOneWidget);
   });
 
@@ -304,7 +335,11 @@ void main() {
     final db = await _memoryDb();
     addTearDown(db.close);
     // 造一条通关记录让玩家为 Lv.1 且已通关 1 关
-    await db.addLevelHistory(levelNumber: 1, xpGained: 10, idiomsUsed: const []);
+    await db.addLevelHistory(
+      levelNumber: 1,
+      xpGained: 10,
+      idiomsUsed: const [],
+    );
 
     await tester.pumpWidget(_wrap(db, const MineScreen()));
     await tester.pumpAndSettle();
@@ -313,7 +348,11 @@ void main() {
     expect(find.textContaining('Lv.1'), findsOneWidget);
     expect(find.text('自定义关卡'), findsNothing); // 已删除
 
-    await tester.scrollUntilVisible(find.text('设置'), 100, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      find.text('设置'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('成就'), findsOneWidget);
     expect(find.text('统计'), findsOneWidget);
     expect(find.text('设置'), findsOneWidget);

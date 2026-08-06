@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/player_state.dart';
 import '../../data/growth_manager.dart';
+import '../../data/achievement_manager.dart';
 import 'achievements_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
@@ -17,6 +18,8 @@ class MineScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider);
+    final statsAsync = ref.watch(statsProvider);
+    final unlockedAsync = ref.watch(achievementsProvider);
     final titles = GrowthManager.titleSequence;
     final nextTitle = player.level < titles.length
         ? titles[player.level] // index = level（0 起），即下一级
@@ -102,13 +105,14 @@ class MineScreen extends ConsumerWidget {
             _MenuRow(
               iconName: 'trophy',
               title: '成就',
-              hint: '已解锁成就',
+              hint:
+                  '已获 ${unlockedAsync.value?.length ?? 0} / ${achievementDefs.length}',
               onTap: () => _push(context, const AchievementsScreen()),
             ),
             _MenuRow(
               iconName: 'chart',
               title: '统计',
-              hint: '正确率与用时',
+              hint: _accuracyHint(statsAsync.value),
               onTap: () => _push(context, const StatsScreen()),
             ),
             _MenuRow(
@@ -120,7 +124,11 @@ class MineScreen extends ConsumerWidget {
             const Center(
               child: Text(
                 '科举仕途 · 20 级 · 位极人臣',
-                style: TextStyle(fontSize: 10.5, color: AppColors.faint, letterSpacing: 0.6),
+                style: TextStyle(
+                  fontSize: 10.5,
+                  color: AppColors.faint,
+                  letterSpacing: 0.6,
+                ),
               ),
             ),
           ],
@@ -142,33 +150,46 @@ class MineScreen extends ConsumerWidget {
       (icon: 'bolt', value: '${stats?.longestStreak ?? 0}', label: '最长连胜'),
       (icon: 'clock', value: _fmt(stats?.avgTimeMs ?? 0), label: '平均用时'),
     ];
-    return GridView.count(
-      crossAxisCount: 2,
+    return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 3.2,
-      children: [
-        for (final it in items)
-          AppCard(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              children: [
-                _IconBox(iconName: it.icon, bg: AppColors.accentPale, color: AppColors.accent),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(it.value, style: displayStyle(size: 22, weight: FontWeight.w900)),
-                    Text(it.label, style: bodyStyle(size: 11, color: AppColors.muted)),
-                  ],
-                ),
-              ],
-            ),
+      itemCount: items.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        mainAxisExtent: 88,
+      ),
+      itemBuilder: (context, index) {
+        final it = items[index];
+        return AppCard(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              _IconBox(
+                iconName: it.icon,
+                bg: AppColors.accentPale,
+                color: AppColors.accent,
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    it.value,
+                    style: displayStyle(size: 22, weight: FontWeight.w900),
+                  ),
+                  Text(
+                    it.label,
+                    style: bodyStyle(size: 11, color: AppColors.muted),
+                  ),
+                ],
+              ),
+            ],
           ),
-      ],
+        );
+      },
     );
   }
 
@@ -178,6 +199,11 @@ class MineScreen extends ConsumerWidget {
     final m = seconds ~/ 60;
     final s = seconds % 60;
     return m > 0 ? '$m′$s″' : '$s″';
+  }
+
+  String _accuracyHint(PlayerStats? stats) {
+    final accuracy = stats?.accuracy;
+    return accuracy == null ? '正确率 —' : '正确率 ${(accuracy * 100).round()}%';
   }
 }
 
@@ -193,7 +219,7 @@ class _RankStrip extends StatelessWidget {
     // 展示：1..level 已完成，level 当前，level+1 下一级（≤20）
     final end = (player.level + 1).clamp(1, titles.length);
     return SizedBox(
-      height: 86,
+      height: 96,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: end,
@@ -206,8 +232,11 @@ class _RankStrip extends StatelessWidget {
             child: Stack(
               children: [
                 Container(
-                  width: 74,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  width: 76,
+                  padding: EdgeInsets.only(
+                    top: isCurrent ? 22 : 12,
+                    bottom: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isCurrent
                         ? AppColors.accent
@@ -215,7 +244,9 @@ class _RankStrip extends StatelessWidget {
                         ? AppColors.accentSoft
                         : AppColors.surface,
                     border: Border.all(
-                      color: isCurrent || isDone ? AppColors.accent : AppColors.border,
+                      color: isCurrent || isDone
+                          ? AppColors.accent
+                          : AppColors.border,
                     ),
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -227,7 +258,9 @@ class _RankStrip extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: isCurrent ? const Color(0xFFBFD0D0).withValues(alpha: 0.85) : AppColors.muted,
+                          color: isCurrent
+                              ? const Color(0xFFBFD0D0).withValues(alpha: 0.85)
+                              : AppColors.muted,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -236,7 +269,9 @@ class _RankStrip extends StatelessWidget {
                         style: displayStyle(
                           size: 13.5,
                           weight: FontWeight.w700,
-                          color: isCurrent ? const Color(0xFFFFF6EC) : AppColors.fg,
+                          color: isCurrent
+                              ? const Color(0xFFFFF6EC)
+                              : AppColors.fg,
                         ),
                       ),
                     ],
@@ -244,12 +279,15 @@ class _RankStrip extends StatelessWidget {
                 ),
                 if (isCurrent)
                   Positioned(
-                    top: -8,
+                    top: 6,
                     left: 0,
                     right: 0,
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 1,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
                           border: Border.all(color: AppColors.accent),
@@ -257,32 +295,10 @@ class _RankStrip extends StatelessWidget {
                         ),
                         child: const Text(
                           '当前',
-                          style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: AppColors.accent),
-                        ),
-                      ),
-                    ),
-                  ),
-                if (isDone)
-                  Positioned(
-                    right: -7,
-                    top: -7,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: AppColors.accent,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      alignment: Alignment.center,
-                      child: Transform.rotate(
-                        angle: 6 * 3.14159 / 180,
-                        child: const Text(
-                          '通',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 9.5,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFFFFF6EC),
-                            fontFamily: kSerif,
+                            color: AppColors.accent,
                           ),
                         ),
                       ),
@@ -302,14 +318,21 @@ class _IconBox extends StatelessWidget {
   final Color bg;
   final Color color;
 
-  const _IconBox({required this.iconName, required this.bg, required this.color});
+  const _IconBox({
+    required this.iconName,
+    required this.bg,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 40,
       height: 40,
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(13)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(13),
+      ),
       child: Center(child: AppIcon(iconName, size: 20, color: color)),
     );
   }
@@ -321,7 +344,12 @@ class _MenuRow extends StatelessWidget {
   final String? hint;
   final VoidCallback onTap;
 
-  const _MenuRow({required this.iconName, required this.title, this.hint, required this.onTap});
+  const _MenuRow({
+    required this.iconName,
+    required this.title,
+    this.hint,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -332,15 +360,25 @@ class _MenuRow extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         child: Row(
           children: [
-            _IconBox(iconName: iconName, bg: AppColors.surface2, color: AppColors.fg),
+            _IconBox(
+              iconName: iconName,
+              bg: AppColors.surface2,
+              color: AppColors.fg,
+            ),
             const SizedBox(width: 14),
             Expanded(
-              child: Text(title, style: bodyStyle(size: 15, weight: FontWeight.w600)),
+              child: Text(
+                title,
+                style: bodyStyle(size: 15, weight: FontWeight.w600),
+              ),
             ),
             if (hint != null)
               Text(hint!, style: bodyStyle(size: 11, color: AppColors.muted)),
             const SizedBox(width: 6),
-            Transform.rotate(angle: 3.14159, child: AppIcon('back', size: 14, color: AppColors.faint)),
+            Transform.rotate(
+              angle: 3.14159,
+              child: AppIcon('back', size: 14, color: AppColors.faint),
+            ),
           ],
         ),
       ),

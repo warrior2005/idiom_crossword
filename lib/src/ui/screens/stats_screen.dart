@@ -12,7 +12,7 @@ import '../theme/app_text.dart';
 
 /// 玩家统计
 class PlayerStats {
-  final int totalCompleted; // 总通关数（含每日挑战）
+  final int totalCompleted; // 主线累计通关数（不含每日挑战）
   final int totalXp; // 累计经验
   final int avgTimeMs; // 平均通关用时
   final int longestStreak; // 最长连续通关
@@ -77,7 +77,7 @@ final statsProvider = FutureProvider<PlayerStats>((ref) async {
   }
 
   return PlayerStats(
-    totalCompleted: history.length,
+    totalCompleted: mainLevels.length,
     totalXp: totalXp,
     avgTimeMs: times.isEmpty
         ? 0
@@ -111,8 +111,12 @@ class StatsScreen extends ConsumerWidget {
             Expanded(
               child: statsAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) =>
-                    Center(child: Text('加载失败: $e', style: bodyStyle(color: AppColors.accent))),
+                error: (e, _) => Center(
+                  child: Text(
+                    '加载失败: $e',
+                    style: bodyStyle(color: AppColors.accent),
+                  ),
+                ),
                 data: (stats) => ListView(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                   children: [
@@ -122,15 +126,30 @@ class StatsScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
-                          _IconBox(iconName: 'bolt', bg: AppColors.goldSoft, color: const Color(0xFF7A5D14)),
+                          _IconBox(
+                            iconName: 'bolt',
+                            bg: AppColors.goldSoft,
+                            color: const Color(0xFF7A5D14),
+                          ),
                           const SizedBox(width: 14),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('${stats.longestStreak} 关',
-                                  style: displayStyle(size: 22, weight: FontWeight.w900)),
+                              Text(
+                                '${stats.longestStreak} 关',
+                                style: displayStyle(
+                                  size: 22,
+                                  weight: FontWeight.w900,
+                                ),
+                              ),
                               const SizedBox(height: 2),
-                              Text('最长连胜 · 连续通关', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+                              Text(
+                                '最长连胜 · 连续通关',
+                                style: bodyStyle(
+                                  size: 11.5,
+                                  color: AppColors.muted,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -138,7 +157,10 @@ class StatsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 14),
                     AppCard(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 6,
+                      ),
                       child: Column(
                         children: [
                           _StatLine('累计通关', '${stats.totalCompleted} 关'),
@@ -152,8 +174,14 @@ class StatsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     const Center(
-                      child: Text('数据仅存储于本机',
-                          style: TextStyle(fontSize: 10.5, color: AppColors.faint, letterSpacing: 0.6)),
+                      child: Text(
+                        '数据仅存储于本机',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          color: AppColors.faint,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -201,9 +229,17 @@ class _AccuracyCard extends StatelessWidget {
                   children: [
                     Text(
                       accuracy == null ? '—' : '${(accuracy! * 100).round()}%',
-                      style: displayStyle(size: 38, weight: FontWeight.w900, color: AppColors.accent, height: 1.1),
+                      style: displayStyle(
+                        size: 38,
+                        weight: FontWeight.w900,
+                        color: AppColors.accent,
+                        height: 1.1,
+                      ),
                     ),
-                    Text('填字正确率', style: bodyStyle(size: 11, color: AppColors.muted)),
+                    Text(
+                      '填字正确率',
+                      style: bodyStyle(size: 11, color: AppColors.muted),
+                    ),
                   ],
                 ),
               ),
@@ -280,14 +316,21 @@ class _IconBox extends StatelessWidget {
   final String iconName;
   final Color bg;
   final Color color;
-  const _IconBox({required this.iconName, required this.bg, required this.color});
+  const _IconBox({
+    required this.iconName,
+    required this.bg,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 40,
       height: 40,
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(13)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(13),
+      ),
       child: Center(child: AppIcon(iconName, size: 20, color: color)),
     );
   }

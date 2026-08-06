@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/data/growth_manager.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
+import 'package:idiom_crossword/src/state/level_generation.dart';
 import 'package:idiom_crossword/src/state/player_state.dart';
 
 /// 玩家成长流程集成测试：通关/升级/奖励/持久化
@@ -92,5 +93,46 @@ void main() {
     await notifier.useHintCard(); // 已用完，不应变负
     expect(container.read(playerProvider).functionalItems['hint_card'], 0);
     expect((await db.getPlayerProgress())!.hintCards, 0);
+  });
+
+  test('每日挑战不计入主线已获关卡', () async {
+    final notifier = container.read(playerProvider.notifier);
+
+    await notifier.completeLevel(dailyLevelNumber(), [20, 30, 40]);
+    expect(container.read(playerProvider).completedLevels, 0);
+
+    await notifier.completeLevel(1, [5, 5, 5, 5, 5]);
+    expect(container.read(playerProvider).completedLevels, 1);
+    expect((await db.getPlayerProgress())!.completedLevels, 1);
+  });
+
+  test('载入旧进度时按主线历史修正已获关卡数', () async {
+    await db.addLevelHistory(
+      levelNumber: 1,
+      xpGained: 10,
+      idiomsUsed: const [],
+    );
+    await db.addLevelHistory(
+      levelNumber: 2,
+      xpGained: 20,
+      idiomsUsed: const [],
+    );
+    await db.addLevelHistory(
+      levelNumber: dailyLevelNumber(),
+      xpGained: 20,
+      idiomsUsed: const [],
+    );
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 50,
+      completedLevels: 3, // 旧数据把每日挑战也算进去了
+      hintCards: 0,
+      reviveCards: 0,
+    );
+
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    expect(container.read(playerProvider).completedLevels, 2);
+    expect((await db.getPlayerProgress())!.completedLevels, 2);
   });
 }

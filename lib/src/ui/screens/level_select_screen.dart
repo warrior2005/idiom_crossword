@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
+import '../../state/daily_challenge.dart';
+import '../../state/level_state_codec.dart';
 import '../../state/player_state.dart';
+import '../../engine/spiral_difficulty.dart';
 import 'game_screen.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_seal.dart';
@@ -23,6 +26,21 @@ final nextMainLevelProvider = FutureProvider<int>((ref) async {
   ref.watch(playerProvider);
   final db = ref.watch(databaseProvider);
   return db.getNextMainLevel();
+});
+
+/// 主线各关首个成语（从冻结关卡定义读取，用于关卡方块小字）
+final levelWordsProvider = FutureProvider<Map<int, String>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final history = await db.getLevelHistory();
+  final words = <int, String>{};
+  for (final h in history) {
+    if (h.levelNumber >= dailyLevelOffset || h.levelJson == null) continue;
+    final level = decodeLevel(h.levelJson!);
+    if (level != null && level.placements.isNotEmpty) {
+      words[h.levelNumber] = level.placements.first.idiom.text;
+    }
+  }
+  return words;
 });
 
 class LevelSelectScreen extends ConsumerStatefulWidget {
@@ -52,9 +70,11 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
   Widget build(BuildContext context) {
     final completedAsync = ref.watch(completedLevelsProvider);
     final nextLevelAsync = ref.watch(nextMainLevelProvider);
+    final wordsAsync = ref.watch(levelWordsProvider);
+    final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
     final completed = completedAsync.value ?? const <int>{};
     final nextLevel = nextLevelAsync.value ?? 1;
-    final allLevels = ({...completed, nextLevel}).toList()..sort();
+    final levelWords = wordsAsync.value ?? const <int, String>{};
     // 只展示到当前关卡所在页
     final currentPage = ((nextLevel - 1) ~/ _pageSize).clamp(0, 100000);
     final totalPages = currentPage + 1;
@@ -71,23 +91,29 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('选择关卡', style: displayStyle(size: 30, weight: FontWeight.w700)),
+                  Text(
+                    '选择关卡',
+                    style: displayStyle(size: 30, weight: FontWeight.w700),
+                  ),
                   const SizedBox(height: 6),
                   Text('由浅入深 · 每关约 8–12 条成语', style: kickerStyle()),
                   const SizedBox(height: 12),
-                  _DailyPin(onTap: () => _startDaily()),
+                  if (!dailyDone) _DailyPin(onTap: _startDaily),
                 ],
               ),
             ),
             Expanded(
-              child: completedAsync.isLoading || nextLevelAsync.isLoading
+              child:
+                  completedAsync.isLoading ||
+                      nextLevelAsync.isLoading ||
+                      wordsAsync.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : Column(
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Text(
-                            '第 ${page * _pageSize + 1}-${((page + 1) * _pageSize).clamp(0, allLevels.length)} 关 · '
+                            '第 ${page * _pageSize + 1}-${(page + 1) * _pageSize} 关 · '
                             '${page + 1}/$totalPages',
                             style: bodyStyle(size: 12, color: AppColors.muted),
                           ),
@@ -98,25 +124,34 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                             onPageChanged: (p) => setState(() => _page = p),
                             itemCount: totalPages,
                             itemBuilder: (context, pageIndex) {
-                              final start = pageIndex * _pageSize;
-                              final pageLevels = allLevels.sublist(
-                                start,
-                                (start + _pageSize).clamp(0, allLevels.length),
-                              );
-                              return GridView.count(
-                                padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                                crossAxisCount: 4,
-                                mainAxisSpacing: 12,
-                                crossAxisSpacing: 12,
-                                children: [
-                                  for (final level in pageLevels)
-                                    _LevelNode(
-                                      levelNumber: level,
-                                      isCompleted: completed.contains(level),
-                                      isNext: level == nextLevel,
-                                      onTap: () => _startLevel(level),
+                              final start = pageIndex * _pageSize + 1;
+                              return GridView.builder(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  4,
+                                  20,
+                                  12,
+                                ),
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 4,
+                                      mainAxisSpacing: 12,
+                                      crossAxisSpacing: 12,
+                                      childAspectRatio: 1,
                                     ),
-                                ],
+                                itemCount: _pageSize,
+                                itemBuilder: (context, index) {
+                                  final level = start + index;
+                                  return _LevelNode(
+                                    levelNumber: level,
+                                    word: levelWords[level],
+                                    isCompleted: completed.contains(level),
+                                    isNext: level == nextLevel,
+                                    onTap: level > nextLevel
+                                        ? null
+                                        : () => _startLevel(level),
+                                  );
+                                },
                               );
                             },
                           ),
@@ -138,24 +173,74 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       if (!mounted) return;
       Navigator.pop(context);
       if (level == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('关卡生成失败，请重试')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('关卡生成失败，请重试')));
         return;
       }
-      await Navigator.push(context, MaterialPageRoute(builder: (_) => GameScreen(level: level)));
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+      );
       ref.invalidate(completedLevelsProvider);
+      ref.invalidate(levelWordsProvider);
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('错误: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('错误: $e')));
       }
     }
   }
 
-  void _startDaily() {
-    // 跳到每日挑战：简化——返回上一页（首页可开始每日挑战）
-    Navigator.of(context).pop();
+  Future<void> _startDaily() async {
+    final db = ref.read(databaseProvider);
+    final levelNumber = dailyLevelNumber();
+
+    if (await db.isLevelCompleted(levelNumber)) {
+      ref.invalidate(dailyDoneProvider);
+      return;
+    }
+
+    if (!mounted) return;
+    showLevelLoadingDialog(context);
+    try {
+      final spiral = SpiralDifficulty.calculate(
+        ref.read(playerProvider).completedLevels + 1,
+      );
+      final minD = (spiral.mainMin + 2).clamp(1, 50);
+      final maxD = (spiral.mainMax + 6).clamp(1, 50);
+      final level = await generateLevel(
+        db,
+        levelNumber,
+        seed: epochDay(),
+        targetSize: 6,
+        difficultyRange: (minD, maxD),
+        title: '每日挑战',
+      );
+      if (!mounted) return;
+      Navigator.pop(context);
+      if (level == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('每日挑战生成失败，请重试')));
+        return;
+      }
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+      );
+      ref.invalidate(dailyDoneProvider);
+      ref.invalidate(dailyIssueProvider);
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('错误: $e')));
+      }
+    }
   }
 }
 
@@ -176,16 +261,19 @@ class _DailyPin extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('每日挑战 · 今日一题', style: displayStyle(size: 18, weight: FontWeight.w700)),
+                Text(
+                  '每日挑战 · 今日一题',
+                  style: displayStyle(size: 18, weight: FontWeight.w700),
+                ),
                 const SizedBox(height: 4),
-                Text('全服同题 · 明日刷新', style: bodyStyle(size: 12, color: AppColors.muted)),
+                Text(
+                  '全服同题 · 明日刷新',
+                  style: bodyStyle(size: 12, color: AppColors.muted),
+                ),
               ],
             ),
           ),
-          GestureDetector(
-            onTap: onTap,
-            child: BadgeSoft('挑战'),
-          ),
+          GestureDetector(onTap: onTap, child: BadgeSoft('挑战')),
         ],
       ),
     );
@@ -195,12 +283,14 @@ class _DailyPin extends StatelessWidget {
 /// 关卡节点（三态）
 class _LevelNode extends StatelessWidget {
   final int levelNumber;
+  final String? word;
   final bool isCompleted;
   final bool isNext;
   final VoidCallback? onTap;
 
   const _LevelNode({
     required this.levelNumber,
+    this.word,
     required this.isCompleted,
     required this.isNext,
     this.onTap,
@@ -221,10 +311,18 @@ class _LevelNode extends StatelessWidget {
                   : AppColors.surface2,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isNext || isCompleted ? AppColors.accent : AppColors.border,
+                color: isNext || isCompleted
+                    ? AppColors.accent
+                    : AppColors.border,
               ),
               boxShadow: isNext
-                  ? const [BoxShadow(color: Color(0x52B33B27), blurRadius: 14, offset: Offset(0, 6))]
+                  ? const [
+                      BoxShadow(
+                        color: Color(0x52B33B27),
+                        blurRadius: 14,
+                        offset: Offset(0, 6),
+                      ),
+                    ]
                   : null,
             ),
             child: Column(
@@ -239,6 +337,20 @@ class _LevelNode extends StatelessWidget {
                         ? const Color(0xFFFFF6EC)
                         : isCompleted
                         ? AppColors.accentDeep
+                        : AppColors.faint,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  word ?? '??',
+                  style: TextStyle(
+                    fontFamily: kSans,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: isNext
+                        ? const Color(0xFFFFF6EC).withValues(alpha: 0.82)
+                        : isCompleted
+                        ? AppColors.muted
                         : AppColors.faint,
                   ),
                 ),

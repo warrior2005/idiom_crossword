@@ -25,6 +25,9 @@ class PrimaryButton extends StatelessWidget {
     final shadowColor = ghost
         ? (small ? AppColors.accentDeep : AppColors.border)
         : AppColors.accentDeep;
+    final softShadowColor = ghost
+        ? const Color(0x14503C1E)
+        : const Color(0x47B33B27);
 
     return GestureDetector(
       onTap: onTap,
@@ -38,9 +41,15 @@ class PrimaryButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: shadowColor,
-              offset: const Offset(0, 6),
+              offset: Offset(0, small ? 6 : 8),
               blurRadius: 0,
             ),
+            if (!small)
+              BoxShadow(
+                color: softShadowColor,
+                offset: const Offset(0, 14),
+                blurRadius: 24,
+              ),
           ],
         ),
         alignment: Alignment.center,
