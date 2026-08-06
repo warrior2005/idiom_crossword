@@ -79,6 +79,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   // 已完成成语
   final Set<(int, int)> _completedCells = {};
   final List<({String word, String meaning})> _completedIdiomList = [];
+  final Set<String> _wrongIdiomWords = {};
   int? _selectedCompletedIndex;
 
   // 本关提示使用情况
@@ -178,8 +179,29 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _restoring = false;
       });
       ref.read(playerProvider.notifier).setCorrectStreak(_correctStreak);
+      _rebuildWrongIdiomsFromHistory();
     } catch (_) {
       if (mounted) setState(() => _restoring = false);
+    }
+  }
+
+  /// 从填字历史重建本局填错过的成语（断点续玩后仍能统计）
+  void _rebuildWrongIdiomsFromHistory() {
+    _wrongIdiomWords.clear();
+    for (final entry in _fillHistory) {
+      if (entry.candRow < 0 ||
+          entry.candCol < 0 ||
+          entry.candRow >= _candidateBoard.length ||
+          entry.candCol >= _candidateBoard[entry.candRow].length) {
+        continue;
+      }
+      final filledChar = _candidateBoard[entry.candRow][entry.candCol];
+      final correctChar = _correctCharForCell(entry.row, entry.col);
+      if (filledChar != correctChar) {
+        _wrongIdiomWords.addAll(
+          _placementsContaining(entry.row, entry.col).map((p) => p.idiom.text),
+        );
+      }
     }
   }
 
@@ -339,6 +361,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     } else {
       _errorsMade++;
       _correctStreak = 0;
+      _wrongIdiomWords.addAll(
+        _placementsContaining(filledRow, filledCol).map((p) => p.idiom.text),
+      );
       ref.read(playerProvider.notifier).recordWrongFill();
     }
 
@@ -566,6 +591,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       totalFills: _totalFills,
       levelJson: encodeLevel(widget.level),
     );
+    ref.invalidate(nextMainLevelProvider);
 
     // 成就判定
     final alreadyUnlocked = <AchievementId>{};
@@ -668,13 +694,18 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     int timeSpentMs,
   ) {
     final xpText = '${result.xpGained > 0 ? '+' : ''}${result.xpGained}';
+    final wrongIdioms = _completedIdiomList
+        .where((i) => _wrongIdiomWords.contains(i.word))
+        .take(3)
+        .map((i) => (word: i.word, meaning: i.meaning))
+        .toList();
     showWinCardDialog(
       context,
       seal: '通',
       title: _isDaily ? '每日挑战 · 完成' : '${widget.level.title} · 通关',
       subtitle: '用时 ${_formatDuration(timeSpentMs)} · 填错 $_errorsMade',
       xpText: xpText,
-      idioms: _completedIdiomList.map((i) => '${i.word} ${i.meaning}').toList(),
+      idioms: wrongIdioms,
       actions: [
         if (!_isDaily)
           WinCardAction(
@@ -691,11 +722,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           onTap: () => _showLearning(context),
         ),
         WinCardAction(
-          label: '稍后再看',
+          label: '返回主页',
           ghost: true,
           onTap: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
+            Navigator.of(context).popUntil((route) => route.isFirst);
           },
         ),
       ],
@@ -999,76 +1029,96 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildCompletedIdiomsSection() {
     // 固定高度区域：出现完成词条/释义时不再挤压网格布局（避免抖动）
     return Container(
-      height: 96,
+      height: 116,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       child: _completedIdiomList.isEmpty
           ? const SizedBox.shrink()
-          : AppCard(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: _completedIdiomList.asMap().entries.map((
-                        entry,
-                      ) {
-                        final i = entry.key;
-                        final item = entry.value;
-                        final isSelected = _selectedCompletedIndex == i;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedCompletedIndex = isSelected ? null : i;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppColors.accentSoft
-                                    : AppColors.surface,
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.accent
-                                      : AppColors.borderStrong,
+          : SizedBox(
+              width: double.infinity,
+              child: AppCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 30,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: _completedIdiomList.asMap().entries.map((
+                              entry,
+                            ) {
+                              final i = entry.key;
+                              final item = entry.value;
+                              final isSelected = _selectedCompletedIndex == i;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedCompletedIndex = isSelected
+                                          ? null
+                                          : i;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.accentSoft
+                                          : AppColors.surface,
+                                      borderRadius: BorderRadius.circular(999),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? AppColors.accent
+                                            : AppColors.borderStrong,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      item.word,
+                                      style: displayStyle(
+                                        size: 13,
+                                        weight: FontWeight.w600,
+                                        color: isSelected
+                                            ? AppColors.accent
+                                            : AppColors.fg,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                item.word,
-                                style: displayStyle(
-                                  size: 13,
-                                  weight: FontWeight.w600,
-                                  color: isSelected
-                                      ? AppColors.accent
-                                      : AppColors.fg,
-                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (_selectedCompletedIndex != null)
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(
+                              '释义：'
+                              '${_completedIdiomList[_selectedCompletedIndex!].meaning}',
+                              style: bodyStyle(
+                                size: 11.5,
+                                color: AppColors.muted,
                               ),
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  if (_selectedCompletedIndex != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        '释义：'
-                        '${_completedIdiomList[_selectedCompletedIndex!].meaning}',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: bodyStyle(size: 11.5, color: AppColors.muted),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
     );
@@ -1077,56 +1127,62 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildCandidateBoardWidget() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: _candidateBoard.asMap().entries.map((entry) {
-          final rowIndex = entry.key;
-          final row = entry.value;
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: row.asMap().entries.map((cellEntry) {
-                final colIndex = cellEntry.key;
-                final char = cellEntry.value;
-                final isUsed = _usedCandidateSlots.contains((
-                  rowIndex,
-                  colIndex,
-                ));
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: GestureDetector(
-                    onTap: isUsed
-                        ? null
-                        : () => _onCandidateTap(rowIndex, colIndex, char),
-                    child: Container(
-                      width: 32,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: isUsed ? AppColors.surface2 : AppColors.surface,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: _candidateBoard.asMap().entries.map((entry) {
+            final rowIndex = entry.key;
+            final row = entry.value;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: row.asMap().entries.map((cellEntry) {
+                  final colIndex = cellEntry.key;
+                  final char = cellEntry.value;
+                  final isUsed = _usedCandidateSlots.contains((
+                    rowIndex,
+                    colIndex,
+                  ));
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: isUsed
+                          ? null
+                          : () => _onCandidateTap(rowIndex, colIndex, char),
+                      child: Container(
+                        width: 36,
+                        height: 38,
+                        decoration: BoxDecoration(
                           color: isUsed
-                              ? AppColors.borderStrong
-                              : AppColors.border,
+                              ? AppColors.surface2
+                              : AppColors.surface,
+                          borderRadius: BorderRadius.circular(9),
+                          border: Border.all(
+                            color: isUsed
+                                ? AppColors.borderStrong
+                                : AppColors.border,
+                          ),
                         ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        char,
-                        style: displayStyle(
-                          size: 17,
-                          weight: FontWeight.w600,
-                          color: isUsed ? AppColors.faint : AppColors.fg,
+                        alignment: Alignment.center,
+                        child: Text(
+                          char,
+                          style: displayStyle(
+                            size: 19,
+                            weight: FontWeight.w600,
+                            color: isUsed ? AppColors.faint : AppColors.fg,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          );
-        }).toList(),
+                  );
+                }).toList(),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -1287,33 +1343,57 @@ class _ToolbarButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppIcon(
-            icon,
-            size: 22,
-            color: enabled ? AppColors.fg : AppColors.faint,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: bodyStyle(
-              size: 11,
-              weight: FontWeight.w600,
-              color: enabled ? AppColors.fg : AppColors.faint,
+      child: Container(
+        width: 88,
+        height: 64,
+        alignment: Alignment.center,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppIcon(
+                  icon,
+                  size: 22,
+                  color: enabled ? AppColors.fg : AppColors.faint,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: bodyStyle(
+                    size: 11,
+                    weight: FontWeight.w600,
+                    color: enabled ? AppColors.fg : AppColors.faint,
+                  ),
+                ),
+              ],
             ),
-          ),
-          if (sub != null)
-            Text(
-              sub!,
-              style: bodyStyle(
-                size: 10,
-                weight: FontWeight.w700,
-                color: enabled ? AppColors.accent : AppColors.faint,
+            if (sub != null)
+              Positioned(
+                top: 4,
+                right: 6,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: enabled ? AppColors.accentPale : AppColors.surface2,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    sub!,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      color: enabled ? AppColors.accent : AppColors.faint,
+                    ),
+                  ),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../engine/spiral_difficulty.dart';
 
 /// 成长系统管理器
 ///
@@ -194,5 +195,27 @@ class GrowthManager {
     final avgDifficulty =
         idiomDifficulties.reduce((a, b) => a + b) / idiomDifficulties.length;
     return (avgDifficulty * 2).round();
+  }
+
+  /// 估算后续主线关卡平均可获得经验（教学关固定 10，其余按螺旋基准难度 ×2）
+  static int estimatedXpForLevel(int levelNumber) {
+    if (levelNumber <= 5) return 10;
+    return SpiralDifficulty.calculate(levelNumber).baseDifficulty * 2;
+  }
+
+  /// 按剩余升级经验和后续主线关卡估算还需通关几关
+  static int levelsToNextTitle({
+    required int xpRemaining,
+    required int nextMainLevel,
+  }) {
+    var remaining = xpRemaining;
+    var levelNumber = nextMainLevel;
+    var count = 0;
+    while (remaining > 0 && count < 10000) {
+      remaining -= estimatedXpForLevel(levelNumber);
+      count++;
+      levelNumber++;
+    }
+    return count;
   }
 }

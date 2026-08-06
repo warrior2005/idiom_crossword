@@ -18,12 +18,18 @@ class MineScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider);
+    final nextMainLevel =
+        ref.watch(nextMainLevelProvider).value ?? player.completedLevels + 1;
     final statsAsync = ref.watch(statsProvider);
     final unlockedAsync = ref.watch(achievementsProvider);
     final titles = GrowthManager.titleSequence;
     final nextTitle = player.level < titles.length
         ? titles[player.level] // index = level（0 起），即下一级
         : titles.last;
+    final levelsToNextTitle = GrowthManager.levelsToNextTitle(
+      xpRemaining: player.xpRemaining,
+      nextMainLevel: nextMainLevel,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -87,7 +93,9 @@ class MineScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '再通关一关，晋升「$nextTitle」',
+                          player.level >= titles.length
+                              ? '已达最高等级「$nextTitle」'
+                              : '再通关 $levelsToNextTitle 关，晋升「$nextTitle」',
                           style: bodyStyle(size: 11.5, color: AppColors.faint),
                         ),
                       ],

@@ -16,13 +16,15 @@ class WinCardAction {
   });
 }
 
+typedef WinCardIdiom = ({String word, String meaning});
+
 /// 过关庆祝卡（win-card 母题）
 class WinCard extends StatelessWidget {
   final String seal;
   final String title;
   final String? subtitle;
   final String xpText;
-  final List<String> idioms;
+  final List<WinCardIdiom> idioms;
   final List<WinCardAction> actions;
 
   const WinCard({
@@ -45,7 +47,11 @@ class WinCard extends StatelessWidget {
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(28),
           boxShadow: const [
-            BoxShadow(color: Color(0x66140A00), blurRadius: 70, offset: Offset(0, 30)),
+            BoxShadow(
+              color: Color(0x66140A00),
+              blurRadius: 70,
+              offset: Offset(0, 30),
+            ),
           ],
         ),
         child: Column(
@@ -60,14 +66,26 @@ class WinCard extends StatelessWidget {
                   color: AppColors.accent,
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: const [
-                    BoxShadow(color: AppColors.accentDeep, offset: Offset(0, 10), blurRadius: 0),
-                    BoxShadow(color: Color(0x57B33B27), blurRadius: 36, offset: Offset(0, 20)),
+                    BoxShadow(
+                      color: AppColors.accentDeep,
+                      offset: Offset(0, 10),
+                      blurRadius: 0,
+                    ),
+                    BoxShadow(
+                      color: Color(0x57B33B27),
+                      blurRadius: 36,
+                      offset: Offset(0, 20),
+                    ),
                   ],
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   seal,
-                  style: displayStyle(size: 40, weight: FontWeight.w900, color: const Color(0xFFFFF6EC)),
+                  style: displayStyle(
+                    size: 40,
+                    weight: FontWeight.w900,
+                    color: const Color(0xFFFFF6EC),
+                  ),
                 ),
               ),
             ),
@@ -75,17 +93,33 @@ class WinCard extends StatelessWidget {
             Text(title, style: displayStyle(size: 26, weight: FontWeight.w900)),
             if (subtitle != null) ...[
               const SizedBox(height: 8),
-              Text(subtitle!, style: bodyStyle(size: 13, color: AppColors.muted)),
+              Text(
+                subtitle!,
+                style: bodyStyle(size: 13, color: AppColors.muted),
+              ),
             ],
             const SizedBox(height: 16),
             Text.rich(
-              TextSpan(children: [
-                const TextSpan(
-                  text: '获得经验 ',
-                  style: TextStyle(fontSize: 14, color: AppColors.accentDeep, fontWeight: FontWeight.w600),
-                ),
-                TextSpan(text: xpText, style: displayStyle(size: 20, weight: FontWeight.w900, color: AppColors.accentDeep)),
-              ]),
+              TextSpan(
+                children: [
+                  const TextSpan(
+                    text: '获得经验 ',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.accentDeep,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextSpan(
+                    text: xpText,
+                    style: displayStyle(
+                      size: 20,
+                      weight: FontWeight.w900,
+                      color: AppColors.accentDeep,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             for (final action in actions)
@@ -102,11 +136,60 @@ class WinCard extends StatelessWidget {
               const Divider(color: AppColors.border),
               const SizedBox(height: 8),
               for (final idiom in idioms.take(3))
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Text(
-                    idiom,
-                    style: bodyStyle(size: 13, color: const Color(0xFF4A4438)),
+                SizedBox(
+                  width: double.infinity,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          key: ValueKey('win-card-idiom-${idiom.word}'),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.accent,
+                              width: 1.2,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            idiom.word,
+                            style: displayStyle(
+                              size: 14,
+                              weight: FontWeight.w700,
+                              color: AppColors.accentDeep,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '：',
+                                  style: bodyStyle(
+                                    size: 13,
+                                    color: AppColors.fg,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: idiom.meaning,
+                                  style: bodyStyle(
+                                    size: 13,
+                                    color: const Color(0xFF4A4438),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
             ],
@@ -124,7 +207,7 @@ Future<void> showWinCardDialog(
   required String title,
   String? subtitle,
   required String xpText,
-  List<String> idioms = const [],
+  List<WinCardIdiom> idioms = const [],
   List<WinCardAction> actions = const [],
 }) {
   return showDialog<void>(

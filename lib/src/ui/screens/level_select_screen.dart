@@ -21,13 +21,6 @@ final completedLevelsProvider = FutureProvider<Set<int>>((ref) async {
   return db.getCompletedLevelNumbers();
 });
 
-/// 下一个主关卡
-final nextMainLevelProvider = FutureProvider<int>((ref) async {
-  ref.watch(playerProvider);
-  final db = ref.watch(databaseProvider);
-  return db.getNextMainLevel();
-});
-
 /// 主线各关首个成语（从冻结关卡定义读取，用于关卡方块小字）
 final levelWordsProvider = FutureProvider<Map<int, String>>((ref) async {
   final db = ref.watch(databaseProvider);

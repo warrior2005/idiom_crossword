@@ -190,7 +190,7 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             const Center(
               child: Text(
-                '交叉推理 · 一字双关 · 循序渐进',
+                '交叉推理 · 一字双关',
                 style: TextStyle(
                   fontSize: 10.5,
                   color: AppColors.faint,

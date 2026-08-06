@@ -130,6 +130,62 @@ void main() {
     expect(history.single.hintsUsed, 1);
   });
 
+  testWidgets('过关弹窗展示本局填错过的成语', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // 先故意填错一个字
+    final wrongChar = find.byWidgetPredicate(
+      (w) =>
+          w is Text &&
+          w.data != null &&
+          w.data!.length == 1 &&
+          !'蛇添足'.contains(w.data!),
+    );
+    await tester.tap(wrongChar.first);
+    await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+
+    // 回到填错的“蛇”格并改正，再依次补完
+    final gridRect = tester.getRect(
+      find.byWidgetPredicate(
+        (w) => w is CustomPaint && w.painter is GridPainter,
+      ),
+    );
+    final cellSize = gridRect.width / 5;
+    await tester.tapAt(
+      Offset(
+        gridRect.left + 2 * cellSize + cellSize / 2,
+        gridRect.top + 1 * cellSize + cellSize / 2,
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text('蛇'));
+    await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    for (final ch in ['添', '足']) {
+      await tester.tap(find.text(ch));
+      await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    }
+
+    await _pumpUntil(
+      tester,
+      () => find.text('第 1 关 · 通关').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    expect(find.text('第 1 关 · 通关'), findsOneWidget);
+    expect(find.text('返回主页'), findsOneWidget);
+    expect(find.byKey(const ValueKey('win-card-idiom-画蛇添足')), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 800));
+  });
 }
 
 /// 轮询直到 [condition] 成立或超时

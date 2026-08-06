@@ -254,3 +254,10 @@ class PlayerNotifier extends Notifier<PlayerState> {
 final playerProvider = NotifierProvider<PlayerNotifier, PlayerState>(
   PlayerNotifier.new,
 );
+
+/// 下一个主线关卡（排除每日挑战号段）
+final nextMainLevelProvider = FutureProvider<int>((ref) async {
+  ref.watch(playerProvider);
+  final db = ref.watch(databaseProvider);
+  return db.getNextMainLevel();
+});
