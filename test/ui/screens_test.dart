@@ -152,13 +152,31 @@ void main() {
     await tester.pumpWidget(_wrap(db, const SettingsScreen()));
     await tester.pumpAndSettle();
 
-    final switchFinder = find.byType(Switch);
+    final switchFinder = find.byType(Switch).first;
     expect(tester.widget<Switch>(switchFinder).value, isTrue);
 
     await tester.tap(switchFinder);
     await tester.pumpAndSettle();
     expect(GameAudio.instance.muted, isTrue);
     expect(await db.getSetting(soundEnabledKey), 'false');
+  });
+
+  testWidgets('设置页：触感开关持久化，无语言/成语数据库行', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const SettingsScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('音效'), findsOneWidget);
+    expect(find.text('触感反馈'), findsOneWidget);
+    expect(find.text('语言'), findsNothing);
+    expect(find.text('成语数据库'), findsNothing);
+
+    final switches = find.byType(Switch);
+    expect(tester.widget<Switch>(switches.at(1)).value, isTrue); // 触感默认开
+    await tester.tap(switches.at(1));
+    await tester.pumpAndSettle();
+    expect(await db.getSetting(hapticEnabledKey), 'false');
   });
 
   testWidgets('商城购买按钮提示即将上线', (tester) async {
