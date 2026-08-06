@@ -3,10 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import '../../engine/grid_engine.dart';
 import '../../engine/distractor_engine.dart';
-import '../widgets/level_display.dart';
 import '../../state/database_provider.dart';
 import '../../state/player_state.dart';
 import '../../state/level_generation.dart';
@@ -16,31 +14,35 @@ import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
 import '../../audio/game_audio.dart';
 import '../widgets/level_loading_dialog.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_icons.dart';
+import '../widgets/badge_soft.dart';
+import '../widgets/xp_track.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 import 'learning_screen.dart';
 
 /// 游戏主界面
 ///
 /// 布局：
 ///   ┌──────────────────┐
-///   │  关卡标题 + 进度   │
+///   │  顶栏（返回/关卡/声音）│
 ///   ├──────────────────┤
-///   │                  │
-///   │  填字网格区域      │  ← CustomPainter 绘制
-///   │  (可滚动+缩放)    │
-///   │                  │
+///   │  本关进度 + XpTrack │
 ///   ├──────────────────┤
-///   │  当前选中成语释义  │
+///   │  已完成成语 tags    │
 ///   ├──────────────────┤
-///   │  候选字盘 (3行)   │  ← 点击填入
+///   │  填字网格区域        │  ← CustomPainter 绘制
 ///   ├──────────────────┤
-///   │  提示/撤销/重置   │
+///   │  候选字盘 (3行)     │  ← 点击填入
+///   ├──────────────────┤
+///   │  提示/撤销/清空     │
 ///   └──────────────────┘
 
 class GameScreen extends ConsumerStatefulWidget {
   final CrosswordLevel level;
-  final bool isCustom; // 自定义练习关：不计入通关进度与成就
 
-  const GameScreen({super.key, required this.level, this.isCustom = false});
+  const GameScreen({super.key, required this.level});
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -316,6 +318,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final filledRow = _focusRow;
     final filledCol = _focusCol;
     final isCorrect = char == _correctCharForCell(filledRow, filledCol);
+    _totalFills++; // 本关填字尝试次数（含错误字），提示填入不计
     if (isCorrect) {
       _correctStreak++;
       const streakThresholds = [
@@ -519,15 +522,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _onLevelComplete() async {
     final db = ref.read(databaseProvider);
 
-    // 自定义练习关：只提示完成，不发放奖励/记录历史
-    if (widget.isCustom) {
-      _levelFinished = true;
-      _showCustomCompleteDialog(
-        DateTime.now().difference(_levelStartTime).inMilliseconds,
-      );
-      return;
-    }
-
     // 重玩已通关的关卡不重复发放奖励
     if (await db.isLevelCompleted(widget.level.levelId)) {
       await db.clearLevelState(widget.level.levelId);
@@ -564,6 +558,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       timeSpentMs: timeSpentMs,
       hintsUsed: _hintUsesThisLevel,
       errorsMade: _errorsMade,
+      totalFills: _totalFills,
       levelJson: encodeLevel(widget.level),
     );
 
@@ -746,35 +741,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  /// 自定义练习关完成对话框
-  void _showCustomCompleteDialog(int timeSpentMs) {
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: const Text('完成！'),
-        content: Text(
-          '自定义关卡为练习模式，不计入通关进度。\n\n'
-          '用时 ${_formatDuration(timeSpentMs)} · '
-          '提示 $_hintUsesThisLevel · 填错 $_errorsMade',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => _showLearning(ctx),
-            child: const Text('复习成语'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              if (mounted) Navigator.of(context).pop();
-            },
-            child: const Text('返回'),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// 打开本关成语学习页（释义/出处/例句）
   void _showLearning(BuildContext dialogContext) {
     Navigator.of(dialogContext).push(
@@ -889,38 +855,113 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8), // 仿古纸色
-      appBar: AppBar(
-        title: Text(widget.level.title),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          const Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: LevelDisplay(),
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.bg,
       body: SafeArea(
         child: _restoring
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
-                  // 已完成成语 tags + 释义
+                  _buildTopBar(),
+                  _buildProgress(),
                   _buildCompletedIdiomsSection(),
-
-                  // 填字网格（占据上半部分）
                   Expanded(flex: 5, child: _buildGrid()),
-
-                  // 候选字盘（下半部分）
                   Expanded(flex: 3, child: _buildCandidateBoardWidget()),
-
-                  // 底部工具栏
                   _buildToolbar(),
                 ],
               ),
       ),
     );
+  }
+
+  /// 顶栏：返回 + 关卡标题 + 徽章 + 声音开关
+  Widget _buildTopBar() {
+    final muted = GameAudio.instance.muted;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border.all(color: AppColors.border),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(child: AppIcon('back', size: 20)),
+            ),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(widget.level.title, style: displayStyle(size: 19, weight: FontWeight.w900)),
+                const SizedBox(width: 8),
+                BadgeSoft(_isDaily ? '每日挑战' : '主线'),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => GameAudio.instance.muted = !muted),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border.all(color: AppColors.border),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Opacity(
+                  opacity: muted ? 0.4 : 1,
+                  child: const AppIcon('sound', size: 20),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 本关进度：N/总字数 + XpTrack
+  Widget _buildProgress() {
+    final total = _blankCount();
+    final filled = _completedCells.length;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('本关进度', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+              Text.rich(TextSpan(children: [
+                TextSpan(text: '$filled', style: displayStyle(size: 14, weight: FontWeight.w700, color: AppColors.accent)),
+                TextSpan(text: '/$total 字', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+              ])),
+            ],
+          ),
+          const SizedBox(height: 6),
+          XpTrack(progress: total == 0 ? 0 : filled / total),
+        ],
+      ),
+    );
+  }
+
+  /// 非 given 的 filled 格总数
+  int _blankCount() {
+    var count = 0;
+    for (int r = 0; r < _grid.rows; r++) {
+      for (int c = 0; c < _grid.cols; c++) {
+        final cell = _grid.cellAt(r, c);
+        if (cell.state == CellState.filled && !cell.isGiven) count++;
+      }
+    }
+    return count;
   }
 
   Widget _buildGrid() {
@@ -976,78 +1017,76 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildCompletedIdiomsSection() {
     // 固定高度区域：出现完成词条/释义时不再挤压网格布局（避免抖动）
     return Container(
-      height: 88,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        children: [
-          if (_completedIdiomList.isNotEmpty)
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _completedIdiomList.asMap().entries.map((entry) {
-                    final i = entry.key;
-                    final item = entry.value;
-                    final isSelected = _selectedCompletedIndex == i;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedCompletedIndex = isSelected ? null : i;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Colors.green.shade100
-                                : const Color(0xFFE8F5E9),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Colors.green.shade700
-                                  : Colors.green.shade300,
+      height: 96,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      child: _completedIdiomList.isEmpty
+          ? const SizedBox.shrink()
+          : AppCard(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: _completedIdiomList.asMap().entries.map((entry) {
+                        final i = entry.key;
+                        final item = entry.value;
+                        final isSelected = _selectedCompletedIndex == i;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedCompletedIndex = isSelected ? null : i;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.accentSoft
+                                    : AppColors.surface,
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.accent
+                                      : AppColors.borderStrong,
+                                ),
+                              ),
+                              child: Text(
+                                item.word,
+                                style: displayStyle(
+                                  size: 13,
+                                  weight: FontWeight.w600,
+                                  color: isSelected
+                                      ? AppColors.accent
+                                      : AppColors.fg,
+                                ),
+                              ),
                             ),
                           ),
-                          child: Text(
-                            item.word,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.green.shade800,
-                            ),
-                          ),
-                        ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  if (_selectedCompletedIndex != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        '释义：'
+                        '${_completedIdiomList[_selectedCompletedIndex!].meaning}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: bodyStyle(size: 11.5, color: AppColors.muted),
                       ),
-                    );
-                  }).toList(),
-                ),
+                    ),
+                ],
               ),
             ),
-          if (_selectedCompletedIndex != null)
-            Container(
-              height: 36,
-              alignment: Alignment.center,
-              child: AutoSizeText(
-                '释义：'
-                '${_completedIdiomList[_selectedCompletedIndex!].meaning}',
-                maxLines: 2,
-                minFontSize: 10,
-                stepGranularity: 1,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.brown.shade600,
-                  height: 1.3,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-        ],
-      ),
     );
   }
 
@@ -1060,7 +1099,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           final rowIndex = entry.key;
           final row = entry.value;
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 3),
+            padding: const EdgeInsets.symmetric(vertical: 2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: row.asMap().entries.map((cellEntry) {
@@ -1072,31 +1111,29 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 ));
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: SizedBox(
-                    width: 34,
-                    height: 36,
-                    child: Material(
-                      color: isUsed
-                          ? Colors.brown.shade100
-                          : Colors.brown.shade50,
-                      borderRadius: BorderRadius.circular(6),
-                      elevation: isUsed ? 0 : 1,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(6),
-                        onTap: isUsed
-                            ? null
-                            : () => _onCandidateTap(rowIndex, colIndex, char),
-                        child: Center(
-                          child: Text(
-                            char,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: isUsed
-                                  ? Colors.brown.shade300
-                                  : Colors.brown.shade900,
-                            ),
-                          ),
+                  child: GestureDetector(
+                    onTap: isUsed
+                        ? null
+                        : () => _onCandidateTap(rowIndex, colIndex, char),
+                    child: Container(
+                      width: 32,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: isUsed ? AppColors.surface2 : AppColors.surface,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isUsed
+                              ? AppColors.borderStrong
+                              : AppColors.border,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        char,
+                        style: displayStyle(
+                          size: 17,
+                          weight: FontWeight.w600,
+                          color: isUsed ? AppColors.faint : AppColors.fg,
                         ),
                       ),
                     ),
@@ -1127,17 +1164,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _ToolbarButton(icon: Icons.undo, label: '撤销', onTap: _undo),
+          _ToolbarButton(icon: 'undo', label: '撤销', onTap: _undo),
           _ToolbarButton(
-            icon: Icons.lightbulb_outline,
-            label: freeHintsLeft > 0 ? '一字×$freeHintsLeft' : '提示卡×$hintCount',
+            icon: 'hint',
+            label: '提示',
+            sub: freeHintsLeft > 0 ? '剩 $freeHintsLeft' : '卡×$hintCount',
             onTap: canSingleHint ? _showHint : null,
           ),
-          _ToolbarButton(
-            icon: Icons.delete_outline,
-            label: '清除',
-            onTap: _clearCell,
-          ),
+          _ToolbarButton(icon: 'clear', label: '清空', onTap: _clearCell),
         ],
       ),
     );
@@ -1251,32 +1285,33 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
 /// 底部工具栏按钮
 class _ToolbarButton extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
+  final String? sub;
   final VoidCallback? onTap;
 
-  const _ToolbarButton({required this.icon, required this.label, this.onTap});
+  const _ToolbarButton({required this.icon, required this.label, this.sub, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final enabled = onTap != null;
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: enabled ? Colors.brown.shade700 : Colors.brown.shade300,
-          ),
+          AppIcon(icon, size: 22, color: enabled ? AppColors.fg : AppColors.faint),
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 11,
-              color: enabled ? Colors.brown.shade600 : Colors.brown.shade300,
-            ),
+            style: bodyStyle(size: 11, weight: FontWeight.w600, color: enabled ? AppColors.fg : AppColors.faint),
           ),
+          if (sub != null)
+            Text(
+              sub!,
+              style: bodyStyle(size: 10, weight: FontWeight.w700, color: enabled ? AppColors.accent : AppColors.faint),
+            ),
         ],
       ),
     );
@@ -1325,20 +1360,20 @@ class GridPainter extends CustomPainter {
           s - cellPadding * 2,
         );
 
-        // 背景色
+        // 背景色（按设计配色）
         Color bgColor;
         if (cell.isGiven) {
-          bgColor = const Color(0xFFD4C5B0);
+          bgColor = AppColors.surface2;
         } else if (completedCells.contains((r, c))) {
-          bgColor = const Color(0xFFC8E6C9);
+          bgColor = AppColors.leafSoft;
         } else if (errorCells.contains((r, c))) {
-          bgColor = const Color(0xFFFFCDD2);
+          bgColor = AppColors.accent;
         } else if (flashCell == (r, c)) {
-          bgColor = const Color(0xFFA5D6A7);
+          bgColor = AppColors.leafSoft;
         } else if (focusRow == r && focusCol == c) {
-          bgColor = const Color(0xFFFFF9C4);
+          bgColor = AppColors.accentPale;
         } else {
-          bgColor = const Color(0xFFFFF8F0);
+          bgColor = AppColors.surface;
         }
 
         // 交叉点底色加深约 10%（PRD 6.2）
@@ -1354,13 +1389,31 @@ class GridPainter extends CustomPainter {
           paint,
         );
 
-        // 边框
+        // given 格右上角朱砂小圆点
+        if (cell.isGiven) {
+          canvas.drawCircle(
+            Offset(x + s - 6, y + 6),
+            2.5,
+            Paint()..color = AppColors.accent,
+          );
+        }
+
+        // 边框（focus 格朱砂描边 + 外光晕）
+        final isFocus = focusRow == r && focusCol == c;
+        if (isFocus) {
+          final glow = Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 6
+            ..color = AppColors.accent.withValues(alpha: 0.25);
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(rect, const Radius.circular(4)),
+            glow,
+          );
+        }
         final borderPaint = Paint()
-          ..color = (focusRow == r && focusCol == c)
-              ? Colors.brown.shade700
-              : Colors.brown.shade300
+          ..color = isFocus ? AppColors.accent : AppColors.borderStrong
           ..style = PaintingStyle.stroke
-          ..strokeWidth = (focusRow == r && focusCol == c) ? 2.5 : 1.0;
+          ..strokeWidth = isFocus ? 2.5 : 1.0;
         canvas.drawRRect(
           RRect.fromRectAndRadius(rect, const Radius.circular(4)),
           borderPaint,
@@ -1375,11 +1428,18 @@ class GridPainter extends CustomPainter {
             !cell.isGiven &&
             playerAnswers.containsKey((r, c)) &&
             !completedCells.contains((r, c));
-        final textColor = cell.isGiven
-            ? Colors.brown.shade900
-            : playerAnswers.containsKey((r, c))
-            ? Colors.brown.shade800
-            : Colors.brown.shade400;
+
+        Color textColor;
+        if (cell.isGiven) {
+          textColor = AppColors.fg;
+        } else if (completedCells.contains((r, c))) {
+          textColor = AppColors.leaf;
+        } else if (errorCells.contains((r, c))) {
+          textColor = const Color(0xFFFFF6EC);
+        } else {
+          textColor = AppColors.accentDeep;
+        }
+
         final textPainter = TextPainter(
           text: TextSpan(
             text: displayChar,

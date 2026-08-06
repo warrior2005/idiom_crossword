@@ -126,7 +126,7 @@ class _CustomLevelScreenState extends ConsumerState<CustomLevelScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => GameScreen(level: level, isCustom: true),
+          builder: (_) => GameScreen(level: level),
         ),
       );
     } catch (e) {

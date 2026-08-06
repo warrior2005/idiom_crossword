@@ -92,9 +92,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // 一字提示揭示焦点格（蛇），焦点停留在该格
-    await tester.tap(find.text('一字×3'));
+    await tester.tap(find.text('提示'));
     await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
-    expect(find.text('一字×2'), findsOneWidget);
+    expect(find.text('剩 2'), findsOneWidget);
 
     // 点击"添"空格聚焦后填入，焦点自动前进到"足"再填入
     final gridRect = tester.getRect(
