@@ -1,5 +1,4 @@
 import 'dart:math';
-import '../engine/spiral_difficulty.dart';
 
 /// 成长系统管理器
 ///
@@ -189,18 +188,14 @@ class GrowthManager {
     if (levelNumber <= 5) {
       return 10; // 教学关固定 10 经验
     }
-    if (idiomDifficulties.isEmpty) {
-      return 0;
-    }
-    final avgDifficulty =
-        idiomDifficulties.reduce((a, b) => a + b) / idiomDifficulties.length;
-    return (avgDifficulty * 2).round();
+    // 通关经验随关卡号递增，保证越往后奖励越高；
+    // 难度仅作为后续微调参数保留，不再直接参与计算。
+    return 10 + (levelNumber - 6);
   }
 
-  /// 估算后续主线关卡平均可获得经验（教学关固定 10，其余按螺旋基准难度 ×2）
+  /// 估算后续主线关卡可获得经验（与 calculateXp 同一套递增公式）
   static int estimatedXpForLevel(int levelNumber) {
-    if (levelNumber <= 5) return 10;
-    return SpiralDifficulty.calculate(levelNumber).baseDifficulty * 2;
+    return calculateXp(levelNumber, const []);
   }
 
   /// 按剩余升级经验和后续主线关卡估算还需通关几关

@@ -62,20 +62,20 @@ void main() {
   print('  ✓ teaching level 3: 10 XP');
 
   final xpFormal = GrowthManager.calculateXp(10, [20, 30, 40]);
-  final expectedXp = ((20 + 30 + 40) / 3 * 2).round();
-  assert(xpFormal == expectedXp, 'formal level XP should be avgDifficulty * 2');
-  print('  ✓ formal level 10: $xpFormal XP (avg=30, *2)');
+  assert(xpFormal == 14, 'expected 14, got $xpFormal');
+  assert(GrowthManager.calculateXp(11, [1]) == 15);
+  print('  ✓ formal level 10: 14 XP，且随关卡号递增');
 
   // 测试 6：估算后续通关关数
   print('\n--- 测试 6: 估算晋升所需通关关数 ---');
   assert(GrowthManager.estimatedXpForLevel(1) == 10);
-  assert(GrowthManager.estimatedXpForLevel(6) == 2);
+  assert(GrowthManager.estimatedXpForLevel(6) == 10);
   final levels = GrowthManager.levelsToNextTitle(
     xpRemaining: 90,
     nextMainLevel: 1,
   );
-  assert(levels == 25, 'expected 25, got $levels');
-  print('  ✓ 还差 90 经验时预计需通关 25 关');
+  assert(levels == 9, 'expected 9, got $levels');
+  print('  ✓ 还差 90 经验时预计需通关 9 关');
 
   print('\n=== 所有测试通过 ===');
 }

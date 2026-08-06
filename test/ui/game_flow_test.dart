@@ -222,6 +222,38 @@ void main() {
     expect(find.text('复活(剩余 0)'), findsOneWidget);
     expect(find.text('重玩本关（无经验）'), findsOneWidget);
     expect(find.text('返回主页'), findsOneWidget);
+    expect(await db.getLevelState(dailyLevelNumber()), isNull);
+  });
+
+  testWidgets('noReward 关卡通关不获得经验', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: GameScreen(level: _buildLevel(), noReward: true),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (final ch in ['蛇', '添', '足']) {
+      await tester.tap(find.text(ch));
+      await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    }
+    await _pumpUntil(
+      tester,
+      () => find.text('第 1 关 · 通关').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 800));
+
+    final history = await db.getLevelHistory();
+    expect(history.single.xpGained, 0);
+    expect((await db.getPlayerProgress())?.totalXp ?? 0, 0);
   });
 }
 

@@ -194,9 +194,13 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
         ).showSnackBar(const SnackBar(content: Text('关卡生成失败，请重试')));
         return;
       }
+      final isReplay = await db.isLevelCompleted(levelNumber);
+      if (!mounted) return;
       await Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+        MaterialPageRoute(
+          builder: (_) => GameScreen(level: level, noReward: isReplay),
+        ),
       );
       ref.invalidate(completedLevelsProvider);
       ref.invalidate(levelWordsProvider);

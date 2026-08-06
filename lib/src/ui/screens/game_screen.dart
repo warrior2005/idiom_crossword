@@ -408,7 +408,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     });
 
     if (!isCorrect && _lives <= 0) {
-      _failLevel();
+      unawaited(_failLevel());
       return;
     }
 
@@ -828,14 +828,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       setState(() {
         if (_remainingSeconds > 0) _remainingSeconds--;
       });
-      if (_remainingSeconds <= 0) _failLevel(timeUp: true);
+      if (_remainingSeconds <= 0) {
+        unawaited(_failLevel(timeUp: true));
+      }
     });
   }
 
-  void _failLevel({bool timeUp = false}) {
+  Future<void> _failLevel({bool timeUp = false}) async {
     if (_failed || _levelFinished) return;
     _failed = true;
     _dailyTimer?.cancel();
+    // 失败后清掉旧存档，避免返回主页再进入时恢复为失败前的低生命值
+    try {
+      await ref.read(databaseProvider).clearLevelState(widget.level.levelId);
+    } catch (_) {}
+    if (!mounted) return;
     if (_isDaily) {
       ref.read(databaseProvider).setSetting(_dailyNoRewardKey(), 'true');
     }

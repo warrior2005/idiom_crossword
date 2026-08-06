@@ -277,6 +277,8 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
   Future<void> _startDaily(WidgetRef ref) async {
     final db = ref.read(databaseProvider);
     final levelNumber = dailyLevelNumber();
+    final isReplay = await db.isLevelCompleted(levelNumber);
+    if (!mounted) return;
     showLevelLoadingDialog(context);
     try {
       final spiral = SpiralDifficulty.calculate(
@@ -302,7 +304,9 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
       }
       await Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+        MaterialPageRoute(
+          builder: (_) => GameScreen(level: level, noReward: isReplay),
+        ),
       );
       ref.invalidate(dailyDoneProvider);
       ref.invalidate(dailyIssueProvider);
