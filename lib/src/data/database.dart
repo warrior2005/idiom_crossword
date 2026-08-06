@@ -20,7 +20,7 @@ import 'package:sqlite3/sqlite3.dart';
 part 'database.g.dart';
 
 /// 当前数据库 schema 版本（与预构建数据库的 PRAGMA user_version 保持一致）
-const int currentSchemaVersion = 7;
+const int currentSchemaVersion = 8;
 
 // ============================================================
 // 表定义
@@ -153,6 +153,7 @@ class LevelHistory extends Table {
   IntColumn get timeSpentMs => integer().nullable()();
   IntColumn get hintsUsed => integer().withDefault(const Constant(0))();
   IntColumn get errorsMade => integer().withDefault(const Constant(0))();
+  IntColumn get totalFills => integer().nullable()(); // 本关填字尝试次数（正确率统计用）
   TextColumn get levelJson => text().nullable()(); // 冻结的关卡定义（重玩同题）
 
   @override
@@ -283,6 +284,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 7) {
           // 冻结关卡定义（历史关卡重玩同题）
           await m.addColumn(levelHistory, levelHistory.levelJson);
+        }
+        if (from < 8) {
+          // 填字尝试次数（正确率统计）
+          await m.addColumn(levelHistory, levelHistory.totalFills);
         }
       },
     );
@@ -469,6 +474,16 @@ class AppDatabase extends _$AppDatabase {
         .getSingleOrNull();
   }
 
+  /// 按 id 偏移取成语（今日一读按日期确定性取用）；空库返回 null
+  Future<Idiom?> getIdiomAtOffset(int offset) async {
+    final count = await idioms.count().getSingle();
+    if (count == 0) return null;
+    return (select(idioms)
+          ..orderBy([(t) => OrderingTerm(expression: t.id)])
+          ..limit(1, offset: offset % count))
+        .getSingleOrNull();
+  }
+
   /// 添加关卡历史记录
   Future<void> addLevelHistory({
     required int levelNumber,
@@ -477,6 +492,7 @@ class AppDatabase extends _$AppDatabase {
     int? timeSpentMs,
     int hintsUsed = 0,
     int errorsMade = 0,
+    int? totalFills,
     String? levelJson,
   }) async {
     await into(levelHistory).insert(
@@ -487,6 +503,7 @@ class AppDatabase extends _$AppDatabase {
         timeSpentMs: Value(timeSpentMs),
         hintsUsed: Value(hintsUsed),
         errorsMade: Value(errorsMade),
+        totalFills: Value(totalFills),
         levelJson: Value(levelJson),
       ),
     );

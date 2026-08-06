@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,25 @@ import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/level_state_codec.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
 import 'package:idiom_crossword/src/state/level_generation.dart';
+
+/// 内存库 + 插入一条成语（供 getIdiomAtOffset 等测试）
+Future<AppDatabase> _memoryDb() async {
+  final db = AppDatabase(NativeDatabase.memory());
+  await db
+      .into(db.idioms)
+      .insert(
+        IdiomsCompanion(
+          word: const Value('画蛇添足'),
+          pinyin: const Value('hua she tian zu'),
+          pinyinAbbr: const Value('hstz'),
+          explanation: const Value('比喻做了多余的事'),
+          firstChar: const Value('画'),
+          lastChar: const Value('足'),
+          difficulty: const Value(5),
+        ),
+      );
+  return db;
+}
 
 void main() {
   test('prebuilt DB matches drift v2 schema end to end', () async {
@@ -159,7 +179,7 @@ void main() {
 
     // schema 版本应与 database.dart 一致
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 7);
+    expect(version.data.values.first, 8);
 
     await db.close();
     await tmpDir.delete(recursive: true);
@@ -262,5 +282,30 @@ void main() {
     expect(await db.getSetting('sound_enabled'), 'true');
     await db.close();
     await tmpDir.delete(recursive: true);
+  });
+
+  test('schema v8：totalFills 列可写入读取', () async {
+    final db = await _memoryDb(); // 含画蛇添足一条
+    addTearDown(db.close);
+    final id = await db.findIdiomIdByWord('画蛇添足');
+    await db.addLevelHistory(
+      levelNumber: 3,
+      xpGained: 20,
+      idiomsUsed: [id!],
+      errorsMade: 1,
+      totalFills: 5,
+    );
+    final history = await db.getLevelHistory();
+    expect(history.single.totalFills, 5);
+  });
+
+  test('getIdiomAtOffset：空库返回 null，非空按偏移取', () async {
+    final db = await _memoryDb(); // 含画蛇添足一条
+    addTearDown(db.close);
+    final first = await db.getIdiomAtOffset(0);
+    expect(first, isNotNull);
+    expect(first!.word, '画蛇添足');
+    final same = await db.getIdiomAtOffset(5); // 循环取模
+    expect(same!.word, '画蛇添足');
   });
 }
