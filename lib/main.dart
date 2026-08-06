@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/state/database_provider.dart';
 import 'src/state/player_state.dart';
-import 'src/ui/screens/home_screen.dart';
+import 'src/ui/screens/root_screen.dart';
 import 'src/audio/game_audio.dart';
 import 'src/ui/screens/settings_screen.dart';
 
@@ -52,12 +52,13 @@ class IdiomCrosswordApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF8B4513), // 古典棕色
+          seedColor: const Color(0xFFB33B27),
           brightness: Brightness.light,
         ),
         useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF3EDE1),
       ),
-      home: const HomeScreen(),
+      home: const RootScreen(),
     );
   }
 }
