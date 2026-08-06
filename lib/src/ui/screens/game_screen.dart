@@ -82,6 +82,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   int _hintUsesThisLevel = 0; // 一字提示次数（前 3 次免费，之后消耗提示卡）
   int _errorsMade = 0; // 错误填写次数（统计用）
   int _correctStreak = 0; // 连续答对字数（成就）
+  int _totalFills = 0; // 本关填字尝试次数（正确率统计用）
   final Set<AchievementId> _streakHandled = {}; // 本会话已触发的连击成就
   late DateTime _levelStartTime;
 
@@ -163,6 +164,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _hintUsesThisLevel = state.hintUsesThisLevel;
         _errorsMade = state.errorsMade;
         _correctStreak = state.correctStreak;
+        _totalFills = state.totalFills;
         if (state.focusRow != null && state.focusCol != null) {
           _focusRow = state.focusRow!;
           _focusCol = state.focusCol!;
@@ -235,6 +237,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             hintUsesThisLevel: _hintUsesThisLevel,
             errorsMade: _errorsMade,
             correctStreak: _correctStreak,
+            totalFills: _totalFills,
             focusRow: _focusRow < 0 ? null : _focusRow,
             focusCol: _focusCol < 0 ? null : _focusCol,
             direction: _currentDirection,

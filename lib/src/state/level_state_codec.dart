@@ -116,6 +116,7 @@ class SavedGameState {
   final int hintUsesThisLevel;
   final int errorsMade;
   final int correctStreak;
+  final int totalFills;
   final int? focusRow;
   final int? focusCol;
   final Direction? direction;
@@ -129,6 +130,7 @@ class SavedGameState {
     required this.hintUsesThisLevel,
     required this.errorsMade,
     required this.correctStreak,
+    required this.totalFills,
     this.focusRow,
     this.focusCol,
     this.direction,
@@ -152,6 +154,7 @@ String encodeGameState(SavedGameState state) {
     'hints': state.hintUsesThisLevel,
     'errors': state.errorsMade,
     'streak': state.correctStreak,
+    'fills': state.totalFills,
     'focus': (state.focusRow == null || state.focusCol == null)
         ? null
         : [state.focusRow, state.focusCol],
@@ -208,6 +211,7 @@ SavedGameState? decodeGameState(String source) {
       hintUsesThisLevel: data['hints'] as int,
       errorsMade: data['errors'] as int,
       correctStreak: data['streak'] as int,
+      totalFills: data['fills'] as int? ?? 0,
       focusRow: focus == null ? null : focus[0] as int,
       focusCol: focus == null ? null : focus[1] as int,
       direction: dirRaw == null ? null : Direction.values[dirRaw],

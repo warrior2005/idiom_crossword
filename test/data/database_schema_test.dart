@@ -243,6 +243,7 @@ void main() {
       hintUsesThisLevel: 2,
       errorsMade: 1,
       correctStreak: 3,
+      totalFills: 7,
       focusRow: 0,
       focusCol: 2,
       direction: engine.Direction.vertical,
