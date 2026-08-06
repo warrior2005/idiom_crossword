@@ -14,6 +14,7 @@ import 'package:idiom_crossword/src/ui/screens/stats_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/level_select_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/learning_screen.dart';
+import 'package:idiom_crossword/src/ui/screens/mine_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/custom_level_screen.dart';
 import 'package:idiom_crossword/src/audio/game_audio.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
@@ -225,5 +226,24 @@ void main() {
     await tester.tap(find.text('开始挑战'));
     await tester.pumpAndSettle();
     expect(find.text('关卡生成失败，请调整参数后重试'), findsOneWidget);
+  });
+
+  testWidgets('我的页：等级条三态与菜单', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    // 造一条通关记录让玩家为 Lv.1 且已通关 1 关
+    await db.addLevelHistory(levelNumber: 1, xpGained: 10, idiomsUsed: const []);
+
+    await tester.pumpWidget(_wrap(db, const MineScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('我的'), findsOneWidget);
+    expect(find.textContaining('Lv.1'), findsOneWidget);
+    expect(find.text('自定义关卡'), findsNothing); // 已删除
+
+    await tester.scrollUntilVisible(find.text('设置'), 100, scrollable: find.byType(Scrollable).first);
+    expect(find.text('成就'), findsOneWidget);
+    expect(find.text('统计'), findsOneWidget);
+    expect(find.text('设置'), findsOneWidget);
   });
 }

@@ -177,6 +177,9 @@ class GrowthManager {
   /// 获取称号
   static String titleForLevel(int level) => _titles[level] ?? '童生';
 
+  /// 全部称号（等级 1→20 顺序）
+  static List<String> get titleSequence => List.unmodifiable(_titles.values);
+
   /// 计算通关获得的经验值
   ///
   /// [levelNumber] 关卡编号
