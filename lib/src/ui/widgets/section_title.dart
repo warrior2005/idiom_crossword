@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme/app_text.dart';
 
-/// 区块标题：衬线标题 + 可选右侧链接
+/// 区块标题：衬线标题 + 可选右侧链接/徽章
 class SectionTitle extends StatelessWidget {
   final String title;
-  final String? trailing;
+  final Widget? trailing;
   final VoidCallback? onTrailing;
 
   const SectionTitle({
@@ -26,10 +26,7 @@ class SectionTitle extends StatelessWidget {
           if (trailing != null)
             GestureDetector(
               onTap: onTrailing,
-              child: Text(
-                trailing!,
-                style: const TextStyle(fontSize: 12.5, color: Color(0xFF857C68)),
-              ),
+              child: trailing,
             ),
         ],
       ),

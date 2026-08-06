@@ -135,7 +135,7 @@ void main() {
     await tester.pumpWidget(_wrap(db, const ShopScreen()));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('¥6'));
+    await tester.tap(find.text('购买').first);
     await tester.pump();
     expect(find.text('内购功能即将上线'), findsOneWidget);
   });
@@ -245,6 +245,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('画蛇添足'), findsOneWidget);
     expect(find.textContaining('共'), findsOneWidget);
+  });
+
+  testWidgets('商城页：钱包与分区渲染', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const ShopScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('文房四宝 · 商城'), findsOneWidget);
+    expect(find.text('提示卡'), findsOneWidget);
+    expect(find.text('复活卡'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('功能道具'), 100, scrollable: find.byType(Scrollable).first);
+    expect(find.text('功能道具'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('装饰藏品'), 100, scrollable: find.byType(Scrollable).first);
+    expect(find.text('装饰藏品'), findsOneWidget);
   });
 
   testWidgets('我的页：等级条三态与菜单', (tester) async {

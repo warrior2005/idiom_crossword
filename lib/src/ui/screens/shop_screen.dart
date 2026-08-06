@@ -1,33 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/player_state.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_icons.dart';
+import '../widgets/badge_soft.dart';
+import '../widgets/section_title.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
 class ShopScreen extends ConsumerWidget {
   const ShopScreen({super.key});
 
+  void _comingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('内购功能即将上线')));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider);
+    final hintCards = player.functionalItems['hint_card'] ?? 0;
+    final reviveCards = player.functionalItems['revive_card'] ?? 0;
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F0E8),
-        appBar: AppBar(
-          title: const Text('商城'),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: '功能道具'),
-              Tab(text: '装饰道具'),
-            ],
-          ),
-        ),
-        body: TabBarView(
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
           children: [
-            _FunctionalItemsTab(player: player),
-            _DecorationItemsTab(player: player),
+            Text('文房四宝 · 商城', style: displayStyle(size: 30, weight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            Text('功能道具 · 装饰藏品 · 均可永久保留', style: kickerStyle()),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: _WalletCard(iconName: 'pen', label: '提示卡', value: '$hintCards'),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _WalletCard(iconName: 'revive', label: '复活卡', value: '$reviveCards'),
+                ),
+              ],
+            ),
+            const SectionTitle(title: '功能道具', trailing: BadgeSoft('实用')),
+            _PackCard(
+              iconName: 'pen',
+              name: '提示卡 ×10',
+              desc: '一字提示每关免费 3 次，之后消耗一张',
+              price: '¥6',
+              oldPrice: '¥9',
+              onBuy: () => _comingSoon(context),
+            ),
+            _PackCard(
+              iconName: 'revive',
+              name: '复活卡 ×5',
+              desc: '失误满格后可重整旗鼓，保留已填正确字',
+              price: '¥12',
+              onBuy: () => _comingSoon(context),
+            ),
+            _PackCard(
+              iconName: 'star',
+              name: '备考礼盒（提示×10 + 复活×5）',
+              desc: '冲刺阶段一次备齐，限量供应',
+              price: '¥15',
+              oldPrice: '¥21',
+              onBuy: () => _comingSoon(context),
+            ),
+            const SectionTitle(title: '装饰藏品', trailing: BadgeSoft('限定', color: BadgeSoftColor.gold)),
+            _SkinsCard(owned: player.ownedDecorations, onBuy: () => _comingSoon(context)),
+            const SectionTitle(title: '尊享'),
+            _RemoveAdsCard(onBuy: () => _comingSoon(context)),
+            const SizedBox(height: 8),
+            const Center(
+              child: Text(
+                '内购不影响关卡难度与成语选择',
+                style: TextStyle(fontSize: 10.5, color: AppColors.faint, letterSpacing: 0.6),
+              ),
+            ),
           ],
         ),
       ),
@@ -35,92 +85,213 @@ class ShopScreen extends ConsumerWidget {
   }
 }
 
-void _showComingSoon(BuildContext context) {
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(const SnackBar(content: Text('内购功能即将上线')));
-}
-
-class _FunctionalItemsTab extends StatelessWidget {
-  final PlayerState player;
-
-  const _FunctionalItemsTab({required this.player});
+class _WalletCard extends StatelessWidget {
+  final String iconName;
+  final String label;
+  final String value;
+  const _WalletCard({required this.iconName, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        _ShopItem(
-          name: '提示卡×10',
-          description: '揭示单个空格答案',
-          price: '¥6',
-          onPurchase: () => _showComingSoon(context),
-        ),
-        _ShopItem(
-          name: '复活卡×5',
-          description: '失败后可继续当前关',
-          price: '¥12',
-          onPurchase: () => _showComingSoon(context),
-        ),
-      ],
+    return AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        children: [
+          _IconBox(iconName: iconName, bg: AppColors.accentPale, color: AppColors.accent),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: bodyStyle(size: 11, color: AppColors.muted)),
+              Text(value, style: displayStyle(size: 17, weight: FontWeight.w700)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _DecorationItemsTab extends StatelessWidget {
-  final PlayerState player;
-
-  const _DecorationItemsTab({required this.player});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        _ShopItem(
-          name: '龙纹网格皮肤',
-          description: '限定装饰',
-          price: '¥18',
-          isOwned: player.ownedDecorations.contains('grid_skin_dragon'),
-          onPurchase: () => _showComingSoon(context),
-        ),
-        _ShopItem(
-          name: '獬豸冠头像框',
-          description: '限定装饰',
-          price: '¥12',
-          isOwned: player.ownedDecorations.contains('avatar_frame_xiezhi'),
-          onPurchase: () => _showComingSoon(context),
-        ),
-      ],
-    );
-  }
-}
-
-class _ShopItem extends StatelessWidget {
+class _PackCard extends StatelessWidget {
+  final String iconName;
   final String name;
-  final String description;
+  final String desc;
   final String price;
-  final bool isOwned;
-  final VoidCallback onPurchase;
-
-  const _ShopItem({
+  final String? oldPrice;
+  final VoidCallback onBuy;
+  const _PackCard({
+    required this.iconName,
     required this.name,
-    required this.description,
+    required this.desc,
     required this.price,
-    this.isOwned = false,
-    required this.onPurchase,
+    this.oldPrice,
+    required this.onBuy,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: ListTile(
-        title: Text(name),
-        subtitle: Text(description),
-        trailing: isOwned
-            ? const Chip(label: Text('已拥有'))
-            : ElevatedButton(onPressed: onPurchase, child: Text(price)),
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          _IconBox(iconName: iconName, bg: AppColors.accentPale, color: AppColors.accent, size: 56),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: bodyStyle(size: 15, weight: FontWeight.w600)),
+                const SizedBox(height: 3),
+                Text(desc, style: bodyStyle(size: 11.5, color: AppColors.muted)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(price, style: displayStyle(size: 15, weight: FontWeight.w700, color: AppColors.accent)),
+              if (oldPrice != null)
+                Text(oldPrice!, style: bodyStyle(size: 11, color: AppColors.faint).copyWith(decoration: TextDecoration.lineThrough)),
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: onBuy,
+                child: Container(
+                  height: 34,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text('购买', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFFFFF6EC))),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _SkinsCard extends StatelessWidget {
+  final Set<String> owned;
+  final VoidCallback onBuy;
+  const _SkinsCard({required this.owned, required this.onBuy});
+
+  @override
+  Widget build(BuildContext context) {
+    const swatches = [
+      ('墨', Color(0xFF3B3628)),
+      ('朱', Color(0xFFC95A3C)),
+      ('青', Color(0xFFA9BEC8)),
+      ('金', Color(0xFFE0C87A)),
+    ];
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              for (final (name, color) in swatches)
+                Container(
+                  width: 56,
+                  height: 56,
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [color, Color.lerp(color, Colors.black, 0.35)!],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border, width: 2),
+                  ),
+                  child: Center(
+                    child: Text(name, style: displayStyle(size: 14, color: Colors.white)),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('网格皮肤', style: bodyStyle(size: 12.5, weight: FontWeight.w600)),
+                  Text(owned.contains('grid_skin_bamboo') ? '当前使用' : '等级奖励解锁', style: bodyStyle(size: 11, color: AppColors.muted)),
+                ],
+              ),
+              BadgeSoft('新品', color: BadgeSoftColor.gold),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RemoveAdsCard extends StatelessWidget {
+  final VoidCallback onBuy;
+  const _RemoveAdsCard({required this.onBuy});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(18),
+      child: Row(
+        children: [
+          _IconBox(iconName: 'eye', bg: AppColors.goldSoft, color: const Color(0xFF7A5D14)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('去广告', style: bodyStyle(size: 15, weight: FontWeight.w600)),
+                const SizedBox(height: 3),
+                Text('移除全部插屏广告，永久生效', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: onBuy,
+            child: Container(
+              height: 34,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: const Color(0xFF7A5D14),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Text('¥3', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Colors.white)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IconBox extends StatelessWidget {
+  final String iconName;
+  final Color bg;
+  final Color color;
+  final double size;
+  const _IconBox({required this.iconName, required this.bg, required this.color, this.size = 40});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(size * 0.3)),
+      child: Center(child: AppIcon(iconName, size: size * 0.5, color: color)),
     );
   }
 }
