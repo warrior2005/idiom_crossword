@@ -56,7 +56,9 @@ final dailyInfoProvider = FutureProvider<DailyInfo?>((ref) async {
   );
   if (level == null || level.placements.isEmpty) return null;
   final idioms = level.placements.map((p) => p.idiom).toList();
-  final avg = (idioms.map((i) => i.difficulty).reduce((a, b) => a + b) / idioms.length).round();
+  final avg =
+      (idioms.map((i) => i.difficulty).reduce((a, b) => a + b) / idioms.length)
+          .round();
   return DailyInfo(
     word: idioms.first.text,
     idiomCount: idioms.length,
@@ -106,7 +108,10 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       const LunarDateLabel(),
                       const SizedBox(height: 6),
-                      Text('成语填字', style: displayStyle(size: 30, weight: FontWeight.w700)),
+                      Text(
+                        '成语填字',
+                        style: displayStyle(size: 30, weight: FontWeight.w700),
+                      ),
                     ],
                   ),
                 ),
@@ -121,7 +126,14 @@ class HomeScreen extends ConsumerWidget {
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: Text('士', style: displayStyle(size: 20, weight: FontWeight.w700, color: AppColors.accent)),
+                    child: Text(
+                      '士',
+                      style: displayStyle(
+                        size: 20,
+                        weight: FontWeight.w700,
+                        color: AppColors.accent,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -142,16 +154,25 @@ class HomeScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('每日挑战 · 全服同题', style: kickerStyle(color: AppColors.gold)),
+                            Text(
+                              '每日挑战 · 全服同题',
+                              style: kickerStyle(color: AppColors.gold),
+                            ),
                             const SizedBox(height: 8),
                             Text(
                               daily?.word ?? '——',
-                              style: displayStyle(size: 30, weight: FontWeight.w900),
+                              style: displayStyle(
+                                size: 30,
+                                weight: FontWeight.w900,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      BadgeSoft('第 ${_dailyIssue()} 期', color: BadgeSoftColor.gold),
+                      BadgeSoft(
+                        '第 ${_dailyIssue()} 期',
+                        color: BadgeSoftColor.gold,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -166,7 +187,9 @@ class HomeScreen extends ConsumerWidget {
                         child: PrimaryButton(
                           label: dailyDone ? '已完成' : '开始挑战',
                           small: true,
-                          onTap: dailyDone ? null : () => _startDaily(context, ref),
+                          onTap: dailyDone
+                              ? null
+                              : () => _startDaily(context, ref),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -220,7 +243,11 @@ class HomeScreen extends ConsumerWidget {
             const Center(
               child: Text(
                 '交叉推理 · 一字双关 · 循序而进',
-                style: TextStyle(fontSize: 10.5, color: AppColors.faint, letterSpacing: 0.6),
+                style: TextStyle(
+                  fontSize: 10.5,
+                  color: AppColors.faint,
+                  letterSpacing: 0.6,
+                ),
               ),
             ),
           ],
@@ -246,7 +273,9 @@ class HomeScreen extends ConsumerWidget {
     if (onSwitchTab != null) {
       onSwitchTab!(4);
     } else {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MineScreen()));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const MineScreen()));
     }
   }
 
@@ -254,14 +283,20 @@ class HomeScreen extends ConsumerWidget {
     if (onSwitchTab != null) {
       onSwitchTab!(tabIndex);
     } else if (tabIndex == 1) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LevelSelectScreen()));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const LevelSelectScreen()));
     } else {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CollectionScreen()));
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CollectionScreen()));
     }
   }
 
   void _openDailyReview(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DailyReviewScreen()));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const DailyReviewScreen()));
   }
 
   void _startGame(BuildContext context, WidgetRef ref) async {
@@ -400,7 +435,6 @@ class _RankCard extends StatelessWidget {
     return AppCard(
       padding: const EdgeInsets.all(20),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
         child: Stack(
           children: [
             // 背景水印 Lv.X（accent 10%）
@@ -424,7 +458,11 @@ class _RankCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   'Lv.${player.level} · ${player.title}',
-                  style: displayStyle(size: 24, weight: FontWeight.w900, color: AppColors.accentDeep),
+                  style: displayStyle(
+                    size: 24,
+                    weight: FontWeight.w900,
+                    color: AppColors.accentDeep,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 XpTrack(progress: player.xpProgress, height: 8),
@@ -435,10 +473,20 @@ class _RankCard extends StatelessWidget {
                       child: Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(text: '经验 ', style: bodyStyle(size: 11, color: AppColors.muted)),
+                            TextSpan(
+                              text: '经验 ',
+                              style: bodyStyle(
+                                size: 11,
+                                color: AppColors.muted,
+                              ),
+                            ),
                             TextSpan(
                               text: _group(player.totalXp),
-                              style: bodyStyle(size: 11, color: AppColors.fg, weight: FontWeight.w600),
+                              style: bodyStyle(
+                                size: 11,
+                                color: AppColors.fg,
+                                weight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -447,10 +495,17 @@ class _RankCard extends StatelessWidget {
                     Text.rich(
                       TextSpan(
                         children: [
-                          TextSpan(text: '离「$nextTitle」还差 ', style: bodyStyle(size: 11, color: AppColors.muted)),
+                          TextSpan(
+                            text: '离「$nextTitle」还差 ',
+                            style: bodyStyle(size: 11, color: AppColors.muted),
+                          ),
                           TextSpan(
                             text: _group(player.xpRemaining),
-                            style: bodyStyle(size: 11, color: AppColors.fg, weight: FontWeight.w600),
+                            style: bodyStyle(
+                              size: 11,
+                              color: AppColors.fg,
+                              weight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -484,7 +539,12 @@ class _Tile extends StatelessWidget {
   final String desc;
   final VoidCallback onTap;
 
-  const _Tile({required this.iconName, required this.label, required this.desc, required this.onTap});
+  const _Tile({
+    required this.iconName,
+    required this.label,
+    required this.desc,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -498,8 +558,13 @@ class _Tile extends StatelessWidget {
             Container(
               width: 38,
               height: 38,
-              decoration: BoxDecoration(color: AppColors.surface2, borderRadius: BorderRadius.circular(12)),
-              child: Center(child: AppIcon(iconName, size: 20, color: AppColors.fg)),
+              decoration: BoxDecoration(
+                color: AppColors.surface2,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: AppIcon(iconName, size: 20, color: AppColors.fg),
+              ),
             ),
             const SizedBox(height: 10),
             Text(label, style: displayStyle(size: 14, weight: FontWeight.w700)),
@@ -536,11 +601,16 @@ class _TodayIdiom extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  idiom.derivation?.isNotEmpty == true ? '· ${idiom.derivation}' : '· 出处待考',
+                  idiom.derivation?.isNotEmpty == true
+                      ? '· ${idiom.derivation}'
+                      : '· 出处待考',
                   style: bodyStyle(size: 12, color: AppColors.muted),
                 ),
                 const SizedBox(height: 6),
-                Text(idiom.explanation, style: bodyStyle(size: 12.5, color: AppColors.muted)),
+                Text(
+                  idiom.explanation,
+                  style: bodyStyle(size: 12.5, color: AppColors.muted),
+                ),
               ],
             ),
           ),
