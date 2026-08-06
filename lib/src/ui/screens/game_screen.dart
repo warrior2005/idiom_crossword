@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -16,7 +17,6 @@ import '../../audio/game_audio.dart';
 import '../widgets/level_loading_dialog.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
-import '../widgets/badge_soft.dart';
 import '../widgets/win_card_dialog.dart';
 import '../widgets/xp_track.dart';
 import '../theme/app_colors.dart';
@@ -42,16 +42,26 @@ import 'learning_screen.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   final CrosswordLevel level;
+  final bool noReward;
 
-  const GameScreen({super.key, required this.level});
+  const GameScreen({super.key, required this.level, this.noReward = false});
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
 class _GameScreenState extends ConsumerState<GameScreen> {
+  static const int _initialLives = 3;
+  static const int _dailyTimeLimitSeconds = 120;
+
   late CrosswordGrid _grid;
   final DistractorEngine _distractorEngine = DistractorEngine();
+
+  int _lives = _initialLives;
+  int _remainingSeconds = _dailyTimeLimitSeconds;
+  Timer? _dailyTimer;
+  bool _failed = false;
+  bool _revived = false;
 
   // 当前焦点格子
   int _focusRow = -1;
@@ -105,6 +115,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _findFirstEmptyCell();
     _levelStartTime = DateTime.now();
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
+    if (_isDaily) _startDailyTimer();
     _restoreSavedState();
   }
 
@@ -170,6 +181,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         _errorsMade = state.errorsMade;
         _correctStreak = state.correctStreak;
         _totalFills = state.totalFills;
+        _lives = state.lives;
+        _remainingSeconds = state.remainingSeconds;
+        _revived = state.revived;
         if (state.focusRow != null && state.focusCol != null) {
           _focusRow = state.focusRow!;
           _focusCol = state.focusCol!;
@@ -246,7 +260,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 把当前进度写入存档（断点续玩）
   Future<void> _saveState() async {
-    if (_levelFinished || widget.level.levelId <= 0) return;
+    if (_levelFinished || _failed || widget.level.levelId <= 0) return;
     try {
       final db = ref.read(databaseProvider);
       await db.saveLevelState(
@@ -265,6 +279,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             errorsMade: _errorsMade,
             correctStreak: _correctStreak,
             totalFills: _totalFills,
+            lives: _lives,
+            remainingSeconds: _remainingSeconds,
+            revived: _revived,
             focusRow: _focusRow < 0 ? null : _focusRow,
             focusCol: _focusCol < 0 ? null : _focusCol,
             direction: _currentDirection,
@@ -306,6 +323,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   @override
   void dispose() {
+    _dailyTimer?.cancel();
     // 中途退出时保存进度；通关/放弃后 _levelFinished 为 true 不再写
     if (!_levelFinished && widget.level.levelId > 0) {
       _saveState();
@@ -363,6 +381,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       }
     } else {
       _errorsMade++;
+      _lives--;
       _correctStreak = 0;
       _wrongIdiomWords.addAll(
         _placementsContaining(filledRow, filledCol).map((p) => p.idiom.text),
@@ -387,6 +406,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       _cellToCandidateSlot[(_focusRow, _focusCol)] = (row, col);
       _checkCompletionForCurrentIdiom();
     });
+
+    if (!isCorrect && _lives <= 0) {
+      _failLevel();
+      return;
+    }
 
     HapticFeedback.lightImpact();
     GameAudio.instance.play(isCorrect ? 'correct.wav' : 'wrong.wav');
@@ -564,10 +588,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
 
     final player = ref.read(playerProvider.notifier);
-    final result = await player.completeLevel(
-      widget.level.levelId,
-      widget.level.idioms.map((i) => i.difficulty).toList(),
-    );
+    final failedBefore =
+        _isDaily && await db.getSetting(_dailyNoRewardKey()) == 'true';
+    final noReward = widget.noReward || (failedBefore && !_revived);
+    final result = noReward
+        ? ExperienceResult(
+            xpGained: 0,
+            leveledUp: false,
+            newLevel: ref.read(playerProvider).level,
+            reward: null,
+          )
+        : await player.completeLevel(
+            widget.level.levelId,
+            widget.level.idioms.map((i) => i.difficulty).toList(),
+          );
 
     // 通关成语自动收录 + 记录关卡历史
     final idiomIds = <int>[];
@@ -594,6 +628,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       totalFills: _totalFills,
       levelJson: encodeLevel(widget.level),
     );
+    if (!noReward && failedBefore) {
+      await db.setSetting(_dailyNoRewardKey(), 'false');
+    }
     ref.invalidate(nextMainLevelProvider);
 
     // 成就判定
@@ -749,6 +786,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   /// 每日挑战关卡（专用关卡号段）
   bool get _isDaily => widget.level.levelId >= dailyLevelOffset;
 
+  String get _countdownText {
+    final m = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
+    final s = (_remainingSeconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
   String _formatDuration(int ms) {
     if (ms <= 0) return '—';
     final seconds = (ms / 1000).round();
@@ -775,6 +818,199 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           },
         ),
       ],
+    );
+  }
+
+  void _startDailyTimer() {
+    _dailyTimer?.cancel();
+    _dailyTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || _failed || _levelFinished) return;
+      setState(() {
+        if (_remainingSeconds > 0) _remainingSeconds--;
+      });
+      if (_remainingSeconds <= 0) _failLevel(timeUp: true);
+    });
+  }
+
+  void _failLevel({bool timeUp = false}) {
+    if (_failed || _levelFinished) return;
+    _failed = true;
+    _dailyTimer?.cancel();
+    if (_isDaily) {
+      ref.read(databaseProvider).setSetting(_dailyNoRewardKey(), 'true');
+    }
+    final reviveCount =
+        ref.read(playerProvider).functionalItems['revive_card'] ?? 0;
+    showWinCardDialog(
+      context,
+      seal: '败',
+      title: '挑战失败',
+      subtitle: _isDaily ? (timeUp ? '倒计时结束' : '生命值耗尽') : '生命值耗尽',
+      xpText: '+0',
+      actions: [
+        WinCardAction(
+          label: '复活(剩余 $reviveCount)',
+          primary: true,
+          onTap: _handleRevive,
+        ),
+        WinCardAction(
+          label: _isDaily ? '重玩本关（无经验）' : '重玩本关',
+          ghost: true,
+          onTap: _replayLevel,
+        ),
+        WinCardAction(
+          label: '返回主页',
+          ghost: true,
+          onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _handleRevive() async {
+    final reviveCount =
+        ref.read(playerProvider).functionalItems['revive_card'] ?? 0;
+    if (reviveCount <= 0) {
+      _showRevivePurchaseDialog();
+      return;
+    }
+    await ref.read(playerProvider.notifier).useReviveCard();
+    if (!mounted) return;
+    Navigator.of(context).pop(); // 关闭失败弹框
+    setState(() {
+      _lives = _initialLives;
+      _remainingSeconds = _dailyTimeLimitSeconds;
+      _failed = false;
+      _revived = true;
+      _clearWrongAnswers();
+    });
+    if (_isDaily) _startDailyTimer();
+    _saveState();
+  }
+
+  Future<void> _replayLevel() async {
+    try {
+      await ref.read(databaseProvider).clearLevelState(widget.level.levelId);
+    } catch (_) {}
+    if (!mounted) return;
+    Navigator.of(context).pop(); // 关闭失败弹框
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => GameScreen(level: widget.level, noReward: _isDaily),
+      ),
+    );
+  }
+
+  void _clearWrongAnswers() {
+    final wrongCells = <(int, int)>{};
+    for (final entry in _playerAnswers.entries) {
+      final correct = _correctCharForCell(entry.key.$1, entry.key.$2);
+      if (entry.value != correct) wrongCells.add(entry.key);
+    }
+    for (final cell in wrongCells) {
+      _playerAnswers.remove(cell);
+      final slot = _cellToCandidateSlot.remove(cell);
+      if (slot != null) _usedCandidateSlots.remove(slot);
+      _errorCells.remove(cell);
+    }
+    _fillHistory.removeWhere((e) => wrongCells.contains((e.row, e.col)));
+    _recomputeDerivedState();
+  }
+
+  String _dailyNoRewardKey() => 'daily_no_reward_${widget.level.levelId}';
+
+  void _showRevivePurchaseDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentPale,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Center(
+                      child: AppIcon(
+                        'revive',
+                        size: 28,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '复活卡 ×5',
+                          style: bodyStyle(size: 15, weight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '失误满格后可重整旗鼓，保留已填正确字',
+                          style: bodyStyle(size: 11.5, color: AppColors.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '¥12',
+                    style: displayStyle(
+                      size: 15,
+                      weight: FontWeight.w700,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('内购功能即将上线')));
+                },
+                child: Container(
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    '购买',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFFF6EC),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -860,6 +1096,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   _buildProgress(),
                   _buildCompletedIdiomsSection(),
                   Expanded(flex: 5, child: _buildGrid()),
+                  _buildStatusLine(),
                   Expanded(flex: 3, child: _buildCandidateBoardWidget()),
                   _buildToolbar(),
                 ],
@@ -896,8 +1133,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   widget.level.title,
                   style: displayStyle(size: 19, weight: FontWeight.w900),
                 ),
-                const SizedBox(width: 8),
-                BadgeSoft(_isDaily ? '每日挑战' : '主线'),
               ],
             ),
           ),
@@ -1186,6 +1421,28 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             );
           }).toList(),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatusLine() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '生命值：$_lives',
+            style: bodyStyle(size: 11.5, color: AppColors.muted),
+          ),
+          if (_isDaily) ...[
+            const SizedBox(width: 16),
+            Text(
+              '倒计时：$_countdownText',
+              style: bodyStyle(size: 11.5, color: AppColors.muted),
+            ),
+          ],
+        ],
       ),
     );
   }

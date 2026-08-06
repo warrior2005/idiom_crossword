@@ -249,6 +249,16 @@ class PlayerNotifier extends Notifier<PlayerState> {
       await _persist(ref.read(databaseProvider));
     }
   }
+
+  Future<void> useReviveCard() async {
+    final current = state.functionalItems['revive_card'] ?? 0;
+    if (current > 0) {
+      state = state.copyWith(
+        functionalItems: {...state.functionalItems, 'revive_card': current - 1},
+      );
+      await _persist(ref.read(databaseProvider));
+    }
+  }
 }
 
 final playerProvider = NotifierProvider<PlayerNotifier, PlayerState>(

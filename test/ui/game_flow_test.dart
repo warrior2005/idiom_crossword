@@ -200,6 +200,29 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
   });
+
+  testWidgets('每日挑战倒计时结束显示失败弹框', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: GameScreen(level: _buildLevel(levelId: dailyLevelNumber())),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.pump(const Duration(seconds: 121));
+    await tester.pumpAndSettle();
+
+    expect(find.text('挑战失败'), findsOneWidget);
+    expect(find.text('复活(剩余 0)'), findsOneWidget);
+    expect(find.text('重玩本关（无经验）'), findsOneWidget);
+    expect(find.text('返回主页'), findsOneWidget);
+  });
 }
 
 /// 轮询直到 [condition] 成立或超时
@@ -215,7 +238,7 @@ Future<void> _pumpUntil(
   }
 }
 
-engine.CrosswordLevel _buildLevel() {
+engine.CrosswordLevel _buildLevel({int levelId = 1}) {
   final grid = engine.CrosswordGrid(rows: 5, cols: 5);
   const idiom = engine.Idiom(
     text: '画蛇添足',
@@ -236,10 +259,10 @@ engine.CrosswordLevel _buildLevel() {
     if (k == 0) cell.isGiven = true;
   }
   return engine.CrosswordLevel(
-    levelId: 1,
+    levelId: levelId,
     grid: grid,
     placements: [placement],
     givenCharacters: {'画'},
-    title: '第 1 关',
+    title: levelId >= dailyLevelOffset ? '每日挑战' : '第 1 关',
   );
 }

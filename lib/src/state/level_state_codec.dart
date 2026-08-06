@@ -117,6 +117,9 @@ class SavedGameState {
   final int errorsMade;
   final int correctStreak;
   final int totalFills;
+  final int lives;
+  final int remainingSeconds;
+  final bool revived;
   final int? focusRow;
   final int? focusCol;
   final Direction? direction;
@@ -131,6 +134,9 @@ class SavedGameState {
     required this.errorsMade,
     required this.correctStreak,
     required this.totalFills,
+    this.lives = 3,
+    this.remainingSeconds = 120,
+    this.revived = false,
     this.focusRow,
     this.focusCol,
     this.direction,
@@ -155,6 +161,9 @@ String encodeGameState(SavedGameState state) {
     'errors': state.errorsMade,
     'streak': state.correctStreak,
     'fills': state.totalFills,
+    'lives': state.lives,
+    'time': state.remainingSeconds,
+    'revived': state.revived ? 1 : 0,
     'focus': (state.focusRow == null || state.focusCol == null)
         ? null
         : [state.focusRow, state.focusCol],
@@ -212,6 +221,9 @@ SavedGameState? decodeGameState(String source) {
       errorsMade: data['errors'] as int,
       correctStreak: data['streak'] as int,
       totalFills: data['fills'] as int? ?? 0,
+      lives: data['lives'] as int? ?? 3,
+      remainingSeconds: data['time'] as int? ?? 120,
+      revived: (data['revived'] as int? ?? 0) == 1,
       focusRow: focus == null ? null : focus[0] as int,
       focusCol: focus == null ? null : focus[1] as int,
       direction: dirRaw == null ? null : Direction.values[dirRaw],
