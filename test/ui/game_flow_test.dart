@@ -6,6 +6,7 @@ import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
+import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 
 /// 完整通关流程端到端测试：候选字填字 → 过关对话框 → 经验/记录落库
@@ -84,10 +85,22 @@ void main() {
   testWidgets('一字提示揭示答案后通关，提示次数落库', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 0,
+      hintCards: 3,
+      reviveCards: 0,
+    );
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+    addTearDown(container.dispose);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [databaseProvider.overrideWithValue(db)],
+      UncontrolledProviderScope(
+        container: container,
         child: MaterialApp(home: GameScreen(level: _buildLevel())),
       ),
     );
@@ -128,6 +141,7 @@ void main() {
 
     final history = await db.getLevelHistory();
     expect(history.single.hintsUsed, 1);
+    expect((await db.getPlayerProgress())!.hintCards, 2);
   });
 
   testWidgets('过关弹窗展示本局填错过的成语', (tester) async {

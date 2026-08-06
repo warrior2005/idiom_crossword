@@ -515,6 +515,12 @@ class AppDatabase extends _$AppDatabase {
     return {for (final row in rows) row.word: row.id};
   }
 
+  /// 按成语原文批量取完整记录（每日示例选择等用）
+  Future<List<Idiom>> findIdiomsByWords(List<String> words) async {
+    if (words.isEmpty) return const [];
+    return (select(idioms)..where((t) => t.word.isIn(words))).get();
+  }
+
   /// 按成语原文查找完整记录（学习模式展示释义/出处/例句用）
   Future<Idiom?> findIdiomByWord(String word) async {
     return await (select(idioms)

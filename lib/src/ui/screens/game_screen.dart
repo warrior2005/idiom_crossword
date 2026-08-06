@@ -83,7 +83,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   int? _selectedCompletedIndex;
 
   // 本关提示使用情况
-  int _hintUsesThisLevel = 0; // 一字提示次数（前 3 次免费，之后消耗提示卡）
+  int _hintUsesThisLevel = 0; // 本关使用提示次数（消耗提示卡）
   int _errorsMade = 0; // 错误填写次数（统计用）
   int _correctStreak = 0; // 连续答对字数（成就）
   int _totalFills = 0; // 本关填字尝试次数（正确率统计用）
@@ -278,8 +278,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 解锁成就并提示（幂等）
   Future<void> _unlockAndNotify(AchievementId id) async {
+    final db = ref.read(databaseProvider);
     try {
-      await ref.read(databaseProvider).unlockAchievement(id.name);
+      final unlocked = await db.getUnlockedAchievementIds();
+      if (unlocked.contains(id.name)) return; // 已解锁过，不再重复提示
+      await db.unlockAchievement(id.name);
     } catch (_) {}
     if (!mounted) return;
     final def = achievementDefs.firstWhere((d) => d.id == id);
@@ -1190,14 +1193,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildToolbar() {
     final playerState = ref.watch(playerProvider);
     final hintCount = playerState.functionalItems['hint_card'] ?? 0;
-    final freeHintsLeft = max(0, 3 - _hintUsesThisLevel);
     final focusReady =
         _focusRow >= 0 &&
         _focusCol >= 0 &&
         !_completedCells.contains((_focusRow, _focusCol)) &&
         !_grid.cellAt(_focusRow, _focusCol).isGiven &&
         !_hasCorrectAnswer();
-    final canSingleHint = focusReady && (freeHintsLeft > 0 || hintCount > 0);
+    final canSingleHint = focusReady && hintCount > 0;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -1208,7 +1210,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           _ToolbarButton(
             icon: 'hint',
             label: '提示',
-            sub: freeHintsLeft > 0 ? '剩 $freeHintsLeft' : '卡×$hintCount',
+            sub: '剩 $hintCount',
             onTap: canSingleHint ? _showHint : null,
           ),
           _ToolbarButton(icon: 'clear', label: '清空', onTap: _clearCell),
@@ -1240,7 +1242,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _saveState();
   }
 
-  /// 一字提示：前 3 次免费，之后消耗提示卡
+  /// 一字提示：消耗玩家库存提示卡
   Future<void> _showHint() async {
     if (_focusRow < 0 || _focusCol < 0) return;
     if (_completedCells.contains((_focusRow, _focusCol))) return;
@@ -1254,18 +1256,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       return;
     }
 
-    final freeLeft = 3 - _hintUsesThisLevel;
     final hintCards =
         ref.read(playerProvider).functionalItems['hint_card'] ?? 0;
-    if (freeLeft <= 0 && hintCards <= 0) {
+    if (hintCards <= 0) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('本关一字提示次数已用完，且没有提示卡')));
+      ).showSnackBar(const SnackBar(content: Text('提示卡不足')));
       return;
     }
-    if (freeLeft <= 0) {
-      await ref.read(playerProvider.notifier).useHintCard();
-    }
+    await ref.read(playerProvider.notifier).useHintCard();
     _hintUsesThisLevel++;
 
     setState(() {
@@ -1343,11 +1342,11 @@ class _ToolbarButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: SizedBox(
         width: 88,
         height: 64,
-        alignment: Alignment.center,
         child: Stack(
+          alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
             Column(

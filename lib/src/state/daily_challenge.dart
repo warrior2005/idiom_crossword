@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../engine/spiral_difficulty.dart';
+import '../engine/grid_engine.dart' as engine;
 import 'database_provider.dart';
 import 'level_generation.dart';
 import 'player_state.dart';
@@ -37,17 +38,35 @@ final dailyInfoProvider = FutureProvider<DailyInfo?>((ref) async {
   );
   if (level == null || level.placements.isEmpty) return null;
   final idioms = level.placements.map((p) => p.idiom).toList();
+  final dbIdioms = await db.findIdiomsByWords(
+    idioms.map((i) => i.text).toList(),
+  );
+  final emotions = {for (final i in dbIdioms) i.word: i.emotion};
+  final featured = _preferredDailyIdiom(idioms, emotions);
   final avg =
       (idioms.map((i) => i.difficulty).reduce((a, b) => a + b) / idioms.length)
           .round();
   return DailyInfo(
-    word: idioms.first.text,
+    word: featured.text,
     idiomCount: idioms.length,
     avgDifficulty: avg,
     durationSeconds: idioms.length * 45,
-    meaning: idioms.first.meaning,
+    meaning: featured.meaning,
   );
 });
+
+/// 优先选择积极含义的成语作为每日示例；情绪字段未标注时保持原顺序
+engine.Idiom _preferredDailyIdiom(
+  List<engine.Idiom> idioms,
+  Map<String, String?> emotions,
+) {
+  final positive = idioms.where((i) {
+    final emotion = emotions[i.text]?.trim();
+    return emotion != null &&
+        (emotion == '褒' || emotion == '积极' || emotion == '正面');
+  }).toList();
+  return (positive.isNotEmpty ? positive : idioms).first;
+}
 
 final dailyDoneProvider = FutureProvider<bool>((ref) async {
   ref.watch(playerProvider);
