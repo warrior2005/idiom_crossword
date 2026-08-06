@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// iOS 系统宋体（展示/成语/大数字用）；回退由系统处理
-const String kSerif = 'Songti SC';
+/// 展示衬线（design-style-prompt：Noto Serif SC / Songti SC）
+const String kSerif = 'Noto Serif SC';
+
+/// 正文无衬线（design-style-prompt：Noto Sans SC / PingFang SC）
+const String kSans = 'Noto Sans SC';
 
 /// 展示样式：衬线、CJK 行高 ≥1.3、无负字距
 TextStyle displayStyle({
@@ -38,5 +41,11 @@ TextStyle bodyStyle({
   Color color = AppColors.fg,
   FontWeight weight = FontWeight.w400,
 }) {
-  return TextStyle(fontSize: size, fontWeight: weight, color: color, height: 1.7);
+  return TextStyle(
+    fontFamily: kSans,
+    fontSize: size,
+    fontWeight: weight,
+    color: color,
+    height: 1.7,
+  );
 }

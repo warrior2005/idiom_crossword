@@ -8,6 +8,7 @@ import '../widgets/app_card.dart';
 import '../widgets/app_seal.dart';
 import '../widgets/section_title.dart';
 import '../widgets/sub_page_header.dart';
+import '../widgets/vertical_word.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
@@ -90,16 +91,9 @@ class DailyReviewScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(18),
                       margin: const EdgeInsets.only(top: 14),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(
-                            width: 72,
-                            child: Text(
-                              daily.word.replaceAll('', ' ').trim().replaceAll(' ', '\n'),
-                              textAlign: TextAlign.center,
-                              style: displayStyle(size: 32, weight: FontWeight.w900, height: 1.25),
-                            ),
-                          ),
+                          VerticalWord(word: daily.word),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Text(
@@ -121,10 +115,10 @@ class DailyReviewScreen extends ConsumerWidget {
                         child: Row(
                           children: [
                             SizedBox(
-                              width: 88,
+                              width: 96,
                               child: Text(
                                 p.idioms.isNotEmpty ? p.idioms.first : '第 ${p.issue} 期',
-                                style: displayStyle(size: 20, weight: FontWeight.w900),
+                                style: displayStyle(size: 24, weight: FontWeight.w900, height: 1.3),
                               ),
                             ),
                             const SizedBox(width: 12),

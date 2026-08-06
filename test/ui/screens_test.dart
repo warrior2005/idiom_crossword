@@ -267,6 +267,8 @@ void main() {
     expect(find.text('成语填字'), findsOneWidget);
     expect(find.text('科举仕途'), findsOneWidget);
     expect(find.text('书卷小径'), findsOneWidget);
+    expect(find.textContaining('农历'), findsOneWidget);
+    expect(find.text('往期回顾'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('今日一读'), 100, scrollable: find.byType(Scrollable).first);
     expect(find.text('今日一读'), findsOneWidget);
   });

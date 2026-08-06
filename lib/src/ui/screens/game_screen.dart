@@ -1382,6 +1382,7 @@ class GridPainter extends CustomPainter {
           text: TextSpan(
             text: displayChar,
             style: TextStyle(
+              fontFamily: kSerif,
               fontSize: fontSize,
               fontWeight: cell.isGiven ? FontWeight.w700 : FontWeight.w500,
               color: tentative ? textColor.withValues(alpha: 0.5) : textColor,

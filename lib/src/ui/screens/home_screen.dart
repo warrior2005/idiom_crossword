@@ -19,6 +19,8 @@ import '../widgets/primary_button.dart';
 import '../widgets/section_title.dart';
 import '../widgets/xp_track.dart';
 import '../widgets/level_loading_dialog.dart';
+import '../widgets/lunar_date_label.dart';
+import '../widgets/vertical_word.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
@@ -77,7 +79,10 @@ final todayIdiomProvider = FutureProvider<Idiom?>((ref) async {
 });
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+  /// 跨 Tab 切换回调（RootScreen 注入）；为空时退回 push（单屏测试用）
+  final ValueChanged<int>? onSwitchTab;
+
+  const HomeScreen({super.key, this.onSwitchTab});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,7 +104,7 @@ class HomeScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('农历三月十六', style: bodyStyle(size: 13, color: AppColors.muted)),
+                      const LunarDateLabel(),
                       const SizedBox(height: 6),
                       Text('成语填字', style: displayStyle(size: 30, weight: FontWeight.w700)),
                     ],
@@ -168,7 +173,7 @@ class HomeScreen extends ConsumerWidget {
                       SizedBox(
                         width: 110,
                         child: PrimaryButton(
-                          label: '昨日回顾',
+                          label: '往期回顾',
                           small: true,
                           ghost: true,
                           onTap: () => _openDailyReview(context),
@@ -238,13 +243,17 @@ class HomeScreen extends ConsumerWidget {
   int _dailyIssue() => epochDay();
 
   void _switchToMineTab(BuildContext context) {
-    // 骨架下以 push 代替跨 Tab 切页，避免过度设计
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MineScreen()));
+    if (onSwitchTab != null) {
+      onSwitchTab!(4);
+    } else {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MineScreen()));
+    }
   }
 
   void _switchTab(BuildContext context, int tabIndex) {
-    // 书卷小径 tile：推入对应屏（关卡/收藏）
-    if (tabIndex == 1) {
+    if (onSwitchTab != null) {
+      onSwitchTab!(tabIndex);
+    } else if (tabIndex == 1) {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LevelSelectScreen()));
     } else {
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CollectionScreen()));
@@ -389,43 +398,82 @@ class _RankCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('科举仕途', style: kickerStyle(color: AppColors.gold)),
-          const SizedBox(height: 6),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Lv.${player.level} · ${player.title}',
-                      style: displayStyle(size: 21, weight: FontWeight.w900, color: AppColors.accentDeep),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '再通关一关，晋升「$nextTitle」',
-                      style: bodyStyle(size: 11.5, color: AppColors.muted),
-                    ),
-                    const SizedBox(height: 8),
-                    XpTrack(progress: player.xpProgress, height: 8),
-                  ],
+      padding: const EdgeInsets.all(20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Stack(
+          children: [
+            // 背景水印 Lv.X（accent 10%）
+            Positioned(
+              right: -6,
+              top: 4,
+              child: Text(
+                'Lv.${player.level}',
+                style: displayStyle(
+                  size: 52,
+                  weight: FontWeight.w900,
+                  color: AppColors.accent.withValues(alpha: 0.10),
+                  height: 1.0,
                 ),
               ),
-              const SizedBox(width: 12),
-              Text(
-                '${player.completedLevels}',
-                style: displayStyle(size: 40, weight: FontWeight.w900, color: AppColors.faint, height: 1.0),
-              ),
-            ],
-          ),
-        ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('科举仕途', style: kickerStyle()),
+                const SizedBox(height: 6),
+                Text(
+                  'Lv.${player.level} · ${player.title}',
+                  style: displayStyle(size: 24, weight: FontWeight.w900, color: AppColors.accentDeep),
+                ),
+                const SizedBox(height: 14),
+                XpTrack(progress: player.xpProgress, height: 8),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: '经验 ', style: bodyStyle(size: 11, color: AppColors.muted)),
+                            TextSpan(
+                              text: _group(player.totalXp),
+                              style: bodyStyle(size: 11, color: AppColors.fg, weight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: '离「$nextTitle」还差 ', style: bodyStyle(size: 11, color: AppColors.muted)),
+                          TextSpan(
+                            text: _group(player.xpRemaining),
+                            style: bodyStyle(size: 11, color: AppColors.fg, weight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  /// 千分位分组：1240 -> 1,240
+  String _group(int n) {
+    final s = n.toString();
+    final b = StringBuffer();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
+      b.write(s[i]);
+    }
+    return b.toString();
   }
 }
 
@@ -479,16 +527,9 @@ class _TodayIdiom extends ConsumerWidget {
     return AppCard(
       padding: const EdgeInsets.all(18),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            width: 64,
-            child: Text(
-              idiom.word.replaceAll('', ' ').trim().replaceAll(' ', '\n'),
-              textAlign: TextAlign.center,
-              style: displayStyle(size: 30, weight: FontWeight.w900, height: 1.25),
-            ),
-          ),
+          VerticalWord(word: idiom.word),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

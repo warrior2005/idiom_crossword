@@ -45,4 +45,24 @@ flutter:
     - assets/data/
     - assets/audio/
 
-  # fonts 暂不配置，iOS 使用系统自带苹方和宋体，生僻字后续引入 fallback
+  fonts:
+    - family: Noto Serif SC
+      fonts:
+        - asset: assets/fonts/NotoSerifSC-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSerifSC-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSerifSC-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/NotoSerifSC-Black.ttf
+          weight: 900
+    - family: Noto Sans SC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansSC-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansSC-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansSC-Bold.ttf
+          weight: 700

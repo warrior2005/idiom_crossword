@@ -24,12 +24,12 @@ class _RootScreenState extends ConsumerState<RootScreen> {
       backgroundColor: AppColors.bg,
       body: IndexedStack(
         index: _index,
-        children: const [
-          HomeScreen(),
-          LevelSelectScreen(),
-          CollectionScreen(),
-          ShopScreen(),
-          MineScreen(),
+        children: [
+          HomeScreen(onSwitchTab: (i) => setState(() => _index = i)),
+          const LevelSelectScreen(),
+          const CollectionScreen(),
+          const ShopScreen(),
+          const MineScreen(),
         ],
       ),
       bottomNavigationBar: _buildTabBar(),

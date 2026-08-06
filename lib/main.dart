@@ -6,6 +6,7 @@ import 'src/state/player_state.dart';
 import 'src/ui/screens/root_screen.dart';
 import 'src/audio/game_audio.dart';
 import 'src/ui/screens/settings_screen.dart';
+import 'src/ui/theme/app_text.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +58,8 @@ class IdiomCrosswordApp extends StatelessWidget {
         ),
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFF3EDE1),
+        fontFamily: kSans,
+        fontFamilyFallback: const ['PingFang SC', 'Songti SC'],
       ),
       home: const RootScreen(),
     );

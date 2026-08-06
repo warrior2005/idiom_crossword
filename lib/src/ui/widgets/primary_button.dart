@@ -21,7 +21,10 @@ class PrimaryButton extends StatelessWidget {
     final height = small ? 46.0 : 56.0;
     final radius = small ? 13.0 : 16.0;
     final baseColor = ghost ? AppColors.surface : AppColors.accent;
-    final shadowColor = ghost ? AppColors.border : AppColors.accentDeep;
+    // 设计稿：ghost 常规为 border 下压阴影，small 叠加 .small 规则后为 accent-deep
+    final shadowColor = ghost
+        ? (small ? AppColors.accentDeep : AppColors.border)
+        : AppColors.accentDeep;
 
     return GestureDetector(
       onTap: onTap,
