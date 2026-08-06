@@ -120,8 +120,28 @@ void main() {
 
     await tester.pumpWidget(_wrap(db, const StatsScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('通关数'), findsOneWidget);
-    expect(find.text('第 7 关'), findsOneWidget);
+    expect(find.text('累计通关'), findsOneWidget);
+  });
+
+  testWidgets('统计页：正确率环形与明细', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    final id = await db.findIdiomIdByWord('画蛇添足');
+    await db.addLevelHistory(
+      levelNumber: 7,
+      xpGained: 20,
+      idiomsUsed: [id!],
+      timeSpentMs: 30000,
+      hintsUsed: 2,
+      errorsMade: 1,
+      totalFills: 5,
+    );
+
+    await tester.pumpWidget(_wrap(db, const StatsScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('统计'), findsOneWidget);
+    expect(find.text('累计通关'), findsOneWidget);
+    expect(find.text('80%'), findsOneWidget); // (5-1)/5
   });
 
   testWidgets('设置页：音效开关持久化', (tester) async {
