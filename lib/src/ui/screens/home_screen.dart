@@ -4,215 +4,255 @@ import '../../state/player_state.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
 import '../../data/growth_manager.dart';
+import '../../data/database.dart';
 import '../../engine/spiral_difficulty.dart';
 import 'game_screen.dart';
-import 'collection_screen.dart';
-import 'shop_screen.dart';
 import 'level_select_screen.dart';
-import 'stats_screen.dart';
-import 'achievements_screen.dart';
+import 'collection_screen.dart';
+import 'mine_screen.dart';
+import 'daily_review_screen.dart';
 import 'settings_screen.dart';
-import 'custom_level_screen.dart';
-import '../../state/leaderboard_service.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_icons.dart';
+import '../widgets/badge_soft.dart';
+import '../widgets/primary_button.dart';
+import '../widgets/section_title.dart';
+import '../widgets/xp_track.dart';
 import '../widgets/level_loading_dialog.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
-/// 今日每日挑战是否已完成（通关记录变化时自动刷新）
-final dailyCompletedProvider = FutureProvider<bool>((ref) async {
+/// 今日每日挑战展示信息（确定性生成）
+class DailyInfo {
+  final String word;
+  final int idiomCount;
+  final int avgDifficulty;
+  final int durationSeconds;
+  final String meaning;
+  const DailyInfo({
+    required this.word,
+    required this.idiomCount,
+    required this.avgDifficulty,
+    required this.durationSeconds,
+    required this.meaning,
+  });
+}
+
+final dailyInfoProvider = FutureProvider<DailyInfo?>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final player = ref.watch(playerProvider);
+  final spiral = SpiralDifficulty.calculate(player.completedLevels + 1);
+  final minD = (spiral.mainMin + 2).clamp(1, 50);
+  final maxD = (spiral.mainMax + 6).clamp(1, 50);
+  final level = await generateLevel(
+    db,
+    dailyLevelNumber(),
+    seed: epochDay(),
+    targetSize: 6,
+    difficultyRange: (minD, maxD),
+    title: '每日挑战',
+  );
+  if (level == null || level.placements.isEmpty) return null;
+  final idioms = level.placements.map((p) => p.idiom).toList();
+  final avg = (idioms.map((i) => i.difficulty).reduce((a, b) => a + b) / idioms.length).round();
+  return DailyInfo(
+    word: idioms.first.text,
+    idiomCount: idioms.length,
+    avgDifficulty: avg,
+    durationSeconds: idioms.length * 45,
+    meaning: idioms.first.meaning,
+  );
+});
+
+final dailyDoneProvider = FutureProvider<bool>((ref) async {
   ref.watch(playerProvider);
   final db = ref.watch(databaseProvider);
   return db.isLevelCompleted(dailyLevelNumber());
 });
 
-/// 首页
+/// 今日一读：按日期确定性取一条成语
+final todayIdiomProvider = FutureProvider<Idiom?>((ref) async {
+  final db = ref.watch(databaseProvider);
+  return db.getIdiomAtOffset(epochDay());
+});
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider);
-    final dailyDone = ref.watch(dailyCompletedProvider).value ?? false;
+    final daily = ref.watch(dailyInfoProvider).value;
+    final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
+    final nextTitle = GrowthManager.titleForLevel(player.level + 1);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
+      backgroundColor: AppColors.bg,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+          children: [
+            // 头部
+            Row(
               children: [
-                // 标题
-                Text(
-                  '成语填字',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown.shade800,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('农历三月十六', style: bodyStyle(size: 13, color: AppColors.muted)),
+                      const SizedBox(height: 6),
+                      Text('成语填字', style: displayStyle(size: 30, weight: FontWeight.w700)),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  '交叉推理，智慧填字',
-                  style: TextStyle(fontSize: 16, color: Colors.brown.shade600),
-                ),
-                const SizedBox(height: 40),
-
-                // 等级显示
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.brown.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    'Lv.${player.level} ${player.title}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.brown.shade700,
+                GestureDetector(
+                  onTap: () => _switchToMineTab(context),
+                  child: Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface2,
+                      border: Border.all(color: AppColors.borderStrong),
+                      shape: BoxShape.circle,
                     ),
+                    alignment: Alignment.center,
+                    child: Text('士', style: displayStyle(size: 20, weight: FontWeight.w700, color: AppColors.accent)),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '经验: ${player.totalXp}',
-                  style: TextStyle(fontSize: 14, color: Colors.brown.shade500),
-                ),
-                const SizedBox(height: 8),
-                // 经验进度条
-                SizedBox(
-                  width: 220,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: LinearProgressIndicator(
-                      value: player.xpProgress.clamp(0.0, 1.0),
-                      minHeight: 8,
-                      backgroundColor: Colors.brown.shade100,
-                      color: Colors.brown.shade400,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${player.xpRemaining}经验 升至 '
-                  '${GrowthManager.titleForLevel(player.level + 1)}',
-                  style: TextStyle(fontSize: 11, color: Colors.brown.shade400),
-                ),
-                const SizedBox(height: 40),
-
-                // 每日挑战按钮
-                _MenuButton(
-                  icon: dailyDone ? Icons.check_circle : Icons.calendar_today,
-                  label: dailyDone ? '每日挑战 ✓' : '每日挑战',
-                  onTap: () => _startDaily(context, ref),
-                ),
-                const SizedBox(height: 16),
-
-                // 开始游戏按钮
-                _MenuButton(
-                  icon: Icons.play_arrow_rounded,
-                  label: '开始游戏',
-                  onTap: () => _startGame(context, ref),
-                ),
-                const SizedBox(height: 16),
-
-                // 关卡选择按钮
-                _MenuButton(
-                  icon: Icons.grid_view_rounded,
-                  label: '选择关卡',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const LevelSelectScreen(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 自定义关卡按钮
-                _MenuButton(
-                  icon: Icons.tune,
-                  label: '自定义关卡',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CustomLevelScreen(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 收藏按钮
-                _MenuButton(
-                  icon: Icons.collections_bookmark,
-                  label: '成语收藏',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CollectionScreen()),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 商城按钮
-                _MenuButton(
-                  icon: Icons.store,
-                  label: '商城',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ShopScreen()),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 统计按钮
-                _MenuButton(
-                  icon: Icons.insert_chart_outlined,
-                  label: '统计',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const StatsScreen()),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 成就按钮
-                _MenuButton(
-                  icon: Icons.emoji_events_outlined,
-                  label: '成就',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AchievementsScreen(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 设置按钮
-                _MenuButton(
-                  icon: Icons.settings_outlined,
-                  label: '设置',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 排行榜按钮
-                _MenuButton(
-                  icon: Icons.leaderboard_outlined,
-                  label: '排行榜',
-                  onTap: () => LeaderboardService.show(),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 16),
+            // 科举仕途卡
+            _RankCard(player: player, nextTitle: nextTitle),
+            const SizedBox(height: 16),
+            // 每日挑战卡
+            AppCard(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('每日挑战 · 全服同题', style: kickerStyle(color: AppColors.gold)),
+                            const SizedBox(height: 8),
+                            Text(
+                              daily?.word ?? '——',
+                              style: displayStyle(size: 30, weight: FontWeight.w900),
+                            ),
+                          ],
+                        ),
+                      ),
+                      BadgeSoft('第 ${_dailyIssue()} 期', color: BadgeSoftColor.gold),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    _dailyMeta(daily),
+                    style: bodyStyle(size: 12.5, color: AppColors.muted),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton(
+                          label: dailyDone ? '已完成' : '开始挑战',
+                          small: true,
+                          onTap: dailyDone ? null : () => _startDaily(context, ref),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        width: 110,
+                        child: PrimaryButton(
+                          label: '昨日回顾',
+                          small: true,
+                          ghost: true,
+                          onTap: () => _openDailyReview(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 继续第 N 关
+            PrimaryButton(
+              label: '继续第 ${player.completedLevels + 1} 关',
+              onTap: () => _startGame(context, ref),
+            ),
+            // 书卷小径
+            const SectionTitle(title: '书卷小径'),
+            Row(
+              children: [
+                Expanded(
+                  child: _Tile(
+                    iconName: 'levels',
+                    label: '选择关卡',
+                    desc: '由浅入深 · 循序而进',
+                    onTap: () => _switchTab(context, 1),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _Tile(
+                    iconName: 'book',
+                    label: '成语收藏',
+                    desc: '温故知新 · 日积月累',
+                    onTap: () => _switchTab(context, 2),
+                  ),
+                ),
+              ],
+            ),
+            // 今日一读
+            const SectionTitle(title: '今日一读'),
+            const _TodayIdiom(),
+            const SizedBox(height: 16),
+            const Center(
+              child: Text(
+                '交叉推理 · 一字双关 · 循序而进',
+                style: TextStyle(fontSize: 10.5, color: AppColors.faint, letterSpacing: 0.6),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  String _dailyMeta(DailyInfo? daily) {
+    if (daily == null) return '今日谜面生成中…';
+    final diffLabel = switch (daily.avgDifficulty) {
+      <= 10 => '入门',
+      <= 25 => '进阶',
+      <= 40 => '高手',
+      _ => '大师',
+    };
+    return '今日谜面难度 $diffLabel · ${daily.idiomCount} 条成语 · 约 ${(daily.durationSeconds / 60).ceil()} 分钟';
+  }
+
+  int _dailyIssue() => epochDay();
+
+  void _switchToMineTab(BuildContext context) {
+    // 骨架下以 push 代替跨 Tab 切页，避免过度设计
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MineScreen()));
+  }
+
+  void _switchTab(BuildContext context, int tabIndex) {
+    // 书卷小径 tile：推入对应屏（关卡/收藏）
+    if (tabIndex == 1) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LevelSelectScreen()));
+    } else {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CollectionScreen()));
+    }
+  }
+
+  void _openDailyReview(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DailyReviewScreen()));
   }
 
   void _startGame(BuildContext context, WidgetRef ref) async {
@@ -339,40 +379,131 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// 菜单按钮
-class _MenuButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
+/// 科举仕途卡
+class _RankCard extends StatelessWidget {
+  final PlayerState player;
+  final String nextTitle;
 
-  const _MenuButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  const _RankCard({required this.player, required this.nextTitle});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.brown.shade700,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return AppCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('科举仕途', style: kickerStyle(color: AppColors.gold)),
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Lv.${player.level} · ${player.title}',
+                      style: displayStyle(size: 21, weight: FontWeight.w900, color: AppColors.accentDeep),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '再通关一关，晋升「$nextTitle」',
+                      style: bodyStyle(size: 11.5, color: AppColors.muted),
+                    ),
+                    const SizedBox(height: 8),
+                    XpTrack(progress: player.xpProgress, height: 8),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${player.completedLevels}',
+                style: displayStyle(size: 40, weight: FontWeight.w900, color: AppColors.faint, height: 1.0),
+              ),
+            ],
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        ],
+      ),
+    );
+  }
+}
+
+/// 书卷小径 tile
+class _Tile extends StatelessWidget {
+  final String iconName;
+  final String label;
+  final String desc;
+  final VoidCallback onTap;
+
+  const _Tile({required this.iconName, required this.label, required this.desc, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AppCard(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 24),
-            const SizedBox(width: 8),
-            Text(label, style: const TextStyle(fontSize: 18)),
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(color: AppColors.surface2, borderRadius: BorderRadius.circular(12)),
+              child: Center(child: AppIcon(iconName, size: 20, color: AppColors.fg)),
+            ),
+            const SizedBox(height: 10),
+            Text(label, style: displayStyle(size: 14, weight: FontWeight.w700)),
+            const SizedBox(height: 2),
+            Text(desc, style: bodyStyle(size: 10.5, color: AppColors.muted)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 今日一读：竖排成语卡
+class _TodayIdiom extends ConsumerWidget {
+  const _TodayIdiom();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final idiom = ref.watch(todayIdiomProvider).value;
+    if (idiom == null) {
+      return AppCard(
+        child: Text('今日一读待收录…', style: bodyStyle(color: AppColors.muted)),
+      );
+    }
+    return AppCard(
+      padding: const EdgeInsets.all(18),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 64,
+            child: Text(
+              idiom.word.replaceAll('', ' ').trim().replaceAll(' ', '\n'),
+              textAlign: TextAlign.center,
+              style: displayStyle(size: 30, weight: FontWeight.w900, height: 1.25),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  idiom.derivation?.isNotEmpty == true ? '· ${idiom.derivation}' : '· 出处待考',
+                  style: bodyStyle(size: 12, color: AppColors.muted),
+                ),
+                const SizedBox(height: 6),
+                Text(idiom.explanation, style: bodyStyle(size: 12.5, color: AppColors.muted)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

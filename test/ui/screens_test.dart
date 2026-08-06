@@ -214,6 +214,20 @@ void main() {
     expect(find.text('每日挑战 ✓'), findsOneWidget);
   });
 
+  testWidgets('首页：标题与科举仕途卡渲染', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const HomeScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('成语填字'), findsOneWidget);
+    expect(find.text('科举仕途'), findsOneWidget);
+    expect(find.text('书卷小径'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('今日一读'), 100, scrollable: find.byType(Scrollable).first);
+    expect(find.text('今日一读'), findsOneWidget);
+  });
+
   testWidgets('自定义关卡页：渲染参数控件，空库生成失败提示', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
