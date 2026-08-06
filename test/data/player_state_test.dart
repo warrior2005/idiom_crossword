@@ -100,6 +100,7 @@ void main() {
 
     await notifier.completeLevel(dailyLevelNumber(), [20, 30, 40]);
     expect(container.read(playerProvider).completedLevels, 0);
+    expect(container.read(playerProvider).totalXp, 300);
 
     await notifier.completeLevel(1, [5, 5, 5, 5, 5]);
     expect(container.read(playerProvider).completedLevels, 1);

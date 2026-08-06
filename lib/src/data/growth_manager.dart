@@ -37,6 +37,12 @@ class ExperienceResult {
 }
 
 class GrowthManager {
+  /// 每日挑战专用关卡号段起点（与 level_generation.dailyLevelOffset 保持一致）
+  static const int dailyChallengeLevelOffset = 1000000;
+
+  /// 每日挑战固定经验（按约 1000 次每日挑战估算，可让升 20 级提前约 970 关）
+  static const int dailyChallengeXp = 300;
+
   /// 升级所需经验值公式：XP(n) = 100 × 1.6^(n-1)
   static int xpForLevel(int level) {
     if (level <= 1) return 100;
@@ -185,12 +191,15 @@ class GrowthManager {
   /// [levelNumber] 关卡编号
   /// [idiomDifficulties] 该关成语的难度列表
   static int calculateXp(int levelNumber, List<int> idiomDifficulties) {
+    if (levelNumber >= dailyChallengeLevelOffset) {
+      return dailyChallengeXp; // 每日挑战固定 250 经验
+    }
     if (levelNumber <= 5) {
       return 10; // 教学关固定 10 经验
     }
-    // 通关经验随关卡号递增，保证越往后奖励越高；
-    // 难度仅作为后续微调参数保留，不再直接参与计算。
-    return 10 + (levelNumber - 6);
+    // 通关经验随关卡号缓慢递增：第 6 关起约 5 点起步，
+    // 每 1000 关约增加 43 点，保证不做每日时约 7500 关升到 20 级。
+    return 5 + ((levelNumber - 1) * 43) ~/ 1000;
   }
 
   /// 估算后续主线关卡可获得经验（与 calculateXp 同一套递增公式）
