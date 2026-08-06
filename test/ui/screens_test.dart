@@ -8,6 +8,7 @@ import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/ui/screens/achievements_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/collection_screen.dart';
+import 'package:idiom_crossword/src/ui/widgets/app_seal.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/shop_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/stats_screen.dart';
@@ -81,14 +82,26 @@ void main() {
 
     await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('已解锁 0/${achievementDefs.length}'), findsOneWidget);
+    expect(find.text('已解锁 / ${achievementDefs.length} 项'), findsOneWidget);
     expect(find.text('首战告捷'), findsOneWidget);
 
     await db.unlockAchievement(AchievementId.firstLevel.name);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('已解锁 1/${achievementDefs.length}'), findsOneWidget);
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('通'), findsOneWidget);
+  });
+
+  testWidgets('成就页：印章与分组渲染', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('已解锁'), findsOneWidget);
+    expect(find.text('首战告捷'), findsOneWidget);
+    expect(find.byType(AppSeal), findsWidgets);
   });
 
   testWidgets('统计页：展示通关记录明细', (tester) async {
