@@ -16,7 +16,6 @@ import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/level_select_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/learning_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/mine_screen.dart';
-import 'package:idiom_crossword/src/ui/screens/custom_level_screen.dart';
 import 'package:idiom_crossword/src/audio/game_audio.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 
@@ -198,7 +197,7 @@ void main() {
     await tester.pumpWidget(_wrap(db, const HomeScreen()));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('每日挑战'));
+    await tester.tap(find.text('开始挑战'));
     await tester.pumpAndSettle();
     expect(find.text('每日挑战生成失败，请重试'), findsOneWidget);
   });
@@ -255,7 +254,7 @@ void main() {
 
     await tester.pumpWidget(_wrap(db, const HomeScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('每日挑战 ✓'), findsOneWidget);
+    expect(find.text('已完成'), findsOneWidget);
   });
 
   testWidgets('首页：标题与科举仕途卡渲染', (tester) async {
@@ -270,20 +269,6 @@ void main() {
     expect(find.text('书卷小径'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('今日一读'), 100, scrollable: find.byType(Scrollable).first);
     expect(find.text('今日一读'), findsOneWidget);
-  });
-
-  testWidgets('自定义关卡页：渲染参数控件，空库生成失败提示', (tester) async {
-    final db = AppDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    await tester.pumpWidget(_wrap(db, const CustomLevelScreen()));
-    await tester.pumpAndSettle();
-    expect(find.text('难度区间'), findsOneWidget);
-    expect(find.text('成语数量'), findsOneWidget);
-
-    await tester.tap(find.text('开始挑战'));
-    await tester.pumpAndSettle();
-    expect(find.text('关卡生成失败，请调整参数后重试'), findsOneWidget);
   });
 
   testWidgets('收藏页：设计卡片样式渲染成语', (tester) async {
