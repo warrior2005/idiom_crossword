@@ -58,7 +58,7 @@ class AppIcon extends StatelessWidget {
       'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">$path</svg>',
       width: size,
       height: size,
-      color: color ?? AppColors.fg,
+      colorFilter: ColorFilter.mode(color ?? AppColors.fg, BlendMode.srcIn),
     );
   }
 }
