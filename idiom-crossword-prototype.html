@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成语填字 · 全新视觉原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============ 设计系统：古典文人风 ============ */
+:root{
+  --bg:#F3EDE1;              /* 宣纸 */
+  --bg-deep:#EAE0CC;
+  --surface:#FBF7EE;         /* 卡片面 */
+  --surface-2:#EFE7D4;       /* 交叉格加深 */
+  --fg:#2B2922;              /* 墨 */
+  --muted:#857C68;           /* 灰褐 */
+  --faint:#B3A98E;
+  --border:#E2D8BE;
+  --border-strong:#C9BB9A;
+  --accent:#B33B27;          /* 朱砂红 */
+  --accent-deep:#8F2C1B;
+  --accent-soft:#E8CFC0;
+  --accent-pale:#F4E3D8;
+  --gold:#B08A28;            /* 科举暗金 */
+  --gold-soft:#F0E3B8;
+  --leaf:#4E6E45;            /* 松青绿：正确反馈 */
+  --leaf-soft:#DDE6D4;
+  --shadow:0 10px 30px rgba(80,60,30,.14);
+  --font-display:"Noto Serif SC","Songti SC","STSong",serif;
+  --font-body:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif;
+  --tab-h:74px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:#dcd2bd;font-family:var(--font-body);color:var(--fg)}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit}
+input{font-family:inherit;border:none;outline:none;background:none;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* 桌面端衬台 */
+.stage{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(1200px 600px at 50% -10%, #efe6d2, #d3c7ab 70%, #c3b493);
+  padding:32px 16px;
+}
+.phone{
+  position:relative;width:412px;height:900px;max-height:94vh;
+  background:var(--bg);border-radius:44px;overflow:hidden;
+  box-shadow:0 40px 90px rgba(70,52,22,.38), inset 0 0 0 1px rgba(0,0,0,.06);
+  display:flex;flex-direction:column;
+}
+.statusbar{
+  height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 26px 0;font-size:13px;font-weight:600;letter-spacing:.02em;
+  position:relative;z-index:20;
+}
+.statusbar .time{font-weight:700}
+.statusbar .iso{font-size:11px;color:var(--muted);letter-spacing:.08em}
+.statusbar .meta{display:flex;gap:8px;align-items:center}
+.screen{position:relative;flex:1;overflow:hidden}
+.view{
+  position:absolute;inset:0;display:none;overflow-y:auto;overscroll-behavior:contain;
+  padding:6px 20px calc(var(--tab-h) + 34px);
+  scrollbar-width:none;
+}
+.view::-webkit-scrollbar{display:none}
+.view.active{display:block;animation:fadein .28s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* 通用组件 */
+.kicker{font-size:11px;font-weight:600;letter-spacing:.28em;color:var(--muted);margin-bottom:8px}
+.h-serif{font-family:var(--font-display);font-weight:700}
+.h1{font-family:var(--font-display);font-size:30px;line-height:1.35;font-weight:700;letter-spacing:0}
+.h2{font-family:var(--font-display);font-size:22px;line-height:1.35;font-weight:700}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 4px 14px rgba(80,60,30,.07)}
+.btn-primary{
+  display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  background:var(--accent);color:#FFF8EF;font-size:17px;font-weight:600;letter-spacing:.06em;
+  height:56px;border-radius:16px;box-shadow:0 8px 0 var(--accent-deep),0 14px 24px rgba(179,59,39,.28);
+  transition:transform .06s ease, box-shadow .06s ease;
+}
+.btn-primary:active{transform:translateY(4px);box-shadow:0 4px 0 var(--accent-deep),0 8px 16px rgba(179,59,39,.24)}
+.btn-primary.ghost{background:var(--surface);color:var(--accent);box-shadow:0 8px 0 var(--border),0 12px 20px rgba(80,60,30,.08);border:1px solid var(--accent-soft)}
+.btn-primary.ghost:active{box-shadow:0 4px 0 var(--border)}
+.btn-primary.small{height:46px;font-size:15px;border-radius:13px;box-shadow:0 6px 0 var(--accent-deep)}
+.btn-primary.small:active{transform:translateY(3px);box-shadow:0 3px 0 var(--accent-deep)}
+.seal{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--accent);color:#FFF6EC;font-family:var(--font-display);
+  border-radius:10px;font-weight:700;box-shadow:0 2px 0 rgba(140,40,20,.5);
+  writing-mode:vertical-rl;
+}
+.seal.hollow{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.badge-soft{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-pale);padding:4px 10px;border-radius:999px;letter-spacing:.04em}
+.badge-soft.gold{color:#7A5D14;background:var(--gold-soft)}
+.badge-soft.leaf{color:var(--leaf);background:var(--leaf-soft)}
+.chip{display:inline-flex;align-items:center;justify-content:center;height:34px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted);background:var(--surface-2);border:1px solid var(--border)}
+.chip.on{color:#FFF8EF;background:var(--accent);border-color:var(--accent)}
+.divider{height:1px;background:var(--border);margin:18px 0}
+
+/* ============ 底部 Tab ============ */
+.tabbar{
+  position:absolute;left:0;right:0;bottom:0;height:var(--tab-h);z-index:30;
+  background:var(--surface);border-top:1px solid var(--border);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding:6px 6px 14px;
+}
+.tab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.02em;border-radius:14px;
+  transition:color .2s;
+}
+.tab svg{width:23px;height:23px;stroke-width:1.7}
+.tab.on{color:var(--accent)}
+.tab .dot{width:3px;height:3px;border-radius:50%;background:transparent}
+.tab.on .dot{background:var(--accent)}
+
+/* ============ 首页 ============ */
+.home-head{display:flex;align-items:center;justify-content:space-between;margin:10px 0 18px}
+.hello{font-size:13px;color:var(--muted)}
+.hello .date{color:var(--fg);font-weight:600}
+.h-portrait{
+  width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--surface-2);border:1.5px solid var(--border-strong);
+  font-family:var(--font-display);font-size:20px;color:var(--accent);font-weight:700;
+}
+.rank-card{position:relative;padding:20px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.rank-card::after{
+  content:"Lv.6";position:absolute;right:-4px;top:6px;font-family:var(--font-display);
+  font-size:56px;font-weight:900;color:var(--accent);opacity:.1;letter-spacing:0;
+}
+.rank-title{font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--accent-deep);letter-spacing:0;line-height:1.3}
+.rank-sub{font-size:12.5px;color:var(--muted)}
+.xp-track{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;position:relative}
+.xp-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#C95A3C);width:64%}
+.xp-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);letter-spacing:.02em}
+.xp-meta b{color:var(--fg);font-weight:600}
+.daily-card{position:relative;padding:22px 20px;margin:16px 0 0;display:flex;flex-direction:column;gap:10px}
+.daily-card .row{display:flex;align-items:center;justify-content:space-between}
+.daily-word{font-family:var(--font-display);font-size:30px;font-weight:900;color:var(--fg);letter-spacing:0;line-height:1.3}
+.daily-actions{display:flex;gap:10px;margin-top:6px}
+.start-main{margin:18px 0 8px}
+.sec-title{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px}
+.sec-title h3{font-family:var(--font-display);font-size:17px;font-weight:700}
+.sec-title a{font-size:12.5px;color:var(--muted);font-weight:500;text-decoration:none}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{display:flex;flex-direction:column;gap:8px;padding:16px;align-items:flex-start}
+.tile .t-label{font-size:14.5px;font-weight:600;color:var(--fg)}
+.tile .t-desc{font-size:11.5px;color:var(--muted);line-height:1.6}
+.tile .t-ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--accent-pale);color:var(--accent);margin-bottom:2px}
+.tile .t-ic svg{width:20px;height:20px;stroke-width:1.8}
+.today-idiom{display:flex;gap:16px;align-items:center;padding:18px}
+.today-idiom .word{font-family:var(--font-display);font-size:34px;font-weight:900;color:var(--fg);writing-mode:vertical-rl;letter-spacing:0;line-height:1.25;height:118px}
+.today-idiom .mean{font-size:12.5px;color:var(--muted);line-height:1.8;flex:1}
+
+/* ============ 关卡页 ============ */
+.filter-row{display:flex;gap:8px;margin:16px 0 14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-row .chip{flex:none}
+.lv-pinned{margin-bottom:16px}
+.lv-pinned .inner{display:flex;align-items:center;gap:14px;padding:16px}
+.lv-pinned .seal{width:52px;height:52px;font-size:20px;border-radius:14px;flex:none}
+.lv-pinned .info{flex:1}
+.lv-pinned .t{font-family:var(--font-display);font-size:18px;font-weight:700}
+.lv-pinned .s{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+.lv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.lv-node{
+  aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--fg);position:relative;
+}
+.lv-node .no{font-size:11px;color:var(--muted);font-weight:500;font-family:var(--font-body)}
+.lv-node.done{border-color:transparent;background:var(--accent-soft);color:var(--accent-deep)}
+.lv-node.done::after{content:"通";position:absolute;right:-7px;top:-7px;width:20px;height:20px;border-radius:6px;background:var(--accent);color:#FFF6EC;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700;transform:rotate(6deg)}
+.lv-node.now{border-color:var(--accent);background:var(--accent);color:#FFF6EC;box-shadow:0 6px 14px rgba(179,59,39,.32)}
+.lv-node.now .no{color:rgba(255,246,236,.82)}
+.lv-node.locked{color:var(--faint);background:var(--surface-2)}
+.lv-node.hard{border-color:#D9C9A0}
+.lv-section{margin:20px 0 8px}
+.lv-section .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+.lv-section .tag .bar{width:14px;height:3px;border-radius:2px;background:var(--gold)}
+.lv-section .tag .bar.red{background:var(--accent)}
+
+/* ============ 收藏页 ============ */
+.search{
+  display:flex;align-items:center;gap:10px;padding:0 14px;height:48px;border-radius:14px;
+  background:var(--surface);border:1px solid var(--border);margin:6px 0 14px;
+}
+.search svg{width:18px;height:18px;color:var(--muted);stroke-width:1.8;flex:none}
+.search input{flex:1;font-size:14.5px}
+.col-card{padding:16px 18px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start}
+.col-card .word{font-family:var(--font-display);font-size:24px;font-weight:900;letter-spacing:0;line-height:1.3;flex:none;width:96px}
+.col-card .body{flex:1;min-width:0}
+.col-card .pinyin{font-size:11px;color:var(--muted);letter-spacing:.06em;margin-bottom:6px}
+.col-card .mean{font-size:13px;line-height:1.7;color:#4a4438}
+.col-card .src{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--faint);margin-top:8px}
+.col-count{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.col-count .n{font-family:var(--font-display);font-size:15px;font-weight:700}
+.col-count .n b{color:var(--accent);font-size:22px}
+
+/* ============ 商城页 ============ */
+.wallet{display:flex;gap:10px;margin:8px 0 18px}
+.w-card{flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--border)}
+.w-card .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--accent-pale);color:var(--accent);flex:none}
+.w-card .ic svg{width:18px;height:18px;stroke-width:1.9}
+.w-card .t{font-size:11px;color:var(--muted)}
+.w-card .v{font-size:17px;font-weight:700}
+.shop-sec{font-family:var(--font-display);font-size:16px;font-weight:700;margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.shop-sec .tag{font-size:10.5px;font-family:var(--font-body);font-weight:600;color:var(--accent);background:var(--accent-pale);padding:2px 8px;border-radius:999px}
+.pack{display:flex;align-items:center;gap:14px;padding:16px;margin-bottom:12px}
+.pack .art{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex:none;background:linear-gradient(145deg,#F6E7DA,#E9CFBB);color:var(--accent);position:relative}
+.pack .art svg{width:28px;height:28px;stroke-width:1.6}
+.pack .info{flex:1;min-width:0}
+.pack .name{font-size:15px;font-weight:600}
+.pack .desc{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.pack .price{text-align:right;flex:none}
+.pack .price .amt{font-size:15px;font-weight:700;color:var(--accent)}
+.pack .price .old{font-size:11px;color:var(--faint);text-decoration:line-through}
+.buy-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:6px;height:34px;padding:0 16px;border-radius:999px;background:var(--accent);color:#FFF6EC;font-size:12.5px;font-weight:600;letter-spacing:.04em}
+.skin{display:flex;flex-direction:column;gap:10px;padding:16px}
+.skin .sw{display:flex;gap:10px}
+.skin .swatch{width:56px;height:56px;border-radius:16px;border:2px solid var(--border);position:relative;overflow:hidden}
+.skin .swatch.on{border-color:var(--accent)}
+.skin .swatch.on::after{content:"";position:absolute;inset:4px;border:1.5px solid var(--accent);border-radius:11px}
+.swatch-ink{background:linear-gradient(145deg,#3b3628,#241f16)}
+.swatch-red{background:linear-gradient(145deg,#C95A3C,#8F2C1B)}
+.swatch-blue{background:linear-gradient(145deg,#A9BEC8,#5E7A86)}
+.swatch-gold{background:linear-gradient(145deg,#E0C87A,#A9842B)}
+.skin .s-name{font-size:12.5px;font-weight:600}
+.skin .s-state{font-size:11px;color:var(--muted)}
+.ad-rm{display:flex;align-items:center;gap:14px;padding:18px}
+.ad-rm .ic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);color:#7A5D14;flex:none}
+.ad-rm .ic svg{width:22px;height:22px;stroke-width:1.7}
+.ad-rm .info{flex:1}
+.ad-rm .t{font-size:15px;font-weight:600}
+.ad-rm .s{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+/* ============ 我的页 ============ */
+.me-avatar{display:flex;align-items:center;gap:16px;padding:20px;margin-top:10px}
+.avatar-lg{
+  width:76px;height:76px;border-radius:24px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#2E2A20,#191610);border:2px solid #000;
+  color:#E8C87A;font-family:var(--font-display);font-size:36px;font-weight:900;box-shadow:0 8px 18px rgba(40,30,10,.22);
+}
+.me-avatar .m1{font-family:var(--font-display);font-size:21px;font-weight:900;color:var(--accent-deep);letter-spacing:0}
+.me-avatar .m2{font-size:12.5px;color:var(--muted);margin-top:3px}
+.me-avatar .m3{font-size:11.5px;color:var(--faint);margin-top:6px;letter-spacing:.04em}
+.rank-strip{display:flex;gap:8px;overflow-x:auto;padding:16px 0 14px;scrollbar-width:none}
+.rank-strip::-webkit-scrollbar{display:none}
+.rank-step{flex:none;width:74px;text-align:center;padding:10px 6px;border-radius:14px;background:var(--surface);border:1px solid var(--border);position:relative}
+.rank-step .lv{font-size:10px;color:var(--muted);font-weight:600}
+.rank-step .nm{font-family:var(--font-display);font-size:13.5px;font-weight:700;margin-top:4px}
+.rank-step.cur{border-color:var(--accent);background:var(--accent);color:#FFF6EC}
+.rank-step.cur .lv{color:rgba(255,246,236,.75)}
+.rank-step.cur::after{content:"当前";position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:9.5px;font-weight:700;color:var(--accent);background:var(--surface);border:1px solid var(--accent);border-radius:999px;padding:1px 7px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:6px 0 4px}
+.stat{display:flex;align-items:center;gap:12px;padding:16px}
+.stat .ic{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--accent-pale);color:var(--accent);flex:none}
+.stat .ic svg{width:20px;height:20px;stroke-width:1.8}
+.stat .v{font-family:var(--font-display);font-size:22px;font-weight:900}
+.stat .k{font-size:11px;color:var(--muted);margin-top:2px}
+.menu-row{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:10px}
+.menu-row .ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--surface-2);color:var(--fg);flex:none}
+.menu-row .ic svg{width:20px;height:20px;stroke-width:1.8}
+.menu-row .t{flex:1;font-size:15px;font-weight:600}
+.menu-row .chev{color:var(--faint);font-size:16px}
+.menu-row .hint{font-size:11px;color:var(--muted);font-weight:500}
+
+/* ============ 成就 ============ */
+.ach-hero{padding:20px;display:flex;gap:16px;align-items:center;margin:6px 0 16px;background:linear-gradient(150deg,#F6E9DA,#EDD6BF)}
+.ach-hero .num{font-family:var(--font-display);font-size:44px;font-weight:900;color:var(--accent);line-height:1.1}
+.ach-hero .lbl{font-size:12.5px;color:var(--muted)}
+.ach-hero .right{flex:1}
+.ach-group{margin-bottom:6px}
+.ach-group .g{font-family:var(--font-display);font-size:15px;font-weight:700;margin:20px 0 12px;display:flex;align-items:center;gap:8px}
+.ach-group .g::after{content:"";flex:1;height:1px;background:var(--border)}
+.ach{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:10px}
+.ach .seal{width:46px;height:46px;font-size:15px;border-radius:12px;flex:none;writing-mode:horizontal-tb}
+.ach.locked .seal{background:var(--surface-2);color:var(--faint);border:1.5px dashed var(--border-strong);box-shadow:none}
+.ach .t{flex:1}
+.ach .nm{font-size:14.5px;font-weight:600}
+.ach .ds{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.ach .prog{font-size:12px;font-weight:700;color:var(--accent);flex:none}
+
+/* ============ 统计页 ============ */
+.ring-wrap{display:flex;align-items:center;justify-content:center;padding:24px 0 6px;flex-direction:column;gap:12px}
+.ring{position:relative;width:150px;height:150px}
+.ring svg{transform:rotate(-90deg)}
+.ring .core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .core .v{font-family:var(--font-display);font-size:38px;font-weight:900;color:var(--accent);line-height:1.1}
+.ring .core .k{font-size:11px;color:var(--muted)}
+.streak{display:flex;align-items:center;gap:14px;padding:16px;margin-top:4px}
+.streak .ic{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);color:#7A5D14;flex:none}
+.streak .ic svg{width:21px;height:21px;stroke-width:1.8}
+.streak .v{font-family:var(--font-display);font-size:22px;font-weight:900}
+.streak .k{font-size:11.5px;color:var(--muted);margin-top:2px}
+.stat-list{padding:6px 0 0}
+.stat-line{display:flex;justify-content:space-between;padding:13px 4px;border-bottom:1px dashed var(--border)}
+.stat-line:last-child{border-bottom:none}
+.stat-line .k{font-size:13.5px;color:var(--muted)}
+.stat-line .v{font-size:14px;font-weight:600}
+
+/* ============ 设置页 ============ */
+.set-group{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:14px}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border)}
+.set-row:last-child{border-bottom:none}
+.set-row .t{font-size:14.5px;font-weight:600}
+.set-row .s{font-size:11.5px;color:var(--muted);margin-top:2px}
+.switch{width:50px;height:30px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border-strong);position:relative;transition:background .2s;flex:none}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s}
+.switch.on{background:var(--accent);border-color:var(--accent)}
+.switch.on::after{left:22px}
+.set-row .val{font-size:13px;color:var(--muted);font-weight:500}
+
+/* ============ 游戏主界面 ============ */
+.game-top{display:flex;align-items:center;justify-content:space-between;margin:6px 0 4px}
+.game-top .lv-tag{display:flex;align-items:center;gap:10px}
+.game-top .back{width:40px;height:40px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--fg)}
+.game-top .back svg{width:20px;height:20px;stroke-width:1.8}
+.game-progress{margin:12px 0 4px}
+.game-progress .lbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:6px}
+.game-progress .lbl b{color:var(--accent);font-family:var(--font-display);font-size:14px}
+.board-wrap{display:flex;justify-content:center;padding:18px 0 6px}
+.grid{display:grid;gap:7px;justify-content:center}
+.cell{
+  width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  background:var(--surface);border:1.5px solid var(--border-strong);
+  font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--fg);
+  position:relative;transition:transform .08s, background .15s, border-color .15s;
+}
+.cell.given{background:var(--surface-2);border-color:transparent}
+.cell.given::after{content:"";position:absolute;top:6px;right:6px;width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.85}
+.cell.xing{background:var(--bg-deep);border-color:transparent}
+.cell.blank{background:transparent;border-color:transparent;pointer-events:none}
+.cell.focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);transform:scale(1.03)}
+.cell.filled{background:var(--accent-pale);border-color:var(--accent);color:var(--accent-deep)}
+.cell.wrong{background:var(--accent);border-color:var(--accent);color:#FFF6EC;animation:shake .3s ease}
+.cell.correct{background:var(--leaf-soft);border-color:var(--leaf);color:var(--leaf)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.board-cue{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:14px 0 0}
+.board-cue .seal{width:44px;height:44px;font-size:13px;border-radius:12px;flex:none;writing-mode:horizontal-tb}
+.board-cue .t{flex:1}
+.board-cue .dir{font-size:11px;color:var(--muted);letter-spacing:.08em}
+.board-cue .idiom{font-family:var(--font-display);font-size:20px;font-weight:700;margin-top:3px;letter-spacing:.04em}
+.board-cue .cidx{font-size:13px;color:var(--accent);font-weight:600}
+.cand-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;margin-top:14px;box-shadow:var(--shadow)}
+.cand-panel .cap{font-size:11px;color:var(--muted);letter-spacing:.08em;text-align:center;margin-bottom:12px}
+.cand-rows{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cand{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:14px;
+  background:var(--surface-2);border:1.5px solid var(--border-strong);
+  font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--fg);
+  transition:transform .06s;
+}
+.cand:active{transform:scale(.92)}
+.cand.taken{opacity:.35;pointer-events:none;border-style:dashed}
+.cand-empty{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:14px;
+  background:transparent;border:1.5px dashed var(--border-strong);color:var(--faint);
+  font-family:var(--font-display);font-size:26px;font-weight:700;
+}
+.toolbar{display:flex;gap:10px;margin-top:14px}
+.tool{flex:1;height:52px;border-radius:14px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--fg)}
+.tool svg{width:19px;height:19px;stroke-width:1.8}
+.tool .ct{font-size:11px;color:var(--muted);font-weight:600}
+.hint-btn .n{color:var(--accent);font-weight:700}
+.game-actions{margin-top:14px}
+
+/* ============ 过关庆祝 ============ */
+.overlay{
+  position:absolute;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+  background:rgba(43,40,32,.42);backdrop-filter:blur(3px);padding:24px;
+}
+.overlay.show{display:flex;animation:fadein .25s ease}
+.win-card{background:var(--surface);border-radius:28px;padding:34px 26px 26px;width:100%;max-width:340px;text-align:center;box-shadow:0 30px 70px rgba(60,40,10,.4);position:relative;overflow:hidden}
+.win-card::before{content:"";position:absolute;inset:0;background:radial-gradient(220px 120px at 50% 0%, rgba(179,59,39,.1), transparent 70%)}
+.win-seal{width:86px;height:86px;margin:0 auto 16px;border-radius:22px;background:var(--accent);color:#FFF6EC;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:40px;font-weight:900;box-shadow:0 10px 0 var(--accent-deep),0 20px 36px rgba(179,59,39,.34);transform:rotate(-4deg)}
+.win-t{font-family:var(--font-display);font-size:26px;font-weight:900;line-height:1.35;letter-spacing:0}
+.win-s{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.7}
+.win-xp{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0;font-size:14px;color:var(--accent-deep);font-weight:600}
+.win-xp b{font-size:20px;font-family:var(--font-display)}
+.win-btns{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.win-idioms{text-align:left;margin-top:18px;border-top:1px dashed var(--border);padding-top:14px}
+.win-idioms .wi{font-size:13px;line-height:1.8;color:#4a4438}
+.win-idioms .wi b{font-family:var(--font-display);font-weight:700;color:var(--fg);margin-right:6px}
+
+/* ============ 每日挑战完成态 ============ */
+.quiz-hero{display:flex;align-items:center;gap:16px;padding:20px;margin:6px 0 16px;background:linear-gradient(150deg,#F6E9DA,#EDD6BF)}
+.quiz-hero .seal{width:56px;height:56px;font-size:16px;border-radius:15px;flex:none;writing-mode:horizontal-tb}
+.quiz-hero .t{flex:1}
+.quiz-hero .t1{font-family:var(--font-display);font-size:19px;font-weight:900;color:var(--accent-deep);line-height:1.3}
+.quiz-hero .t2{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+.footnote{text-align:center;font-size:10.5px;color:var(--faint);padding:18px 0 4px;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone">
+    <div class="statusbar">
+      <span class="time">9:41</span>
+      <span class="iso">成语填字</span>
+      <span class="meta">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0.5" y="0.5" width="13" height="10" rx="2.5" stroke="currentColor" opacity=".55"/><rect x="2" y="2" width="9" height="7" rx="1" fill="currentColor" opacity=".55"/><path d="M15 3v5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".55"/></svg>
+      </span>
+    </div>
+
+    <div class="screen">
+
+      <!-- ============ 首页 ============ -->
+      <section class="view active" id="v-home" data-od-id="home">
+        <div class="home-head">
+          <div>
+            <div class="hello">农历三月十六 · <span class="date">谷雨</span></div>
+            <div class="h1" style="margin-top:6px">成语填字</div>
+          </div>
+          <button class="h-portrait" data-nav="mine">士</button>
+        </div>
+
+        <div class="card rank-card" data-od-id="home-rank-card">
+          <div>
+            <div class="kicker">科举仕途</div>
+            <div class="rank-title">Lv.6 · 秀才</div>
+          </div>
+          <div>
+            <div class="xp-track"><div class="xp-fill"></div></div>
+            <div class="xp-meta" style="margin-top:8px"><span>经验 <b>1,240</b></span><span>离「举人」还差 <b>360</b></span></div>
+          </div>
+        </div>
+
+        <div class="card daily-card" data-od-id="home-daily">
+          <div class="row">
+            <div>
+              <div class="kicker" style="color:var(--gold)">每日挑战 · 全服同题</div>
+              <div class="daily-word">水滴石穿</div>
+            </div>
+            <span class="badge-soft gold">第 128 期</span>
+          </div>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.7">今日谜面难度 <b style="color:var(--fg)">中等</b> · 8 条成语 · 约 6 分钟</div>
+          <div class="daily-actions">
+            <button class="btn-primary small" data-open="game" data-preset="daily" style="flex:1">开始挑战</button>
+            <button class="btn-primary small ghost" style="flex:none;width:110px" data-open="daily">昨日回顾</button>
+          </div>
+        </div>
+
+        <button class="btn-primary start-main" data-open="game" data-preset="continue" data-od-id="home-start-game">继续第 47 关</button>
+
+        <div class="sec-title">
+          <h3>书卷小径</h3>
+          <a href="#" data-nav="levels">查看全部</a>
+        </div>
+        <div class="grid-2">
+          <button class="card tile" data-nav="levels" data-od-id="home-tile-levels">
+            <span class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v11a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9z"/></svg></span>
+            <span class="t-label">选择关卡</span>
+            <span class="t-desc">万关螺旋 · 由浅入深</span>
+          </button>
+          <button class="card tile" data-nav="collection" data-od-id="home-tile-collection">
+            <span class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4a1 1 0 0 0-1-1H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M20 17v3a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 18.5V19.5"/></svg></span>
+            <span class="t-label">成语收藏</span>
+            <span class="t-desc">已收 128 则 · 温故知新</span>
+          </button>
+        </div>
+
+        <div class="sec-title" style="margin-top:20px">
+          <h3>今日一读</h3>
+        </div>
+        <div class="card today-idiom" data-od-id="home-today-idiom">
+          <div class="word">豁然<br>开朗</div>
+          <div>
+            <div class="mean" style="font-size:12px;color:var(--muted);letter-spacing:.05em;margin-bottom:6px">晋 · 陶渊明《桃花源记》</div>
+            <div class="mean">「初极狭，才通人，复行数十步，<b>豁然开朗</b>。」—— 形容由狭隘幽暗一变为开阔明亮。</div>
+          </div>
+        </div>
+        <div class="footnote">交叉推理 · 一字双关 · 万关螺旋</div>
+      </section>
+
+      <!-- ============ 关卡 ============ -->
+      <section class="view" id="v-levels" data-od-id="levels">
+        <div class="h1" style="margin-top:10px">选择关卡</div>
+        <div class="kicker">螺旋难度 · 每关约 8–12 条成语</div>
+
+        <div class="filter-row" data-od-id="level-filter">
+          <button class="chip on">全部</button>
+          <button class="chip">入門</button>
+          <button class="chip">进阶</button>
+          <button class="chip">高手</button>
+          <button class="chip">大师</button>
+        </div>
+
+        <div class="card lv-pinned" data-od-id="level-daily-pin">
+          <div class="inner">
+            <div class="seal">日</div>
+            <div class="info">
+              <div class="t">每日挑战 · 水滴石穿</div>
+              <div class="s">全服同题 · 难度中等 · 今日未完成</div>
+            </div>
+            <button class="badge-soft" data-open="game" data-preset="daily">挑战</button>
+          </div>
+        </div>
+
+        <div class="lv-section"><span class="tag"><span class="bar red"></span>主线 · 第 41–52 关</span></div>
+        <div class="lv-grid" data-od-id="level-grid-main">
+          <button class="lv-node done">41<span class="no">一鸣惊人</span></button>
+          <button class="lv-node done">42<span class="no">人山人海</span></button>
+          <button class="lv-node done">43<span class="no">画蛇添足</span></button>
+          <button class="lv-node done">44<span class="no">对牛弹琴</span></button>
+          <button class="lv-node done">45<span class="no">亡羊补牢</span></button>
+          <button class="lv-node done">46<span class="no">守株待兔</span></button>
+          <button class="lv-node now" data-open="game" data-preset="continue">47<span class="no">水滴石穿</span></button>
+          <button class="lv-node locked">48<span class="no">??</span></button>
+          <button class="lv-node locked">49<span class="no">??</span></button>
+          <button class="lv-node locked">50<span class="no">??</span></button>
+          <button class="lv-node locked">51<span class="no">??</span></button>
+          <button class="lv-node locked">52<span class="no">??</span></button>
+        </div>
+
+        <div class="lv-section"><span class="tag"><span class="bar"></span>长尾 · 精选旧关</span></div>
+        <div class="lv-grid" data-od-id="level-grid-longtail">
+          <button class="lv-node done">7<span class="no">胸有成竹</span></button>
+          <button class="lv-node done">14<span class="no">画龙点睛</span></button>
+          <button class="lv-node hard">19<span class="no">杯弓蛇影</span></button>
+          <button class="lv-node done">26<span class="no">刻舟求剑</span></button>
+          <button class="lv-node hard">32<span class="no">狐假虎威</span></button>
+          <button class="lv-node done">38<span class="no">掩耳盗铃</span></button>
+          <button class="lv-node hard">43<span class="no">叶公好龙</span></button>
+          <button class="lv-node locked">58<span class="no">??</span></button>
+        </div>
+        <div class="footnote">通关后解锁下一段 · 断点自动续玩</div>
+      </section>
+
+      <!-- ============ 收藏 ============ -->
+      <section class="view" id="v-collection" data-od-id="collection">
+        <div class="h1" style="margin-top:10px">成语收藏</div>
+        <div class="kicker">已通关成语自动收录 · 附释义与出处</div>
+
+        <div class="search" data-od-id="collection-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" placeholder="搜索成语、释义或出处…">
+        </div>
+
+        <div class="col-count">
+          <span class="n">共 <b>128</b> 则</span>
+          <span class="badge-soft leaf">本周新增 9</span>
+        </div>
+
+        <div class="card col-card" data-od-id="collect-card-1">
+          <div class="word">水滴石穿</div>
+          <div class="body">
+            <div class="pinyin">SHUÍ DÌ SHÍ CHUĀN</div>
+            <div class="mean">水不停地滴，石头也能被滴穿。比喻只要有恒心、不断努力，事情终究能成功。</div>
+            <div class="src">· 宋 · 罗大经《鹤林玉露》</div>
+          </div>
+        </div>
+        <div class="card col-card" data-od-id="collect-card-2">
+          <div class="word">一鸣惊人</div>
+          <div class="body">
+            <div class="pinyin">YĪ MÍNG JĪNG RÉN</div>
+            <div class="mean">平时默默无闻，一行动就做出惊人的成绩。</div>
+            <div class="src">· 《韩非子 · 喻老》</div>
+          </div>
+        </div>
+        <div class="card col-card" data-od-id="collect-card-3">
+          <div class="word">豁然开朗</div>
+          <div class="body">
+            <div class="pinyin">HUÒ RÁN KĀI LǓNG</div>
+            <div class="mean">由狭隘幽暗一下子变为开阔明亮。也指一下子明白了某个道理。</div>
+            <div class="src">· 晋 · 陶渊明《桃花源记》</div>
+          </div>
+        </div>
+        <div class="card col-card" data-od-id="collect-card-4">
+          <div class="word">人山人海</div>
+          <div class="body">
+            <div class="pinyin">RÉN SHĀN RÉN HǍI</div>
+            <div class="mean">形容聚集的人极多，像山一样高、海一样广阔。</div>
+            <div class="src">· 明 · 施耐庵《水浒传》</div>
+          </div>
+        </div>
+        <div class="card col-card" data-od-id="collect-card-5">
+          <div class="word">海阔天空</div>
+          <div class="body">
+            <div class="pinyin">HǍI KUÒ TIĀN KŌNG</div>
+            <div class="mean">像大海一样辽阔，像天空一样无边无际。比喻心胸开阔，也形容议论漫无边际。</div>
+            <div class="src">· 唐 · 刘氏瑶《暗离别》</div>
+          </div>
+        </div>
+        <div class="footnote">学习模式可在过关后随时复习本关成语</div>
+      </section>
+
+      <!-- ============ 商城 ============ -->
+      <section class="view" id="v-shop" data-od-id="shop">
+        <div class="h1" style="margin-top:10px">文房四宝 · 商城</div>
+        <div class="kicker">功能道具 · 装饰藏品 · 均可永久保留</div>
+
+        <div class="wallet" data-od-id="shop-wallet">
+          <div class="w-card">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-12"/><path d="M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg></div>
+            <div><div class="t">提示卡</div><div class="v">12</div></div>
+          </div>
+          <div class="w-card">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M4 21h16"/></svg></div>
+            <div><div class="t">复活卡</div><div class="v">3</div></div>
+          </div>
+        </div>
+
+        <div class="shop-sec">功能道具<span class="tag">实用</span></div>
+        <div class="card pack" data-od-id="shop-pack-hint">
+          <div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-12"/><path d="M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg></div>
+          <div class="info">
+            <div class="name">提示卡 ×10</div>
+            <div class="desc">一字提示每关免费 3 次，之后消耗一张</div>
+          </div>
+          <div class="price"><div class="amt">¥6</div><div class="old">¥9</div><button class="buy-btn">购买</button></div>
+        </div>
+        <div class="card pack" data-od-id="shop-pack-revive">
+          <div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M4 21h16"/></svg></div>
+          <div class="info">
+            <div class="name">复活卡 ×5</div>
+            <div class="desc">失误满格后可重整旗鼓，保留已填正确字</div>
+          </div>
+          <div class="price"><div class="amt">¥12</div><button class="buy-btn">购买</button></div>
+        </div>
+        <div class="card pack" data-od-id="shop-pack-combo">
+          <div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 14.5 7.2 17l.9-5.4L4.2 7.7l5.4-.8L12 2z"/></svg></div>
+          <div class="info">
+            <div class="name">备考礼盒（提示×10 + 复活×5）</div>
+            <div class="desc">冲刺阶段一次备齐，限量供应</div>
+          </div>
+          <div class="price"><div class="amt">¥15</div><div class="old">¥21</div><button class="buy-btn">购买</button></div>
+        </div>
+
+        <div class="shop-sec">装饰藏品<span class="tag">限定</span></div>
+        <div class="card skin" data-od-id="shop-skins">
+          <div class="sw">
+            <div class="swatch swatch-ink on"></div>
+            <div class="swatch swatch-red"></div>
+            <div class="swatch swatch-blue"></div>
+            <div class="swatch swatch-gold"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div class="s-name">砚墨 · 网格皮肤</div><div class="s-state">当前使用 · 等级 6 解锁</div></div>
+            <span class="badge-soft gold">新品</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div class="s-name">朱砂 · 印章特效</div><div class="s-state">通关落印，朱砂飞扬</div></div>
+            <button class="buy-btn" style="background:#222">¥8</button>
+          </div>
+        </div>
+
+        <div class="shop-sec">尊享</div>
+        <div class="card ad-rm" data-od-id="shop-remove-ads">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <div class="info">
+            <div class="t">去广告</div>
+            <div class="s">移除全部插屏广告，永久生效</div>
+          </div>
+          <button class="buy-btn" style="background:#7A5D14">¥3</button>
+        </div>
+        <div class="footnote">内购不影响关卡难度与成语选择</div>
+      </section>
+
+      <!-- ============ 我的 ============ -->
+      <section class="view" id="v-mine" data-od-id="mine">
+        <div class="h1" style="margin-top:10px">我的</div>
+
+        <div class="card me-avatar" data-od-id="mine-rank-hero">
+          <div class="avatar-lg">士</div>
+          <div>
+            <div class="m1">Lv.6 · 秀才</div>
+            <div class="m2">已获 47 关 · 1240 经验</div>
+            <div class="m3">再通关 6 关，晋升「举人」</div>
+          </div>
+        </div>
+
+        <div class="rank-strip" data-od-id="mine-rank-strip">
+          <div class="rank-step"><div class="lv">Lv1</div><div class="nm">童生</div></div>
+          <div class="rank-step"><div class="lv">Lv2</div><div class="nm">蒙童</div></div>
+          <div class="rank-step"><div class="lv">Lv3</div><div class="nm">学童</div></div>
+          <div class="rank-step"><div class="lv">Lv4</div><div class="nm">私塾生</div></div>
+          <div class="rank-step"><div class="lv">Lv5</div><div class="nm">书生</div></div>
+          <div class="rank-step cur"><div class="lv">Lv6</div><div class="nm">秀才</div></div>
+          <div class="rank-step"><div class="lv">Lv7</div><div class="nm">举人</div></div>
+          <div class="rank-step"><div class="lv">Lv8</div><div class="nm">贡士</div></div>
+          <div class="rank-step"><div class="lv">Lv9</div><div class="nm">进士</div></div>
+          <div class="rank-step"><div class="lv">Lv10</div><div class="nm">探花</div></div>
+        </div>
+
+        <div class="sec-title"><h3>学问一览</h3></div>
+        <div class="stat-grid" data-od-id="mine-stats">
+          <div class="card stat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg></span><div><div class="v">47</div><div class="k">累计通关</div></div></div>
+          <div class="card stat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4a1 1 0 0 0-1-1H6.5A2.5 2.5 0 0 0 4 5.5v14z"/></svg></span><div><div class="v">128</div><div class="k">成语收藏</div></div></div>
+          <div class="card stat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span><div><div class="v">12</div><div class="k">最长连胜</div></div></div>
+          <div class="card stat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><div><div class="v">6′12″</div><div class="k">平均用时</div></div></div>
+        </div>
+
+        <div class="sec-title"><h3>更多</h3></div>
+        <button class="card menu-row" data-open="achievements" data-od-id="mine-achievements">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg></span>
+          <span class="t">成就</span><span class="hint">已获 14 / 21</span><span class="chev">›</span>
+        </button>
+        <button class="card menu-row" data-open="stats" data-od-id="mine-stats-btn">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></span>
+          <span class="t">统计</span><span class="hint">正确率 86%</span><span class="chev">›</span>
+        </button>
+        <button class="card menu-row" data-open="custom" data-od-id="mine-custom">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M2 14h4M10 8h4M18 16h4"/></svg></span>
+          <span class="t">自定义关卡</span><span class="hint">自选难度与规模</span><span class="chev">›</span>
+        </button>
+        <button class="card menu-row" data-open="settings" data-od-id="mine-settings">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>
+          <span class="t">设置</span><span class="chev">›</span>
+        </button>
+        <div class="footnote">科举仕途 · 20 级 · 位极人臣</div>
+      </section>
+
+      <!-- ============ 成就（子页面） ============ -->
+      <section class="view" id="v-achievements" data-od-id="achievements">
+        <div class="game-top">
+          <button class="back" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="h1" style="font-size:20px">成就</div>
+          <span style="width:40px"></span>
+        </div>
+        <div class="card ach-hero">
+          <div class="right">
+            <div class="num">14</div>
+            <div class="lbl">已解锁 / 21 项</div>
+          </div>
+          <div style="flex:2">
+            <div class="xp-track" style="height:10px"><div class="xp-fill" style="width:67%;background:var(--accent)"></div></div>
+            <div class="lbl" style="font-size:11px;color:var(--muted);margin-top:8px">再解锁「十连斩」，即可获 150 经验</div>
+          </div>
+        </div>
+
+        <div class="ach-group">
+          <div class="g">通关</div>
+          <div class="card ach"><span class="seal">通</span><span class="t"><div class="nm">初出茅庐</div><div class="ds">首次通关任意关卡</div></span><span class="prog">已获</span></div>
+          <div class="card ach"><span class="seal">通</span><span class="t"><div class="nm">学富五车</div><div class="ds">累计通关 100 关</div></span><span class="prog">已获</span></div>
+          <div class="card ach locked"><span class="seal">? </span><span class="t"><div class="nm">博览群书</div><div class="ds">累计通关 300 关</div></span><span class="prog">47/300</span></div>
+        </div>
+        <div class="ach-group">
+          <div class="g">连击</div>
+          <div class="card ach"><span class="seal">连</span><span class="t"><div class="nm">一鼓作气</div><div class="ds">连续答对 10 字</div></span><span class="prog">已获</span></div>
+          <div class="card ach locked"><span class="seal">? </span><span class="t"><div class="nm">十连斩</div><div class="ds">连续答对 50 字</div></span><span class="prog">31/50</span></div>
+        </div>
+        <div class="ach-group">
+          <div class="g">无提示</div>
+          <div class="card ach"><span class="seal">净</span><span class="t"><div class="nm">胸有成竹</div><div class="ds">不靠提示通关</div></span><span class="prog">已获</span></div>
+          <div class="card ach locked"><span class="seal">? </span><span class="t"><div class="nm">对答如流</div><div class="ds">连续 5 关零失误通关</div></span><span class="prog">2/5</span></div>
+        </div>
+        <div class="footnote">每项成就独立结算 · 进度自动保存</div>
+      </section>
+
+      <!-- ============ 统计（子页面） ============ -->
+      <section class="view" id="v-stats" data-od-id="stats">
+        <div class="game-top">
+          <button class="back" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="h1" style="font-size:20px">统计</div>
+          <span style="width:40px"></span>
+        </div>
+
+        <div class="card ring-wrap" data-od-id="stats-accuracy">
+          <div class="ring">
+            <svg width="150" height="150" viewBox="0 0 150 150">
+              <circle cx="75" cy="75" r="62" fill="none" stroke="var(--surface-2)" stroke-width="12"/>
+              <circle cx="75" cy="75" r="62" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="389.6" stroke-dashoffset="54.6"/>
+            </svg>
+            <div class="core"><div class="v">86%</div><div class="k">填字正确率</div></div>
+          </div>
+        </div>
+
+        <div class="card streak" data-od-id="stats-streak">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>
+          <div><div class="v">12 关</div><div class="k">最长连胜 · 连续通关</div></div>
+        </div>
+
+        <div class="card" style="padding:6px 18px;margin-top:14px" data-od-id="stats-list">
+          <div class="stat-list">
+            <div class="stat-line"><span class="k">累计通关</span><span class="v">47 关</span></div>
+            <div class="stat-line"><span class="k">累计经验</span><span class="v">1,240</span></div>
+            <div class="stat-line"><span class="k">平均用时</span><span class="v">6 分 12 秒</span></div>
+            <div class="stat-line"><span class="k">失误次数</span><span class="v">38</span></div>
+            <div class="stat-line"><span class="k">使用提示</span><span class="v">21 次</span></div>
+            <div class="stat-line"><span class="k">成语收藏</span><span class="v">128 则</span></div>
+          </div>
+        </div>
+        <div class="footnote">数据仅存储于本机</div>
+      </section>
+
+      <!-- ============ 自定义关卡（子页面） ============ -->
+      <section class="view" id="v-custom" data-od-id="custom">
+        <div class="game-top">
+          <button class="back" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="h1" style="font-size:20px">自定义关卡</div>
+          <span style="width:40px"></span>
+        </div>
+        <div class="kicker">练习关不计入通关进度</div>
+
+        <div class="card" style="padding:18px;margin-top:8px" data-od-id="custom-setup">
+          <div class="sec-title" style="margin:0 0 10px"><h3 style="font-size:15px">难度区间</h3></div>
+          <div class="filter-row" style="margin:0 0 16px;overflow:visible;flex-wrap:wrap">
+            <button class="chip on">入门 1–10</button>
+            <button class="chip">进阶 11–25</button>
+            <button class="chip">高手 26–40</button>
+            <button class="chip">大师 41–50</button>
+          </div>
+          <div class="sec-title" style="margin:0 0 10px"><h3 style="font-size:15px">成语数量</h3></div>
+          <div class="filter-row" style="margin:0;overflow:visible;flex-wrap:wrap">
+            <button class="chip on">5 条 · 入门</button>
+            <button class="chip">8 条 · 标准</button>
+            <button class="chip">12 条 · 进阶</button>
+          </div>
+        </div>
+        <div class="card" style="padding:16px 18px;margin-top:14px;display:flex;align-items:center;gap:12px" data-od-id="custom-preview">
+          <div class="seal hollow" style="width:48px;height:48px;font-size:14px;border-radius:13px;flex:none">预</div>
+          <div style="flex:1">
+            <div class="t" style="font-size:14.5px;font-weight:600">即将生成 · 入门 5 条</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:3px">预计 3 分钟 · 交叉 3 处</div>
+          </div>
+        </div>
+        <button class="btn-primary start-main" data-open="game" data-preset="custom" data-od-id="custom-generate">生成并开始</button>
+        <div class="footnote">随机成语 · 确定性种子可复现</div>
+      </section>
+
+      <!-- ============ 设置（子页面） ============ -->
+      <section class="view" id="v-settings" data-od-id="settings">
+        <div class="game-top">
+          <button class="back" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="h1" style="font-size:20px">设置</div>
+          <span style="width:40px"></span>
+        </div>
+
+        <div class="set-group" data-od-id="settings-audio">
+          <div class="set-row"><div><div class="t">音效</div><div class="s">填字、成语完成与过关音效</div></div><button class="switch on"></button></div>
+          <div class="set-row"><div><div class="t">触感反馈</div><div class="s">填入正确字时的轻震动</div></div><button class="switch on"></button></div>
+        </div>
+        <div class="set-group" data-od-id="settings-prefs">
+          <div class="set-row"><div><div class="t">显示拼音</div><div class="s">网格下方小字标注</div></div><button class="switch"></button></div>
+          <div class="set-row"><div><div class="t">每日提醒</div><div class="s">每日挑战开始时通知</div></div><button class="switch on"></button></div>
+          <div class="set-row"><div><div class="t">语言</div></div><span class="val">简体中文</span></div>
+        </div>
+        <div class="set-group" data-od-id="settings-about">
+          <div class="set-row"><div><div class="t">成语数据库</div></div><span class="val">29,502 条</span></div>
+          <div class="set-row"><div><div class="t">当前版本</div></div><span class="val">v2.1</span></div>
+          <div class="set-row"><div><div class="t">用户协议与隐私</div></div><span class="chev" style="font-size:16px;color:var(--faint)">›</span></div>
+        </div>
+        <div class="footnote">成语填字 · 交叉推理手游</div>
+      </section>
+
+      <!-- ============ 每日挑战（子页面） ============ -->
+      <section class="view" id="v-daily" data-od-id="daily">
+        <div class="game-top">
+          <button class="back" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="h1" style="font-size:20px">每日挑战</div>
+          <span style="width:40px"></span>
+        </div>
+
+        <div class="card quiz-hero">
+          <div class="seal">日</div>
+          <div>
+            <div class="t1">第 128 期 · 水滴石穿</div>
+            <div class="t2">全服同题 · 明日刷新 · 已完成</div>
+          </div>
+        </div>
+
+        <div class="card today-idiom" style="margin-top:14px">
+          <div class="word">水滴<br>石穿</div>
+          <div>
+            <div class="mean" style="font-size:12px;color:var(--muted);letter-spacing:.05em;margin-bottom:6px">第 128 期 · 全服平均 5′48″</div>
+            <div class="mean">水不停地滴，石头也能被滴穿。比喻只要有恒心、不断努力，事情终究能成功。</div>
+          </div>
+        </div>
+
+        <div class="sec-title" style="margin-top:20px"><h3>历期回顾</h3></div>
+        <div class="card col-card" data-od-id="daily-past-1">
+          <div class="word">画龙点睛</div>
+          <div class="body"><div class="mean">比喻在关键处加上精要的一笔，使内容更加生动传神。</div><div class="src">· 第 127 期</div></div>
+        </div>
+        <div class="card col-card" data-od-id="daily-past-2">
+          <div class="word">刻舟求剑</div>
+          <div class="body"><div class="mean">比喻拘泥固执，不知随情势变化而变通。</div><div class="src">· 第 126 期</div></div>
+        </div>
+        <button class="btn-primary small ghost start-main" data-open="game" data-preset="continue" data-od-id="daily-replay">重玩今日挑战</button>
+        <div class="footnote">确定性种子 · 完成态次日 0 点刷新</div>
+      </section>
+
+      <!-- ============ 游戏主界面 ============ -->
+      <section class="view" id="v-game" data-od-id="game">
+        <div class="game-top">
+          <button class="back" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="lv-tag">
+            <span style="font-family:var(--font-display);font-size:19px;font-weight:900" id="game-level-name">第 47 关</span>
+            <span class="badge-soft" id="game-level-badge">主线</span>
+          </div>
+          <span style="display:flex;gap:8px;align-items:center">
+            <button class="back" id="btn-sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
+          </span>
+        </div>
+
+        <div class="game-progress">
+          <div class="lbl"><span>本关进度</span><span><b id="filled-count">0</b>/8 字</span></div>
+          <div class="xp-track"><div class="xp-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+
+        <div class="board-wrap">
+          <div class="grid" id="board" style="grid-template-columns:repeat(7,46px)"></div>
+        </div>
+
+        <div class="card board-cue" data-od-id="game-cue">
+          <div class="seal">横</div>
+          <div class="t">
+            <div class="dir">横向成语 · 第 1 条</div>
+            <div class="idiom"><span id="cue-idiom">水滴石穿</span></div>
+          </div>
+          <div class="cidx" id="cue-hint">含义提示</div>
+        </div>
+
+        <div class="cand-panel" id="cand-panel" data-od-id="game-candidates" hidden>
+          <div class="cap" id="cand-cap">为选中空格选字</div>
+          <div class="cand-rows" id="cand-rows"></div>
+        </div>
+
+        <div class="toolbar" data-od-id="game-toolbar">
+          <button class="tool hint-btn" id="btn-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg><span>一字提示</span><span class="ct" id="hint-left">剩 3</span></button>
+          <button class="tool" id="btn-undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v0a6 6 0 0 1-6 6H9"/></svg><span>撤销</span></button>
+          <button class="tool" id="btn-clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg><span>清空</span></button>
+        </div>
+        <div class="footnote">点击空格选字 · 交叉点须同时满足两条线索</div>
+      </section>
+
+      <!-- ============ 过关庆祝 ============ -->
+      <div class="overlay" id="overlay-win" data-od-id="game-win">
+        <div class="win-card">
+          <div class="win-seal">通</div>
+          <div class="win-t">第 47 关 · 通关</div>
+          <div class="win-s">交叉推理 · 滴水穿石 之 恒心顿悟</div>
+          <div class="win-xp">获得经验 <b>+96</b> · 连 <b>2</b> 关</div>
+          <div class="win-btns">
+            <button class="btn-primary small" data-nav="game" data-replay="1">下一关</button>
+            <button class="btn-primary small ghost" data-back>学习本关成语</button>
+            <button class="btn-primary small ghost" data-back style="box-shadow:none;border:none;background:transparent;color:var(--muted)">稍后再看</button>
+          </div>
+          <div class="win-idioms">
+            <div class="wi"><b>水滴石穿</b>水不停地滴，石头也能被滴穿。</div>
+            <div class="wi"><b>人山人海</b>形容聚集的人极多。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay" id="overlay-tip" data-od-id="game-tip-win">
+        <div class="win-card" style="max-width:300px">
+          <div class="win-t" style="font-size:22px">关卡完成</div>
+          <div class="win-s">回首页继续其他篇章</div>
+          <div class="win-btns" style="margin-top:16px">
+            <button class="btn-primary small" data-back>好的</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============ 底部 Tab ============ -->
+    <nav class="tabbar" data-od-id="tabbar">
+      <button class="tab on" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v11a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9z"/></svg>
+        <span>首页</span><span class="dot"></span>
+      </button>
+      <button class="tab" data-tab="levels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>关卡</span><span class="dot"></span>
+      </button>
+      <button class="tab" data-tab="collection">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4a1 1 0 0 0-1-1H6.5A2.5 2.5 0 0 0 4 5.5v14z"/></svg>
+        <span>收藏</span><span class="dot"></span>
+      </button>
+      <button class="tab" data-tab="shop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.5 12.5a1 1 0 0 1-1 1.5h-13a1 1 0 0 1-1-1.5L6 7z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg>
+        <span>商城</span><span class="dot"></span>
+      </button>
+      <button class="tab" data-tab="mine">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <span>我的</span><span class="dot"></span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<script>
+/* ============ 小谜题数据：一鸣惊人 × 人山人海 × 海阔天空 ============ */
+const IDIOMS = [
+  { id:0, word:"一鸣惊人", dir:"h", row:0, col:0,
+    clue:"比喻平时默默无闻，一行动就做出惊人的成绩。" },
+  { id:1, word:"人山人海", dir:"v", row:0, col:3,
+    clue:"形容聚集的人极多。" },
+  { id:2, word:"海阔天空", dir:"h", row:3, col:3,
+    clue:"像大海一样辽阔，天空一样无边。" },
+];
+const GIVEN = { "0,0":"一", "3,5":"天" };
+const ANSWER = { "0,1":"鸣", "0,2":"惊", "0,3":"人", "1,3":"山", "2,3":"人", "3,3":"海", "3,4":"阔", "3,6":"空" };
+const CANDIDATES = {
+  "0,1":["鸣","唱","飞","声"], "0,2":["惊","秀","动","观"], "0,3":["人","大","入","上"],
+  "1,3":["山","出","岳","峦"], "2,3":["人","入","大","太"], "3,3":["海","湖","河","泉"],
+  "3,4":["阔","广","聊","眉"], "3,6":["空","洞","腔","宇"],
+};
+const IDIOM_OF_CELL = {};
+for (const it of IDIOMS){
+  const cells = [];
+  for (let k=0;k<4;k++){
+    const r = it.dir==="h" ? it.row : it.row+k;
+    const c = it.dir==="h" ? it.col+k : it.col;
+    const key = r+","+c;
+    cells.push(key);
+    IDIOM_OF_CELL[key] = IDIOM_OF_CELL[key] || [];
+    IDIOM_OF_CELL[key].push(it.word[k]);
+  }
+  it.cells = cells;
+}
+const BLANK_CELLS = Object.keys(ANSWER);
+const GRID_COLS = 7;
+
+const state = { filled:{}, focus:null, lastFilled:null, hintLeft:3, errors:0 };
+
+/* ============ 视图路由 ============ */
+const VIEWS = ["home","levels","collection","shop","mine","achievements","stats","custom","settings","daily","game"];
+const TABS = ["home","levels","collection","shop","mine"];
+const MAIN = { home:0, levels:1, collection:2, shop:3, mine:4 };
+
+function showView(id, opts={}){
+  VIEWS.forEach(v=>{
+    const el = document.getElementById("v-"+v);
+    if(!el) return;
+    el.classList.toggle("active", v===id);
+    if(v!==id) el.scrollTop = 0;
+  });
+  document.querySelectorAll(".tab").forEach(t=>{
+    const on = t.dataset.tab && (t.dataset.tab===id || (MAIN[id]!==undefined && t.dataset.tab===id));
+    t.classList.toggle("on", on);
+  });
+  if(opts.scrollToTop) document.getElementById("v-"+id).scrollTop = 0;
+  else document.getElementById("v-"+id).scrollTop = 0;
+  document.getElementById("overlay-win").classList.remove("show");
+  document.getElementById("overlay-tip").classList.remove("show");
+  if(id==="game" && opts.replay){ resetGame(); }
+}
+
+/* 导航绑定 */
+document.querySelectorAll("[data-nav]").forEach(el=>{
+  el.addEventListener("click",(e)=>{ e.preventDefault(); const id=el.dataset.nav;
+    if(el.dataset.replay){ showView("game",{replay:true}); } else if(MAIN[id]!==undefined){ showView(id); } else { showView(id); } });
+});
+document.querySelectorAll("[data-open]").forEach(el=>{
+  el.addEventListener("click",(e)=>{
+    e.preventDefault();
+    const target = el.dataset.open;
+    if(target==="game"){
+      const preset = el.dataset.preset||"continue";
+      showView("game",{replay:true});
+    } else { showView(target); }
+  });
+});
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>showView(t.dataset.tab));
+});
+document.querySelectorAll("[data-back]").forEach(el=>{
+  el.addEventListener("click",(e)=>{
+    e.preventDefault();
+    const overlay = el.closest(".overlay");
+    if(overlay){ overlay.classList.remove("show"); return; }
+    const active = VIEWS.find(v=>document.getElementById("v-"+v).classList.contains("active"));
+    showView(active==="game" ? "levels" : "mine");
+  });
+});
+
+/* 关卡筛选与 chips */
+document.querySelectorAll(".chip").forEach(c=>{
+  c.addEventListener("click",()=>{
+    c.parentElement.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+    c.classList.add("on");
+  });
+});
+
+/* 设置开关 */
+document.querySelectorAll(".switch").forEach(s=>{
+  s.addEventListener("click",()=>s.classList.toggle("on"));
+});
+
+/* ============ 填字游戏 ============ */
+const board = document.getElementById("board");
+function buildBoard(){
+  board.innerHTML = "";
+  for(let r=0;r<4;r++){
+    for(let c=0;c<GRID_COLS;c++){
+      const key = r+","+c;
+      const cell = document.createElement("div");
+      const hasIdiom = IDIOM_OF_CELL[key];
+      cell.className = "cell";
+      if(!hasIdiom){ cell.classList.add("blank"); cell.dataset.key=key; }
+      else {
+        cell.dataset.key = key;
+        if(GIVEN[key]){ cell.classList.add("given"); cell.textContent = GIVEN[key]; }
+        else if(ANSWER[key]){ cell.classList.add("playable"); }
+        else { cell.classList.add("xing"); }
+      }
+      cell.addEventListener("click",()=>{ selectCell(key); });
+      board.appendChild(cell);
+    }
+  }
+}
+function renderCell(key){
+  const cell = board.querySelector(`[data-key="${key}"]`);
+  if(!cell) return;
+  const t = state.filled[key];
+  if(state.filled[key]===ANSWER[key]){ cell.classList.add("correct"); cell.classList.remove("filled"); }
+  else if(t){ cell.classList.add("filled"); cell.classList.remove("correct"); }
+  else { cell.classList.remove("filled","correct"); }
+  if(GIVEN[key]) return;
+  cell.textContent = state.filled[key] || "";
+  cell.classList.toggle("focus", state.focus===key);
+  cell.classList.toggle("playable", !!ANSWER[key]);
+}
+function selectCell(key){
+  if(!ANSWER[key]) return;
+  if(state.filled[key]===ANSWER[key]){ state.filled[key]=""; renderCell(key); updateProgress(); }
+  state.focus = key;
+  document.querySelectorAll(".cell").forEach(c=>c.classList.toggle("focus", c.dataset.key===key));
+  const seen = new Set(Object.values(state.filled).filter(Boolean));
+  const cand = CANDIDATES[key];
+  const panel = document.getElementById("cand-panel");
+  const rows = document.getElementById("cand-rows");
+  rows.innerHTML = "";
+  cand.forEach((ch,idx)=>{
+    const b = document.createElement("button");
+    b.className = "cand" + (seen.has(ch) ? " taken":"");
+    b.textContent = ch;
+    b.addEventListener("click",()=>{ placeChar(key,ch); });
+    rows.appendChild(b);
+  });
+  const idiomOf = IDIOM_OF_CELL[key];
+  const word = idiomOf[idiomOf.length-1];
+  document.getElementById("cand-cap").textContent = "为「"+word+"」字选字";
+  panel.hidden = false;
+  updateCue(key);
+}
+function placeChar(key,ch){
+  const prev = state.filled[key];
+  state.filled[key] = ch;
+  renderCell(key);
+  updateProgress();
+  if(ch===ANSWER[key]){
+    document.getElementById("btn-sound").animate([{transform:"scale(1)"},{transform:"scale(1.12)"},{transform:"scale(1)"}],{duration:180});
+  } else {
+    state.errors++;
+    const cell = board.querySelector(`[data-key="${key}"]`);
+    cell.classList.add("wrong");
+    setTimeout(()=>{ if(state.filled[key]!==ANSWER[key]){ cell.classList.remove("wrong"); state.filled[key]=""; renderCell(key); } },380);
+    setTimeout(()=>cell.classList.remove("wrong"), 520);
+  }
+  const done = BLANK_CELLS.every(k=>state.filled[k]===ANSWER[k]);
+  if(done){ setTimeout(()=>document.getElementById("overlay-win").classList.add("show"), 380); }
+}
+function updateCue(key){
+  const idiomOf = IDIOM_OF_CELL[key];
+  const candidates = IDIOM_OF_CELL[key] || [];
+  const word = candidates[candidates.length-1];
+  let found = null;
+  for(const it of IDIOMS){ if(it.cells.includes(key)){ found = it; break; } }
+  if(found){
+    document.getElementById("cue-idiom").textContent = found.word;
+    document.getElementById("cue-hint").textContent = found.clue;
+    const seal = document.querySelector(".board-cue .seal");
+    seal.textContent = found.dir==="h" ? "横" : "纵";
+    document.querySelector(".board-cue .dir").textContent = (found.dir==="h"?"横向成语":"纵向成语") + " · " + (found.id+1) + " 条";
+  }
+}
+function updateProgress(){
+  let n=0;
+  BLANK_CELLS.forEach(k=>{ if(state.filled[k]===ANSWER[k]) n++; });
+  document.getElementById("filled-count").textContent = n;
+  document.getElementById("progress-fill").style.width = (n/8*100)+"%";
+}
+function resetGame(){
+  state.filled = {};
+  state.focus = null;
+  state.errors = 0;
+  state.hintLeft = 3;
+  document.getElementById("hint-left").textContent = "剩 3";
+  document.getElementById("cand-panel").hidden = true;
+  document.querySelectorAll(".cell").forEach(c=>c.classList.remove("correct","filled","focus","wrong"));
+  document.querySelectorAll(".cell").forEach(c=>{
+    if(!GIVEN[c.dataset.key]) c.textContent="";
+  });
+  updateProgress();
+  updateCue("0,1");
+}
+
+/* 工具按钮 */
+document.getElementById("btn-hint").addEventListener("click",()=>{
+  const blanks = BLANK_CELLS.filter(k=>!state.filled[k] || state.filled[k]!==ANSWER[k]);
+  if(!blanks.length) return;
+  const key = blanks[0];
+  if(state.hintLeft>0) state.hintLeft--;
+  document.getElementById("hint-left").textContent = "剩 "+state.hintLeft;
+  placeChar(key, ANSWER[key]);
+  selectCell(key);
+});
+document.getElementById("btn-undo").addEventListener("click",()=>{
+  const filledKeys = BLANK_CELLS.filter(k=>state.filled[k]);
+  if(!filledKeys.length) return;
+  const key = filledKeys[filledKeys.length-1];
+  state.filled[key]="";
+  renderCell(key); updateProgress();
+});
+document.getElementById("btn-clear").addEventListener("click",()=>{
+  BLANK_CELLS.forEach(k=>{ state.filled[k]=""; renderCell(k); });
+  updateProgress();
+});
+document.getElementById("btn-sound").addEventListener("click",function(){
+  const on = !this.classList.contains("off");
+  this.classList.toggle("off");
+  this.style.opacity = on ? "1" : ".4";
+});
+
+/* 初始 */
+buildBoard();
+updateCue("0,1");
+updateProgress();
+</script>
+</body>
+</html>
