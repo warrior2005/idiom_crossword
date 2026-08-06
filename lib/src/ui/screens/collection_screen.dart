@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/database_provider.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_icons.dart';
+import '../widgets/badge_soft.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
 
-/// 收藏成语详情
 class CollectionItem {
   final String word;
   final String explanation;
-  final int difficulty;
+  final String? derivation;
+  final String pinyin;
   final DateTime collectedAt;
 
   const CollectionItem({
     required this.word,
     required this.explanation,
-    required this.difficulty,
+    required this.derivation,
+    required this.pinyin,
     required this.collectedAt,
   });
 }
 
-/// 收藏列表（从数据库加载，按收藏时间倒序）
 final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
   final db = ref.watch(databaseProvider);
   final rows = await db.getCollectionWithDetails();
@@ -26,7 +31,8 @@ final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
         (i) => CollectionItem(
           word: i.word,
           explanation: i.explanation,
-          difficulty: i.difficulty,
+          derivation: i.derivation,
+          pinyin: i.pinyin,
           collectedAt: i.createdAt,
         ),
       )
@@ -42,7 +48,6 @@ class CollectionScreen extends ConsumerStatefulWidget {
 
 class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   static const _pageSize = 30;
-
   String _query = '';
   int _page = 0;
 
@@ -51,174 +56,219 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     final collectionAsync = ref.watch(collectionProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
-      appBar: AppBar(
-        title: const Text('成语收藏'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: collectionAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Text('加载失败: $e', style: const TextStyle(color: Colors.brown)),
-        ),
-        data: (collection) {
-          final filtered = _query.isEmpty
-              ? collection
-              : collection
-                    .where(
-                      (c) =>
-                          c.word.contains(_query) ||
-                          c.explanation.contains(_query),
-                    )
-                    .toList();
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: collectionAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('加载失败: $e', style: bodyStyle(color: AppColors.accent))),
+          data: (collection) {
+            final filtered = _query.isEmpty
+                ? collection
+                : collection
+                      .where((c) => c.word.contains(_query) || c.explanation.contains(_query))
+                      .toList();
+            final weekAgo = DateTime.now().subtract(const Duration(days: 7));
+            final weekNew = collection.where((c) => c.collectedAt.isAfter(weekAgo)).length;
 
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: '搜索成语或释义',
-                    prefixIcon: const Icon(Icons.search),
-                    isDense: true,
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.brown.shade200),
-                    ),
-                  ),
-                  onChanged: (v) => setState(() {
-                    _query = v.trim();
-                    _page = 0;
-                  }),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton.icon(
-                      onPressed: _page > 0
-                          ? () => setState(() => _page--)
-                          : null,
-                      icon: const Icon(Icons.chevron_left),
-                      label: const Text('上一页'),
-                    ),
-                    Text(
-                      '共 ${filtered.length} 条',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.brown.shade500,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('成语收藏', style: displayStyle(size: 30, weight: FontWeight.w700)),
+                      const SizedBox(height: 6),
+                      Text('已通关成语自动收录 · 附释义与出处', style: kickerStyle()),
+                      const SizedBox(height: 12),
+                      _SearchField(
+                        onChanged: (v) => setState(() {
+                          _query = v.trim();
+                          _page = 0;
+                        }),
                       ),
-                    ),
-                    TextButton.icon(
-                      onPressed:
-                          _page < ((filtered.length / _pageSize).ceil() - 1)
-                          ? () => setState(() => _page++)
-                          : null,
-                      icon: const Icon(Icons.chevron_right),
-                      label: const Text('下一页'),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('共 ${collection.length} 则',
+                              style: displayStyle(size: 15, weight: FontWeight.w700)),
+                          BadgeSoft('本周新增 $weekNew', color: BadgeSoftColor.leaf),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: collection.isEmpty
-                    ? const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.bookmark_border,
-                              size: 64,
-                              color: Colors.brown,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              '还没有收藏任何成语',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.brown,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              '通关后自动收录',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.brown,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : filtered.isEmpty
-                    ? const Center(
-                        child: Text(
-                          '没有找到匹配的成语',
-                          style: TextStyle(fontSize: 15, color: Colors.brown),
-                        ),
-                      )
-                    : () {
-                        final page = _page.clamp(
-                          0,
-                          ((filtered.length / _pageSize).ceil() - 1),
-                        );
-                        final pageItems = filtered.sublist(
-                          page * _pageSize,
-                          ((page + 1) * _pageSize).clamp(0, filtered.length),
-                        );
-                        return ListView.builder(
-                          padding: const EdgeInsets.all(8),
-                          itemCount: pageItems.length,
-                          itemBuilder: (context, index) {
-                            final item = pageItems[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                vertical: 4,
-                                horizontal: 8,
-                              ),
-                              child: ListTile(
-                                title: Text(
-                                  item.word,
-                                  style: const TextStyle(fontSize: 20),
-                                ),
-                                subtitle: Text(item.explanation),
-                                trailing: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _difficultyColor(item.difficulty),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    '${item.difficulty}',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      }(),
-              ),
-            ],
-          );
-        },
+                Expanded(
+                  child: collection.isEmpty
+                      ? const _EmptyState(
+                          title: '还没有收藏任何成语',
+                          sub: '通关后自动收录',
+                        )
+                      : filtered.isEmpty
+                      ? const _EmptyState(title: '没有找到匹配的成语', sub: '换个关键词试试')
+                      : () {
+                          final maxPage = ((filtered.length / _pageSize).ceil() - 1).clamp(0, 1 << 31);
+                          final page = _page.clamp(0, maxPage);
+                          final items = filtered.sublist(
+                            page * _pageSize,
+                            ((page + 1) * _pageSize).clamp(0, filtered.length),
+                          );
+                          return ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                            itemCount: items.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == items.length) {
+                                return _Pager(
+                                  page: page,
+                                  maxPage: maxPage,
+                                  onPrev: () => setState(() => _page--),
+                                  onNext: () => setState(() => _page++),
+                                );
+                              }
+                              final item = items[index];
+                              return _ColCard(item: item);
+                            },
+                          );
+                        }(),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
+}
 
-  Color _difficultyColor(int difficulty) {
-    if (difficulty <= 10) return Colors.green;
-    if (difficulty <= 20) return Colors.blue;
-    if (difficulty <= 30) return Colors.orange;
-    if (difficulty <= 40) return Colors.red;
-    return Colors.purple;
+class _SearchField extends StatelessWidget {
+  final ValueChanged<String> onChanged;
+  const _SearchField({required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          AppIcon('search', size: 18, color: AppColors.muted),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: '搜索成语或释义',
+                hintStyle: TextStyle(fontSize: 14, color: AppColors.faint),
+                border: InputBorder.none,
+                isDense: true,
+              ),
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ColCard extends StatelessWidget {
+  final CollectionItem item;
+  const _ColCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 96,
+            child: Text(item.word, style: displayStyle(size: 24, weight: FontWeight.w900)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.pinyin.toUpperCase(),
+                  style: bodyStyle(size: 11, color: AppColors.muted).copyWith(letterSpacing: 1.2),
+                ),
+                const SizedBox(height: 6),
+                Text(item.explanation, style: bodyStyle(size: 13, color: const Color(0xFF4A4438))),
+                if (item.derivation != null && item.derivation!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text('· ${item.derivation}', style: bodyStyle(size: 11, color: AppColors.faint)),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final String title;
+  final String sub;
+  const _EmptyState({required this.title, required this.sub});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AppIcon('book', size: 64, color: AppColors.faint),
+          const SizedBox(height: 16),
+          Text(title, style: displayStyle(size: 18, weight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Text(sub, style: bodyStyle(size: 14, color: AppColors.muted)),
+        ],
+      ),
+    );
+  }
+}
+
+class _Pager extends StatelessWidget {
+  final int page;
+  final int maxPage;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
+  const _Pager({
+    required this.page,
+    required this.maxPage,
+    required this.onPrev,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          onPressed: page > 0 ? onPrev : null,
+          icon: const AppIcon('back', size: 18),
+          color: AppColors.muted,
+        ),
+        Text('第 ${page + 1} / ${maxPage + 1} 页', style: bodyStyle(size: 12, color: AppColors.muted)),
+        IconButton(
+          onPressed: page < maxPage ? onNext : null,
+          icon: Transform.rotate(angle: 3.14159, child: const AppIcon('back', size: 18)),
+          color: AppColors.muted,
+        ),
+      ],
+    );
   }
 }

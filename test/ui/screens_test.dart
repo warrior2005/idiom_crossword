@@ -235,6 +235,18 @@ void main() {
     expect(find.text('关卡生成失败，请调整参数后重试'), findsOneWidget);
   });
 
+  testWidgets('收藏页：设计卡片样式渲染成语', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    final id = await db.findIdiomIdByWord('画蛇添足');
+    await db.addToCollection(id!);
+
+    await tester.pumpWidget(_wrap(db, const CollectionScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('画蛇添足'), findsOneWidget);
+    expect(find.textContaining('共'), findsOneWidget);
+  });
+
   testWidgets('我的页：等级条三态与菜单', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
