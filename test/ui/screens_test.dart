@@ -236,11 +236,83 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('宣纸'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('宣纸'));
     await tester.pump();
 
     expect(find.text('已切换网格皮肤：宣纸'), findsOneWidget);
     expect(await db.getActiveDecorationId('grid_skin'), 'paper');
+  });
+
+  testWidgets('商城等级皮肤未解锁时锁定，广告皮肤积分购买', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+    await container.read(playerProvider.notifier).addPoints(5000);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: ShopScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // 未解锁等级皮肤（竹简 Lv.3）不能切换
+    await tester.scrollUntilVisible(
+      find.text('竹简'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('竹简'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('竹简'));
+    await tester.pump();
+    expect(find.text('该皮肤为 Lv.3 升级奖励，达到等级后解锁'), findsOneWidget);
+    expect(await db.getActiveDecorationId('grid_skin'), isNull);
+
+    // 清除上一条提示，避免新提示排队
+    ScaffoldMessenger.of(
+      tester.element(find.byType(ShopScreen)),
+    ).clearSnackBars();
+    await tester.pumpAndSettle();
+
+    // 广告皮肤秋香 2000 积分购买并切换
+    await tester.scrollUntilVisible(
+      find.text('秋香'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('秋香'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('秋香'));
+    await tester.pump();
+    expect(find.text('已购买并切换网格皮肤：秋香'), findsOneWidget);
+    expect((await db.getPlayerProgress())!.points, 3000);
+    expect(await db.getActiveDecorationId('grid_skin'), 'qiuxiang');
+  });
+
+  testWidgets('商城：积分说明弹窗展示积分规则', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const ShopScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('积分说明'));
+    await tester.pumpAndSettle();
+    Finder richTextContaining(String text) => find.byWidgetPredicate(
+      (w) => w is RichText && w.text.toPlainText().contains(text),
+    );
+    expect(richTextContaining('激励广告'), findsOneWidget);
+    expect(richTextContaining('插屏广告'), findsOneWidget);
+    expect(richTextContaining('横幅广告'), findsOneWidget);
   });
 
   testWidgets('首页：每日挑战在数据库无成语时提示生成失败', (tester) async {

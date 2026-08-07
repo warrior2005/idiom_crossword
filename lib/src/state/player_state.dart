@@ -17,8 +17,8 @@ const int kRewardedAdPointsReward = 3;
 /// 插屏广告观看超过 10 秒奖励积分（按插屏 eCPM 估算）
 const int kInterstitialAdPointsReward = 2;
 const int kInterstitialAdMinViewSeconds = 10;
-/// 横幅广告每观看 1 分钟奖励 1 积分，每日上限 30 积分
-const int kMaxBannerPointsPerDay = 30;
+/// 横幅广告每观看 1 分钟奖励 1 积分，每日上限 120 积分
+const int kMaxBannerPointsPerDay = 120;
 
 const String kRewardedAdsDateKey = 'rewarded_ads_date';
 const String kRewardedAdsCountKey = 'rewarded_ads_count';

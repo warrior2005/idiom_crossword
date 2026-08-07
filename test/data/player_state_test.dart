@@ -268,14 +268,14 @@ void main() {
     expect(finalStatus.cooldownSeconds, 0);
   });
 
-  test('横幅广告积分按分钟累计，每日上限30', () async {
+  test('横幅广告积分按分钟累计，每日上限120', () async {
     final notifier = container.read(playerProvider.notifier);
-    for (var i = 0; i < 31; i++) {
+    for (var i = 0; i < 121; i++) {
       await notifier.addBannerPoints(1);
     }
     expect(container.read(playerProvider).points, kMaxBannerPointsPerDay);
     expect((await db.getPlayerProgress())!.points, kMaxBannerPointsPerDay);
-    expect(await db.getSetting(kBannerPointsCountKey), '30');
+    expect(await db.getSetting(kBannerPointsCountKey), '120');
 
     // 同日达到上限后不再发放
     final granted = await notifier.addBannerPoints(1);

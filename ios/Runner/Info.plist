@@ -24,10 +24,9 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<!-- AdMob 应用 ID：测试 ID（Google 官方测试应用）。
-	     上线前请替换为 ca-app-pub-5534836333837678~ 对应的真实 App ID。 -->
+	<!-- AdMob 应用 ID -->
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<string>ca-app-pub-5534836333837678~8946914357</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>用于展示个性化广告，并为您提供观看广告赚取积分的机会。</string>
 	<key>LSRequiresIPhoneOS</key>

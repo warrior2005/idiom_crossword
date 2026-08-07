@@ -17,8 +17,25 @@ import '../theme/grid_skins.dart';
 const int kHintCardPoints = 10;
 const int kReviveCardPoints = 15;
 const int kGiftBoxPoints = 40;
-const int kLevelSkinPoints = 100;
-const int kAdsSkinPoints = 80;
+
+/// 广告兑换皮肤积分定价（初值，可后续调整）
+const Map<String, int> kAdSkinPoints = {
+  'qiuxiang': 2000, // 秋香
+  'moyu': 3000, // 墨玉
+  'zhusha': 3000, // 朱砂
+  'dailan': 4000, // 黛蓝
+  'ouhe': 4000, // 藕荷
+  'jiangzi': 5000, // 绛紫
+};
+
+/// 等级皮肤解锁等级（升级奖励发放后自动拥有）
+const Map<String, int> kLevelSkinUnlockLevels = {
+  'bamboo': 3, // 竹简
+  'paper': 7, // 宣纸
+  'qinghua': 11, // 青花
+  'gold': 15, // 金箔
+  'emperor': 19, // 九五至尊
+};
 
 class ShopScreen extends ConsumerStatefulWidget {
   final bool bannerActive;
@@ -52,6 +69,49 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _showPointsGuide(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('积分说明', style: displayStyle(size: 20, weight: FontWeight.w700)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _guideLine('激励广告', '观看完成 +3 积分；每天最多 100 次，前 10 次冷却 1 分钟，之后每次冷却 2 分钟。'),
+            _guideLine('插屏广告', '通关结算前随机展示，单次观看满 10 秒 +2 积分。'),
+            _guideLine('横幅广告', '关卡/收藏/商城底部常驻，每累计观看 1 分钟 +1 积分，每天上限 $kMaxBannerPointsPerDay 积分。'),
+            _guideLine('积分用途', '兑换提示卡、复活卡、备考礼盒与广告兑换网格皮肤。'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('知道了'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _guideLine(String title, String desc) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: RichText(
+        text: TextSpan(
+          style: bodyStyle(size: 13, color: AppColors.fg),
+          children: [
+            TextSpan(
+              text: '$title：',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            TextSpan(text: desc),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _refreshAdStatus() async {
@@ -134,8 +194,25 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         id == 'paper' ||
         player.ownedDecorations.contains('grid_skin_$id') ||
         (id == 'qinghua' && player.ownedDecorations.contains('grid_skin_dragon'));
+    if (skin?.source == 'level') {
+      // 等级皮肤：升级奖励解锁后才可切换
+      if (!isOwned) {
+        final unlockLevel = kLevelSkinUnlockLevels[id] ?? 0;
+        _showSnack(
+          unlockLevel > 0
+              ? '该皮肤为 Lv.$unlockLevel 升级奖励，达到等级后解锁'
+              : '该皮肤为等级奖励皮肤，达到对应等级后解锁',
+        );
+        return;
+      }
+      await notifier.setActiveGridSkin(id);
+      _showSnack('已切换网格皮肤：$name');
+      return;
+    }
+    // 广告兑换皮肤：积分购买后解锁
     if (!isOwned) {
-      final price = skin?.source == 'ads' ? kAdsSkinPoints : kLevelSkinPoints;
+      final price = kAdSkinPoints[id] ?? 0;
+      if (price <= 0) return;
       final ok = await notifier.spendPoints(price);
       if (!ok) {
         _showSnack('积分不足，可观看广告赚取积分');
@@ -167,7 +244,25 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               style: displayStyle(size: 30, weight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
-            Text('功能道具 · 装饰藏品 · 广告赚积分', style: kickerStyle()),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('功能道具 · 装饰藏品 · 广告赚积分', style: kickerStyle()),
+                GestureDetector(
+                  onTap: () => _showPointsGuide(context),
+                  child: Row(
+                    children: [
+                      AppIcon('chart', size: 14, color: AppColors.muted),
+                      const SizedBox(width: 3),
+                      Text(
+                        '积分说明',
+                        style: bodyStyle(size: 11.5, color: AppColors.muted),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 14),
             _PointsCard(
               points: player.points,
@@ -519,7 +614,7 @@ class _SkinsCard extends StatelessWidget {
           Text('网格皮肤', style: bodyStyle(size: 14, weight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(
-            '未拥有的皮肤可用积分购买，已拥有后点击切换',
+            '等级皮肤达级解锁，广告兑换皮肤可用积分购买',
             style: bodyStyle(size: 11, color: AppColors.muted),
           ),
           const SizedBox(height: 12),
@@ -546,7 +641,16 @@ class _SkinsCard extends StatelessWidget {
   Widget _skinTile(GridSkin skin) {
     final isActive = active == skin.id;
     final isOwned = _isOwned(skin);
-    final price = skin.source == 'ads' ? kAdsSkinPoints : kLevelSkinPoints;
+    final isLevelSkin = skin.source == 'level';
+    final price = kAdSkinPoints[skin.id] ?? 0;
+    final unlockLevel = kLevelSkinUnlockLevels[skin.id] ?? 0;
+    final statusText = isActive
+        ? '当前使用'
+        : isOwned
+        ? '已拥有'
+        : isLevelSkin
+        ? 'Lv.$unlockLevel 升级奖励'
+        : '$price 积分购买';
     return GestureDetector(
       onTap: () => onSelect(skin.id),
       child: Container(
@@ -597,11 +701,7 @@ class _SkinsCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    isActive
-                        ? '当前使用'
-                        : isOwned
-                        ? '已拥有'
-                        : '$price 积分购买',
+                    statusText,
                     style: bodyStyle(
                       size: 11,
                       color: skin.foreground.withValues(alpha: 0.7),
@@ -613,7 +713,10 @@ class _SkinsCard extends StatelessWidget {
             if (isActive)
               BadgeSoft('使用中', color: BadgeSoftColor.gold)
             else if (!isOwned)
-              BadgeSoft('$price 积分', color: BadgeSoftColor.leaf),
+              BadgeSoft(
+                isLevelSkin ? 'Lv.$unlockLevel' : '$price 积分',
+                color: BadgeSoftColor.leaf,
+              ),
           ],
         ),
       ),
