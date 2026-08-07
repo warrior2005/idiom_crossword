@@ -203,4 +203,13 @@ void main() {
     expect(progress!.hintCards, 10);
     expect(progress.reviveCards, 5);
   });
+
+  test('设置网格皮肤并持久化', () async {
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.setActiveGridSkin('bamboo');
+
+    expect(container.read(playerProvider).activeGridSkin, 'bamboo');
+    expect(await db.getActiveDecorationId('grid_skin'), 'bamboo');
+    expect(await db.getOwnedDecorationIds(), contains('grid_skin_bamboo'));
+  });
 }

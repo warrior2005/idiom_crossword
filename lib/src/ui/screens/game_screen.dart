@@ -21,6 +21,7 @@ import '../widgets/win_card_dialog.dart';
 import '../widgets/xp_track.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
+import '../theme/grid_skins.dart';
 import 'learning_screen.dart';
 
 /// 游戏主界面
@@ -1228,6 +1229,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget _buildGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final skin =
+            gridSkinById(ref.watch(playerProvider).activeGridSkin) ??
+            gridSkins.first;
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
 
@@ -1266,6 +1270,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   completedCells: _completedCells,
                   flashCell: _flashCell,
                   cellSize: actualCellSize,
+                  skin: skin,
                 ),
               ),
             ),
@@ -1676,6 +1681,7 @@ class GridPainter extends CustomPainter {
   final Set<(int, int)> completedCells;
   final (int, int)? flashCell;
   final double cellSize;
+  final GridSkin skin;
 
   GridPainter({
     required this.grid,
@@ -1686,6 +1692,7 @@ class GridPainter extends CustomPainter {
     required this.completedCells,
     required this.flashCell,
     required this.cellSize,
+    required this.skin,
   });
 
   @override
@@ -1711,17 +1718,17 @@ class GridPainter extends CustomPainter {
         // 背景色（按设计配色）
         Color bgColor;
         if (cell.isGiven) {
-          bgColor = AppColors.surface2;
+          bgColor = skin.surface2;
         } else if (completedCells.contains((r, c))) {
-          bgColor = AppColors.leafSoft;
+          bgColor = skin.leafSoft;
         } else if (errorCells.contains((r, c))) {
-          bgColor = AppColors.accent;
+          bgColor = skin.accent;
         } else if (flashCell == (r, c)) {
-          bgColor = AppColors.leafSoft;
+          bgColor = skin.leafSoft;
         } else if (focusRow == r && focusCol == c) {
-          bgColor = AppColors.accentPale;
+          bgColor = skin.accentPale;
         } else {
-          bgColor = AppColors.surface;
+          bgColor = skin.surface;
         }
 
         // 交叉点底色加深约 10%（PRD 6.2）
@@ -1742,7 +1749,7 @@ class GridPainter extends CustomPainter {
           canvas.drawCircle(
             Offset(x + s - 6, y + 6),
             2.5,
-            Paint()..color = AppColors.accent,
+            Paint()..color = skin.accent,
           );
         }
 
@@ -1752,14 +1759,14 @@ class GridPainter extends CustomPainter {
           final glow = Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = 6
-            ..color = AppColors.accent.withValues(alpha: 0.25);
+            ..color = skin.accent.withValues(alpha: 0.25);
           canvas.drawRRect(
             RRect.fromRectAndRadius(rect, const Radius.circular(4)),
             glow,
           );
         }
         final borderPaint = Paint()
-          ..color = isFocus ? AppColors.accent : AppColors.borderStrong
+          ..color = isFocus ? skin.accent : skin.borderStrong
           ..style = PaintingStyle.stroke
           ..strokeWidth = isFocus ? 2.5 : 1.0;
         canvas.drawRRect(
@@ -1779,13 +1786,13 @@ class GridPainter extends CustomPainter {
 
         Color textColor;
         if (cell.isGiven) {
-          textColor = AppColors.fg;
+          textColor = skin.foreground;
         } else if (completedCells.contains((r, c))) {
-          textColor = AppColors.leaf;
+          textColor = skin.leaf;
         } else if (errorCells.contains((r, c))) {
           textColor = const Color(0xFFFFF6EC);
         } else {
-          textColor = AppColors.accentDeep;
+          textColor = skin.accentDeep;
         }
 
         final textPainter = TextPainter(

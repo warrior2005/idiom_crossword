@@ -14,6 +14,7 @@ class PlayerState {
   final int bestCorrectStreak;
   final Map<String, int> functionalItems;
   final Set<String> ownedDecorations;
+  final String activeGridSkin;
 
   const PlayerState({
     required this.level,
@@ -25,6 +26,7 @@ class PlayerState {
     required this.bestCorrectStreak,
     required this.functionalItems,
     required this.ownedDecorations,
+    required this.activeGridSkin,
   });
 
   double get xpProgress {
@@ -50,6 +52,7 @@ class PlayerState {
     int? bestCorrectStreak,
     Map<String, int>? functionalItems,
     Set<String>? ownedDecorations,
+    String? activeGridSkin,
   }) {
     return PlayerState(
       level: level ?? this.level,
@@ -61,6 +64,7 @@ class PlayerState {
       bestCorrectStreak: bestCorrectStreak ?? this.bestCorrectStreak,
       functionalItems: functionalItems ?? this.functionalItems,
       ownedDecorations: ownedDecorations ?? this.ownedDecorations,
+      activeGridSkin: activeGridSkin ?? this.activeGridSkin,
     );
   }
 
@@ -86,6 +90,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       bestCorrectStreak: 0,
       functionalItems: {},
       ownedDecorations: {},
+      activeGridSkin: 'paper',
     );
   }
 
@@ -121,6 +126,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
         'revive_card': progress.reviveCards,
       },
       ownedDecorations: await db.getOwnedDecorationIds(),
+      activeGridSkin: await db.getActiveDecorationId('grid_skin') ?? 'paper',
     );
   }
 
@@ -283,6 +289,11 @@ class PlayerNotifier extends Notifier<PlayerState> {
       },
     );
     await _persist(ref.read(databaseProvider));
+  }
+
+  Future<void> setActiveGridSkin(String id) async {
+    state = state.copyWith(activeGridSkin: id);
+    await ref.read(databaseProvider).setActiveDecoration('grid_skin', id);
   }
 }
 

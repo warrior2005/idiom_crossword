@@ -650,6 +650,18 @@ class AppDatabase extends _$AppDatabase {
     return rows.map((r) => '${r.decorationType}_${r.decorationId}').toSet();
   }
 
+  /// 获取当前使用的装饰 ID（未设置返回 null）
+  Future<String?> getActiveDecorationId(String type) async {
+    final row =
+        await (select(decorationTable)
+              ..where(
+                (t) => t.decorationType.equals(type) & t.isActive.equals(true),
+              )
+              ..limit(1))
+            .getSingleOrNull();
+    return row?.decorationId;
+  }
+
   /// 读取未完成关卡存档
   Future<LevelStateTableData?> getLevelState(int levelNumber) async {
     return await (select(
@@ -715,6 +727,25 @@ class AppDatabase extends _$AppDatabase {
     // 先取消该类型下所有装饰的激活状态
     await (update(decorationTable)..where((t) => t.decorationType.equals(type)))
         .write(const DecorationTableCompanion(isActive: Value(false)));
+    // 测试阶段允许直接使用未拥有装饰：不存在时自动写入并视为已拥有
+    final existing =
+        await (select(decorationTable)
+              ..where(
+                (t) =>
+                    t.decorationType.equals(type) & t.decorationId.equals(id),
+              )
+              ..limit(1))
+            .getSingleOrNull();
+    if (existing == null) {
+      await into(decorationTable).insert(
+        DecorationTableCompanion(
+          decorationType: Value(type),
+          decorationId: Value(id),
+          isActive: const Value(true),
+        ),
+      );
+      return;
+    }
     // 激活指定装饰
     await (update(decorationTable)..where(
           (t) => t.decorationType.equals(type) & t.decorationId.equals(id),

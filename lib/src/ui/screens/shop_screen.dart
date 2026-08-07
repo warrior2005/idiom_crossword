@@ -7,6 +7,7 @@ import '../widgets/badge_soft.dart';
 import '../widgets/section_title.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
+import '../theme/grid_skins.dart';
 
 class ShopScreen extends ConsumerWidget {
   const ShopScreen({super.key});
@@ -33,6 +34,19 @@ class ShopScreen extends ConsumerWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('购买成功：${parts.join(' + ')}')));
+  }
+
+  Future<void> _selectSkin(
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+  ) async {
+    await ref.read(playerProvider.notifier).setActiveGridSkin(id);
+    if (!context.mounted) return;
+    final name = gridSkinById(id)?.name ?? id;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('已切换网格皮肤：$name')));
   }
 
   @override
@@ -104,7 +118,8 @@ class ShopScreen extends ConsumerWidget {
             ),
             _SkinsCard(
               owned: player.ownedDecorations,
-              onBuy: () => _comingSoon(context),
+              active: player.activeGridSkin,
+              onSelect: (id) => _selectSkin(context, ref, id),
             ),
             const SectionTitle(title: '尊享'),
             _RemoveAdsCard(onBuy: () => _comingSoon(context)),
@@ -258,69 +273,104 @@ class _PackCard extends StatelessWidget {
 
 class _SkinsCard extends StatelessWidget {
   final Set<String> owned;
-  final VoidCallback onBuy;
-  const _SkinsCard({required this.owned, required this.onBuy});
+  final String active;
+  final ValueChanged<String> onSelect;
+  const _SkinsCard({
+    required this.owned,
+    required this.active,
+    required this.onSelect,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const swatches = [
-      ('墨', Color(0xFF3B3628)),
-      ('朱', Color(0xFFC95A3C)),
-      ('青', Color(0xFFA9BEC8)),
-      ('金', Color(0xFFE0C87A)),
-    ];
     return AppCard(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              for (final (name, color) in swatches)
-                Container(
-                  width: 56,
-                  height: 56,
-                  margin: const EdgeInsets.only(right: 10),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [color, Color.lerp(color, Colors.black, 0.35)!],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border, width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      name,
-                      style: displayStyle(size: 14, color: Colors.white),
-                    ),
+          Text('网格皮肤', style: bodyStyle(size: 14, weight: FontWeight.w600)),
+          const SizedBox(height: 4),
+          Text(
+            '测试阶段不锁定，点击即可使用',
+            style: bodyStyle(size: 11, color: AppColors.muted),
+          ),
+          const SizedBox(height: 10),
+          for (final skin in gridSkins) _skinTile(skin),
+        ],
+      ),
+    );
+  }
+
+  Widget _skinTile(GridSkin skin) {
+    final isActive = active == skin.id;
+    final isOwned = owned.contains('grid_skin_${skin.id}');
+    return GestureDetector(
+      onTap: () => onSelect(skin.id),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: skin.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isActive ? skin.accent : skin.border,
+            width: isActive ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: skin.surface2,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: skin.borderStrong),
+              ),
+              child: Center(
+                child: Text(
+                  '字',
+                  style: TextStyle(
+                    fontFamily: kSerif,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: skin.accentDeep,
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '网格皮肤',
-                    style: bodyStyle(size: 12.5, weight: FontWeight.w600),
+                    skin.name,
+                    style: bodyStyle(
+                      size: 14,
+                      weight: FontWeight.w600,
+                      color: skin.foreground,
+                    ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    owned.contains('grid_skin_bamboo') ? '当前使用' : '等级奖励解锁',
-                    style: bodyStyle(size: 11, color: AppColors.muted),
+                    isActive
+                        ? '当前使用'
+                        : isOwned
+                        ? '已拥有'
+                        : '未拥有（测试可选）',
+                    style: bodyStyle(
+                      size: 11,
+                      color: skin.foreground.withValues(alpha: 0.7),
+                    ),
                   ),
                 ],
               ),
-              BadgeSoft('新品', color: BadgeSoftColor.gold),
-            ],
-          ),
-        ],
+            ),
+            if (isActive) BadgeSoft('使用中', color: BadgeSoftColor.gold),
+          ],
+        ),
       ),
     );
   }

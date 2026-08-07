@@ -210,6 +210,25 @@ void main() {
     expect((await db.getPlayerProgress())!.hintCards, 10);
   });
 
+  testWidgets('商城切换网格皮肤并持久化', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const ShopScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('竹简'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('竹简'));
+    await tester.pump();
+
+    expect(find.text('已切换网格皮肤：竹简'), findsOneWidget);
+    expect(await db.getActiveDecorationId('grid_skin'), 'bamboo');
+  });
+
   testWidgets('首页：每日挑战在数据库无成语时提示生成失败', (tester) async {
     final db = AppDatabase(NativeDatabase.memory()); // 空库，无成语
     addTearDown(db.close);
