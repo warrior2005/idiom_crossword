@@ -143,9 +143,9 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                               return GridView.builder(
                                 clipBehavior: Clip.none,
                                 padding: const EdgeInsets.fromLTRB(
-                                  20,
+                                  28,
                                   12,
-                                  20,
+                                  28,
                                   12,
                                 ),
                                 gridDelegate:
@@ -358,7 +358,7 @@ class _LevelNode extends StatelessWidget {
                 Text(
                   '$levelNumber',
                   style: displayStyle(
-                    size: 20,
+                    size: 22,
                     weight: FontWeight.w700,
                     color: isNext
                         ? const Color(0xFFFFF6EC)
@@ -372,7 +372,7 @@ class _LevelNode extends StatelessWidget {
                   word ?? '??',
                   style: TextStyle(
                     fontFamily: kSans,
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: isNext
                         ? const Color(0xFFFFF6EC).withValues(alpha: 0.82)

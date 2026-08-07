@@ -197,7 +197,7 @@ void main() {
     expect(await db.getSetting(hapticEnabledKey), 'false');
   });
 
-  testWidgets('商城购买按钮提示即将上线', (tester) async {
+  testWidgets('商城购买提示卡后库存增加', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
 
@@ -206,7 +206,8 @@ void main() {
 
     await tester.tap(find.text('购买').first);
     await tester.pump();
-    expect(find.text('内购功能即将上线'), findsOneWidget);
+    expect(find.text('购买成功：提示卡 ×10'), findsOneWidget);
+    expect((await db.getPlayerProgress())!.hintCards, 10);
   });
 
   testWidgets('首页：每日挑战在数据库无成语时提示生成失败', (tester) async {

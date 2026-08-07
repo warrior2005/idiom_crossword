@@ -131,7 +131,7 @@ class MineScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             const Center(
               child: Text(
-                '科举仕途 · 20 级 · 位极人臣',
+                '科举仕途·步步高升·正位宸极',
                 style: TextStyle(
                   fontSize: 10.5,
                   color: AppColors.faint,
@@ -335,9 +335,15 @@ class _RankStrip extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Container(
-        width: 44,
+        width: 48,
         alignment: Alignment.center,
-        child: Text('···', style: bodyStyle(size: 16, color: AppColors.faint)),
+        child: Text(
+          '···',
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.visible,
+          style: bodyStyle(size: 16, color: AppColors.faint),
+        ),
       ),
     );
   }

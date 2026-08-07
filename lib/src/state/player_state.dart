@@ -263,6 +263,27 @@ class PlayerNotifier extends Notifier<PlayerState> {
       await _persist(ref.read(databaseProvider));
     }
   }
+
+  Future<void> addHintCards(int count) async {
+    if (count <= 0) return;
+    final current = state.functionalItems['hint_card'] ?? 0;
+    state = state.copyWith(
+      functionalItems: {...state.functionalItems, 'hint_card': current + count},
+    );
+    await _persist(ref.read(databaseProvider));
+  }
+
+  Future<void> addReviveCards(int count) async {
+    if (count <= 0) return;
+    final current = state.functionalItems['revive_card'] ?? 0;
+    state = state.copyWith(
+      functionalItems: {
+        ...state.functionalItems,
+        'revive_card': current + count,
+      },
+    );
+    await _persist(ref.read(databaseProvider));
+  }
 }
 
 final playerProvider = NotifierProvider<PlayerNotifier, PlayerState>(

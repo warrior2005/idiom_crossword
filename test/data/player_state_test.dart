@@ -191,4 +191,16 @@ void main() {
     expect(state.xpRemaining, 0);
     expect((await db.getPlayerProgress())!.totalXp, state.totalXp);
   });
+
+  test('商城购买道具增加库存并持久化', () async {
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.addHintCards(10);
+    await notifier.addReviveCards(5);
+
+    expect(container.read(playerProvider).functionalItems['hint_card'], 10);
+    expect(container.read(playerProvider).functionalItems['revive_card'], 5);
+    final progress = await db.getPlayerProgress();
+    expect(progress!.hintCards, 10);
+    expect(progress.reviveCards, 5);
+  });
 }
