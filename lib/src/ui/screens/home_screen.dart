@@ -44,7 +44,9 @@ class HomeScreen extends ConsumerWidget {
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
     final dailyIssue = ref.watch(dailyIssueProvider).value ?? 1;
     final nextMainLevel = ref.watch(nextMainLevelProvider).value;
-    final nextTitle = GrowthManager.titleForLevel(player.level + 1);
+    final nextTitle = player.level >= 20
+        ? ''
+        : GrowthManager.titleForLevel(player.level + 1);
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -464,24 +466,33 @@ class _RankCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '离「$nextTitle」还差 ',
-                            style: bodyStyle(size: 11, color: AppColors.muted),
-                          ),
-                          TextSpan(
-                            text: _group(player.xpRemaining),
-                            style: bodyStyle(
-                              size: 11,
-                              color: AppColors.fg,
-                              weight: FontWeight.w600,
+                    if (nextTitle.isEmpty)
+                      Text(
+                        '已达最高等级',
+                        style: bodyStyle(size: 11, color: AppColors.muted),
+                      )
+                    else
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '离「$nextTitle」还差 ',
+                              style: bodyStyle(
+                                size: 11,
+                                color: AppColors.muted,
+                              ),
                             ),
-                          ),
-                        ],
+                            TextSpan(
+                              text: _group(player.xpRemaining),
+                              style: bodyStyle(
+                                size: 11,
+                                color: AppColors.fg,
+                                weight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ],

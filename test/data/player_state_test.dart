@@ -159,4 +159,36 @@ void main() {
     expect(progress!.currentCorrectStreak, 8);
     expect(progress.bestCorrectStreak, 8);
   });
+
+  test('20 级后经验继续累加且不再计算下一级', () async {
+    var maxXp = 0;
+    for (var i = 1; i < 20; i++) {
+      maxXp += GrowthManager.xpForLevel(i);
+    }
+    await db.updatePlayerProgress(
+      level: 20,
+      totalXp: maxXp + 100,
+      completedLevels: 7000,
+      hintCards: 0,
+      reviveCards: 0,
+    );
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    final before = container.read(playerProvider).totalXp;
+    await container.read(playerProvider.notifier).completeLevel(6000, [
+      5,
+      5,
+      5,
+      5,
+      5,
+    ]);
+
+    final state = container.read(playerProvider);
+    expect(state.level, 20);
+    expect(state.totalXp, greaterThan(before));
+    expect(state.xpToNextLevel, 0);
+    expect(state.xpProgress, 1.0);
+    expect(state.xpRemaining, 0);
+    expect((await db.getPlayerProgress())!.totalXp, state.totalXp);
+  });
 }

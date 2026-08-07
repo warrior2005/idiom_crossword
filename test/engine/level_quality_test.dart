@@ -197,6 +197,24 @@ void main() {
     }
     expect(mixed, isTrue, reason: '高阶螺旋关应包含主体区间外的长尾/预览成语');
   });
+
+  test('10000 关后仍可继续生成关卡', () {
+    final generator = IntegratedGenerator(
+      graph: graph,
+      random: Random(20260806),
+    );
+    for (final levelNumber in [10001, 20001, 50001]) {
+      CrosswordLevel? level;
+      for (var attempt = 0; attempt < 5 && level == null; attempt++) {
+        level = generator.generateSpiral(
+          levelNumber: levelNumber,
+          maxAttempts: 60,
+        );
+      }
+      expect(level, isNotNull, reason: '$levelNumber 关应能生成');
+      expect(level!.levelId, levelNumber);
+    }
+  });
 }
 
 List<Idiom> _loadIdioms() {
