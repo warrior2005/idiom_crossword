@@ -62,18 +62,18 @@ const List<GridSkin> gridSkins = [
     foreground: Color(0xFF3C3626),
   ),
   GridSkin(
-    id: 'dragon',
-    name: '龙纹',
-    surface: Color(0xFFF7F0DC),
-    surface2: Color(0xFFE9DDB8),
-    border: Color(0xFFD2BC7A),
-    borderStrong: Color(0xFF9C7E2F),
-    accent: Color(0xFF9C7E2F),
-    accentPale: Color(0xFFF0E3B8),
-    accentDeep: Color(0xFF6E5414),
-    leaf: Color(0xFF4E6E45),
-    leafSoft: Color(0xFFDDE6D4),
-    foreground: Color(0xFF3C3626),
+    id: 'qinghua',
+    name: '青花',
+    surface: Color(0xFFF4F7F9),
+    surface2: Color(0xFFDCE8F0),
+    border: Color(0xFFB9CDDA),
+    borderStrong: Color(0xFF6E8CA3),
+    accent: Color(0xFF2F5D7E),
+    accentPale: Color(0xFFDCE9F2),
+    accentDeep: Color(0xFF1E3F5C),
+    leaf: Color(0xFF3E7A7A),
+    leafSoft: Color(0xFFD8E8E8),
+    foreground: Color(0xFF22303C),
   ),
   GridSkin(
     id: 'gold',
@@ -109,5 +109,7 @@ GridSkin? gridSkinById(String id) {
   for (final skin in gridSkins) {
     if (skin.id == id) return skin;
   }
+  // 兼容旧数据：历史“龙纹”皮肤映射到青花
+  if (id == 'dragon') return gridSkinById('qinghua');
   return null;
 }

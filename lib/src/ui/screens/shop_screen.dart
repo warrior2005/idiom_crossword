@@ -304,7 +304,9 @@ class _SkinsCard extends StatelessWidget {
 
   Widget _skinTile(GridSkin skin) {
     final isActive = active == skin.id;
-    final isOwned = owned.contains('grid_skin_${skin.id}');
+    final isOwned =
+        owned.contains('grid_skin_${skin.id}') ||
+        (skin.id == 'qinghua' && owned.contains('grid_skin_dragon'));
     return GestureDetector(
       onTap: () => onSelect(skin.id),
       child: Container(

@@ -111,7 +111,7 @@ class GrowthManager {
     ),
     11: LevelReward(
       type: RewardType.decoration,
-      item: 'grid_skin_dragon',
+      item: 'grid_skin_qinghua',
       quantity: 1,
     ),
     12: LevelReward(
