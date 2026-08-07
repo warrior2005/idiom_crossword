@@ -63,9 +63,9 @@ class MineScreen extends ConsumerWidget {
                       ],
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
-                      '士',
-                      style: TextStyle(
+                    child: Text(
+                      GrowthManager.avatarSeal(player.level),
+                      style: const TextStyle(
                         fontFamily: kSerif,
                         fontSize: 36,
                         fontWeight: FontWeight.w900,

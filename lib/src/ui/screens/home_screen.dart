@@ -82,7 +82,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      '士',
+                      GrowthManager.avatarSeal(player.level),
                       style: displayStyle(
                         size: 20,
                         weight: FontWeight.w700,

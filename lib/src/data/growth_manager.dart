@@ -194,6 +194,16 @@ class GrowthManager {
     return level >= maxLevel ? 'Lv.∞' : 'Lv.$level';
   }
 
+  /// 头像印章：按身份阶段变化（士/官/卿/相/公/龙）
+  static String avatarSeal(int level) {
+    if (level >= maxLevel) return '龙';
+    if (level >= 17) return '公';
+    if (level >= 13) return '相';
+    if (level >= 9) return '卿';
+    if (level >= 6) return '官';
+    return '士';
+  }
+
   /// 获取称号
   static String titleForLevel(int level) => _titles[level] ?? '童生';
 

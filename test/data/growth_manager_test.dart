@@ -82,6 +82,17 @@ void main() {
   assert(levels == 13, 'expected 13, got $levels');
   print('  ✓ 还差 90 经验时预计需通关 13 关');
 
+  // 测试 7：头像印章分档（6 档）
+  print('\n--- 测试 7: 头像印章分档（6 档）---');
+  assert(GrowthManager.avatarSeal(1) == '士');
+  assert(GrowthManager.avatarSeal(5) == '士');
+  assert(GrowthManager.avatarSeal(6) == '官');
+  assert(GrowthManager.avatarSeal(9) == '卿');
+  assert(GrowthManager.avatarSeal(13) == '相');
+  assert(GrowthManager.avatarSeal(17) == '公');
+  assert(GrowthManager.avatarSeal(21) == '龙');
+  print('  ✓ 士/官/卿/相/公/龙 六档映射正确');
+
   print('\n=== 所有测试通过 ===');
 }
 
