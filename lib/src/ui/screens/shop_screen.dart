@@ -821,6 +821,7 @@ class _FramesCard extends StatelessWidget {
           _DecoTile(
             glyph: '冠',
             name: frame.name,
+            frameDef: frame,
             statusText: active == frame.id
                 ? '使用中'
                 : owned.contains('avatar_frame_${frame.id}')
@@ -857,6 +858,7 @@ class _EffectsCard extends StatelessWidget {
           _DecoTile(
             glyph: '耀',
             name: effect.name,
+            effectDef: effect,
             statusText: active == effect.id
                 ? '使用中'
                 : owned.contains('title_effect_${effect.id}')
@@ -904,6 +906,8 @@ class _DecoCard extends StatelessWidget {
 class _DecoTile extends StatelessWidget {
   final String glyph;
   final String name;
+  final AvatarFrameDef? frameDef;
+  final TitleEffectDef? effectDef;
   final String statusText;
   final bool isActive;
   final bool isOwned;
@@ -912,6 +916,8 @@ class _DecoTile extends StatelessWidget {
   const _DecoTile({
     required this.glyph,
     required this.name,
+    this.frameDef,
+    this.effectDef,
     required this.statusText,
     required this.isActive,
     required this.isOwned,
@@ -921,6 +927,8 @@ class _DecoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final frame = frameDef;
+    final effect = effectDef;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -942,7 +950,19 @@ class _DecoTile extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.surface2,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.borderStrong),
+                border: Border.all(
+                  color: frame?.color ?? AppColors.borderStrong,
+                  width: frame?.width ?? 1,
+                ),
+                boxShadow: frame == null
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: frame.glow,
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ],
               ),
               child: Center(
                 child: Text(
@@ -951,7 +971,19 @@ class _DecoTile extends StatelessWidget {
                     fontFamily: kSerif,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.accentDeep,
+                    color: effect?.textColor ?? AppColors.accentDeep,
+                    shadows: effect == null
+                        ? null
+                        : [
+                            Shadow(
+                              color: effect.glow.withValues(alpha: 0.75),
+                              blurRadius: 8,
+                            ),
+                            Shadow(
+                              color: effect.glow.withValues(alpha: 0.4),
+                              blurRadius: 16,
+                            ),
+                          ],
                   ),
                 ),
               ),
