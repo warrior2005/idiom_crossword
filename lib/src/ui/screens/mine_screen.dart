@@ -9,8 +9,10 @@ import 'settings_screen.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/section_title.dart';
+import '../widgets/decorated_seal.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
+import '../theme/decoration_catalog.dart';
 
 class MineScreen extends ConsumerWidget {
   const MineScreen({super.key});
@@ -44,32 +46,36 @@ class MineScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  Container(
-                    width: 76,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Color(0xFF2E2A20), Color(0xFF191610)],
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x284050A0),
-                          blurRadius: 18,
-                          offset: Offset(0, 8),
+                  DecoratedSeal(
+                    frameId: player.activeAvatarFrame,
+                    padding: const EdgeInsets.all(3),
+                    child: Container(
+                      width: 76,
+                      height: 76,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF2E2A20), Color(0xFF191610)],
                         ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      GrowthManager.avatarSeal(player.level),
-                      style: const TextStyle(
-                        fontFamily: kSerif,
-                        fontSize: 36,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFFE8C87A),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x284050A0),
+                            blurRadius: 18,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        GrowthManager.avatarSeal(player.level),
+                        style: const TextStyle(
+                          fontFamily: kSerif,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFE8C87A),
+                        ),
                       ),
                     ),
                   ),
@@ -80,10 +86,13 @@ class MineScreen extends ConsumerWidget {
                       children: [
                         Text(
                           '${GrowthManager.levelLabel(player.level)} · ${player.title}',
-                          style: displayStyle(
-                            size: 21,
-                            weight: FontWeight.w900,
-                            color: AppColors.accentDeep,
+                          style: applyTitleEffect(
+                            player.activeTitleEffect,
+                            displayStyle(
+                              size: 21,
+                              weight: FontWeight.w900,
+                              color: AppColors.accentDeep,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 3),

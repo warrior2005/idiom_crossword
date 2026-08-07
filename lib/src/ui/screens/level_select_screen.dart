@@ -5,6 +5,7 @@ import '../../state/level_generation.dart';
 import '../../state/daily_challenge.dart';
 import '../../state/level_state_codec.dart';
 import '../../state/player_state.dart';
+import '../../data/growth_manager.dart';
 import '../../engine/spiral_difficulty.dart';
 import 'game_screen.dart';
 import '../widgets/app_card.dart';
@@ -90,6 +91,9 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
     final nextLevelAsync = ref.watch(nextMainLevelProvider);
     final wordsAsync = ref.watch(levelWordsProvider);
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
+    final dailyUnlocked = GrowthManager.canAccessDaily(
+      ref.watch(playerProvider).level,
+    );
     final completed = completedAsync.value ?? const <int>{};
     final nextLevel = nextLevelAsync.value ?? 1;
     final levelWords = wordsAsync.value ?? const <int, String>{};
@@ -116,7 +120,8 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                   const SizedBox(height: 6),
                   Text('由浅入深 · 每关约 8–12 条成语', style: kickerStyle()),
                   const SizedBox(height: 12),
-                  if (!dailyDone) _DailyPin(onTap: _startDaily),
+                  if (!dailyDone)
+                    _DailyPin(onTap: _startDaily, locked: !dailyUnlocked),
                 ],
               ),
             ),
@@ -173,11 +178,11 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                                 },
                               );
                             },
-                  ),
-            ),
-            BannerAdView(active: widget.bannerActive),
-          ],
-        ),
+                          ),
+                        ),
+                        BannerAdView(active: widget.bannerActive),
+                      ],
+                    ),
             ),
           ],
         ),
@@ -223,6 +228,14 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
   }
 
   Future<void> _startDaily() async {
+    if (!GrowthManager.canAccessDaily(ref.read(playerProvider).level)) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('到达Lv.4·贡生后开启每日挑战')));
+      }
+      return;
+    }
     final db = ref.read(databaseProvider);
     final levelNumber = dailyLevelNumber();
 
@@ -275,7 +288,8 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
 /// 每日挑战置顶卡
 class _DailyPin extends StatelessWidget {
   final VoidCallback onTap;
-  const _DailyPin({required this.onTap});
+  final bool locked;
+  const _DailyPin({required this.onTap, this.locked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -301,7 +315,10 @@ class _DailyPin extends StatelessWidget {
               ],
             ),
           ),
-          GestureDetector(onTap: onTap, child: BadgeSoft('挑战')),
+          GestureDetector(
+            onTap: onTap,
+            child: BadgeSoft(locked ? 'Lv.4 开启' : '挑战'),
+          ),
         ],
       ),
     );

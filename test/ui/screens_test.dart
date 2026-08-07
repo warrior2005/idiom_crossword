@@ -298,6 +298,62 @@ void main() {
     expect(await db.getActiveDecorationId('grid_skin'), 'qiuxiang');
   });
 
+  testWidgets('商城：头像框已拥有可切换，称号特效未拥有提示解锁', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.addDecoration('avatar_frame', 'wusha');
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 0,
+      hintCards: 0,
+      reviveCards: 0,
+    );
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: ShopScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('乌纱帽'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('乌纱帽'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('乌纱帽'));
+    await tester.pump();
+    expect(find.text('已切换头像框：乌纱帽'), findsOneWidget);
+    expect(await db.getActiveDecorationId('avatar_frame'), 'wusha');
+
+    // 清除提示，避免新提示排队
+    ScaffoldMessenger.of(
+      tester.element(find.byType(ShopScreen)),
+    ).clearSnackBars();
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('金榜题名'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('金榜题名'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('金榜题名'));
+    await tester.pump();
+    expect(find.text('该称号特效为 Lv.9 升级奖励，达到等级后解锁'), findsOneWidget);
+  });
+
   testWidgets('商城：积分说明弹窗展示积分规则', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
@@ -318,8 +374,26 @@ void main() {
   testWidgets('首页：每日挑战在数据库无成语时提示生成失败', (tester) async {
     final db = AppDatabase(NativeDatabase.memory()); // 空库，无成语
     addTearDown(db.close);
+    // 每日挑战 Lv.4 开启：Lv1-3 累计经验 100+160+256=516
+    await db.updatePlayerProgress(
+      level: 4,
+      totalXp: 516,
+      completedLevels: 0,
+      hintCards: 0,
+      reviveCards: 0,
+    );
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
 
-    await tester.pumpWidget(_wrap(db, const HomeScreen()));
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: HomeScreen()),
+      ),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('开始挑战'));
@@ -426,10 +500,39 @@ void main() {
       xpGained: 20,
       idiomsUsed: const [],
     );
+    await db.updatePlayerProgress(
+      level: 4,
+      totalXp: 516,
+      completedLevels: 0,
+      hintCards: 0,
+      reviveCards: 0,
+    );
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: HomeScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('已完成'), findsOneWidget);
+  });
+
+  testWidgets('首页：未达Lv4时每日挑战显示开启提示', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
 
     await tester.pumpWidget(_wrap(db, const HomeScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('已完成'), findsOneWidget);
+
+    expect(find.text('到达Lv.4·贡生后开启'), findsOneWidget);
+    expect(find.text('开始挑战'), findsNothing);
+    expect(find.text('往期回顾'), findsNothing);
   });
 
   testWidgets('首页：标题与科举仕途卡渲染', (tester) async {
@@ -443,7 +546,7 @@ void main() {
     expect(find.text('科举仕途'), findsOneWidget);
     expect(find.text('书卷小径'), findsOneWidget);
     expect(find.textContaining('农历'), findsOneWidget);
-    expect(find.text('往期回顾'), findsOneWidget);
+    expect(find.text('到达Lv.4·贡生后开启'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('今日一读'),
       100,

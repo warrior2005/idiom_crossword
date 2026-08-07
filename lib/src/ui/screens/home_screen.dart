@@ -22,8 +22,10 @@ import '../widgets/xp_track.dart';
 import '../widgets/level_loading_dialog.dart';
 import '../widgets/lunar_date_label.dart';
 import '../widgets/vertical_word.dart';
+import '../widgets/decorated_seal.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
+import '../theme/decoration_catalog.dart';
 
 /// 今日一读：按日期确定性取一条成语
 final todayIdiomProvider = FutureProvider<Idiom?>((ref) async {
@@ -72,21 +74,26 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 GestureDetector(
                   onTap: () => _switchToMineTab(context),
-                  child: Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface2,
-                      border: Border.all(color: AppColors.borderStrong),
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      GrowthManager.avatarSeal(player.level),
-                      style: displayStyle(
-                        size: 20,
-                        weight: FontWeight.w700,
-                        color: AppColors.accent,
+                  child: DecoratedSeal(
+                    frameId: player.activeAvatarFrame,
+                    circle: true,
+                    padding: const EdgeInsets.all(2),
+                    child: Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface2,
+                        border: Border.all(color: AppColors.borderStrong),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        GrowthManager.avatarSeal(player.level),
+                        style: displayStyle(
+                          size: 20,
+                          weight: FontWeight.w700,
+                          color: AppColors.accent,
+                        ),
                       ),
                     ),
                   ),
@@ -130,29 +137,36 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 10),
                   Text.rich(_dailyMeta(daily)),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: PrimaryButton(
-                          label: dailyDone ? '已完成' : '开始挑战',
-                          small: true,
-                          onTap: dailyDone
-                              ? null
-                              : () => _startDaily(context, ref),
+                  if (!GrowthManager.canAccessDaily(player.level))
+                    PrimaryButton(
+                      label: '到达Lv.4·贡生后开启',
+                      small: true,
+                      onTap: null,
+                    )
+                  else
+                    Row(
+                      children: [
+                        Expanded(
+                          child: PrimaryButton(
+                            label: dailyDone ? '已完成' : '开始挑战',
+                            small: true,
+                            onTap: dailyDone
+                                ? null
+                                : () => _startDaily(context, ref),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        width: 110,
-                        child: PrimaryButton(
-                          label: '往期回顾',
-                          small: true,
-                          ghost: true,
-                          onTap: () => _openDailyReview(context),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          width: 110,
+                          child: PrimaryButton(
+                            label: '往期回顾',
+                            small: true,
+                            ghost: true,
+                            onTap: () => _openDailyReview(context),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -339,6 +353,14 @@ class HomeScreen extends ConsumerWidget {
 
   /// 每日挑战：全服同题（按日期种子确定性生成），完成后次日刷新
   Future<void> _startDaily(BuildContext context, WidgetRef ref) async {
+    if (!GrowthManager.canAccessDaily(ref.read(playerProvider).level)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('到达Lv.4·贡生后开启每日挑战')));
+      }
+      return;
+    }
     final db = ref.read(databaseProvider);
     final levelNumber = dailyLevelNumber();
 
@@ -436,10 +458,13 @@ class _RankCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   '${GrowthManager.levelLabel(player.level)} · ${player.title}',
-                  style: displayStyle(
-                    size: 24,
-                    weight: FontWeight.w900,
-                    color: AppColors.accentDeep,
+                  style: applyTitleEffect(
+                    player.activeTitleEffect,
+                    displayStyle(
+                      size: 24,
+                      weight: FontWeight.w900,
+                      color: AppColors.accentDeep,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),

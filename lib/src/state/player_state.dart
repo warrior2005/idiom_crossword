@@ -8,15 +8,19 @@ import 'level_generation.dart';
 
 /// 激励广告配额与冷却常量
 const int kRewardedAdMaxPerDay = 100;
+
 /// 前 10 次激励广告使用 1 分钟冷却，之后为 2 分钟
 const int kRewardedAdFirstCount = 10;
 const int kRewardedAdFirstCooldownSeconds = 60;
 const int kRewardedAdLaterCooldownSeconds = 120;
+
 /// 每则激励广告奖励积分（按激励广告 eCPM 估算，可后续调整）
 const int kRewardedAdPointsReward = 3;
+
 /// 插屏广告观看超过 10 秒奖励积分（按插屏 eCPM 估算）
 const int kInterstitialAdPointsReward = 2;
 const int kInterstitialAdMinViewSeconds = 10;
+
 /// 横幅广告每观看 1 分钟奖励 1 积分，每日上限 120 积分
 const int kMaxBannerPointsPerDay = 120;
 
@@ -53,6 +57,8 @@ class PlayerState {
   final Map<String, int> functionalItems;
   final Set<String> ownedDecorations;
   final String activeGridSkin;
+  final String? activeAvatarFrame;
+  final String? activeTitleEffect;
 
   const PlayerState({
     required this.level,
@@ -66,6 +72,8 @@ class PlayerState {
     required this.functionalItems,
     required this.ownedDecorations,
     required this.activeGridSkin,
+    required this.activeAvatarFrame,
+    required this.activeTitleEffect,
   });
 
   double get xpProgress {
@@ -93,6 +101,8 @@ class PlayerState {
     Map<String, int>? functionalItems,
     Set<String>? ownedDecorations,
     String? activeGridSkin,
+    String? activeAvatarFrame,
+    String? activeTitleEffect,
   }) {
     return PlayerState(
       level: level ?? this.level,
@@ -106,6 +116,8 @@ class PlayerState {
       functionalItems: functionalItems ?? this.functionalItems,
       ownedDecorations: ownedDecorations ?? this.ownedDecorations,
       activeGridSkin: activeGridSkin ?? this.activeGridSkin,
+      activeAvatarFrame: activeAvatarFrame ?? this.activeAvatarFrame,
+      activeTitleEffect: activeTitleEffect ?? this.activeTitleEffect,
     );
   }
 
@@ -133,6 +145,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
       functionalItems: {},
       ownedDecorations: {},
       activeGridSkin: 'paper',
+      activeAvatarFrame: null,
+      activeTitleEffect: null,
     );
   }
 
@@ -170,6 +184,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
       },
       ownedDecorations: await db.getOwnedDecorationIds(),
       activeGridSkin: await db.getActiveDecorationId('grid_skin') ?? 'paper',
+      activeAvatarFrame: await db.getActiveDecorationId('avatar_frame'),
+      activeTitleEffect: await db.getActiveDecorationId('title_effect'),
     );
   }
 
@@ -449,6 +465,16 @@ class PlayerNotifier extends Notifier<PlayerState> {
   Future<void> setActiveGridSkin(String id) async {
     state = state.copyWith(activeGridSkin: id);
     await ref.read(databaseProvider).setActiveDecoration('grid_skin', id);
+  }
+
+  Future<void> setActiveAvatarFrame(String id) async {
+    state = state.copyWith(activeAvatarFrame: id);
+    await ref.read(databaseProvider).setActiveDecoration('avatar_frame', id);
+  }
+
+  Future<void> setActiveTitleEffect(String id) async {
+    state = state.copyWith(activeTitleEffect: id);
+    await ref.read(databaseProvider).setActiveDecoration('title_effect', id);
   }
 }
 

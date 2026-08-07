@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:idiom_crossword/src/data/growth_manager.dart';
+import 'package:idiom_crossword/src/ui/theme/decoration_catalog.dart';
 
 /// 成长系统管理器测试
 
@@ -93,6 +94,13 @@ void main() {
   assert(GrowthManager.avatarSeal(21) == '龙');
   print('  ✓ 士/官/卿/相/公/龙 六档映射正确');
 
+  // 测试 8：装饰条目显示名（升级奖励弹框用）
+  print('\n--- 测试 8: 装饰条目显示名 ---');
+  _testDecorationName('grid_skin_bamboo', '网格皮肤·竹简');
+  _testDecorationName('avatar_frame_wusha', '头像框·乌纱帽');
+  _testDecorationName('title_effect_jinbang', '称号特效·金榜题名');
+  _testDecorationName('custom_title_unlock', '自定义称号解锁');
+
   print('\n=== 所有测试通过 ===');
 }
 
@@ -118,4 +126,12 @@ void _testTitle(int level, String expected, String label) {
   final icon = pass ? '✓' : '✗';
   print('  $icon $label: title=$result (expected $expected)');
   assert(pass, '$label: expected title $expected, got $result');
+}
+
+void _testDecorationName(String item, String expected) {
+  final result = decorationName(item);
+  final pass = result == expected;
+  final icon = pass ? '✓' : '✗';
+  print('  $icon $item -> $result');
+  assert(pass, '$item: expected $expected, got $result');
 }

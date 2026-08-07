@@ -22,6 +22,7 @@ import '../widgets/xp_track.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../theme/grid_skins.dart';
+import '../theme/decoration_catalog.dart';
 import '../../utils/ad_manager.dart';
 import 'learning_screen.dart';
 
@@ -704,18 +705,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
     if (!mounted) return;
     final shownAt = DateTime.now();
-    final shown = AdManager().showInterstitialAd(onAdClosed: () {
-      // 观看超过 10 秒才奖励积分
-      if (DateTime.now().difference(shownAt).inSeconds >=
-          kInterstitialAdMinViewSeconds) {
-        unawaited(
-          ref
-              .read(playerProvider.notifier)
-              .addPoints(kInterstitialAdPointsReward),
-        );
-      }
-      onDone();
-    });
+    final shown = AdManager().showInterstitialAd(
+      onAdClosed: () {
+        // 观看超过 10 秒才奖励积分
+        if (DateTime.now().difference(shownAt).inSeconds >=
+            kInterstitialAdMinViewSeconds) {
+          unawaited(
+            ref
+                .read(playerProvider.notifier)
+                .addPoints(kInterstitialAdPointsReward),
+          );
+        }
+        onDone();
+      },
+    );
     if (!shown) {
       // 未就绪时不阻塞结算弹框，并预加载下一次插屏
       unawaited(AdManager().loadInterstitialAd());
@@ -752,8 +755,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   ) {
     final title = GrowthManager.titleForLevel(newLevel);
     final rewardText = reward.type == RewardType.functional
-        ? '${reward.item == "hint_card" ? "提示卡" : "复活卡"} x${reward.quantity}'
-        : '装饰: ${reward.item}';
+        ? '${reward.item == "hint_card" ? "提示卡" : "复活卡"} ×${reward.quantity}'
+        : decorationName(reward.item);
 
     showWinCardDialog(
       context,

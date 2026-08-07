@@ -12,6 +12,7 @@ import '../widgets/section_title.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../theme/grid_skins.dart';
+import '../theme/decoration_catalog.dart';
 
 /// 积分定价（按广告价值估算后的初值，可后续调整）
 const int kHintCardPoints = 10;
@@ -239,6 +240,42 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     _showSnack('已切换网格皮肤：$name');
   }
 
+  Future<void> _onFrameTap(
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+  ) async {
+    final notifier = ref.read(playerProvider.notifier);
+    final player = ref.read(playerProvider);
+    final def = avatarFrameById(id);
+    if (!player.ownedDecorations.contains('avatar_frame_$id')) {
+      _showSnack(
+        def != null ? '该头像框为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁' : '该头像框尚未解锁',
+      );
+      return;
+    }
+    await notifier.setActiveAvatarFrame(id);
+    _showSnack('已切换头像框：${def?.name ?? id}');
+  }
+
+  Future<void> _onEffectTap(
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+  ) async {
+    final notifier = ref.read(playerProvider.notifier);
+    final player = ref.read(playerProvider);
+    final def = titleEffectById(id);
+    if (!player.ownedDecorations.contains('title_effect_$id')) {
+      _showSnack(
+        def != null ? '该称号特效为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁' : '该称号特效尚未解锁',
+      );
+      return;
+    }
+    await notifier.setActiveTitleEffect(id);
+    _showSnack('已切换称号特效：${def?.name ?? id}');
+  }
+
   @override
   Widget build(BuildContext context) {
     final player = ref.watch(playerProvider);
@@ -358,6 +395,16 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     owned: player.ownedDecorations,
                     active: player.activeGridSkin,
                     onSelect: (id) => _onSkinTap(context, ref, id),
+                  ),
+                  _FramesCard(
+                    owned: player.ownedDecorations,
+                    active: player.activeAvatarFrame,
+                    onSelect: (id) => _onFrameTap(context, ref, id),
+                  ),
+                  _EffectsCard(
+                    owned: player.ownedDecorations,
+                    active: player.activeTitleEffect,
+                    onSelect: (id) => _onEffectTap(context, ref, id),
                   ),
                   const SizedBox(height: 8),
                   const Center(
@@ -746,6 +793,190 @@ class _SkinsCard extends StatelessWidget {
                 isLevelSkin ? 'Lv.$unlockLevel' : '$price 积分',
                 color: BadgeSoftColor.leaf,
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 头像框选择卡
+class _FramesCard extends StatelessWidget {
+  final Set<String> owned;
+  final String? active;
+  final ValueChanged<String> onSelect;
+  const _FramesCard({
+    required this.owned,
+    required this.active,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _DecoCard(
+      title: '头像框',
+      hint: '升级奖励解锁，已拥有后点击切换',
+      children: [
+        for (final frame in avatarFrames)
+          _DecoTile(
+            glyph: '冠',
+            name: frame.name,
+            statusText: active == frame.id
+                ? '使用中'
+                : owned.contains('avatar_frame_${frame.id}')
+                ? '已拥有'
+                : 'Lv.${frame.unlockLevel} 升级奖励',
+            isActive: active == frame.id,
+            isOwned: owned.contains('avatar_frame_${frame.id}'),
+            unlockLevel: frame.unlockLevel,
+            onTap: () => onSelect(frame.id),
+          ),
+      ],
+    );
+  }
+}
+
+/// 称号特效选择卡
+class _EffectsCard extends StatelessWidget {
+  final Set<String> owned;
+  final String? active;
+  final ValueChanged<String> onSelect;
+  const _EffectsCard({
+    required this.owned,
+    required this.active,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _DecoCard(
+      title: '称号特效',
+      hint: '升级奖励解锁，已拥有后点击切换',
+      children: [
+        for (final effect in titleEffects)
+          _DecoTile(
+            glyph: '耀',
+            name: effect.name,
+            statusText: active == effect.id
+                ? '使用中'
+                : owned.contains('title_effect_${effect.id}')
+                ? '已拥有'
+                : 'Lv.${effect.unlockLevel} 升级奖励',
+            isActive: active == effect.id,
+            isOwned: owned.contains('title_effect_${effect.id}'),
+            unlockLevel: effect.unlockLevel,
+            onTap: () => onSelect(effect.id),
+          ),
+      ],
+    );
+  }
+}
+
+class _DecoCard extends StatelessWidget {
+  final String title;
+  final String hint;
+  final List<Widget> children;
+  const _DecoCard({
+    required this.title,
+    required this.hint,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: bodyStyle(size: 14, weight: FontWeight.w600)),
+          const SizedBox(height: 4),
+          Text(hint, style: bodyStyle(size: 11, color: AppColors.muted)),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+}
+
+class _DecoTile extends StatelessWidget {
+  final String glyph;
+  final String name;
+  final String statusText;
+  final bool isActive;
+  final bool isOwned;
+  final int unlockLevel;
+  final VoidCallback onTap;
+  const _DecoTile({
+    required this.glyph,
+    required this.name,
+    required this.statusText,
+    required this.isActive,
+    required this.isOwned,
+    required this.unlockLevel,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isActive ? AppColors.accent : AppColors.border,
+            width: isActive ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surface2,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.borderStrong),
+              ),
+              child: Center(
+                child: Text(
+                  glyph,
+                  style: TextStyle(
+                    fontFamily: kSerif,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.accentDeep,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: bodyStyle(size: 14, weight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    statusText,
+                    style: bodyStyle(size: 11, color: AppColors.muted),
+                  ),
+                ],
+              ),
+            ),
+            if (isActive)
+              BadgeSoft('使用中', color: BadgeSoftColor.gold)
+            else if (!isOwned)
+              BadgeSoft('Lv.$unlockLevel', color: BadgeSoftColor.leaf),
           ],
         ),
       ),
