@@ -218,15 +218,15 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
-      find.text('竹简'),
+      find.text('宣纸'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('竹简'));
+    await tester.tap(find.text('宣纸'));
     await tester.pump();
 
-    expect(find.text('已切换网格皮肤：竹简'), findsOneWidget);
-    expect(await db.getActiveDecorationId('grid_skin'), 'bamboo');
+    expect(find.text('已切换网格皮肤：宣纸'), findsOneWidget);
+    expect(await db.getActiveDecorationId('grid_skin'), 'paper');
   });
 
   testWidgets('首页：每日挑战在数据库无成语时提示生成失败', (tester) async {

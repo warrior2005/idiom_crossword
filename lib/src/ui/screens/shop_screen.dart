@@ -295,8 +295,16 @@ class _SkinsCard extends StatelessWidget {
             '测试阶段不锁定，点击即可使用',
             style: bodyStyle(size: 11, color: AppColors.muted),
           ),
-          const SizedBox(height: 10),
-          for (final skin in gridSkins) _skinTile(skin),
+          const SizedBox(height: 12),
+          Text('等级皮肤', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+          const SizedBox(height: 6),
+          for (final skin in gridSkins.where((s) => s.source == 'level'))
+            _skinTile(skin),
+          const SizedBox(height: 6),
+          Text('广告兑换', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+          const SizedBox(height: 6),
+          for (final skin in gridSkins.where((s) => s.source == 'ads'))
+            _skinTile(skin),
         ],
       ),
     );
@@ -361,6 +369,8 @@ class _SkinsCard extends StatelessWidget {
                         ? '当前使用'
                         : isOwned
                         ? '已拥有'
+                        : skin.source == 'ads'
+                        ? '广告兑换（测试可选）'
                         : '未拥有（测试可选）',
                     style: bodyStyle(
                       size: 11,
