@@ -1157,7 +1157,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   _buildTopBar(),
                   _buildProgress(),
                   _buildCompletedIdiomsSection(),
-                  Expanded(flex: 8, child: _buildGrid()),
+                  Expanded(flex: 7, child: _buildGrid()),
                   _buildStatusLine(),
                   Expanded(flex: 3, child: _buildCandidateBoardWidget()),
                   _buildToolbar(),
@@ -1277,68 +1277,71 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final skin =
-            gridSkinById(ref.watch(playerProvider).activeGridSkin) ??
-            gridSkins.first;
-        final availableWidth = constraints.maxWidth;
-        final availableHeight = constraints.maxHeight;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final skin =
+              gridSkinById(ref.watch(playerProvider).activeGridSkin) ??
+              gridSkins.first;
+          final availableWidth = constraints.maxWidth;
+          final availableHeight = constraints.maxHeight;
 
-        // 生成器会在内容四周各留 1 格 blocked 边框（不绘制），
-        // 按“实际使用区域”而不是整个矩阵计算，避免隐形边距占用显示空间
-        final (usedRows, usedCols) = usedGridBounds(_grid);
-        if (usedRows <= 0 || usedCols <= 0) {
-          return const SizedBox.shrink();
-        }
-        final actualCellSize = gridCellSize(
-          availableWidth: availableWidth,
-          availableHeight: availableHeight,
-          rows: usedRows,
-          cols: usedCols,
-        );
+          // 生成器会在内容四周各留 1 格 blocked 边框（不绘制），
+          // 按“实际使用区域”而不是整个矩阵计算，避免隐形边距占用显示空间
+          final (usedRows, usedCols) = usedGridBounds(_grid);
+          if (usedRows <= 0 || usedCols <= 0) {
+            return const SizedBox.shrink();
+          }
+          final actualCellSize = gridCellSize(
+            availableWidth: availableWidth,
+            availableHeight: availableHeight,
+            rows: usedRows,
+            cols: usedCols,
+          );
 
-        final gridWidth = usedCols * actualCellSize;
-        final gridHeight = usedRows * actualCellSize;
+          final gridWidth = usedCols * actualCellSize;
+          final gridHeight = usedRows * actualCellSize;
 
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (details) {
-            final cell = _cellFromOffset(
-              details.localPosition,
-              availableWidth,
-              availableHeight,
-              gridWidth,
-              gridHeight,
-              actualCellSize,
-            );
-            if (cell != null) _onGridTap(cell.$1, cell.$2);
-          },
-          child: Center(
-            child: SizedBox(
-              width: gridWidth,
-              height: gridHeight,
-              child: ClipRect(
-                child: CustomPaint(
-                  painter: GridPainter(
-                    grid: _grid,
-                    playerAnswers: _playerAnswers,
-                    focusRow: _focusRow,
-                    focusCol: _focusCol,
-                    errorCells: _errorCells,
-                    completedCells: _completedCells,
-                    flashCell: _flashCell,
-                    cellSize: actualCellSize,
-                    skin: skin,
-                    // 把整个矩阵上移/左移 1 格，裁掉不绘制的边框
-                    offset: Offset(-actualCellSize, -actualCellSize),
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (details) {
+              final cell = _cellFromOffset(
+                details.localPosition,
+                availableWidth,
+                availableHeight,
+                gridWidth,
+                gridHeight,
+                actualCellSize,
+              );
+              if (cell != null) _onGridTap(cell.$1, cell.$2);
+            },
+            child: Center(
+              child: SizedBox(
+                width: gridWidth,
+                height: gridHeight,
+                child: ClipRect(
+                  child: CustomPaint(
+                    painter: GridPainter(
+                      grid: _grid,
+                      playerAnswers: _playerAnswers,
+                      focusRow: _focusRow,
+                      focusCol: _focusCol,
+                      errorCells: _errorCells,
+                      completedCells: _completedCells,
+                      flashCell: _flashCell,
+                      cellSize: actualCellSize,
+                      skin: skin,
+                      // 把整个矩阵上移/左移 1 格，裁掉不绘制的边框
+                      offset: Offset(-actualCellSize, -actualCellSize),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -1442,7 +1445,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   Widget _buildCandidateBoardWidget() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: Column(
@@ -1505,7 +1508,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   Widget _buildStatusLine() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
