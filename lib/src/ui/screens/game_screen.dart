@@ -1284,10 +1284,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
 
-        final cellSize = 48.0;
-        final maxCellWidth = availableWidth / _grid.cols;
-        final maxCellHeight = availableHeight / _grid.rows;
-        final actualCellSize = min(cellSize, min(maxCellWidth, maxCellHeight));
+        // 尽量撑满中部区域：取能放入可用空间的“最大正方形单元格”
+        final actualCellSize = gridCellSize(
+          availableWidth: availableWidth,
+          availableHeight: availableHeight,
+          rows: _grid.rows,
+          cols: _grid.cols,
+        );
 
         final gridWidth = _grid.cols * actualCellSize;
         final gridHeight = _grid.rows * actualCellSize;
@@ -1718,6 +1721,17 @@ class _ToolbarButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 网格单元尺寸：在可用区域内取最大的正方形单元格
+double gridCellSize({
+  required double availableWidth,
+  required double availableHeight,
+  required int rows,
+  required int cols,
+}) {
+  if (rows <= 0 || cols <= 0) return 0;
+  return min(availableWidth / cols, availableHeight / rows);
 }
 
 /// 填字网格绘制器

@@ -11,6 +11,29 @@ import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 
 /// 完整通关流程端到端测试：候选字填字 → 过关对话框 → 经验/记录落库
 void main() {
+  test('网格单元尺寸尽量撑满可用区域', () {
+    // 空间富余时不再被 48px 上限限制：360/6 = 60
+    expect(
+      gridCellSize(availableWidth: 360, availableHeight: 500, rows: 6, cols: 6),
+      60,
+    );
+    // 高度不足时以高度为准，保持正方形
+    expect(
+      gridCellSize(
+        availableWidth: 360,
+        availableHeight: 200,
+        rows: 8,
+        cols: 10,
+      ),
+      25,
+    );
+    // 非法行列返回 0
+    expect(
+      gridCellSize(availableWidth: 100, availableHeight: 100, rows: 0, cols: 5),
+      0,
+    );
+  });
+
   testWidgets('填满空格后过关，经验与通关记录写入数据库', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
