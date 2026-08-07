@@ -1136,8 +1136,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   ) {
     final offsetX = (availableWidth - gridWidth) / 2;
     final offsetY = (availableHeight - gridHeight) / 2;
-    final col = ((local.dx - offsetX) / cellSize).floor();
-    final row = ((local.dy - offsetY) / cellSize).floor();
+    // 绘制时整体上移/左移 1 格裁掉隐形边框，命中映射需补回这一格
+    final col = ((local.dx + cellSize - offsetX) / cellSize).floor();
+    final row = ((local.dy + cellSize - offsetY) / cellSize).floor();
     if (row >= 0 && row < _grid.rows && col >= 0 && col < _grid.cols) {
       return (row, col);
     }
@@ -1156,7 +1157,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   _buildTopBar(),
                   _buildProgress(),
                   _buildCompletedIdiomsSection(),
-                  Expanded(flex: 5, child: _buildGrid()),
+                  Expanded(flex: 8, child: _buildGrid()),
                   _buildStatusLine(),
                   Expanded(flex: 3, child: _buildCandidateBoardWidget()),
                   _buildToolbar(),
@@ -1284,16 +1285,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
 
-        // 尽量撑满中部区域：取能放入可用空间的“最大正方形单元格”
+        // 生成器会在内容四周各留 1 格 blocked 边框（不绘制），
+        // 按“实际使用区域”而不是整个矩阵计算，避免隐形边距占用显示空间
+        final (usedRows, usedCols) = usedGridBounds(_grid);
+        if (usedRows <= 0 || usedCols <= 0) {
+          return const SizedBox.shrink();
+        }
         final actualCellSize = gridCellSize(
           availableWidth: availableWidth,
           availableHeight: availableHeight,
-          rows: _grid.rows,
-          cols: _grid.cols,
+          rows: usedRows,
+          cols: usedCols,
         );
 
-        final gridWidth = _grid.cols * actualCellSize;
-        final gridHeight = _grid.rows * actualCellSize;
+        final gridWidth = usedCols * actualCellSize;
+        final gridHeight = usedRows * actualCellSize;
 
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -1312,17 +1318,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             child: SizedBox(
               width: gridWidth,
               height: gridHeight,
-              child: CustomPaint(
-                painter: GridPainter(
-                  grid: _grid,
-                  playerAnswers: _playerAnswers,
-                  focusRow: _focusRow,
-                  focusCol: _focusCol,
-                  errorCells: _errorCells,
-                  completedCells: _completedCells,
-                  flashCell: _flashCell,
-                  cellSize: actualCellSize,
-                  skin: skin,
+              child: ClipRect(
+                child: CustomPaint(
+                  painter: GridPainter(
+                    grid: _grid,
+                    playerAnswers: _playerAnswers,
+                    focusRow: _focusRow,
+                    focusCol: _focusCol,
+                    errorCells: _errorCells,
+                    completedCells: _completedCells,
+                    flashCell: _flashCell,
+                    cellSize: actualCellSize,
+                    skin: skin,
+                    // 把整个矩阵上移/左移 1 格，裁掉不绘制的边框
+                    offset: Offset(-actualCellSize, -actualCellSize),
+                  ),
                 ),
               ),
             ),
@@ -1336,7 +1346,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     // 固定高度区域：出现完成词条/释义时不再挤压网格布局（避免抖动）
     return Container(
       height: 116,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: _completedIdiomList.isEmpty
           ? const SizedBox.shrink()
           : SizedBox(
@@ -1344,7 +1354,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               child: AppCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
-                  vertical: 8,
+                  vertical: 6,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1734,6 +1744,23 @@ double gridCellSize({
   return min(availableWidth / cols, availableHeight / rows);
 }
 
+/// 网格实际使用区域（非 blocked 单元格的包围盒，不含生成器留下的隐形边框）
+(int, int) usedGridBounds(CrosswordGrid grid) {
+  int minRow = grid.rows, maxRow = -1;
+  int minCol = grid.cols, maxCol = -1;
+  for (int r = 0; r < grid.rows; r++) {
+    for (int c = 0; c < grid.cols; c++) {
+      if (grid.cellAt(r, c).state == CellState.blocked) continue;
+      if (r < minRow) minRow = r;
+      if (r > maxRow) maxRow = r;
+      if (c < minCol) minCol = c;
+      if (c > maxCol) maxCol = c;
+    }
+  }
+  if (maxRow < minRow || maxCol < minCol) return (0, 0);
+  return (maxRow - minRow + 1, maxCol - minCol + 1);
+}
+
 /// 填字网格绘制器
 class GridPainter extends CustomPainter {
   final CrosswordGrid grid;
@@ -1745,6 +1772,7 @@ class GridPainter extends CustomPainter {
   final (int, int)? flashCell;
   final double cellSize;
   final GridSkin skin;
+  final Offset offset;
 
   GridPainter({
     required this.grid,
@@ -1756,10 +1784,12 @@ class GridPainter extends CustomPainter {
     required this.flashCell,
     required this.cellSize,
     required this.skin,
+    required this.offset,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.translate(offset.dx, offset.dy);
     const cellPadding = 2.0;
     final s = cellSize;
     final fontSize = 26.0 * (s / 48.0);

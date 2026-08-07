@@ -34,6 +34,21 @@ void main() {
     );
   });
 
+  test('usedGridBounds 排除生成器隐形边框', () {
+    final grid = engine.CrosswordGrid(rows: 5, cols: 6);
+    // 模拟生成器：内容占第 1~2 行、第 1~3 列，四周是 blocked 边框
+    for (var r = 0; r < 5; r++) {
+      for (var c = 0; c < 6; c++) {
+        if (r >= 1 && r <= 2 && c >= 1 && c <= 3) {
+          grid.cellAt(r, c).state = engine.CellState.filled;
+        }
+      }
+    }
+    expect(usedGridBounds(grid), (2, 3));
+    // 全 blocked 的网格返回 (0, 0)
+    expect(usedGridBounds(engine.CrosswordGrid(rows: 3, cols: 3)), (0, 0));
+  });
+
   testWidgets('填满空格后过关，经验与通关记录写入数据库', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -58,10 +73,10 @@ void main() {
         (w) => w is CustomPaint && w.painter is GridPainter,
       ),
     );
-    final cellSize = gridRect.width / 5;
+    final cellSize = gridRect.width / 4; // 实际使用 4 列（隐形边框已裁掉）
     final snakeCell = Offset(
-      gridRect.left + 2 * cellSize + cellSize / 2,
-      gridRect.top + 1 * cellSize + cellSize / 2,
+      gridRect.left + 1 * cellSize + cellSize / 2,
+      gridRect.top + cellSize / 2,
     );
     await tester.tapAt(snakeCell); // 聚焦已填格
     await tester.pump();
@@ -140,12 +155,12 @@ void main() {
         (w) => w is CustomPaint && w.painter is GridPainter,
       ),
     );
-    final cellSize = gridRect.width / 5;
+    final cellSize = gridRect.width / 4;
     Offset cellCenter(int col, int row) => Offset(
       gridRect.left + col * cellSize + cellSize / 2,
       gridRect.top + row * cellSize + cellSize / 2,
     );
-    await tester.tapAt(cellCenter(3, 1));
+    await tester.tapAt(cellCenter(2, 0)); // 添（矩阵第 3 列 → 实际第 2 列）
     await tester.pump();
     await tester.tap(find.text('添'));
     await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
@@ -196,11 +211,11 @@ void main() {
         (w) => w is CustomPaint && w.painter is GridPainter,
       ),
     );
-    final cellSize = gridRect.width / 5;
+    final cellSize = gridRect.width / 4;
     await tester.tapAt(
       Offset(
-        gridRect.left + 2 * cellSize + cellSize / 2,
-        gridRect.top + 1 * cellSize + cellSize / 2,
+        gridRect.left + 1 * cellSize + cellSize / 2,
+        gridRect.top + cellSize / 2,
       ),
     );
     await tester.pump();
