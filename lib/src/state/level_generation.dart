@@ -5,6 +5,7 @@ import '../engine/crossing_graph.dart';
 import '../engine/grid_engine.dart' as engine;
 import '../engine/integrated_generator.dart';
 import '../engine/spiral_difficulty.dart';
+import '../engine/global_difficulty.dart';
 import 'level_state_codec.dart';
 
 /// 每日挑战专用关卡号段起点（1000000+epochDay，与普通关卡区分）
@@ -40,6 +41,16 @@ Future<engine.CrosswordLevel?> generateLevel(
   final (minD, maxD) = globalRange
       ? (1, 50)
       : difficultyRange ?? _spiralRange(levelNumber);
+
+  if (globalRange && targetSize == null) {
+    return _generateGlobalLevel(
+      db,
+      levelNumber,
+      maxAttempts: maxAttempts,
+      seed: seed,
+      title: title,
+    );
+  }
 
   final dbIdioms = await db.findIdiomsByDifficulty(
     minD,
@@ -85,32 +96,80 @@ Future<engine.CrosswordLevel?> generateLevel(
             storyHint: level.storyHint,
           );
   }
-  if (globalRange) {
-    // Lv.20 后主线关卡直接使用全局难度区间 1-50
-    final (mainCount, tailCount, previewCount) =
-        SpiralDifficulty.selectIdiomCounts(levelNumber);
-    final level = generator.generate(
-      targetSize: mainCount + tailCount + previewCount,
-      minDifficulty: minD,
-      maxDifficulty: maxD,
-      maxAttempts: maxAttempts,
-      levelNumber: levelNumber,
-    );
-    return level == null || title == null
-        ? level
-        : engine.CrosswordLevel(
-            levelId: level.levelId,
-            grid: level.grid,
-            placements: level.placements,
-            givenCharacters: level.givenCharacters,
-            title: title,
-            storyHint: level.storyHint,
-          );
-  }
   return generator.generateSpiral(
     levelNumber: levelNumber,
     maxAttempts: maxAttempts,
   );
+}
+
+/// Lv.20 后：按“波浪中心 + 三区混排”从各难度区取词生成
+Future<engine.CrosswordLevel?> _generateGlobalLevel(
+  AppDatabase db,
+  int levelNumber, {
+  required int maxAttempts,
+  int? seed,
+  String? title,
+}) async {
+  final global = GlobalDifficulty.calculate(
+    levelNumber,
+    random: seed == null ? null : Random(seed),
+  );
+  final zones = [
+    (global.mainMin, global.mainMax, global.mainCount * 20),
+    (global.reviewMin, global.reviewMax, global.reviewCount * 20),
+    (global.sprintMin, global.sprintMax, global.sprintCount * 20),
+    (global.surpriseMin, global.surpriseMax, global.surpriseCount * 25),
+  ];
+
+  final byWord = <String, Idiom>{};
+  for (final (minD, maxD, limit) in zones) {
+    if (minD <= 0 || maxD < minD) continue;
+    final rows = await db.findIdiomsByDifficulty(
+      minD,
+      maxD,
+      limit,
+      randomOrder: true,
+    );
+    for (final row in rows) {
+      byWord.putIfAbsent(row.word, () => row);
+    }
+  }
+  if (byWord.length < 5) return null;
+
+  final engineIdioms = byWord.values
+      .map(
+        (i) => engine.Idiom(
+          text: i.word,
+          pinyin: i.pinyin,
+          meaning: i.explanation,
+          difficulty: i.difficulty,
+          source: i.derivation ?? '',
+        ),
+      )
+      .toList();
+
+  final graph = CrossingGraph(idioms: engineIdioms);
+  final generator = IntegratedGenerator(
+    graph: graph,
+    random: seed == null ? null : Random(seed),
+  );
+  final level = generator.generate(
+    targetSize: global.targetSize,
+    minDifficulty: 1,
+    maxDifficulty: 50,
+    maxAttempts: maxAttempts,
+    levelNumber: levelNumber,
+  );
+  return level == null || title == null
+      ? level
+      : engine.CrosswordLevel(
+          levelId: level.levelId,
+          grid: level.grid,
+          placements: level.placements,
+          givenCharacters: level.givenCharacters,
+          title: title,
+          storyHint: level.storyHint,
+        );
 }
 
 /// 螺旋基准难度放宽 ±2，并覆盖长尾/预览区间的取数范围

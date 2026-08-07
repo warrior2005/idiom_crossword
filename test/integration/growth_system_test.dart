@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/engine/spiral_difficulty.dart';
+import 'package:idiom_crossword/src/engine/global_difficulty.dart';
 import 'package:idiom_crossword/src/data/growth_manager.dart';
 
 void main() {
@@ -28,6 +31,20 @@ void main() {
         expect(result.mainMin, greaterThanOrEqualTo(1));
         expect(result.mainMax, lessThanOrEqualTo(50));
         expect(result.mainMin, lessThanOrEqualTo(result.mainMax));
+      }
+    });
+
+    test('Lv20 后三区混排参数保持合理', () {
+      for (final levelNum in [7551, 10001, 20001, 50001]) {
+        final gd = GlobalDifficulty.calculate(levelNum, random: Random(1));
+        expect(gd.center, inInclusiveRange(20, 40));
+        expect(gd.reviewMax, lessThan(gd.mainMin));
+        expect(gd.mainMax, lessThan(gd.sprintMin));
+        expect(gd.targetSize, inInclusiveRange(8, 12));
+        expect(
+          gd.mainCount + gd.reviewCount + gd.sprintCount + gd.surpriseCount,
+          gd.targetSize,
+        );
       }
     });
 

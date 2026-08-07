@@ -318,7 +318,7 @@ void main() {
     expect(progress.bestCorrectStreak, 12);
   });
 
-  test('Lv20 后全局难度区间仍可生成关卡', () async {
+  test('Lv20 后三区混排仍可生成关卡', () async {
     final tmpDir = await Directory.systemTemp.createTemp('idiom_global_db');
     final tmpDb = File('${tmpDir.path}/test.db');
     await File('assets/data/idiom_crossword.db').copy(tmpDb.path);
