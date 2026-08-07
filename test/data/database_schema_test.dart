@@ -185,6 +185,49 @@ void main() {
     await tmpDir.delete(recursive: true);
   });
 
+  test('列已存在但版本号落后时迁移仍成功（幂等修复）', () async {
+    // 模拟用户设备上的历史库：player_progress_table 已含连胜两列，
+    // 但 PRAGMA user_version 仍为 8。旧代码会重复 ALTER TABLE 而崩溃。
+    final tmpDir = await Directory.systemTemp.createTemp('idiom_db_dupe_test');
+    final tmpDb = File('${tmpDir.path}/test.db');
+    await File('assets/data/idiom_crossword.db').copy(tmpDb.path);
+
+    final conn = sqlite.sqlite3.open(tmpDb.path);
+    conn.execute('PRAGMA user_version = 8');
+    conn.execute(
+      'ALTER TABLE player_progress_table '
+      'ADD COLUMN current_correct_streak INTEGER NOT NULL DEFAULT 0',
+    );
+    conn.execute(
+      'ALTER TABLE player_progress_table '
+      'ADD COLUMN best_correct_streak INTEGER NOT NULL DEFAULT 0',
+    );
+    conn.close();
+
+    final db = AppDatabase(NativeDatabase(tmpDb));
+    // 迁移应跳过重复列，正常写入连胜与积分
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 10,
+      completedLevels: 1,
+      hintCards: 0,
+      reviveCards: 0,
+      currentCorrectStreak: 3,
+      bestCorrectStreak: 5,
+    );
+    final progress = await db.getPlayerProgress();
+    expect(progress, isNotNull);
+    expect(progress!.currentCorrectStreak, 3);
+    expect(progress.bestCorrectStreak, 5);
+    expect(progress.points, 0);
+
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.first, 10);
+
+    await db.close();
+    await tmpDir.delete(recursive: true);
+  });
+
   test('level codec roundtrips a level and game state', () {
     final grid = engine.CrosswordGrid(rows: 2, cols: 3);
     final cells = [grid.cellAt(0, 0), grid.cellAt(0, 1), grid.cellAt(1, 0)];

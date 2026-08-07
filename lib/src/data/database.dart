@@ -275,7 +275,9 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 4) {
           // 关卡历史补充错误填写次数（统计用）
-          await m.addColumn(levelHistory, levelHistory.errorsMade);
+          if (!await _columnExists('level_history', 'errors_made')) {
+            await m.addColumn(levelHistory, levelHistory.errorsMade);
+          }
         }
         if (from < 5) {
           // 成就表
@@ -287,29 +289,51 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 7) {
           // 冻结关卡定义（历史关卡重玩同题）
-          await m.addColumn(levelHistory, levelHistory.levelJson);
+          if (!await _columnExists('level_history', 'level_json')) {
+            await m.addColumn(levelHistory, levelHistory.levelJson);
+          }
         }
         if (from < 8) {
           // 填字尝试次数（正确率统计）
-          await m.addColumn(levelHistory, levelHistory.totalFills);
+          if (!await _columnExists('level_history', 'total_fills')) {
+            await m.addColumn(levelHistory, levelHistory.totalFills);
+          }
         }
         if (from < 9) {
           // 跨关卡连续答对字数（最长连胜统计）
-          await m.addColumn(
-            playerProgressTable,
-            playerProgressTable.currentCorrectStreak,
-          );
-          await m.addColumn(
-            playerProgressTable,
-            playerProgressTable.bestCorrectStreak,
-          );
+          if (!await _columnExists(
+            'player_progress_table',
+            'current_correct_streak',
+          )) {
+            await m.addColumn(
+              playerProgressTable,
+              playerProgressTable.currentCorrectStreak,
+            );
+          }
+          if (!await _columnExists(
+            'player_progress_table',
+            'best_correct_streak',
+          )) {
+            await m.addColumn(
+              playerProgressTable,
+              playerProgressTable.bestCorrectStreak,
+            );
+          }
         }
         if (from < 10) {
           // 广告积分
-          await m.addColumn(playerProgressTable, playerProgressTable.points);
+          if (!await _columnExists('player_progress_table', 'points')) {
+            await m.addColumn(playerProgressTable, playerProgressTable.points);
+          }
         }
       },
     );
+  }
+
+  /// 检查表是否已包含指定列（迁移幂等，防止版本落后时重复加列）
+  Future<bool> _columnExists(String table, String column) async {
+    final rows = await customSelect('PRAGMA table_info("$table")').get();
+    return rows.any((row) => row.data['name'] == column);
   }
 
   // ============================================================
