@@ -10,8 +10,8 @@
 | # | 决策 |
 |---|------|
 | 1 | 导航重构为底部五 Tab（首页/关卡/收藏/商城/我的），子页面带返回箭头推入 |
-| 2 | 覆盖全部 11 个视图（含新建「我的」「每日回顾」） |
-| 3 | 新增功能（今日一读/每日回顾/我的等级条/商城钱包）全部接真实数据 |
+| 2 | 覆盖全部 11 个视图（含新建「我的」「每日挑战」） |
+| 3 | 新增功能（今日一读/每日挑战/我的等级条/商城钱包）全部接真实数据 |
 | 4 | 展示字体用 iOS 系统宋体（`Songti SC`），不内嵌 Noto 字体 |
 | 5 | 图标用 `flutter_svg` 内嵌设计稿 monoline SVG path |
 | 6 | 游戏主界面保留常驻候选字盘交互，仅做视觉改造 |
@@ -69,24 +69,24 @@
 ## 6. 导航架构（`lib/src/ui/screens/root_screen.dart` 新）
 
 - `RootScreen`：`Scaffold` + `bottomNavigationBar`（5 Tab：首页/关卡/收藏/商城/我的；monoline SVG + 红点，选中朱砂）+ `IndexedStack` 保持各 Tab 状态。
-- 子页面（成就/统计/设置/每日回顾）`Navigator.push` 进入，顶部返回箭头（`AppIcon.back`）。
+- 子页面（成就/统计/设置/每日挑战）`Navigator.push` 进入，顶部返回箭头（`AppIcon.back`）。
 - `main.dart` home 改为 `RootScreen`；原 `HomeScreen` 重构为首页 Tab，保留 `_startGame`/`_startDaily` 逻辑。
 
 ## 7. 页面改造
 
 ### 7.1 首页 Tab（重构 `home_screen.dart`）
 - 头部：日期 + 「成语填字」（衬线大标题）+「士」头像（→ 我的 Tab）。
-- **科举仕途卡**：kicker「科举仕途」+ `Lv.X · 称号`（衬线 900 深红）+ `XpTrack`「经验 N / 离「X」还差 M」+ 背景水印 `Lv.X`（accent 10%）。
-- **每日挑战卡**：金 kicker「每日挑战 · 全服同题」+ 每日成语大字（衬线 900）+「第 N 期」暗金徽章 + 难度/成语数/时长 + 「开始挑战」/「昨日回顾」。
-  - 数据：`FutureProvider` 按 `epochDay()` 确定性生成今日关卡，读首条成语为每日成语、成语数、平均难度→难度文案、时长估算（成语数 × ~45s）。
+- **科举仕途卡**：kicker「科举仕途」+ `Lv.X · 称号`（衬线 900 深红）+ `XpTrack`「经验 N / 离「X」还差 M」+ 背景水印 `Lv.X`（accent 10%）；Lv.∞ 满级时右侧显示「经验持续累计」。
+- **每日挑战卡**：金 kicker「每日挑战 · 全服同题」+ 每日成语大字（衬线 900）+「第 N 期」暗金徽章 + 难度/成语数/时长/经验 + 「开始挑战」/「往期回顾」。
+  - 数据：`FutureProvider` 按 `epochDay()` 确定性生成今日关卡，读首条成语为每日成语、成语数、平均难度→难度文案；时长固定 2 分钟，经验固定 300。
 - 「继续第 N 关」主按钮（复用 `_startGame`）。
-- **书卷小径**：2 tile（选择关卡 → 关卡 Tab；成语收藏 → 收藏 Tab），描述文案替换内部词（如「由浅入深 · 循序而进」）。
+- **书卷小径**：2 tile（选择关卡 → 关卡 Tab；成语收藏 → 收藏 Tab），描述文案替换内部词（如「由浅入深 · 循序渐进」）。
 - **今日一读**卡：竖排成语（衬线 900）+ 出处（`derivation`）+ 释义。数据：按日期确定性取成语（新增 DB 方法 `getIdiomAtOffset`）。
-- footnote「交叉推理 · 一字双关 · 循序而进」。
+- footnote「交叉推理 · 一字双关 · 循序渐进」。
 
 ### 7.2 关卡 Tab（重构 `level_select_screen.dart`）
 - `h1 选择关卡` + kicker「由浅入深 · 每关约 8–12 条成语」。
-- 每日挑战置顶卡：朱砂「日」印章 + 标题 + 「挑战」badge。
+- 每日挑战置顶卡：朱砂「日」印章 + 标题 + 「挑战」badge；今日已完成时整卡隐藏。
 - **主线区**：`PageView` 左右滑动翻页，每页 24 关（4 列 × 6 行，固定页高），页码指示（如「第 25-48 关」），最多只能向右滑动到当前关卡所在页。单元格三态：
   - 已完成：`accentSoft` 底 + 旋转 6° 红「通」角标；
   - 当前关：朱砂底白字 + 投影；
@@ -110,10 +110,10 @@
 ### 7.5 我的 Tab（新建 `mine_screen.dart`）
 - `h1 我的`。
 - **头像卡**：黑底金字「士」方块 + `Lv.X · 称号`（衬线深红）+「已获 N 关 · X 经验」+「再通关 M 关，晋升「X」」。
-- **科举等级条**：横向滚动，最多 20 级（童生→位极人臣，`GrowthManager` 数据）。三态：
-  - 已完成：`accentSoft` 底 + 红「通」角标（同关卡已完成样式）；
+- **科举等级条**：横向滚动，最多 21 级（童生→位极人臣→Lv.∞ 真龙天子，`GrowthManager` 数据）。Lv∞ 前一个节点不是 Lv20 时插入「···」省略号。三态：
+  - 已完成：`accentSoft` 底（不显示「通」角标）；
   - 当前级：朱砂底白字 +「当前」角标；
-  - 未解锁：surface 底，只展示后续第一个。
+  - 未解锁：surface 底。
 - **学问一览**：4 stat 卡（累计通关/成语收藏/最长连胜/平均用时），读 `statsProvider`。
 - **更多** menu 行：成就/统计/设置（图标方块 + 标题 + hint + ›）。
 
@@ -136,46 +136,54 @@
   - **偏好**：显示拼音 / 每日提醒 ——本轮仅持久化开关状态（新增 settings 键 `show_pinyin`、`daily_reminder`），不引入通知调度与网格拼音渲染等行为变更，避免范围膨胀。
   - **关于**：当前版本（从 `pubspec`）/ 用户协议与隐私（toast 占位）。
 
-### 7.10 每日回顾（新建 `daily_review_screen.dart`）
-- quiz-hero：朱砂「日」印章 + 第 N 期 · 每日成语 + 完成态。
+### 7.10 每日挑战页（`daily_review_screen.dart`）
+- 标题为「每日挑战」；quiz-hero：暖色渐变底 + 朱砂「日」印章 + 第 N 期 · 每日成语 + 完成态。
+- 今日已完成时小字显示「全服同题 · 已完成 · 明日刷新」。
 - 今日成语竖排卡（成语 + 释义）——**不展示「全服平均时间」等外部数据**。
-- 历期回顾：从 `getLevelHistory` 取 `levelNumber >= dailyLevelOffset` 记录，解码 `levelJson` 得成语/释义列表。
-- 「重玩今日挑战」按钮（复用每日生成逻辑；已通关关卡按现有规则不再发奖）。
-- footnote「次日 0 点刷新」。
+- 历期回顾：从 `getLevelHistory` 取 `levelNumber >= dailyLevelOffset` 记录，解码 `levelJson` 得成语/释义列表；每页 10 条，支持上一页/下一页翻页。
+- 页面底部固定「重玩今日挑战」按钮（已通关时带 `noReward`，不再获得经验）和「次日 0 点刷新」。
 
 ### 7.11 游戏主界面（重构 `game_screen.dart`）
-- **顶栏**：返回按钮 + `第 N 关`（衬线 900）+「主线/每日挑战」徽章 + 声音开关。
+- **顶栏**：返回按钮 + `第 N 关`（衬线 900）+ 声音开关（无「主线/每日挑战」徽章）。
 - **进度条**：`本关进度 N/8 字`（衬线红字）+ `XpTrack`。
+- **状态行**：候选字盘上方居中显示「生命值：X」；每日挑战额外显示「倒计时：MM:SS」。
 - **网格**（改 `GridPainter` 配色）：given（surface2 + 右上朱砂角点）/ 交叉格（加深 10%）/ blank（透明）/ focus（朱红描边 + 外光晕）/ filled（accentPale 底 + accent 描边 + 深红字）/ wrong（朱砂底白字 + shake）/ correct（leafSoft 底 leaf 字）。
-- **已完成成语条**（保留现有功能，样式对齐设计）：surface 卡，已选成语 tag 松绿/朱砂描边，释义行 muted。
-- **候选字盘**：保留常驻 3×10 交互，改设计样式（surface2 格 + borderStrong 描边、衬线大字、已占用 dashed + 35% 透明）。
-- **工具栏**：「提示」（含剩余数，朱砂数字）/ 撤销 / 清空，设计样式方块按钮。
+- **已完成成语条**（保留现有功能，样式对齐设计）：surface 卡左右撑满，成语 tag 横向滚动，释义超 2 行时纵向滚动。
+- **候选字盘**：保留常驻 3×10 交互，改设计样式；单元格与字号比旧版略大，小屏用 `FittedBox` 等比缩放。
+- **工具栏**：「提示」（右上角角标显示剩余提示卡，不撑高按钮）/ 撤销 / 清空，按钮可点击区域 88×64。
+- **失败机制**：初始生命值 3，填错扣 1，归零失败；每日挑战额外 2 分钟倒计时，时间耗尽同样失败。失败弹框包含「复活(剩余 X)」（无卡时弹出购买框）/「重玩本关」/「返回主页」；每日挑战重玩不获得经验。
 - 不加线索卡、不加候选标题、不加「为 X 字选字」。
 
 ### 7.12 过关窗（重做 4 个完成对话框）
-统一为 `win-card` 母题：旋转 -4° 朱砂「通」印章（86px）+ 标题 + 副标题 + `获得经验 +N` + 本关成语释义列表 + 按钮组（下一关 / 学习本关成语 / 稍后再看）。升级奖励/通关/重玩三入口共用该组件，升级额外插奖励说明屏。
+统一为 `win-card` 母题：旋转 -4° 朱砂印章（86px）+ 标题 + 副标题 + `获得经验 +N` + 本关成语释义列表 + 按钮组（下一关 / 学习本关成语 / 返回主页）。升级奖励/通关/重玩/失败共用该组件。
+- 过关弹窗只展示本局填错过的成语（最多 3 个），没填错过则不展示；成语名用朱砂边框强调，后接中文冒号与释义。
 
 ## 8. 数据变更
 
 ### 8.1 `LevelHistory.totalFills`（schema v7 → v8）
 - `database.dart`：`LevelHistory` 加 `IntColumn get totalFills => integer().nullable()();`。
-- `currentSchemaVersion` 8；`onUpgrade` 加 `if (from < 8) { await m.addColumn(levelHistory, levelHistory.totalFills); }`。
+- 当时 `currentSchemaVersion` 为 8，现已演进到 9；迁移含 `if (from < 8)` 添加 `totalFills`。
 - 老数据该列为 NULL → 正确率显示「—」占位。
 - `addLevelHistory` 签名加 `totalFills` 参数。
 
-### 8.2 游戏内统计
+### 8.2 跨关卡连胜（schema v8 → v9）
+- `PlayerProgressTable` 新增 `currentCorrectStreak` / `bestCorrectStreak` 两列。
+- `currentSchemaVersion` 9；`onUpgrade` 加 `if (from < 9)` 迁移。
+- 最长连胜按“连续答对字数、跨关卡累计”统计。
+
+### 8.3 游戏内统计
 - 每次玩家点击候选字（`_onCandidateTap`，无论正误，凡落字即计一次尝试）`totalFills++`；提示填入（`_showHint`/`_applyAnswer`）不计。
 - 正确次数 = `totalFills − errorsMade`（`errorsMade` 为错误尝试数）。
-- 断点续玩存档 codec（`SavedGameState`）加 `totalFills` 字段，恢复/保存同步。
+- 断点续玩存档 codec（`SavedGameState`）加 `totalFills` / `lives` / `remainingSeconds` / `revived` 字段，恢复/保存同步。
 - 达成 `_onLevelComplete` 时写入 `addLevelHistory`。
 
-### 8.3 每日一读
+### 8.4 每日一读
 - `AppDatabase` 新增 `getIdiomAtOffset(int offset)`：按 id 偏移取一条成语（`word/pinyin/explanation/derivation`）。
 
 ## 9. 文案
 
 - 删除内部词：「螺旋难度」「万关螺旋」。
-- 替换：「由浅入深」；footnote「交叉推理 · 一字双关 · 循序而进」。
+- 替换：「由浅入深」；footnote「交叉推理 · 一字双关 · 循序渐进」。
 - 「一字提示」→「提示」。
 - 文言基调沿用：「科举仕途」「书卷小径」「今日一读」。
 
@@ -186,7 +194,7 @@
   - 关卡页 PageView 翻页。
   - 我的页等级条三态渲染。
   - 首页每日卡（mock 每日生成）与今日一读。
-  - 每日回顾页（历史含每日挑战时渲染历期）。
+  - 每日挑战页（历史含每日挑战时渲染历期、分页与重玩）。
   - `totalFills` 迁移与正确率计算（新增/老数据 NULL）。
 - 验证命令：`flutter analyze` + `flutter test`。
 

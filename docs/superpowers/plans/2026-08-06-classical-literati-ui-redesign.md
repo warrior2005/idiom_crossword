@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> 本文档为历史实施计划，部分实现已随后续迭代调整（如每日挑战页、失败/生命值机制、Lv.∞ 真龙天子等），当前行为以 `docs/superpowers/specs/` 与 README 为准。
+
 **Goal:** 按 `docs/superpowers/specs/2026-08-06-classical-literati-ui-redesign.md` 将 Flutter 客户端整体改造为「宣纸 + 墨 + 朱砂」古典文人风，底部五 Tab 导航，新增「我的」「每日回顾」页，正确率接真实填字统计。
 
 **Architecture:** 先建主题基建（颜色 Token / 衬线字体 / monoline SVG 图标 / 通用组件）与底部五 Tab 导航骨架；再做 DB schema v8（`totalFills` + `getIdiomAtOffset`）；随后逐个重构 11 个视图（全部改 `Scaffold` 底色为 `AppColors.bg`）；最后删除自定义功能并全量更新测试。

@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> 本文档为历史实施计划，等级体系已扩展为 21 级（含 Lv.∞ 真龙天子），经验公式、Lv.20 后全局难度等以后续规格文档为准。
+
 **Goal:** Implement the imperial examination growth system with 20 levels, exponential XP curve, spiral difficulty model, and item system.
 
 **Architecture:** 
