@@ -1,14 +1,52 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database_provider.dart';
 import '../data/database.dart';
 import '../data/growth_manager.dart';
 import 'level_generation.dart';
 
+/// 激励广告配额与冷却常量
+const int kRewardedAdMaxPerDay = 100;
+/// 前 10 次激励广告使用 1 分钟冷却，之后为 2 分钟
+const int kRewardedAdFirstCount = 10;
+const int kRewardedAdFirstCooldownSeconds = 60;
+const int kRewardedAdLaterCooldownSeconds = 120;
+/// 每则激励广告奖励积分（按激励广告 eCPM 估算，可后续调整）
+const int kRewardedAdPointsReward = 3;
+/// 插屏广告观看超过 10 秒奖励积分（按插屏 eCPM 估算）
+const int kInterstitialAdPointsReward = 2;
+const int kInterstitialAdMinViewSeconds = 10;
+/// 横幅广告每观看 1 分钟奖励 1 积分，每日上限 30 积分
+const int kMaxBannerPointsPerDay = 30;
+
+const String kRewardedAdsDateKey = 'rewarded_ads_date';
+const String kRewardedAdsCountKey = 'rewarded_ads_count';
+const String kRewardedAdsLastTsKey = 'rewarded_ads_last_ts';
+const String kBannerPointsDateKey = 'banner_points_date';
+const String kBannerPointsCountKey = 'banner_points_count';
+
+/// 激励广告当前可用状态
+class RewardedAdStatus {
+  final int countToday;
+  final int cooldownSeconds;
+  final bool canWatch;
+  final bool maxReached;
+
+  const RewardedAdStatus({
+    required this.countToday,
+    required this.cooldownSeconds,
+    required this.canWatch,
+    required this.maxReached,
+  });
+}
+
 class PlayerState {
   final int level;
   final int totalXp;
   final int xpToNextLevel;
   final String title;
+  final int points;
   final int completedLevels;
   final int currentCorrectStreak;
   final int bestCorrectStreak;
@@ -21,6 +59,7 @@ class PlayerState {
     required this.totalXp,
     required this.xpToNextLevel,
     required this.title,
+    required this.points,
     required this.completedLevels,
     required this.currentCorrectStreak,
     required this.bestCorrectStreak,
@@ -47,6 +86,7 @@ class PlayerState {
     int? totalXp,
     int? xpToNextLevel,
     String? title,
+    int? points,
     int? completedLevels,
     int? currentCorrectStreak,
     int? bestCorrectStreak,
@@ -59,6 +99,7 @@ class PlayerState {
       totalXp: totalXp ?? this.totalXp,
       xpToNextLevel: xpToNextLevel ?? this.xpToNextLevel,
       title: title ?? this.title,
+      points: points ?? this.points,
       completedLevels: completedLevels ?? this.completedLevels,
       currentCorrectStreak: currentCorrectStreak ?? this.currentCorrectStreak,
       bestCorrectStreak: bestCorrectStreak ?? this.bestCorrectStreak,
@@ -85,6 +126,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       totalXp: 0,
       xpToNextLevel: 100,
       title: '童生',
+      points: 0,
       completedLevels: 0,
       currentCorrectStreak: 0,
       bestCorrectStreak: 0,
@@ -118,6 +160,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
           ? 0
           : GrowthManager.xpForLevel(progress.level),
       title: GrowthManager.titleForLevel(progress.level),
+      points: progress.points,
       completedLevels: mainCompleted.length,
       currentCorrectStreak: progress.currentCorrectStreak,
       bestCorrectStreak: progress.bestCorrectStreak,
@@ -228,6 +271,118 @@ class PlayerNotifier extends Notifier<PlayerState> {
       reviveCards: state.functionalItems['revive_card'] ?? 0,
       currentCorrectStreak: state.currentCorrectStreak,
       bestCorrectStreak: state.bestCorrectStreak,
+      points: state.points,
+    );
+  }
+
+  /// 增加积分（广告奖励、活动奖励等）
+  Future<void> addPoints(int amount) async {
+    if (amount <= 0) return;
+    state = state.copyWith(points: state.points + amount);
+    await _persist(ref.read(databaseProvider));
+  }
+
+  /// 横幅广告积分：按分钟累计，受每日上限约束；返回实际发放的积分
+  Future<int> addBannerPoints(int amount) async {
+    if (amount <= 0) return 0;
+    final db = ref.read(databaseProvider);
+    final now = DateTime.now();
+    final today = _dateKey(now);
+    final savedDate = await db.getSetting(kBannerPointsDateKey);
+    if (savedDate != today) {
+      final granted = min(amount, kMaxBannerPointsPerDay);
+      await db.setSetting(kBannerPointsDateKey, today);
+      await db.setSetting(kBannerPointsCountKey, '$granted');
+      if (granted > 0) await addPoints(granted);
+      return granted;
+    }
+    final used =
+        int.tryParse(await db.getSetting(kBannerPointsCountKey) ?? '0') ?? 0;
+    if (used >= kMaxBannerPointsPerDay) return 0;
+    final granted = min(amount, kMaxBannerPointsPerDay - used);
+    await db.setSetting(kBannerPointsCountKey, '${used + granted}');
+    if (granted > 0) await addPoints(granted);
+    return granted;
+  }
+
+  /// 消耗积分购买道具/装饰；积分不足返回 false
+  Future<bool> spendPoints(int amount) async {
+    if (amount <= 0 || state.points < amount) return false;
+    state = state.copyWith(points: state.points - amount);
+    await _persist(ref.read(databaseProvider));
+    return true;
+  }
+
+  /// 解锁网格皮肤（购买后加入拥有集合并写入数据库）
+  Future<void> unlockGridSkin(String id) async {
+    state = state.copyWith(
+      ownedDecorations: {...state.ownedDecorations, 'grid_skin_$id'},
+    );
+    await ref.read(databaseProvider).addDecoration('grid_skin', id);
+  }
+
+  String _dateKey(DateTime time) {
+    final m = time.month.toString().padLeft(2, '0');
+    final d = time.day.toString().padLeft(2, '0');
+    return '${time.year}-$m-$d';
+  }
+
+  /// 查询激励广告今日次数、剩余冷却与是否可观看
+  Future<RewardedAdStatus> rewardedAdStatus() async {
+    final db = ref.read(databaseProvider);
+    final now = DateTime.now();
+    final today = _dateKey(now);
+    final savedDate = await db.getSetting(kRewardedAdsDateKey);
+    if (savedDate != today) {
+      return const RewardedAdStatus(
+        countToday: 0,
+        cooldownSeconds: 0,
+        canWatch: true,
+        maxReached: false,
+      );
+    }
+    final count =
+        int.tryParse(await db.getSetting(kRewardedAdsCountKey) ?? '0') ?? 0;
+    final lastTs =
+        int.tryParse(await db.getSetting(kRewardedAdsLastTsKey) ?? '0') ?? 0;
+    final maxReached = count >= kRewardedAdMaxPerDay;
+    final cooldown = count < kRewardedAdFirstCount
+        ? kRewardedAdFirstCooldownSeconds
+        : kRewardedAdLaterCooldownSeconds;
+    final remainingMs =
+        (cooldown * 1000 - (now.millisecondsSinceEpoch - lastTs)).clamp(
+          0,
+          cooldown * 1000,
+        );
+    final cooldownSeconds = maxReached ? 0 : (remainingMs / 1000).ceil();
+    return RewardedAdStatus(
+      countToday: count,
+      cooldownSeconds: cooldownSeconds,
+      canWatch: !maxReached && cooldownSeconds <= 0,
+      maxReached: maxReached,
+    );
+  }
+
+  /// 记录一则激励广告已观看，返回观看后的最新状态
+  Future<RewardedAdStatus> consumeRewardedAd() async {
+    final db = ref.read(databaseProvider);
+    final before = await rewardedAdStatus();
+    if (!before.canWatch) return before;
+    final now = DateTime.now();
+    final count = before.countToday + 1;
+    await db.setSetting(kRewardedAdsDateKey, _dateKey(now));
+    await db.setSetting(kRewardedAdsCountKey, '$count');
+    await db.setSetting(kRewardedAdsLastTsKey, '${now.millisecondsSinceEpoch}');
+    final maxReached = count >= kRewardedAdMaxPerDay;
+    return RewardedAdStatus(
+      countToday: count,
+      cooldownSeconds: maxReached
+          ? 0
+          : count < kRewardedAdFirstCount
+          ? kRewardedAdFirstCooldownSeconds
+          : kRewardedAdLaterCooldownSeconds,
+      canWatch: false,
+      maxReached: maxReached,
     );
   }
 

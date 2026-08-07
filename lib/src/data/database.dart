@@ -20,7 +20,7 @@ import 'package:sqlite3/sqlite3.dart';
 part 'database.g.dart';
 
 /// 当前数据库 schema 版本（与预构建数据库的 PRAGMA user_version 保持一致）
-const int currentSchemaVersion = 9;
+const int currentSchemaVersion = 10;
 
 // ============================================================
 // 表定义
@@ -130,6 +130,7 @@ class PlayerProgressTable extends Table {
   IntColumn get currentCorrectStreak =>
       integer().withDefault(const Constant(0))();
   IntColumn get bestCorrectStreak => integer().withDefault(const Constant(0))();
+  IntColumn get points => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -303,6 +304,10 @@ class AppDatabase extends _$AppDatabase {
             playerProgressTable.bestCorrectStreak,
           );
         }
+        if (from < 10) {
+          // 广告积分
+          await m.addColumn(playerProgressTable, playerProgressTable.points);
+        }
       },
     );
   }
@@ -402,6 +407,7 @@ class AppDatabase extends _$AppDatabase {
     required int reviveCards,
     int currentCorrectStreak = 0,
     int bestCorrectStreak = 0,
+    int points = 0,
   }) async {
     final existing = await getPlayerProgress();
     if (existing != null) {
@@ -416,6 +422,7 @@ class AppDatabase extends _$AppDatabase {
           reviveCards: Value(reviveCards),
           currentCorrectStreak: Value(currentCorrectStreak),
           bestCorrectStreak: Value(bestCorrectStreak),
+          points: Value(points),
           updatedAt: Value(DateTime.now()),
         ),
       );
@@ -429,6 +436,7 @@ class AppDatabase extends _$AppDatabase {
           reviveCards: Value(reviveCards),
           currentCorrectStreak: Value(currentCorrectStreak),
           bestCorrectStreak: Value(bestCorrectStreak),
+          points: Value(points),
         ),
       );
     }

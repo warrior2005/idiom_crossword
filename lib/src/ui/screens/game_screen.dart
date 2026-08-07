@@ -22,6 +22,7 @@ import '../widgets/xp_track.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../theme/grid_skins.dart';
+import '../../utils/ad_manager.dart';
 import 'learning_screen.dart';
 
 /// 游戏主界面
@@ -54,6 +55,7 @@ class GameScreen extends ConsumerStatefulWidget {
 class _GameScreenState extends ConsumerState<GameScreen> {
   static const int _initialLives = 3;
   static const int _dailyTimeLimitSeconds = 120;
+  static const double _interstitialAdChance = 0.4;
 
   late CrosswordGrid _grid;
   final DistractorEngine _distractorEngine = DistractorEngine();
@@ -118,6 +120,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
     if (_isDaily) _startDailyTimer();
     _restoreSavedState();
+    // 提前预加载插屏广告，确保通关结算时有较高概率已就绪
+    if (AdManager.isSupportedPlatform) {
+      unawaited(AdManager().loadInterstitialAd());
+    }
   }
 
   /// 构建候选字盘
@@ -683,16 +689,56 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       );
     }
 
+    await _maybeShowInterstitial(() {
+      if (!mounted) return;
+      _showSettlement(result, newDefs, timeSpentMs);
+    });
+  }
+
+  /// 胜利结算弹框前，40% 概率展示插屏广告
+  Future<void> _maybeShowInterstitial(VoidCallback onDone) async {
+    if (!AdManager.isSupportedPlatform ||
+        Random().nextDouble() >= _interstitialAdChance) {
+      onDone();
+      return;
+    }
+    if (!mounted) return;
+    final shownAt = DateTime.now();
+    final shown = AdManager().showInterstitialAd(onAdClosed: () {
+      // 观看超过 10 秒才奖励积分
+      if (DateTime.now().difference(shownAt).inSeconds >=
+          kInterstitialAdMinViewSeconds) {
+        unawaited(
+          ref
+              .read(playerProvider.notifier)
+              .addPoints(kInterstitialAdPointsReward),
+        );
+      }
+      onDone();
+    });
+    if (!shown) {
+      // 未就绪时不阻塞结算弹框，并预加载下一次插屏
+      unawaited(AdManager().loadInterstitialAd());
+      onDone();
+    }
+  }
+
+  /// 统一展示升级奖励弹框或通关弹框
+  void _showSettlement(
+    ExperienceResult result,
+    List<AchievementDef> newAchievements,
+    int timeSpentMs,
+  ) {
     if (result.leveledUp && result.reward != null) {
       _showRewardDialog(
         result.newLevel,
         result.reward!,
         result,
-        newDefs,
+        newAchievements,
         timeSpentMs,
       );
     } else {
-      _showCompletionDialog(result, newDefs, timeSpentMs);
+      _showCompletionDialog(result, newAchievements, timeSpentMs);
     }
   }
 

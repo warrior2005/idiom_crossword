@@ -10,6 +10,7 @@ import 'game_screen.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_seal.dart';
 import '../widgets/badge_soft.dart';
+import '../widgets/banner_ad_view.dart';
 import '../widgets/level_loading_dialog.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
@@ -59,7 +60,9 @@ int? _firstIdiomId(String raw) {
 }
 
 class LevelSelectScreen extends ConsumerStatefulWidget {
-  const LevelSelectScreen({super.key});
+  final bool bannerActive;
+
+  const LevelSelectScreen({super.key, this.bannerActive = true});
 
   @override
   ConsumerState<LevelSelectScreen> createState() => _LevelSelectScreenState();
@@ -170,10 +173,11 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                                 },
                               );
                             },
-                          ),
-                        ),
-                      ],
-                    ),
+                  ),
+            ),
+            BannerAdView(active: widget.bannerActive),
+          ],
+        ),
             ),
           ],
         ),

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/state/database_provider.dart';
 import 'src/state/player_state.dart';
+import 'src/utils/ad_manager.dart';
 import 'src/ui/screens/root_screen.dart';
 import 'src/audio/game_audio.dart';
 import 'src/ui/screens/settings_screen.dart';
@@ -21,6 +24,9 @@ Future<void> main() async {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
+
+  // 初始化广告 SDK（横幅/插屏/激励广告在各自页面加载）
+  unawaited(AdManager().initialize());
 
   // 先加载已保存的玩家进度，避免启动后闪回默认值
   final container = ProviderContainer();

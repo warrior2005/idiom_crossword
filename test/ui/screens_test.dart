@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
+import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/achievements_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/collection_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_seal.dart';
@@ -197,17 +198,30 @@ void main() {
     expect(await db.getSetting(hapticEnabledKey), 'false');
   });
 
-  testWidgets('商城购买提示卡后库存增加', (tester) async {
+  testWidgets('商城购买提示卡后库存增加并扣减积分', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
 
-    await tester.pumpWidget(_wrap(db, const ShopScreen()));
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+    await container.read(playerProvider.notifier).addPoints(100);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: ShopScreen()),
+      ),
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('购买').first);
     await tester.pump();
-    expect(find.text('购买成功：提示卡 ×10'), findsOneWidget);
-    expect((await db.getPlayerProgress())!.hintCards, 10);
+    expect(find.text('购买成功：提示卡 ×1'), findsOneWidget);
+    expect((await db.getPlayerProgress())!.hintCards, 1);
+    expect((await db.getPlayerProgress())!.points, 90);
   });
 
   testWidgets('商城切换网格皮肤并持久化', (tester) async {

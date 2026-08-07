@@ -204,6 +204,85 @@ void main() {
     expect(progress.reviveCards, 5);
   });
 
+  test('积分增加/消费并持久化，积分不足时不扣减', () async {
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.addPoints(30);
+    expect(container.read(playerProvider).points, 30);
+    expect((await db.getPlayerProgress())!.points, 30);
+
+    final ok = await notifier.spendPoints(25);
+    expect(ok, isTrue);
+    expect(container.read(playerProvider).points, 5);
+    expect((await db.getPlayerProgress())!.points, 5);
+
+    final fail = await notifier.spendPoints(10);
+    expect(fail, isFalse);
+    expect(container.read(playerProvider).points, 5);
+    expect((await db.getPlayerProgress())!.points, 5);
+  });
+
+  test('激励广告：前10次冷却1分钟，之后2分钟，每日上限100次', () async {
+    final notifier = container.read(playerProvider.notifier);
+    var status = await notifier.rewardedAdStatus();
+    expect(status.canWatch, isTrue);
+    expect(status.countToday, 0);
+
+    // 每次调用前把上次观看时间拨到 5 分钟前，模拟冷却已结束
+    Future<void> expireCooldown() => db.setSetting(
+          kRewardedAdsLastTsKey,
+          '${DateTime.now().subtract(const Duration(minutes: 5)).millisecondsSinceEpoch}',
+        );
+
+    for (var i = 0; i < 9; i++) {
+      await expireCooldown();
+      status = await notifier.consumeRewardedAd();
+      expect(status.countToday, i + 1);
+      expect(status.cooldownSeconds, 60);
+      expect(status.canWatch, isFalse);
+    }
+
+    // 第 10 次后进入 2 分钟冷却档
+    await expireCooldown();
+    status = await notifier.consumeRewardedAd();
+    expect(status.countToday, 10);
+    expect(status.cooldownSeconds, 120);
+
+    // 冷却未结束不可观看，也不会增加次数
+    final blocked = await notifier.consumeRewardedAd();
+    expect(blocked.countToday, 10);
+    expect(blocked.canWatch, isFalse);
+
+    // 模拟冷却结束后继续观看，直到达到每日 100 次上限
+    for (var i = 10; i < kRewardedAdMaxPerDay; i++) {
+      await expireCooldown();
+      status = await notifier.consumeRewardedAd();
+      expect(status.countToday, i + 1);
+      expect(status.canWatch, isFalse);
+    }
+    expect(status.maxReached, isTrue);
+    expect(status.countToday, kRewardedAdMaxPerDay);
+
+    final finalStatus = await notifier.rewardedAdStatus();
+    expect(finalStatus.maxReached, isTrue);
+    expect(finalStatus.canWatch, isFalse);
+    expect(finalStatus.cooldownSeconds, 0);
+  });
+
+  test('横幅广告积分按分钟累计，每日上限30', () async {
+    final notifier = container.read(playerProvider.notifier);
+    for (var i = 0; i < 31; i++) {
+      await notifier.addBannerPoints(1);
+    }
+    expect(container.read(playerProvider).points, kMaxBannerPointsPerDay);
+    expect((await db.getPlayerProgress())!.points, kMaxBannerPointsPerDay);
+    expect(await db.getSetting(kBannerPointsCountKey), '30');
+
+    // 同日达到上限后不再发放
+    final granted = await notifier.addBannerPoints(1);
+    expect(granted, 0);
+    expect(container.read(playerProvider).points, kMaxBannerPointsPerDay);
+  });
+
   test('设置网格皮肤并持久化', () async {
     final notifier = container.read(playerProvider.notifier);
     await notifier.setActiveGridSkin('bamboo');

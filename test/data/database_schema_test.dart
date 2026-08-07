@@ -179,7 +179,7 @@ void main() {
 
     // schema 版本应与 database.dart 一致
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 9);
+    expect(version.data.values.first, 10);
 
     await db.close();
     await tmpDir.delete(recursive: true);

@@ -29,6 +29,13 @@ dependencies:
   auto_size_text: ^3.0.0
   flutter_svg: ^2.3.0
 
+  # 广告
+  google_mobile_ads: ^9.0.0
+  app_tracking_transparency: ^2.0.7
+
+  # 日志
+  logger: ^2.7.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

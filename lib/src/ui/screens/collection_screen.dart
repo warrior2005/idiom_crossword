@@ -4,6 +4,7 @@ import '../../state/database_provider.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
+import '../widgets/banner_ad_view.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
@@ -40,7 +41,9 @@ final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
 });
 
 class CollectionScreen extends ConsumerStatefulWidget {
-  const CollectionScreen({super.key});
+  final bool bannerActive;
+
+  const CollectionScreen({super.key, this.bannerActive = true});
 
   @override
   ConsumerState<CollectionScreen> createState() => _CollectionScreenState();
@@ -131,8 +134,9 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                               return _ColCard(item: item);
                             },
                           );
-                        }(),
+                      }(),
                 ),
+                BannerAdView(active: widget.bannerActive),
               ],
             );
           },

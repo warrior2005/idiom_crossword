@@ -26,9 +26,9 @@ class _RootScreenState extends ConsumerState<RootScreen> {
         index: _index,
         children: [
           HomeScreen(onSwitchTab: (i) => setState(() => _index = i)),
-          const LevelSelectScreen(),
-          const CollectionScreen(),
-          const ShopScreen(),
+          LevelSelectScreen(bannerActive: _index == 1),
+          CollectionScreen(bannerActive: _index == 2),
+          ShopScreen(bannerActive: _index == 3),
           const MineScreen(),
         ],
       ),
