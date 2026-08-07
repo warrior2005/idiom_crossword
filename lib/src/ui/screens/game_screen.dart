@@ -711,7 +711,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     showWinCardDialog(
       context,
       seal: '升',
-      title: '晋升 Lv.$newLevel $title',
+      title: '晋升 ${GrowthManager.levelLabel(newLevel)} $title',
       subtitle: '获得奖励：$rewardText',
       xpText: '${result.xpGained > 0 ? '+' : ''}${result.xpGained}',
       actions: [
@@ -1026,7 +1026,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     showLevelLoadingDialog(context);
     try {
       final db = ref.read(databaseProvider);
-      final level = await loadOrGenerateLevel(db, widget.level.levelId + 1);
+      final level = await loadOrGenerateLevel(
+        db,
+        widget.level.levelId + 1,
+        globalRange: ref.read(playerProvider).level >= 20,
+      );
       if (!mounted) return;
       Navigator.pop(context); // 关闭加载框
       if (level == null) {

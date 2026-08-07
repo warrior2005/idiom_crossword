@@ -20,6 +20,8 @@ void main() {
   _testLevelFromXp(100, 2, '100 XP');
   _testLevelFromXp(260, 3, '260 XP');
   _testLevelFromXp(10000, 9, '10000 XP');
+  _testLevelFromXp(8689604, 20, '接近 Lv.∞');
+  _testLevelFromXp(8689605, 21, 'Lv.∞ 真龙天子');
 
   // 测试 3：升级奖励
   print('\n--- 测试 3: 升级奖励 ---');
@@ -54,6 +56,7 @@ void main() {
   _testTitle(5, '举人', 'level 5');
   _testTitle(12, '状元', 'level 12');
   _testTitle(20, '位极人臣', 'level 20');
+  _testTitle(21, '真龙天子', 'level 21');
 
   // 测试 5：经验值计算
   print('\n--- 测试 5: 经验值计算 ---');

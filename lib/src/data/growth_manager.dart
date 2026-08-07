@@ -37,6 +37,9 @@ class ExperienceResult {
 }
 
 class GrowthManager {
+  /// 最高等级：Lv.∞ 真龙天子（内部记为 21 级）
+  static const int maxLevel = 21;
+
   /// 每日挑战专用关卡号段起点（与 level_generation.dailyLevelOffset 保持一致）
   static const int dailyChallengeLevelOffset = 1000000;
 
@@ -46,6 +49,11 @@ class GrowthManager {
   /// 升级所需经验值公式：XP(n) = 100 × 1.6^(n-1)
   static int xpForLevel(int level) {
     if (level <= 1) return 100;
+    if (level == 20) {
+      // Lv.20 → Lv.∞ 所需经验：按主线约 20000 关到达反推
+      return 7430474;
+    }
+    if (level >= maxLevel) return 0;
     return (100 * pow(1.6, level - 1)).round();
   }
 
@@ -53,7 +61,7 @@ class GrowthManager {
   static int levelFromXp(int totalXp) {
     int level = 1;
     int xpNeeded = 0;
-    while (level < 20) {
+    while (level < maxLevel) {
       xpNeeded += xpForLevel(level);
       if (totalXp < xpNeeded) break;
       level++;
@@ -178,12 +186,18 @@ class GrowthManager {
     18: '太傅',
     19: '太师',
     20: '位极人臣',
+    21: '真龙天子',
   };
+
+  /// 展示用等级标签：Lv.∞ 真龙天子
+  static String levelLabel(int level) {
+    return level >= maxLevel ? 'Lv.∞' : 'Lv.$level';
+  }
 
   /// 获取称号
   static String titleForLevel(int level) => _titles[level] ?? '童生';
 
-  /// 全部称号（等级 1→20 顺序）
+  /// 全部称号（等级 1→21 顺序，21 为 Lv.∞ 真龙天子）
   static List<String> get titleSequence => List.unmodifiable(_titles.values);
 
   /// 计算通关获得的经验值
@@ -192,7 +206,7 @@ class GrowthManager {
   /// [idiomDifficulties] 该关成语的难度列表
   static int calculateXp(int levelNumber, List<int> idiomDifficulties) {
     if (levelNumber >= dailyChallengeLevelOffset) {
-      return dailyChallengeXp; // 每日挑战固定 250 经验
+      return dailyChallengeXp; // 每日挑战固定 300 经验
     }
     if (levelNumber <= 5) {
       return 10; // 教学关固定 10 经验
@@ -215,7 +229,7 @@ class GrowthManager {
     var remaining = xpRemaining;
     var levelNumber = nextMainLevel;
     var count = 0;
-    while (remaining > 0 && count < 10000) {
+    while (remaining > 0 && count < 100000) {
       remaining -= estimatedXpForLevel(levelNumber);
       count++;
       levelNumber++;

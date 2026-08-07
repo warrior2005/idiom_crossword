@@ -35,8 +35,11 @@ Future<engine.CrosswordLevel?> generateLevel(
   int? targetSize,
   (int, int)? difficultyRange,
   String? title,
+  bool globalRange = false,
 }) async {
-  final (minD, maxD) = difficultyRange ?? _spiralRange(levelNumber);
+  final (minD, maxD) = globalRange
+      ? (1, 50)
+      : difficultyRange ?? _spiralRange(levelNumber);
 
   final dbIdioms = await db.findIdiomsByDifficulty(
     minD,
@@ -82,6 +85,28 @@ Future<engine.CrosswordLevel?> generateLevel(
             storyHint: level.storyHint,
           );
   }
+  if (globalRange) {
+    // Lv.20 后主线关卡直接使用全局难度区间 1-50
+    final (mainCount, tailCount, previewCount) =
+        SpiralDifficulty.selectIdiomCounts(levelNumber);
+    final level = generator.generate(
+      targetSize: mainCount + tailCount + previewCount,
+      minDifficulty: minD,
+      maxDifficulty: maxD,
+      maxAttempts: maxAttempts,
+      levelNumber: levelNumber,
+    );
+    return level == null || title == null
+        ? level
+        : engine.CrosswordLevel(
+            levelId: level.levelId,
+            grid: level.grid,
+            placements: level.placements,
+            givenCharacters: level.givenCharacters,
+            title: title,
+            storyHint: level.storyHint,
+          );
+  }
   return generator.generateSpiral(
     levelNumber: levelNumber,
     maxAttempts: maxAttempts,
@@ -101,8 +126,9 @@ Future<engine.CrosswordLevel?> generateLevel(
 /// 进入关卡：优先恢复未完成存档，没有存档才新生成
 Future<engine.CrosswordLevel?> loadOrGenerateLevel(
   AppDatabase db,
-  int levelNumber,
-) async {
+  int levelNumber, {
+  bool globalRange = false,
+}) async {
   // 1) 未完成存档优先（断点续玩）
   final saved = await db.getLevelState(levelNumber);
   if (saved != null) {
@@ -116,5 +142,5 @@ Future<engine.CrosswordLevel?> loadOrGenerateLevel(
     if (restored != null) return restored;
   }
   // 3) 否则新生成
-  return generateLevel(db, levelNumber);
+  return generateLevel(db, levelNumber, globalRange: globalRange);
 }

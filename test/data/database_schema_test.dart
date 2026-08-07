@@ -318,6 +318,31 @@ void main() {
     expect(progress.bestCorrectStreak, 12);
   });
 
+  test('Lv20 后全局难度区间仍可生成关卡', () async {
+    final tmpDir = await Directory.systemTemp.createTemp('idiom_global_db');
+    final tmpDb = File('${tmpDir.path}/test.db');
+    await File('assets/data/idiom_crossword.db').copy(tmpDb.path);
+    final db = AppDatabase(NativeDatabase(tmpDb));
+    addTearDown(db.close);
+    addTearDown(() => tmpDir.delete(recursive: true));
+
+    engine.CrosswordLevel? level;
+    for (var attempt = 0; attempt < 3 && level == null; attempt++) {
+      level = await generateLevel(
+        db,
+        20001,
+        globalRange: true,
+        maxAttempts: 80,
+      );
+    }
+    expect(level, isNotNull, reason: 'Lv20 后的全局难度关卡应能生成');
+    expect(level!.levelId, 20001);
+    expect(
+      level.idioms.every((i) => i.difficulty >= 1 && i.difficulty <= 50),
+      isTrue,
+    );
+  });
+
   test('getIdiomAtOffset：空库返回 null，非空按偏移取', () async {
     final db = await _memoryDb(); // 含画蛇添足一条
     addTearDown(db.close);

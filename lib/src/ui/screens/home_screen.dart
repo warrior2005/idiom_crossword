@@ -44,7 +44,7 @@ class HomeScreen extends ConsumerWidget {
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
     final dailyIssue = ref.watch(dailyIssueProvider).value ?? 1;
     final nextMainLevel = ref.watch(nextMainLevelProvider).value;
-    final nextTitle = player.level >= 20
+    final nextTitle = player.level >= GrowthManager.maxLevel
         ? ''
         : GrowthManager.titleForLevel(player.level + 1);
 
@@ -280,7 +280,11 @@ class HomeScreen extends ConsumerWidget {
       final db = ref.read(databaseProvider);
       final player = ref.read(playerProvider);
       final nextLevel = await db.getNextMainLevel();
-      final level = await loadOrGenerateLevel(db, nextLevel);
+      final level = await loadOrGenerateLevel(
+        db,
+        nextLevel,
+        globalRange: player.level >= 20,
+      );
 
       if (!context.mounted) return;
       Navigator.pop(context);
@@ -416,7 +420,7 @@ class _RankCard extends StatelessWidget {
               right: -6,
               top: 4,
               child: Text(
-                'Lv.${player.level}',
+                GrowthManager.levelLabel(player.level),
                 style: displayStyle(
                   size: 52,
                   weight: FontWeight.w900,
@@ -431,7 +435,7 @@ class _RankCard extends StatelessWidget {
                 Text('科举仕途', style: kickerStyle()),
                 const SizedBox(height: 6),
                 Text(
-                  'Lv.${player.level} · ${player.title}',
+                  '${GrowthManager.levelLabel(player.level)} · ${player.title}',
                   style: displayStyle(
                     size: 24,
                     weight: FontWeight.w900,
@@ -468,7 +472,7 @@ class _RankCard extends StatelessWidget {
                     ),
                     if (nextTitle.isEmpty)
                       Text(
-                        '已达最高等级',
+                        '经验持续累计',
                         style: bodyStyle(size: 11, color: AppColors.muted),
                       )
                     else

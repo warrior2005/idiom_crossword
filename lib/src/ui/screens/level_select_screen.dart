@@ -185,7 +185,11 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
     showLevelLoadingDialog(context);
     try {
       final db = ref.read(databaseProvider);
-      final level = await loadOrGenerateLevel(db, levelNumber);
+      final level = await loadOrGenerateLevel(
+        db,
+        levelNumber,
+        globalRange: ref.read(playerProvider).level >= 20,
+      );
       if (!mounted) return;
       Navigator.pop(context);
       if (level == null) {

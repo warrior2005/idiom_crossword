@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/player_state.dart';
+import '../../data/growth_manager.dart';
 
 /// AppBar 中的简洁等级显示
 class LevelDisplay extends ConsumerWidget {
@@ -26,7 +27,7 @@ class LevelDisplay extends ConsumerWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            'Lv.${player.level} ${player.title}',
+            '${GrowthManager.levelLabel(player.level)} ${player.title}',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,

@@ -79,7 +79,7 @@ class MineScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Lv.${player.level} · ${player.title}',
+                          '${GrowthManager.levelLabel(player.level)} · ${player.title}',
                           style: displayStyle(
                             size: 21,
                             weight: FontWeight.w900,
@@ -224,100 +224,120 @@ class _RankStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 展示：1..level 已完成，level 当前，level+1 下一级（≤20）
-    final end = (player.level + 1).clamp(1, titles.length);
+    // 展示：已达成节点 + 下一节点；若下一节点不是 Lv20，则在 Lv∞ 前补“···”
+    final normalEnd = player.level >= 20 ? 20 : player.level + 1;
+    final children = <Widget>[];
+    for (var lv = 1; lv <= normalEnd; lv++) {
+      children.add(_rankNode(lv: lv, title: titles[lv - 1]));
+    }
+    if (player.level < 20) {
+      children.add(_ellipsisNode());
+    }
+    children.add(_rankNode(lv: 21, title: titles[20], infinity: true));
+
     return SizedBox(
       height: 78,
-      child: ListView.builder(
+      child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(vertical: 10),
-        itemCount: end,
-        itemBuilder: (context, i) {
-          final lv = i + 1;
-          final isCurrent = lv == player.level;
-          final isDone = lv < player.level;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Stack(
-              clipBehavior: Clip.none,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _rankNode({
+    required int lv,
+    required String title,
+    bool infinity = false,
+  }) {
+    final isCurrent = lv == player.level;
+    final isDone = lv < player.level;
+    final label = infinity ? 'Lv∞' : 'Lv$lv';
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 74,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+            decoration: BoxDecoration(
+              color: isCurrent
+                  ? AppColors.accent
+                  : isDone
+                  ? AppColors.accentSoft
+                  : AppColors.surface,
+              border: Border.all(
+                color: isCurrent || isDone
+                    ? AppColors.accent
+                    : AppColors.border,
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  width: 74,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 6,
-                  ),
-                  decoration: BoxDecoration(
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
                     color: isCurrent
-                        ? AppColors.accent
-                        : isDone
-                        ? AppColors.accentSoft
-                        : AppColors.surface,
-                    border: Border.all(
-                      color: isCurrent || isDone
-                          ? AppColors.accent
-                          : AppColors.border,
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Lv$lv',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: isCurrent
-                              ? const Color(0xFFBFD0D0).withValues(alpha: 0.85)
-                              : AppColors.muted,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        titles[i],
-                        style: displayStyle(
-                          size: 13.5,
-                          weight: FontWeight.w700,
-                          color: isCurrent
-                              ? const Color(0xFFFFF6EC)
-                              : AppColors.fg,
-                        ),
-                      ),
-                    ],
+                        ? const Color(0xFFBFD0D0).withValues(alpha: 0.85)
+                        : AppColors.muted,
                   ),
                 ),
-                if (isCurrent)
-                  Positioned(
-                    top: -8,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          border: Border.all(color: AppColors.accent),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: const Text(
-                          '当前',
-                          style: TextStyle(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.accent,
-                          ),
-                        ),
-                      ),
-                    ),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  style: displayStyle(
+                    size: 13.5,
+                    weight: FontWeight.w700,
+                    color: isCurrent ? const Color(0xFFFFF6EC) : AppColors.fg,
                   ),
+                ),
               ],
             ),
-          );
-        },
+          ),
+          if (isCurrent)
+            Positioned(
+              top: -8,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    border: Border.all(color: AppColors.accent),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    '当前',
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _ellipsisNode() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Container(
+        width: 44,
+        alignment: Alignment.center,
+        child: Text('···', style: bodyStyle(size: 16, color: AppColors.faint)),
       ),
     );
   }

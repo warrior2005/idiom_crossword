@@ -160,13 +160,13 @@ void main() {
     expect(progress.bestCorrectStreak, 8);
   });
 
-  test('20 级后经验继续累加且不再计算下一级', () async {
+  test('Lv.∞ 后经验继续累加且不再计算下一级', () async {
     var maxXp = 0;
-    for (var i = 1; i < 20; i++) {
+    for (var i = 1; i < GrowthManager.maxLevel; i++) {
       maxXp += GrowthManager.xpForLevel(i);
     }
     await db.updatePlayerProgress(
-      level: 20,
+      level: GrowthManager.maxLevel,
       totalXp: maxXp + 100,
       completedLevels: 7000,
       hintCards: 0,
@@ -184,7 +184,7 @@ void main() {
     ]);
 
     final state = container.read(playerProvider);
-    expect(state.level, 20);
+    expect(state.level, GrowthManager.maxLevel);
     expect(state.totalXp, greaterThan(before));
     expect(state.xpToNextLevel, 0);
     expect(state.xpProgress, 1.0);

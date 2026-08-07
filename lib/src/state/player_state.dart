@@ -109,7 +109,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     state = PlayerState(
       level: progress.level,
       totalXp: progress.totalXp,
-      xpToNextLevel: progress.level >= 20
+      xpToNextLevel: progress.level >= GrowthManager.maxLevel
           ? 0
           : GrowthManager.xpForLevel(progress.level),
       title: GrowthManager.titleForLevel(progress.level),
@@ -139,7 +139,9 @@ class PlayerNotifier extends Notifier<PlayerState> {
     state = state.copyWith(
       level: newLevel,
       totalXp: newTotalXp,
-      xpToNextLevel: newLevel >= 20 ? 0 : GrowthManager.xpForLevel(newLevel),
+      xpToNextLevel: newLevel >= GrowthManager.maxLevel
+          ? 0
+          : GrowthManager.xpForLevel(newLevel),
       title: GrowthManager.titleForLevel(newLevel),
       completedLevels: isDaily
           ? state.completedLevels
