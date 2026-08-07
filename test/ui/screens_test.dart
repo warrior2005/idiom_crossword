@@ -473,6 +473,7 @@ void main() {
     expect(find.text('文房四宝 · 商城'), findsOneWidget);
     expect(find.text('提示卡'), findsOneWidget);
     expect(find.text('复活卡'), findsOneWidget);
+    expect(find.text('0/100'), findsOneWidget); // 激励广告今日次数（按钮下方）
     await tester.scrollUntilVisible(
       find.text('功能道具'),
       100,

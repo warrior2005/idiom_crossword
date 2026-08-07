@@ -75,14 +75,23 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('积分说明', style: displayStyle(size: 20, weight: FontWeight.w700)),
+        title: Text(
+          '积分说明',
+          style: displayStyle(size: 20, weight: FontWeight.w700),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _guideLine('激励广告', '观看完成 +3 积分；每天最多 100 次，前 10 次冷却 1 分钟，之后每次冷却 2 分钟。'),
+            _guideLine(
+              '激励广告',
+              '观看完成 +3 积分；每天最多 100 次，前 10 次冷却 1 分钟，之后每次冷却 2 分钟。',
+            ),
             _guideLine('插屏广告', '通关结算前随机展示，单次观看满 10 秒 +2 积分。'),
-            _guideLine('横幅广告', '关卡/收藏/商城底部常驻，每累计观看 1 分钟 +1 积分，每天上限 $kMaxBannerPointsPerDay 积分。'),
+            _guideLine(
+              '横幅广告',
+              '关卡/收藏/商城底部常驻，每累计观看 1 分钟 +1 积分，每天上限 $kMaxBannerPointsPerDay 积分。',
+            ),
             _guideLine('积分用途', '兑换提示卡、复活卡、备考礼盒与广告兑换网格皮肤。'),
           ],
         ),
@@ -115,9 +124,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   }
 
   Future<void> _refreshAdStatus() async {
-    final status = await ref
-        .read(playerProvider.notifier)
-        .rewardedAdStatus();
+    final status = await ref.read(playerProvider.notifier).rewardedAdStatus();
     if (!mounted) return;
     setState(() {
       _watchedToday = status.countToday;
@@ -185,7 +192,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     _showSnack('购买成功：${parts.join(' + ')}');
   }
 
-  Future<void> _onSkinTap(BuildContext context, WidgetRef ref, String id) async {
+  Future<void> _onSkinTap(
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+  ) async {
     final notifier = ref.read(playerProvider.notifier);
     final player = ref.read(playerProvider);
     final skin = gridSkinById(id);
@@ -193,7 +204,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final isOwned =
         id == 'paper' ||
         player.ownedDecorations.contains('grid_skin_$id') ||
-        (id == 'qinghua' && player.ownedDecorations.contains('grid_skin_dragon'));
+        (id == 'qinghua' &&
+            player.ownedDecorations.contains('grid_skin_dragon'));
     if (skin?.source == 'level') {
       // 等级皮肤：升级奖励解锁后才可切换
       if (!isOwned) {
@@ -236,120 +248,132 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+        child: Column(
           children: [
-            Text(
-              '文房四宝 · 商城',
-              style: displayStyle(size: 30, weight: FontWeight.w700),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('功能道具 · 装饰藏品 · 广告赚积分', style: kickerStyle()),
-                GestureDetector(
-                  onTap: () => _showPointsGuide(context),
-                  child: Row(
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+                children: [
+                  Text(
+                    '文房四宝 · 商城',
+                    style: displayStyle(size: 30, weight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AppIcon('chart', size: 14, color: AppColors.muted),
-                      const SizedBox(width: 3),
-                      Text(
-                        '积分说明',
-                        style: bodyStyle(size: 11.5, color: AppColors.muted),
+                      Text('功能道具 · 装饰藏品 · 广告赚积分', style: kickerStyle()),
+                      GestureDetector(
+                        onTap: () => _showPointsGuide(context),
+                        child: Row(
+                          children: [
+                            AppIcon('chart', size: 14, color: AppColors.muted),
+                            const SizedBox(width: 3),
+                            Text(
+                              '积分说明',
+                              style: bodyStyle(
+                                size: 11.5,
+                                color: AppColors.muted,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _PointsCard(
-              points: player.points,
-              cooldownSeconds: _cooldownSeconds,
-              watchedToday: _watchedToday,
-              maxReached: _maxReachedToday,
-              onWatch: _watchRewardedAd,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _WalletCard(
+                  const SizedBox(height: 14),
+                  _PointsCard(
+                    points: player.points,
+                    cooldownSeconds: _cooldownSeconds,
+                    watchedToday: _watchedToday,
+                    maxReached: _maxReachedToday,
+                    onWatch: _watchRewardedAd,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _WalletCard(
+                          iconName: 'pen',
+                          label: '提示卡',
+                          value: '$hintCards',
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _WalletCard(
+                          iconName: 'revive',
+                          label: '复活卡',
+                          value: '$reviveCards',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SectionTitle(
+                    title: '功能道具',
+                    trailing: BadgeSoft('积分购买'),
+                  ),
+                  _PackCard(
                     iconName: 'pen',
-                    label: '提示卡',
-                    value: '$hintCards',
+                    name: '提示卡 ×1',
+                    desc: '每次使用消耗一张提示卡',
+                    price: '$kHintCardPoints 积分',
+                    onBuy: () => _buyFunctional(
+                      context,
+                      ref,
+                      points: kHintCardPoints,
+                      hintCards: 1,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _WalletCard(
+                  _PackCard(
                     iconName: 'revive',
-                    label: '复活卡',
-                    value: '$reviveCards',
+                    name: '复活卡 ×1',
+                    desc: '失误满格后可重整旗鼓，保留已填正确字',
+                    price: '$kReviveCardPoints 积分',
+                    onBuy: () => _buyFunctional(
+                      context,
+                      ref,
+                      points: kReviveCardPoints,
+                      reviveCards: 1,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SectionTitle(title: '功能道具', trailing: BadgeSoft('积分购买')),
-            _PackCard(
-              iconName: 'pen',
-              name: '提示卡 ×1',
-              desc: '每次使用消耗一张提示卡',
-              price: '$kHintCardPoints 积分',
-              onBuy: () => _buyFunctional(
-                context,
-                ref,
-                points: kHintCardPoints,
-                hintCards: 1,
+                  _PackCard(
+                    iconName: 'star',
+                    name: '备考礼盒（提示×3 + 复活×1）',
+                    desc: '冲刺阶段一次备齐，限量供应',
+                    price: '$kGiftBoxPoints 积分',
+                    onBuy: () => _buyFunctional(
+                      context,
+                      ref,
+                      points: kGiftBoxPoints,
+                      hintCards: 3,
+                      reviveCards: 1,
+                    ),
+                  ),
+                  const SectionTitle(
+                    title: '装饰藏品',
+                    trailing: BadgeSoft('限定', color: BadgeSoftColor.gold),
+                  ),
+                  _SkinsCard(
+                    owned: player.ownedDecorations,
+                    active: player.activeGridSkin,
+                    onSelect: (id) => _onSkinTap(context, ref, id),
+                  ),
+                  const SizedBox(height: 8),
+                  const Center(
+                    child: Text(
+                      '广告与积分不影响关卡难度与成语选择',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: AppColors.faint,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            _PackCard(
-              iconName: 'revive',
-              name: '复活卡 ×1',
-              desc: '失误满格后可重整旗鼓，保留已填正确字',
-              price: '$kReviveCardPoints 积分',
-              onBuy: () => _buyFunctional(
-                context,
-                ref,
-                points: kReviveCardPoints,
-                reviveCards: 1,
-              ),
-            ),
-            _PackCard(
-              iconName: 'star',
-              name: '备考礼盒（提示×3 + 复活×1）',
-              desc: '冲刺阶段一次备齐，限量供应',
-              price: '$kGiftBoxPoints 积分',
-              onBuy: () => _buyFunctional(
-                context,
-                ref,
-                points: kGiftBoxPoints,
-                hintCards: 3,
-                reviveCards: 1,
-              ),
-            ),
-            const SectionTitle(
-              title: '装饰藏品',
-              trailing: BadgeSoft('限定', color: BadgeSoftColor.gold),
-            ),
-            _SkinsCard(
-              owned: player.ownedDecorations,
-              active: player.activeGridSkin,
-              onSelect: (id) => _onSkinTap(context, ref, id),
             ),
             BannerAdView(active: widget.bannerActive),
-            const SizedBox(height: 8),
-            const Center(
-              child: Text(
-                '广告与积分不影响关卡难度与成语选择',
-                style: TextStyle(
-                  fontSize: 10.5,
-                  color: AppColors.faint,
-                  letterSpacing: 0.6,
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -380,15 +404,6 @@ class _PointsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String statusText;
-    if (maxReached) {
-      statusText = '今日激励广告已达上限（$watchedToday/$kRewardedAdMaxPerDay）';
-    } else if (cooldownSeconds > 0) {
-      statusText = '下次观看：${_formatCooldown(cooldownSeconds)}';
-    } else {
-      statusText = '今日已看 $watchedToday/$kRewardedAdMaxPerDay 次';
-    }
-
     return AppCard(
       padding: const EdgeInsets.all(14),
       child: Row(
@@ -409,63 +424,73 @@ class _PointsCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('我的积分', style: bodyStyle(size: 11, color: AppColors.muted)),
+                Text(
+                  '我的积分',
+                  style: bodyStyle(size: 11, color: AppColors.muted),
+                ),
                 Text(
                   '$points',
                   style: displayStyle(size: 22, weight: FontWeight.w800),
                 ),
-                Text(
-                  statusText,
-                  style: bodyStyle(size: 10.5, color: AppColors.faint),
-                ),
               ],
             ),
           ),
-          ValueListenableBuilder<bool>(
-            valueListenable: AdManager().isRewardedAdReadyNotifier,
-            builder: (context, isAdReady, child) {
-              final disabled =
-                  maxReached || cooldownSeconds > 0 || !isAdReady;
-              return GestureDetector(
-                onTap: disabled ? null : onWatch,
-                child: Container(
-                  height: 40,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: disabled ? AppColors.border : AppColors.accent,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AppIcon(
-                        'video',
-                        size: 16,
-                        color: disabled
-                            ? AppColors.faint
-                            : const Color(0xFFFFF6EC),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ValueListenableBuilder<bool>(
+                valueListenable: AdManager().isRewardedAdReadyNotifier,
+                builder: (context, isAdReady, child) {
+                  final disabled =
+                      maxReached || cooldownSeconds > 0 || !isAdReady;
+                  return GestureDetector(
+                    onTap: disabled ? null : onWatch,
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: disabled ? AppColors.border : AppColors.accent,
+                        borderRadius: BorderRadius.circular(999),
                       ),
-                      const SizedBox(width: 5),
-                      Text(
-                        cooldownSeconds > 0
-                            ? _formatCooldown(cooldownSeconds)
-                            : !isAdReady
-                            ? '加载中…'
-                            : '赚取积分',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: disabled
-                              ? AppColors.faint
-                              : const Color(0xFFFFF6EC),
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AppIcon(
+                            'video',
+                            size: 16,
+                            color: disabled
+                                ? AppColors.faint
+                                : const Color(0xFFFFF6EC),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            cooldownSeconds > 0
+                                ? _formatCooldown(cooldownSeconds)
+                                : !isAdReady
+                                ? '加载中…'
+                                : '赚取积分',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: disabled
+                                  ? AppColors.faint
+                                  : const Color(0xFFFFF6EC),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 5),
+              Text(
+                '$watchedToday/$kRewardedAdMaxPerDay',
+                style: bodyStyle(size: 10.5, color: AppColors.faint),
+              ),
+            ],
           ),
         ],
       ),
@@ -605,6 +630,11 @@ class _SkinsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final adSkins = gridSkins.where((s) => s.source == 'ads').toList()
+      ..sort(
+        (a, b) =>
+            (kAdSkinPoints[a.id] ?? 0).compareTo(kAdSkinPoints[b.id] ?? 0),
+      );
     return AppCard(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 12),
@@ -625,8 +655,7 @@ class _SkinsCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text('广告兑换', style: bodyStyle(size: 11.5, color: AppColors.muted)),
           const SizedBox(height: 6),
-          for (final skin in gridSkins.where((s) => s.source == 'ads'))
-            _skinTile(skin),
+          for (final skin in adSkins) _skinTile(skin),
         ],
       ),
     );
