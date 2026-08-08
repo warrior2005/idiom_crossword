@@ -77,7 +77,6 @@ class HomeScreen extends ConsumerWidget {
                   onTap: () => _switchToMineTab(context),
                   child: DecoratedSeal(
                     frameId: player.activeAvatarFrame,
-                    padding: const EdgeInsets.all(2),
                     child: Container(
                       width: 46,
                       height: 46,

@@ -49,7 +49,6 @@ class MineScreen extends ConsumerWidget {
                 children: [
                   DecoratedSeal(
                     frameId: player.activeAvatarFrame,
-                    padding: const EdgeInsets.all(3),
                     child: Container(
                       width: 76,
                       height: 76,

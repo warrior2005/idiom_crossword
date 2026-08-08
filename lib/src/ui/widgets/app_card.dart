@@ -19,6 +19,7 @@ class AppCard extends StatelessWidget {
     return Container(
       margin: margin,
       padding: padding,
+      clipBehavior: Clip.none,
       decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border.all(color: AppColors.border),

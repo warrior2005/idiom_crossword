@@ -38,6 +38,9 @@ const Map<String, int> kLevelSkinUnlockLevels = {
   'emperor': 19, // 九五至尊
 };
 
+/// 商城商品条目统一高度（购买/解锁前后保持不变）
+const double kShopItemHeight = 80;
+
 class ShopScreen extends ConsumerStatefulWidget {
   final bool bannerActive;
 
@@ -408,42 +411,46 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     title: '功能道具',
                     trailing: BadgeSoft('积分购买'),
                   ),
-                  _PackCard(
-                    iconName: 'pen',
-                    name: '提示卡 ×1',
-                    desc: '每次使用消耗一张提示卡',
-                    price: '$kHintCardPoints 积分',
-                    onBuy: () => _buyFunctional(
-                      context,
-                      ref,
-                      points: kHintCardPoints,
-                      hintCards: 1,
-                    ),
-                  ),
-                  _PackCard(
-                    iconName: 'revive',
-                    name: '复活卡 ×1',
-                    desc: '失误满格后可重整旗鼓，保留已填正确字',
-                    price: '$kReviveCardPoints 积分',
-                    onBuy: () => _buyFunctional(
-                      context,
-                      ref,
-                      points: kReviveCardPoints,
-                      reviveCards: 1,
-                    ),
-                  ),
-                  _PackCard(
-                    iconName: 'star',
-                    name: '备考礼盒（提示×3 + 复活×1）',
-                    desc: '冲刺阶段一次备齐，限量供应',
-                    price: '$kGiftBoxPoints 积分',
-                    onBuy: () => _buyFunctional(
-                      context,
-                      ref,
-                      points: kGiftBoxPoints,
-                      hintCards: 3,
-                      reviveCards: 1,
-                    ),
+                  _FunctionalCard(
+                    children: [
+                      _PackTile(
+                        iconName: 'pen',
+                        name: '提示卡 ×1',
+                        desc: '每次使用消耗一张提示卡',
+                        price: '$kHintCardPoints 积分',
+                        onBuy: () => _buyFunctional(
+                          context,
+                          ref,
+                          points: kHintCardPoints,
+                          hintCards: 1,
+                        ),
+                      ),
+                      _PackTile(
+                        iconName: 'revive',
+                        name: '复活卡 ×1',
+                        desc: '失误满格后可重整旗鼓，保留已填正确字',
+                        price: '$kReviveCardPoints 积分',
+                        onBuy: () => _buyFunctional(
+                          context,
+                          ref,
+                          points: kReviveCardPoints,
+                          reviveCards: 1,
+                        ),
+                      ),
+                      _PackTile(
+                        iconName: 'star',
+                        name: '备考礼盒（提示×3 + 复活×1）',
+                        desc: '冲刺阶段一次备齐，限量供应',
+                        price: '$kGiftBoxPoints 积分',
+                        onBuy: () => _buyFunctional(
+                          context,
+                          ref,
+                          points: kGiftBoxPoints,
+                          hintCards: 3,
+                          reviveCards: 1,
+                        ),
+                      ),
+                    ],
                   ),
                   const SectionTitle(
                     title: '装饰藏品',
@@ -641,13 +648,30 @@ class _WalletCard extends StatelessWidget {
   }
 }
 
-class _PackCard extends StatelessWidget {
+class _FunctionalCard extends StatelessWidget {
+  final List<Widget> children;
+  const _FunctionalCard({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [...children],
+      ),
+    );
+  }
+}
+
+class _PackTile extends StatelessWidget {
   final String iconName;
   final String name;
   final String desc;
   final String price;
   final VoidCallback onBuy;
-  const _PackCard({
+  const _PackTile({
     required this.iconName,
     required this.name,
     required this.desc,
@@ -657,27 +681,41 @@ class _PackCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(bottom: 12),
+    return Container(
+      height: kShopItemHeight,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
       child: Row(
         children: [
-          _IconBox(
-            iconName: iconName,
-            bg: AppColors.accentPale,
-            color: AppColors.accent,
-            size: 56,
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.accentPale,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.borderStrong),
+            ),
+            child: Center(
+              child: AppIcon(iconName, size: 22, color: AppColors.accent),
+            ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: bodyStyle(size: 15, weight: FontWeight.w600)),
+                Text(name, style: bodyStyle(size: 14, weight: FontWeight.w600)),
                 const SizedBox(height: 3),
                 Text(
                   desc,
-                  style: bodyStyle(size: 11.5, color: AppColors.muted),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: bodyStyle(size: 11, color: AppColors.muted),
                 ),
               ],
             ),
@@ -758,18 +796,13 @@ class _SkinsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('网格皮肤', style: bodyStyle(size: 14, weight: FontWeight.w600)),
-          const SizedBox(height: 4),
-          Text(
-            '等级皮肤达级解锁，广告兑换皮肤可用积分购买',
-            style: bodyStyle(size: 11, color: AppColors.muted),
-          ),
           const SizedBox(height: 12),
           Text('等级皮肤', style: bodyStyle(size: 11.5, color: AppColors.muted)),
           const SizedBox(height: 6),
           for (final skin in gridSkins.where((s) => s.source == 'level'))
             _skinTile(skin),
           const SizedBox(height: 6),
-          Text('广告兑换', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+          Text('积分兑换', style: bodyStyle(size: 11.5, color: AppColors.muted)),
           const SizedBox(height: 6),
           for (final skin in adSkins) _skinTile(skin),
         ],
@@ -799,8 +832,9 @@ class _SkinsCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => onSelect(skin.id),
       child: Container(
+        height: kShopItemHeight,
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: skin.surface,
           borderRadius: BorderRadius.circular(14),
@@ -890,7 +924,7 @@ class _FramesCard extends StatelessWidget {
       ..sort((a, b) => a.points.compareTo(b.points));
     return _DecoCard(
       title: '头像框',
-      hint: '升级奖励达级解锁，部分头像框可用积分购买，已拥有后点击切换',
+      hint: '',
       children: [
         Text('等级奖励', style: bodyStyle(size: 11.5, color: AppColors.muted)),
         const SizedBox(height: 6),
@@ -947,7 +981,7 @@ class _EffectsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _DecoCard(
       title: '称号特效',
-      hint: '升级奖励解锁，已拥有后点击切换',
+      hint: '',
       children: [
         for (final effect in titleEffects)
           _DecoTile(
@@ -989,7 +1023,13 @@ class _DecoCard extends StatelessWidget {
         children: [
           Text(title, style: bodyStyle(size: 14, weight: FontWeight.w600)),
           const SizedBox(height: 4),
-          Text(hint, style: bodyStyle(size: 11, color: AppColors.muted)),
+          Offstage(
+            offstage: hint == '',
+            child: Text(
+              hint,
+              style: bodyStyle(size: 11, color: AppColors.muted),
+            ),
+          ),
           const SizedBox(height: 12),
           ...children,
         ],
@@ -1030,8 +1070,9 @@ class _DecoTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        height: kShopItemHeight,
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
@@ -1139,26 +1180,22 @@ class _IconBox extends StatelessWidget {
   final String iconName;
   final Color bg;
   final Color color;
-  final double size;
   const _IconBox({
     required this.iconName,
     required this.bg,
     required this.color,
-    this.size = 40,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size,
-      height: size,
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(size * 0.3),
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Center(
-        child: AppIcon(iconName, size: size * 0.5, color: color),
-      ),
+      child: Center(child: AppIcon(iconName, size: 20, color: color)),
     );
   }
 }
