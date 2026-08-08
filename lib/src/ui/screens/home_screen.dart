@@ -73,33 +73,39 @@ class HomeScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                GestureDetector(
-                  onTap: () => _switchToMineTab(context),
-                  child: DecoratedSeal(
-                    frameId: player.activeAvatarFrame,
-                    child: Container(
-                      width: 46,
-                      height: 46,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: avatarSeal == '龙' ? null : AppColors.surface2,
-                        gradient: avatarSeal == '龙'
-                            ? const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Color(0xFF2E2A20), Color(0xFF191610)],
-                              )
-                            : null,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        avatarSeal,
-                        style: displayStyle(
-                          size: 20,
-                          weight: FontWeight.w700,
-                          color: avatarSeal == '龙'
-                              ? const Color(0xFFE8C87A)
-                              : AppColors.accent,
+                Padding(
+                  padding: EdgeInsetsGeometry.only(right: 20),
+                  child: GestureDetector(
+                    onTap: () => _switchToMineTab(context),
+                    child: DecoratedSeal(
+                      frameId: player.activeAvatarFrame,
+                      child: Container(
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: avatarSeal == '龙' ? null : AppColors.surface2,
+                          gradient: avatarSeal == '龙'
+                              ? const LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF2E2A20),
+                                    Color(0xFF191610),
+                                  ],
+                                )
+                              : null,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          avatarSeal,
+                          style: displayStyle(
+                            size: 20,
+                            weight: FontWeight.w700,
+                            color: avatarSeal == '龙'
+                                ? const Color(0xFFE8C87A)
+                                : AppColors.accent,
+                          ),
                         ),
                       ),
                     ),

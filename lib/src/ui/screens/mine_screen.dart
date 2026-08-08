@@ -41,7 +41,7 @@ class MineScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
           children: [
             Text('我的', style: displayStyle(size: 30, weight: FontWeight.w700)),
-            const SizedBox(height: 12),
+            const SizedBox(height: 30),
             // 头像卡
             AppCard(
               padding: const EdgeInsets.all(20),
@@ -77,7 +77,7 @@ class MineScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 36),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

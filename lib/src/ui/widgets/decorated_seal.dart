@@ -5,7 +5,10 @@ import '../theme/decoration_catalog.dart';
 const double kAvatarFrameImageScale = 1.9;
 
 /// 头像框图片相对头像的垂直偏移（头像高度比例，负值向上）
-const double kAvatarFrameVerticalOffset = -0.16;
+/// 乌纱帽、东坡巾、翼善冠、獬豸冠 = -0.24
+/// 忠靖冠 = -0.22
+/// 四方平定巾、天子冕冠 = -0.19
+const double kAvatarFrameVerticalOffset = -0.24;
 
 class DecoratedSeal extends StatelessWidget {
   final String? frameId;
@@ -18,6 +21,12 @@ class DecoratedSeal extends StatelessWidget {
     if (frameId == null) return child;
     final def = avatarFrameById(frameId!);
     if (def == null) return child;
+    double avatarFrameVerticalOffset = kAvatarFrameVerticalOffset;
+    if (frameId!.contains('zhongjing')) {
+      avatarFrameVerticalOffset = -0.22;
+    } else if (frameId!.contains('sifang') || frameId!.contains('tianzi')) {
+      avatarFrameVerticalOffset = -0.19;
+    }
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -29,7 +38,7 @@ class DecoratedSeal extends StatelessWidget {
                 builder: (context, constraints) => Transform.translate(
                   offset: Offset(
                     0,
-                    constraints.maxHeight * kAvatarFrameVerticalOffset,
+                    constraints.maxHeight * avatarFrameVerticalOffset,
                   ),
                   child: Transform.scale(
                     scale: kAvatarFrameImageScale,
