@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import '../theme/decoration_catalog.dart';
 
-/// 头像框：为印章/头像套一层描边与光晕
+/// 头像框：在印章/头像上叠加放大的头像框图片
+const double kAvatarFrameImageScale = 2.1;
+
 class DecoratedSeal extends StatelessWidget {
   final String? frameId;
   final Widget child;
-  final bool circle;
   final EdgeInsets padding;
 
   const DecoratedSeal({
     super.key,
     this.frameId,
     required this.child,
-    this.circle = false,
     this.padding = const EdgeInsets.all(3),
   });
 
@@ -23,14 +23,6 @@ class DecoratedSeal extends StatelessWidget {
     if (def == null) return child;
     return Container(
       padding: padding,
-      decoration: BoxDecoration(
-        shape: circle ? BoxShape.circle : BoxShape.rectangle,
-        borderRadius: circle ? null : BorderRadius.circular(14),
-        border: Border.all(color: def.color, width: def.width),
-        boxShadow: [
-          BoxShadow(color: def.glow, blurRadius: 10, spreadRadius: 1),
-        ],
-      ),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -38,7 +30,10 @@ class DecoratedSeal extends StatelessWidget {
           if (def.asset != null)
             Positioned.fill(
               child: IgnorePointer(
-                child: Image.asset(def.asset!, fit: BoxFit.contain),
+                child: Transform.scale(
+                  scale: kAvatarFrameImageScale,
+                  child: Image.asset(def.asset!, fit: BoxFit.contain),
+                ),
               ),
             ),
         ],

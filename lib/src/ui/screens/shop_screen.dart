@@ -72,6 +72,37 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<bool> _confirmPurchase(
+    BuildContext context,
+    String name,
+    int points,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          '确认购买',
+          style: displayStyle(size: 20, weight: FontWeight.w700),
+        ),
+        content: Text(
+          '花费 $points 积分购买「$name」？',
+          style: bodyStyle(size: 14, color: AppColors.fg),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('确认'),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
+
   void _showPointsGuide(BuildContext context) {
     showDialog<void>(
       context: context,
@@ -93,7 +124,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               '横幅广告',
               '关卡/收藏/商城底部常驻，每累计观看 1 分钟 +1 积分，每天上限 $kMaxBannerPointsPerDay 积分。',
             ),
-            _guideLine('积分用途', '兑换提示卡、复活卡、备考礼盒与广告兑换网格皮肤。'),
+            _guideLine('积分用途', '兑换提示卡、复活卡、备考礼盒、广告兑换网格皮肤与头像框。'),
           ],
         ),
         actions: [
@@ -178,6 +209,16 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     int hintCards = 0,
     int reviveCards = 0,
   }) async {
+    final parts = <String>[
+      if (hintCards > 0) '提示卡 ×$hintCards',
+      if (reviveCards > 0) '复活卡 ×$reviveCards',
+    ];
+    final confirmed = await _confirmPurchase(
+      context,
+      parts.join(' + '),
+      points,
+    );
+    if (!confirmed) return;
     final notifier = ref.read(playerProvider.notifier);
     final ok = await notifier.spendPoints(points);
     if (!ok) {
@@ -186,10 +227,6 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     }
     await notifier.addHintCards(hintCards);
     await notifier.addReviveCards(reviveCards);
-    final parts = <String>[
-      if (hintCards > 0) '提示卡 ×$hintCards',
-      if (reviveCards > 0) '复活卡 ×$reviveCards',
-    ];
     _showSnack('购买成功：${parts.join(' + ')}');
   }
 
@@ -226,6 +263,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     if (!isOwned) {
       final price = kAdSkinPoints[id] ?? 0;
       if (price <= 0) return;
+      final confirmed = await _confirmPurchase(context, name, price);
+      if (!confirmed) return;
       final ok = await notifier.spendPoints(price);
       if (!ok) {
         _showSnack('积分不足，可观看广告赚取积分');
@@ -250,14 +289,21 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final def = avatarFrameById(id);
     final isOwned = player.ownedDecorations.contains('avatar_frame_$id');
     if (!isOwned && def?.source == 'points' && (def?.points ?? 0) > 0) {
-      final ok = await notifier.spendPoints(def!.points);
+      final frameDef = def!;
+      final confirmed = await _confirmPurchase(
+        context,
+        frameDef.name,
+        frameDef.points,
+      );
+      if (!confirmed) return;
+      final ok = await notifier.spendPoints(frameDef.points);
       if (!ok) {
         _showSnack('积分不足，可观看广告赚取积分');
         return;
       }
       await notifier.unlockAvatarFrame(id);
       await notifier.setActiveAvatarFrame(id);
-      _showSnack('已购买并切换头像框：${def.name}');
+      _showSnack('已购买并切换头像框：${frameDef.name}');
       return;
     }
     if (!isOwned) {
@@ -637,42 +683,53 @@ class _PackCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                price,
-                style: displayStyle(
-                  size: 14,
-                  weight: FontWeight.w700,
-                  color: AppColors.accent,
-                ),
-              ),
-              const SizedBox(height: 6),
-              GestureDetector(
-                onTap: onBuy,
-                child: Container(
-                  height: 34,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.accent,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Text(
-                    '购买',
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFFFFF6EC),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _PurchaseBlock(priceText: price, onBuy: onBuy),
         ],
       ),
+    );
+  }
+}
+
+class _PurchaseBlock extends StatelessWidget {
+  final String priceText;
+  final VoidCallback onBuy;
+  const _PurchaseBlock({required this.priceText, required this.onBuy});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          priceText,
+          style: displayStyle(
+            size: 14,
+            weight: FontWeight.w700,
+            color: AppColors.accent,
+          ),
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: onBuy,
+          child: Container(
+            height: 34,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.accent,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: const Text(
+              '购买',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFFFF6EC),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -738,7 +795,7 @@ class _SkinsCard extends StatelessWidget {
         ? '已拥有'
         : isLevelSkin
         ? 'Lv.$unlockLevel 升级奖励'
-        : '$price 积分购买';
+        : '积分购买';
     return GestureDetector(
       onTap: () => onSelect(skin.id),
       child: Container(
@@ -800,11 +857,13 @@ class _SkinsCard extends StatelessWidget {
             ),
             if (isActive)
               BadgeSoft('使用中', color: BadgeSoftColor.gold)
+            else if (!isOwned && !isLevelSkin && price > 0)
+              _PurchaseBlock(
+                priceText: '$price 积分',
+                onBuy: () => onSelect(skin.id),
+              )
             else if (!isOwned)
-              BadgeSoft(
-                isLevelSkin ? 'Lv.$unlockLevel' : '$price 积分',
-                color: BadgeSoftColor.leaf,
-              ),
+              BadgeSoft('Lv.$unlockLevel', color: BadgeSoftColor.leaf),
           ],
         ),
       ),
@@ -862,7 +921,7 @@ class _FramesCard extends StatelessWidget {
                 ? '使用中'
                 : owned.contains('avatar_frame_${frame.id}')
                 ? '已拥有'
-                : '${frame.points} 积分购买',
+                : '积分购买',
             isActive: active == frame.id,
             isOwned: owned.contains('avatar_frame_${frame.id}'),
             unlockLevel: frame.unlockLevel,
@@ -991,7 +1050,7 @@ class _DecoTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: frame?.color ?? AppColors.borderStrong,
-                  width: frame?.width ?? 1,
+                  width: 1,
                 ),
                 boxShadow: frame == null
                     ? null
@@ -1063,6 +1122,10 @@ class _DecoTile extends StatelessWidget {
             ),
             if (isActive)
               BadgeSoft('使用中', color: BadgeSoftColor.gold)
+            else if (!isOwned &&
+                frame?.source == 'points' &&
+                (frame?.points ?? 0) > 0)
+              _PurchaseBlock(priceText: '${frame!.points} 积分', onBuy: onTap)
             else if (!isOwned)
               BadgeSoft(lockBadge, color: BadgeSoftColor.leaf),
           ],

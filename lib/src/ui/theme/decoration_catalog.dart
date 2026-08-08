@@ -7,7 +7,6 @@ class AvatarFrameDef {
   final int unlockLevel;
   final Color color;
   final Color glow;
-  final double width;
   final String source; // 'level' 等级奖励 / 'points' 积分购买
   final int points;
   final String? asset;
@@ -18,7 +17,6 @@ class AvatarFrameDef {
     required this.unlockLevel,
     required this.color,
     required this.glow,
-    required this.width,
     this.source = 'level',
     this.points = 0,
     this.asset,
@@ -50,7 +48,6 @@ const List<AvatarFrameDef> avatarFrames = [
     unlockLevel: 2,
     color: Color(0xFF4A5E6E),
     glow: Color(0x334A5E6E),
-    width: 2.5,
     asset: 'assets/images/四方平定巾.png',
   ),
   AvatarFrameDef(
@@ -59,7 +56,6 @@ const List<AvatarFrameDef> avatarFrames = [
     unlockLevel: 0,
     color: Color(0xFF6E8A7A),
     glow: Color(0x336E8A7A),
-    width: 2.5,
     source: 'points',
     points: 2000,
     asset: 'assets/images/东坡巾.png',
@@ -70,7 +66,6 @@ const List<AvatarFrameDef> avatarFrames = [
     unlockLevel: 5,
     color: Color(0xFF4A4A5E),
     glow: Color(0x334A4A5E),
-    width: 2.5,
     asset: 'assets/images/乌纱帽.png',
   ),
   AvatarFrameDef(
@@ -79,7 +74,6 @@ const List<AvatarFrameDef> avatarFrames = [
     unlockLevel: 0,
     color: Color(0xFF6E4A5E),
     glow: Color(0x336E4A5E),
-    width: 2.5,
     source: 'points',
     points: 5000,
     asset: 'assets/images/翼善冠.png',
@@ -90,7 +84,6 @@ const List<AvatarFrameDef> avatarFrames = [
     unlockLevel: 13,
     color: Color(0xFF8A5A2B),
     glow: Color(0x338A5A2B),
-    width: 3,
     asset: 'assets/images/獬豸冠.png',
   ),
   AvatarFrameDef(
@@ -99,7 +92,6 @@ const List<AvatarFrameDef> avatarFrames = [
     unlockLevel: 18,
     color: Color(0xFF8A7A3A),
     glow: Color(0x338A7A3A),
-    width: 3.5,
     asset: 'assets/images/忠靖冠.png',
   ),
   AvatarFrameDef(
@@ -108,7 +100,6 @@ const List<AvatarFrameDef> avatarFrames = [
     unlockLevel: 21,
     color: Color(0xFFC9A227),
     glow: Color(0x55D9B23C),
-    width: 3.5,
     asset: 'assets/images/天子冕冠.png',
   ),
 ];

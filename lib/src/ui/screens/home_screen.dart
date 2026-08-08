@@ -42,6 +42,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider);
+    final avatarSeal = GrowthManager.avatarSeal(player.level);
     final daily = ref.watch(dailyInfoProvider).value;
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
     final dailyIssue = ref.watch(dailyIssueProvider).value ?? 1;
@@ -76,23 +77,30 @@ class HomeScreen extends ConsumerWidget {
                   onTap: () => _switchToMineTab(context),
                   child: DecoratedSeal(
                     frameId: player.activeAvatarFrame,
-                    circle: true,
                     padding: const EdgeInsets.all(2),
                     child: Container(
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: AppColors.surface2,
-                        border: Border.all(color: AppColors.borderStrong),
                         shape: BoxShape.circle,
+                        color: avatarSeal == '龙' ? null : AppColors.surface2,
+                        gradient: avatarSeal == '龙'
+                            ? const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [Color(0xFF2E2A20), Color(0xFF191610)],
+                              )
+                            : null,
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        GrowthManager.avatarSeal(player.level),
+                        avatarSeal,
                         style: displayStyle(
                           size: 20,
                           weight: FontWeight.w700,
-                          color: AppColors.accent,
+                          color: avatarSeal == '龙'
+                              ? const Color(0xFFE8C87A)
+                              : AppColors.accent,
                         ),
                       ),
                     ),

@@ -20,6 +20,7 @@ class MineScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerProvider);
+    final avatarSeal = GrowthManager.avatarSeal(player.level);
     final nextMainLevel =
         ref.watch(nextMainLevelProvider).value ?? player.completedLevels + 1;
     final statsAsync = ref.watch(statsProvider);
@@ -53,28 +54,26 @@ class MineScreen extends ConsumerWidget {
                       width: 76,
                       height: 76,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF2E2A20), Color(0xFF191610)],
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x284050A0),
-                            blurRadius: 18,
-                            offset: Offset(0, 8),
-                          ),
-                        ],
+                        shape: BoxShape.circle,
+                        color: avatarSeal == '龙' ? null : AppColors.surface2,
+                        gradient: avatarSeal == '龙'
+                            ? const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [Color(0xFF2E2A20), Color(0xFF191610)],
+                              )
+                            : null,
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        GrowthManager.avatarSeal(player.level),
-                        style: const TextStyle(
+                        avatarSeal,
+                        style: TextStyle(
                           fontFamily: kSerif,
                           fontSize: 36,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFFE8C87A),
+                          color: avatarSeal == '龙'
+                              ? const Color(0xFFE8C87A)
+                              : AppColors.accent,
                         ),
                       ),
                     ),

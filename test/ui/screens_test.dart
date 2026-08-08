@@ -218,6 +218,16 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('购买').first);
+    await tester.pumpAndSettle();
+    expect(find.text('确认购买'), findsOneWidget);
+    await tester.tap(find.text('取消'));
+    await tester.pumpAndSettle();
+    expect((await db.getPlayerProgress())!.hintCards, 0);
+    expect((await db.getPlayerProgress())!.points, 100);
+
+    await tester.tap(find.text('购买').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('确认'));
     await tester.pump();
     expect(find.text('购买成功：提示卡 ×1'), findsOneWidget);
     expect((await db.getPlayerProgress())!.hintCards, 1);
@@ -292,6 +302,9 @@ void main() {
     await tester.ensureVisible(find.text('秋香'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('秋香'));
+    await tester.pumpAndSettle();
+    expect(find.text('确认购买'), findsOneWidget);
+    await tester.tap(find.text('确认'));
     await tester.pump();
     expect(find.text('已购买并切换网格皮肤：秋香'), findsOneWidget);
     expect((await db.getPlayerProgress())!.points, 3000);
@@ -381,6 +394,9 @@ void main() {
     await tester.ensureVisible(find.text('东坡巾'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('东坡巾'));
+    await tester.pumpAndSettle();
+    expect(find.text('确认购买'), findsOneWidget);
+    await tester.tap(find.text('确认'));
     await tester.pump();
     expect(find.text('已购买并切换头像框：东坡巾'), findsOneWidget);
     expect((await db.getPlayerProgress())!.points, 5000);
@@ -399,6 +415,9 @@ void main() {
     await tester.ensureVisible(find.text('翼善冠'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('翼善冠'));
+    await tester.pumpAndSettle();
+    expect(find.text('确认购买'), findsOneWidget);
+    await tester.tap(find.text('确认'));
     await tester.pump();
     expect(find.text('已购买并切换头像框：翼善冠'), findsOneWidget);
     expect((await db.getPlayerProgress())!.points, 0);
