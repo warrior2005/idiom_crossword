@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import '../../state/player_state.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
@@ -10,12 +15,85 @@ import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/section_title.dart';
 import '../widgets/decorated_seal.dart';
+import '../widgets/user_avatar.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../theme/decoration_catalog.dart';
 
 class MineScreen extends ConsumerWidget {
   const MineScreen({super.key});
+
+  Future<void> _pickAvatar(BuildContext context, WidgetRef ref) async {
+    final current = ref.read(playerProvider);
+    final hasCustom =
+        current.customAvatarPath != null &&
+        current.customAvatarPath!.isNotEmpty;
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(
+                Icons.photo_library_outlined,
+                color: AppColors.accent,
+              ),
+              title: const Text('从相册选择'),
+              onTap: () => Navigator.pop(sheetContext, 'pick'),
+            ),
+            if (hasCustom)
+              ListTile(
+                leading: const Icon(Icons.restart_alt, color: AppColors.accent),
+                title: const Text('取消自定义头像'),
+                onTap: () => Navigator.pop(sheetContext, 'clear'),
+              ),
+            ListTile(
+              title: const Text('关闭'),
+              onTap: () => Navigator.pop(sheetContext),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted) return;
+    if (action == 'clear') {
+      await ref.read(playerProvider.notifier).clearCustomAvatar();
+      return;
+    }
+    if (action != 'pick') return;
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 90,
+    );
+    if (picked == null || !context.mounted) return;
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final ext = p.extension(picked.path).isEmpty
+          ? '.jpg'
+          : p.extension(picked.path);
+      final target = p.join(
+        dir.path,
+        'custom_avatar_${DateTime.now().millisecondsSinceEpoch}$ext',
+      );
+      await File(picked.path).copy(target);
+      if (!context.mounted) return;
+      await ref.read(playerProvider.notifier).setCustomAvatar(target);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('头像设置失败，请重试')));
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,70 +123,80 @@ class MineScreen extends ConsumerWidget {
             // 头像卡
             AppCard(
               padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  DecoratedSeal(
-                    frameId: player.activeAvatarFrame,
-                    child: Container(
-                      width: 76,
-                      height: 76,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: avatarSeal == '龙' ? null : AppColors.surface2,
-                        gradient: avatarSeal == '龙'
-                            ? const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Color(0xFF2E2A20), Color(0xFF191610)],
-                              )
-                            : null,
-                      ),
-                      alignment: Alignment.center,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Stack(
+                  children: [
+                    // 背景水印：当前印章（士/官/卿/相/公/龙）
+                    Positioned(
+                      right: -6,
+                      top: 4,
                       child: Text(
                         avatarSeal,
-                        style: TextStyle(
-                          fontFamily: kSerif,
-                          fontSize: 36,
-                          fontWeight: FontWeight.w900,
-                          color: avatarSeal == '龙'
-                              ? const Color(0xFFE8C87A)
-                              : AppColors.accent,
+                        style: displayStyle(
+                          size: 76,
+                          weight: FontWeight.w900,
+                          color: AppColors.accent.withValues(alpha: 0.10),
+                          height: 1.0,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 36),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
-                        Text(
-                          '${GrowthManager.levelLabel(player.level)} · ${player.title}',
-                          style: applyTitleEffect(
-                            player.activeTitleEffect,
-                            displayStyle(
-                              size: 21,
-                              weight: FontWeight.w900,
-                              color: AppColors.accentDeep,
+                        GestureDetector(
+                          onTap: () => _pickAvatar(context, ref),
+                          child: DecoratedSeal(
+                            frameId: player.activeAvatarFrame,
+                            child: UserAvatar(
+                              seal: avatarSeal,
+                              customAvatarPath: player.customAvatarPath,
+                              size: 76,
+                              fontSize: 36,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          '已获 ${player.completedLevels} 关 · ${player.totalXp} 经验',
-                          style: bodyStyle(size: 12.5, color: AppColors.muted),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          player.level >= titles.length
-                              ? '已达最高等级「$nextTitle」'
-                              : '再通关 $levelsToNextTitle 关，晋升「$nextTitle」',
-                          style: bodyStyle(size: 11.5, color: AppColors.faint),
+                        const SizedBox(width: 36),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${GrowthManager.levelLabel(player.level)} · ${player.title}',
+                                style: applyTitleEffect(
+                                  player.activeTitleEffect,
+                                  displayStyle(
+                                    size: 21,
+                                    weight: FontWeight.w900,
+                                    color: AppColors.accentDeep,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '已获 ${player.completedLevels} 关 · ${player.totalXp} 经验',
+                                style: bodyStyle(
+                                  size: 12.5,
+                                  color: AppColors.muted,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                player.level >= titles.length
+                                    ? '已达最高等级「$nextTitle」'
+                                    : '再通关 $levelsToNextTitle 关，晋升「$nextTitle」',
+                                style: bodyStyle(
+                                  size: 11.5,
+                                  color: AppColors.faint,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),

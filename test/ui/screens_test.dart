@@ -18,6 +18,7 @@ import 'package:idiom_crossword/src/ui/screens/level_select_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/learning_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/mine_screen.dart';
 import 'package:idiom_crossword/src/audio/game_audio.dart';
+import 'package:idiom_crossword/src/ui/widgets/user_avatar.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 
 /// 数据驱动界面的 widget 测试（内存数据库 + Provider 覆盖）
@@ -702,5 +703,42 @@ void main() {
     expect(find.text('成就'), findsOneWidget);
     expect(find.text('统计'), findsOneWidget);
     expect(find.text('设置'), findsOneWidget);
+  });
+
+  testWidgets('我的页：点头像可打开头像设置并取消自定义头像', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 0,
+      hintCards: 0,
+      reviveCards: 0,
+    );
+    await db.setSetting(kCustomAvatarPathKey, '/tmp/custom_avatar.jpg');
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: MineScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(UserAvatar));
+    await tester.pumpAndSettle();
+    expect(find.text('从相册选择'), findsOneWidget);
+    expect(find.text('取消自定义头像'), findsOneWidget);
+
+    await tester.tap(find.text('取消自定义头像'));
+    await tester.pumpAndSettle();
+    expect(container.read(playerProvider).customAvatarPath, '');
+    expect(await db.getSetting(kCustomAvatarPathKey), '');
   });
 }

@@ -23,6 +23,7 @@ import '../widgets/level_loading_dialog.dart';
 import '../widgets/lunar_date_label.dart';
 import '../widgets/vertical_word.dart';
 import '../widgets/decorated_seal.dart';
+import '../widgets/user_avatar.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../theme/decoration_catalog.dart';
@@ -79,34 +80,11 @@ class HomeScreen extends ConsumerWidget {
                     onTap: () => _switchToMineTab(context),
                     child: DecoratedSeal(
                       frameId: player.activeAvatarFrame,
-                      child: Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: avatarSeal == '龙' ? null : AppColors.surface2,
-                          gradient: avatarSeal == '龙'
-                              ? const LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xFF2E2A20),
-                                    Color(0xFF191610),
-                                  ],
-                                )
-                              : null,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          avatarSeal,
-                          style: displayStyle(
-                            size: 20,
-                            weight: FontWeight.w700,
-                            color: avatarSeal == '龙'
-                                ? const Color(0xFFE8C87A)
-                                : AppColors.accent,
-                          ),
-                        ),
+                      child: UserAvatar(
+                        seal: avatarSeal,
+                        customAvatarPath: player.customAvatarPath,
+                        size: 46,
+                        fontSize: 20,
                       ),
                     ),
                   ),

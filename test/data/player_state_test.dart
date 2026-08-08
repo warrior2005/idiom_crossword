@@ -291,4 +291,19 @@ void main() {
     expect(await db.getActiveDecorationId('grid_skin'), 'bamboo');
     expect(await db.getOwnedDecorationIds(), contains('grid_skin_bamboo'));
   });
+
+  test('自定义头像设置与取消持久化', () async {
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.setCustomAvatar('/tmp/custom_avatar.jpg');
+
+    expect(
+      container.read(playerProvider).customAvatarPath,
+      '/tmp/custom_avatar.jpg',
+    );
+    expect(await db.getSetting(kCustomAvatarPathKey), '/tmp/custom_avatar.jpg');
+
+    await notifier.clearCustomAvatar();
+    expect(container.read(playerProvider).customAvatarPath, '');
+    expect(await db.getSetting(kCustomAvatarPathKey), '');
+  });
 }

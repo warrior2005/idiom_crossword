@@ -29,6 +29,7 @@ const String kRewardedAdsCountKey = 'rewarded_ads_count';
 const String kRewardedAdsLastTsKey = 'rewarded_ads_last_ts';
 const String kBannerPointsDateKey = 'banner_points_date';
 const String kBannerPointsCountKey = 'banner_points_count';
+const String kCustomAvatarPathKey = 'custom_avatar_path';
 
 /// 激励广告当前可用状态
 class RewardedAdStatus {
@@ -58,6 +59,7 @@ class PlayerState {
   final Set<String> ownedDecorations;
   final String activeGridSkin;
   final String? activeAvatarFrame;
+  final String? customAvatarPath;
   final String? activeTitleEffect;
 
   const PlayerState({
@@ -73,6 +75,7 @@ class PlayerState {
     required this.ownedDecorations,
     required this.activeGridSkin,
     required this.activeAvatarFrame,
+    this.customAvatarPath,
     required this.activeTitleEffect,
   });
 
@@ -102,6 +105,7 @@ class PlayerState {
     Set<String>? ownedDecorations,
     String? activeGridSkin,
     String? activeAvatarFrame,
+    String? customAvatarPath,
     String? activeTitleEffect,
   }) {
     return PlayerState(
@@ -117,6 +121,7 @@ class PlayerState {
       ownedDecorations: ownedDecorations ?? this.ownedDecorations,
       activeGridSkin: activeGridSkin ?? this.activeGridSkin,
       activeAvatarFrame: activeAvatarFrame ?? this.activeAvatarFrame,
+      customAvatarPath: customAvatarPath ?? this.customAvatarPath,
       activeTitleEffect: activeTitleEffect ?? this.activeTitleEffect,
     );
   }
@@ -189,6 +194,10 @@ class PlayerNotifier extends Notifier<PlayerState> {
       await db.setActiveDecoration('avatar_frame', 'zhongjing');
       activeAvatarFrame = 'zhongjing';
     }
+    final savedAvatar = await db.getSetting(kCustomAvatarPathKey);
+    final customAvatarPath = (savedAvatar == null || savedAvatar.isEmpty)
+        ? null
+        : savedAvatar;
 
     state = PlayerState(
       level: progress.level,
@@ -208,6 +217,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       ownedDecorations: owned,
       activeGridSkin: await db.getActiveDecorationId('grid_skin') ?? 'paper',
       activeAvatarFrame: activeAvatarFrame,
+      customAvatarPath: customAvatarPath,
       activeTitleEffect: await db.getActiveDecorationId('title_effect'),
     );
   }
@@ -501,6 +511,18 @@ class PlayerNotifier extends Notifier<PlayerState> {
   Future<void> setActiveAvatarFrame(String id) async {
     state = state.copyWith(activeAvatarFrame: id);
     await ref.read(databaseProvider).setActiveDecoration('avatar_frame', id);
+  }
+
+  /// 设置自定义头像（图片已由调用方复制到持久目录）
+  Future<void> setCustomAvatar(String path) async {
+    state = state.copyWith(customAvatarPath: path);
+    await ref.read(databaseProvider).setSetting(kCustomAvatarPathKey, path);
+  }
+
+  /// 取消自定义头像，恢复默认“士/官/卿/相/公/龙”印章
+  Future<void> clearCustomAvatar() async {
+    state = state.copyWith(customAvatarPath: '');
+    await ref.read(databaseProvider).setSetting(kCustomAvatarPathKey, '');
   }
 
   Future<void> setActiveTitleEffect(String id) async {
