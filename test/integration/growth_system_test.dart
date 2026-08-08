@@ -50,6 +50,11 @@ void main() {
 
     test('rewards are assigned correctly', () {
       expect(GrowthManager.rewardForLevel(1)?.item, 'hint_card');
+      expect(GrowthManager.rewardForLevel(2)?.item, 'avatar_frame_sifang');
+      expect(GrowthManager.rewardForLevel(5)?.item, 'avatar_frame_wusha');
+      expect(GrowthManager.rewardForLevel(13)?.item, 'avatar_frame_xiezhi');
+      expect(GrowthManager.rewardForLevel(18)?.item, 'avatar_frame_zhongjing');
+      expect(GrowthManager.rewardForLevel(21)?.item, 'avatar_frame_tianzi');
       expect(GrowthManager.rewardForLevel(3)?.item, 'grid_skin_bamboo');
       expect(GrowthManager.rewardForLevel(20)?.item, 'custom_title_unlock');
     });

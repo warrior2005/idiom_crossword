@@ -51,6 +51,7 @@ flutter:
   assets:
     - assets/data/
     - assets/audio/
+    - assets/images/
 
   fonts:
     - family: Noto Serif SC

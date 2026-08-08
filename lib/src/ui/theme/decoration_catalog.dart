@@ -8,6 +8,9 @@ class AvatarFrameDef {
   final Color color;
   final Color glow;
   final double width;
+  final String source; // 'level' 等级奖励 / 'points' 积分购买
+  final int points;
+  final String? asset;
 
   const AvatarFrameDef({
     required this.id,
@@ -16,6 +19,9 @@ class AvatarFrameDef {
     required this.color,
     required this.glow,
     required this.width,
+    this.source = 'level',
+    this.points = 0,
+    this.asset,
   });
 }
 
@@ -36,8 +42,28 @@ class TitleEffectDef {
   });
 }
 
-/// 头像框目录（升级奖励解锁）
+/// 头像框目录（等级奖励解锁 / 积分购买）
 const List<AvatarFrameDef> avatarFrames = [
+  AvatarFrameDef(
+    id: 'sifang',
+    name: '四方平定巾',
+    unlockLevel: 2,
+    color: Color(0xFF4A5E6E),
+    glow: Color(0x334A5E6E),
+    width: 2.5,
+    asset: 'assets/images/四方平定巾.png',
+  ),
+  AvatarFrameDef(
+    id: 'dongpo',
+    name: '东坡巾',
+    unlockLevel: 0,
+    color: Color(0xFF6E8A7A),
+    glow: Color(0x336E8A7A),
+    width: 2.5,
+    source: 'points',
+    points: 2000,
+    asset: 'assets/images/东坡巾.png',
+  ),
   AvatarFrameDef(
     id: 'wusha',
     name: '乌纱帽',
@@ -45,6 +71,18 @@ const List<AvatarFrameDef> avatarFrames = [
     color: Color(0xFF4A4A5E),
     glow: Color(0x334A4A5E),
     width: 2.5,
+    asset: 'assets/images/乌纱帽.png',
+  ),
+  AvatarFrameDef(
+    id: 'yishan',
+    name: '翼善冠',
+    unlockLevel: 0,
+    color: Color(0xFF6E4A5E),
+    glow: Color(0x336E4A5E),
+    width: 2.5,
+    source: 'points',
+    points: 5000,
+    asset: 'assets/images/翼善冠.png',
   ),
   AvatarFrameDef(
     id: 'xiezhi',
@@ -53,14 +91,25 @@ const List<AvatarFrameDef> avatarFrames = [
     color: Color(0xFF8A5A2B),
     glow: Color(0x338A5A2B),
     width: 3,
+    asset: 'assets/images/獬豸冠.png',
   ),
   AvatarFrameDef(
-    id: 'sangong',
-    name: '三公',
+    id: 'zhongjing',
+    name: '忠靖冠',
     unlockLevel: 18,
+    color: Color(0xFF8A7A3A),
+    glow: Color(0x338A7A3A),
+    width: 3.5,
+    asset: 'assets/images/忠靖冠.png',
+  ),
+  AvatarFrameDef(
+    id: 'tianzi',
+    name: '天子冕冠',
+    unlockLevel: 21,
     color: Color(0xFFC9A227),
     glow: Color(0x55D9B23C),
     width: 3.5,
+    asset: 'assets/images/天子冕冠.png',
   ),
 ];
 
@@ -104,9 +153,13 @@ String decorationName(String item) {
     'grid_skin_qinghua' => '网格皮肤·青花',
     'grid_skin_gold' => '网格皮肤·金箔',
     'grid_skin_emperor' => '网格皮肤·九五至尊',
+    'avatar_frame_sifang' => '头像框·四方平定巾',
+    'avatar_frame_dongpo' => '头像框·东坡巾',
     'avatar_frame_wusha' => '头像框·乌纱帽',
+    'avatar_frame_yishan' => '头像框·翼善冠',
     'avatar_frame_xiezhi' => '头像框·獬豸冠',
-    'avatar_frame_sangong' => '头像框·三公',
+    'avatar_frame_zhongjing' => '头像框·忠靖冠',
+    'avatar_frame_tianzi' => '头像框·天子冕冠',
     'title_effect_jinbang' => '称号特效·金榜题名',
     'title_effect_tianzi' => '称号特效·天子门生',
     'custom_title_unlock' => '自定义称号解锁',

@@ -51,6 +51,41 @@ void main() {
   );
   print('  ✓ level 3: decoration grid_skin_bamboo');
 
+  final reward2 = GrowthManager.rewardForLevel(2);
+  assert(
+    reward2?.item == 'avatar_frame_sifang',
+    'level 2 reward should be avatar_frame_sifang',
+  );
+  print('  ✓ level 2: decoration avatar_frame_sifang');
+
+  final reward5 = GrowthManager.rewardForLevel(5);
+  assert(
+    reward5?.item == 'avatar_frame_wusha',
+    'level 5 reward should be avatar_frame_wusha',
+  );
+  print('  ✓ level 5: decoration avatar_frame_wusha');
+
+  final reward13 = GrowthManager.rewardForLevel(13);
+  assert(
+    reward13?.item == 'avatar_frame_xiezhi',
+    'level 13 reward should be avatar_frame_xiezhi',
+  );
+  print('  ✓ level 13: decoration avatar_frame_xiezhi');
+
+  final reward18 = GrowthManager.rewardForLevel(18);
+  assert(
+    reward18?.item == 'avatar_frame_zhongjing',
+    'level 18 reward should be avatar_frame_zhongjing',
+  );
+  print('  ✓ level 18: decoration avatar_frame_zhongjing');
+
+  final reward21 = GrowthManager.rewardForLevel(21);
+  assert(
+    reward21?.item == 'avatar_frame_tianzi',
+    'level 21 reward should be avatar_frame_tianzi',
+  );
+  print('  ✓ level 21: decoration avatar_frame_tianzi');
+
   // 测试 4：称号系统
   print('\n--- 测试 4: 称号系统 ---');
   _testTitle(1, '童生', 'level 1');
@@ -97,7 +132,12 @@ void main() {
   // 测试 8：装饰条目显示名（升级奖励弹框用）
   print('\n--- 测试 8: 装饰条目显示名 ---');
   _testDecorationName('grid_skin_bamboo', '网格皮肤·竹简');
+  _testDecorationName('avatar_frame_sifang', '头像框·四方平定巾');
+  _testDecorationName('avatar_frame_dongpo', '头像框·东坡巾');
   _testDecorationName('avatar_frame_wusha', '头像框·乌纱帽');
+  _testDecorationName('avatar_frame_yishan', '头像框·翼善冠');
+  _testDecorationName('avatar_frame_zhongjing', '头像框·忠靖冠');
+  _testDecorationName('avatar_frame_tianzi', '头像框·天子冕冠');
   _testDecorationName('title_effect_jinbang', '称号特效·金榜题名');
   _testDecorationName('custom_title_unlock', '自定义称号解锁');
 

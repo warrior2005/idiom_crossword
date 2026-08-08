@@ -31,7 +31,18 @@ class DecoratedSeal extends StatelessWidget {
           BoxShadow(color: def.glow, blurRadius: 10, spreadRadius: 1),
         ],
       ),
-      child: child,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          child,
+          if (def.asset != null)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Image.asset(def.asset!, fit: BoxFit.contain),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

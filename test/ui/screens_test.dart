@@ -354,6 +354,73 @@ void main() {
     expect(find.text('该称号特效为 Lv.9 升级奖励，达到等级后解锁'), findsOneWidget);
   });
 
+  testWidgets('商城：积分头像框可购买并切换，等级头像框未解锁提示', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+    await container.read(playerProvider.notifier).addPoints(7000);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: ShopScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('东坡巾'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('东坡巾'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('东坡巾'));
+    await tester.pump();
+    expect(find.text('已购买并切换头像框：东坡巾'), findsOneWidget);
+    expect((await db.getPlayerProgress())!.points, 5000);
+    expect(await db.getActiveDecorationId('avatar_frame'), 'dongpo');
+
+    ScaffoldMessenger.of(
+      tester.element(find.byType(ShopScreen)),
+    ).clearSnackBars();
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('翼善冠'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('翼善冠'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('翼善冠'));
+    await tester.pump();
+    expect(find.text('已购买并切换头像框：翼善冠'), findsOneWidget);
+    expect((await db.getPlayerProgress())!.points, 0);
+    expect(await db.getActiveDecorationId('avatar_frame'), 'yishan');
+
+    ScaffoldMessenger.of(
+      tester.element(find.byType(ShopScreen)),
+    ).clearSnackBars();
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('四方平定巾'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('四方平定巾'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('四方平定巾'));
+    await tester.pump();
+    expect(find.text('该头像框为 Lv.2 升级奖励，达到等级后解锁'), findsOneWidget);
+  });
+
   testWidgets('商城：积分说明弹窗展示积分规则', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);

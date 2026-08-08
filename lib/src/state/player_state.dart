@@ -167,6 +167,29 @@ class PlayerNotifier extends Notifier<PlayerState> {
         bestCorrectStreak: progress.bestCorrectStreak,
       );
     }
+    var owned = await db.getOwnedDecorationIds();
+    // 旧版 Lv.18 奖励“三公”已更名为“忠靖冠”，已有存档迁移到新 id。
+    if (owned.contains('avatar_frame_sangong')) {
+      await db.addDecoration('avatar_frame', 'zhongjing');
+      owned = {...owned}
+        ..remove('avatar_frame_sangong')
+        ..add('avatar_frame_zhongjing');
+    }
+    // 补齐历史存档中按等级应已解锁的装饰奖励（含新增的 Lv.2/Lv.18/Lv.21 头像框）。
+    for (var level = 1; level <= progress.level; level++) {
+      final reward = GrowthManager.rewardForLevel(level);
+      if (reward == null || reward.type != RewardType.decoration) continue;
+      if (owned.contains(reward.item)) continue;
+      final (type, id) = _splitDecorationId(reward.item);
+      await db.addDecoration(type, id);
+      owned = {...owned, reward.item};
+    }
+    var activeAvatarFrame = await db.getActiveDecorationId('avatar_frame');
+    if (activeAvatarFrame == 'sangong') {
+      await db.setActiveDecoration('avatar_frame', 'zhongjing');
+      activeAvatarFrame = 'zhongjing';
+    }
+
     state = PlayerState(
       level: progress.level,
       totalXp: progress.totalXp,
@@ -182,9 +205,9 @@ class PlayerNotifier extends Notifier<PlayerState> {
         'hint_card': progress.hintCards,
         'revive_card': progress.reviveCards,
       },
-      ownedDecorations: await db.getOwnedDecorationIds(),
+      ownedDecorations: owned,
       activeGridSkin: await db.getActiveDecorationId('grid_skin') ?? 'paper',
-      activeAvatarFrame: await db.getActiveDecorationId('avatar_frame'),
+      activeAvatarFrame: activeAvatarFrame,
       activeTitleEffect: await db.getActiveDecorationId('title_effect'),
     );
   }
@@ -335,6 +358,14 @@ class PlayerNotifier extends Notifier<PlayerState> {
       ownedDecorations: {...state.ownedDecorations, 'grid_skin_$id'},
     );
     await ref.read(databaseProvider).addDecoration('grid_skin', id);
+  }
+
+  /// 解锁头像框（购买后加入拥有集合并写入数据库）
+  Future<void> unlockAvatarFrame(String id) async {
+    state = state.copyWith(
+      ownedDecorations: {...state.ownedDecorations, 'avatar_frame_$id'},
+    );
+    await ref.read(databaseProvider).addDecoration('avatar_frame', id);
   }
 
   String _dateKey(DateTime time) {

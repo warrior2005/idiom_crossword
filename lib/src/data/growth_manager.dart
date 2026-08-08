@@ -78,7 +78,11 @@ class GrowthManager {
   /// 升级奖励配置
   static const Map<int, LevelReward> _rewards = {
     1: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 3),
-    2: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 2),
+    2: LevelReward(
+      type: RewardType.decoration,
+      item: 'avatar_frame_sifang',
+      quantity: 1,
+    ),
     3: LevelReward(
       type: RewardType.decoration,
       item: 'grid_skin_bamboo',
@@ -152,7 +156,7 @@ class GrowthManager {
     ),
     18: LevelReward(
       type: RewardType.decoration,
-      item: 'avatar_frame_sangong',
+      item: 'avatar_frame_zhongjing',
       quantity: 1,
     ),
     19: LevelReward(
@@ -163,6 +167,11 @@ class GrowthManager {
     20: LevelReward(
       type: RewardType.decoration,
       item: 'custom_title_unlock',
+      quantity: 1,
+    ),
+    21: LevelReward(
+      type: RewardType.decoration,
+      item: 'avatar_frame_tianzi',
       quantity: 1,
     ),
   };

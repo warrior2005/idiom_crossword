@@ -44,9 +44,9 @@ void main() {
     expect(progress.completedLevels, 1);
   });
 
-  test('升级发放功能奖励并持久化', () async {
+  test('升级发放头像框奖励并持久化', () async {
     final notifier = container.read(playerProvider.notifier);
-    // 10 个教学关 → 100xp → 升到 2 级（奖励提示卡×2）
+    // 10 个教学关 → 100xp → 升到 2 级（奖励头像框·四方平定巾）
     ExperienceResult? last;
     for (var i = 0; i < 10; i++) {
       last = await notifier.completeLevel(1, [5, 5, 5, 5, 5]);
@@ -57,12 +57,14 @@ void main() {
     final state = container.read(playerProvider);
     expect(state.level, 2);
     expect(state.title, '生员');
-    expect(state.functionalItems['hint_card'], 2);
+    expect(state.functionalItems['hint_card'] ?? 0, 0);
+    expect(state.ownedDecorations, contains('avatar_frame_sifang'));
     expect(state.xpProgress, closeTo(0.0, 0.001)); // 刚升级，本级进度 0
 
     final progress = await db.getPlayerProgress();
     expect(progress!.level, 2);
-    expect(progress.hintCards, 2);
+    expect(progress.hintCards, 0);
+    expect(await db.getOwnedDecorationIds(), contains('avatar_frame_sifang'));
   });
 
   test('装饰奖励写入数据库', () async {
@@ -79,9 +81,7 @@ void main() {
 
   test('用提示卡扣减并持久化，不会扣成负数', () async {
     final notifier = container.read(playerProvider.notifier);
-    for (var i = 0; i < 10; i++) {
-      await notifier.completeLevel(1, [5, 5, 5, 5, 5]);
-    }
+    await notifier.addHintCards(2);
     expect(container.read(playerProvider).functionalItems['hint_card'], 2);
 
     await notifier.useHintCard();
@@ -229,9 +229,9 @@ void main() {
 
     // 每次调用前把上次观看时间拨到 5 分钟前，模拟冷却已结束
     Future<void> expireCooldown() => db.setSetting(
-          kRewardedAdsLastTsKey,
-          '${DateTime.now().subtract(const Duration(minutes: 5)).millisecondsSinceEpoch}',
-        );
+      kRewardedAdsLastTsKey,
+      '${DateTime.now().subtract(const Duration(minutes: 5)).millisecondsSinceEpoch}',
+    );
 
     for (var i = 0; i < 9; i++) {
       await expireCooldown();

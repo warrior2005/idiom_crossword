@@ -248,7 +248,19 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final notifier = ref.read(playerProvider.notifier);
     final player = ref.read(playerProvider);
     final def = avatarFrameById(id);
-    if (!player.ownedDecorations.contains('avatar_frame_$id')) {
+    final isOwned = player.ownedDecorations.contains('avatar_frame_$id');
+    if (!isOwned && def?.source == 'points' && (def?.points ?? 0) > 0) {
+      final ok = await notifier.spendPoints(def!.points);
+      if (!ok) {
+        _showSnack('积分不足，可观看广告赚取积分');
+        return;
+      }
+      await notifier.unlockAvatarFrame(id);
+      await notifier.setActiveAvatarFrame(id);
+      _showSnack('已购买并切换头像框：${def.name}');
+      return;
+    }
+    if (!isOwned) {
       _showSnack(
         def != null ? '该头像框为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁' : '该头像框尚未解锁',
       );
@@ -813,11 +825,17 @@ class _FramesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final levelFrames = avatarFrames.where((f) => f.source == 'level').toList()
+      ..sort((a, b) => a.unlockLevel.compareTo(b.unlockLevel));
+    final pointFrames = avatarFrames.where((f) => f.source == 'points').toList()
+      ..sort((a, b) => a.points.compareTo(b.points));
     return _DecoCard(
       title: '头像框',
-      hint: '升级奖励解锁，已拥有后点击切换',
+      hint: '升级奖励达级解锁，部分头像框可用积分购买，已拥有后点击切换',
       children: [
-        for (final frame in avatarFrames)
+        Text('等级奖励', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+        const SizedBox(height: 6),
+        for (final frame in levelFrames)
           _DecoTile(
             glyph: '冠',
             name: frame.name,
@@ -827,6 +845,24 @@ class _FramesCard extends StatelessWidget {
                 : owned.contains('avatar_frame_${frame.id}')
                 ? '已拥有'
                 : 'Lv.${frame.unlockLevel} 升级奖励',
+            isActive: active == frame.id,
+            isOwned: owned.contains('avatar_frame_${frame.id}'),
+            unlockLevel: frame.unlockLevel,
+            onTap: () => onSelect(frame.id),
+          ),
+        const SizedBox(height: 6),
+        Text('积分购买', style: bodyStyle(size: 11.5, color: AppColors.muted)),
+        const SizedBox(height: 6),
+        for (final frame in pointFrames)
+          _DecoTile(
+            glyph: '冠',
+            name: frame.name,
+            frameDef: frame,
+            statusText: active == frame.id
+                ? '使用中'
+                : owned.contains('avatar_frame_${frame.id}')
+                ? '已拥有'
+                : '${frame.points} 积分购买',
             isActive: active == frame.id,
             isOwned: owned.contains('avatar_frame_${frame.id}'),
             unlockLevel: frame.unlockLevel,
@@ -929,6 +965,9 @@ class _DecoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final frame = frameDef;
     final effect = effectDef;
+    final lockBadge = frame != null && frame.source == 'points'
+        ? '${frame.points} 积分'
+        : 'Lv.$unlockLevel';
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -965,27 +1004,44 @@ class _DecoTile extends StatelessWidget {
                       ],
               ),
               child: Center(
-                child: Text(
-                  glyph,
-                  style: TextStyle(
-                    fontFamily: kSerif,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: effect?.textColor ?? AppColors.accentDeep,
-                    shadows: effect == null
-                        ? null
-                        : [
-                            Shadow(
-                              color: effect.glow.withValues(alpha: 0.75),
-                              blurRadius: 8,
+                child: frame?.asset != null
+                    ? Opacity(
+                        opacity: isActive || isOwned ? 1 : 0.6,
+                        child: Image.asset(
+                          frame!.asset!,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => Text(
+                            glyph,
+                            style: TextStyle(
+                              fontFamily: kSerif,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: effect?.textColor ?? AppColors.accentDeep,
                             ),
-                            Shadow(
-                              color: effect.glow.withValues(alpha: 0.4),
-                              blurRadius: 16,
-                            ),
-                          ],
-                  ),
-                ),
+                          ),
+                        ),
+                      )
+                    : Text(
+                        glyph,
+                        style: TextStyle(
+                          fontFamily: kSerif,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: effect?.textColor ?? AppColors.accentDeep,
+                          shadows: effect == null
+                              ? null
+                              : [
+                                  Shadow(
+                                    color: effect.glow.withValues(alpha: 0.75),
+                                    blurRadius: 8,
+                                  ),
+                                  Shadow(
+                                    color: effect.glow.withValues(alpha: 0.4),
+                                    blurRadius: 16,
+                                  ),
+                                ],
+                        ),
+                      ),
               ),
             ),
             const SizedBox(width: 12),
@@ -1008,7 +1064,7 @@ class _DecoTile extends StatelessWidget {
             if (isActive)
               BadgeSoft('使用中', color: BadgeSoftColor.gold)
             else if (!isOwned)
-              BadgeSoft('Lv.$unlockLevel', color: BadgeSoftColor.leaf),
+              BadgeSoft(lockBadge, color: BadgeSoftColor.leaf),
           ],
         ),
       ),
