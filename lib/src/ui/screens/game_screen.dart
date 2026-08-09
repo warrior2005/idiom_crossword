@@ -816,18 +816,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       return;
     }
     if (!mounted) return;
-    final shownAt = DateTime.now();
     final shown = AdManager().showInterstitialAd(
       onAdClosed: () {
-        // 观看超过 10 秒才奖励积分
-        if (DateTime.now().difference(shownAt).inSeconds >=
-            kInterstitialAdMinViewSeconds) {
-          unawaited(
-            ref
-                .read(playerProvider.notifier)
-                .addPoints(kInterstitialAdPointsReward),
-          );
-        }
+        // 插屏广告关闭即奖励积分
+        unawaited(
+          ref
+              .read(playerProvider.notifier)
+              .addPoints(kInterstitialAdPointsReward),
+        );
         onDone();
       },
     );

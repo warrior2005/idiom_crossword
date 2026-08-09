@@ -147,7 +147,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         '激励广告',
                         '观看完成 +3 积分；每天最多 100 次，前 10 次冷却 1 分钟，之后每次冷却 2 分钟。',
                       ),
-                      _guideLine('插屏广告', '通关结算前随机展示，单次观看满 10 秒 +2 积分。'),
+                      _guideLine('插屏广告', '通关结算前随机展示，关闭即 +2 积分。'),
                       _guideLine(
                         '横幅广告',
                         '关卡/收藏/商城底部常驻，每累计观看 1 分钟 +1 积分，每天上限 $kMaxBannerPointsPerDay 积分。',
