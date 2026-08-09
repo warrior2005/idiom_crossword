@@ -298,6 +298,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           ),
         ),
       );
+      ref.invalidate(nextMainLevelResumableProvider);
     } catch (_) {
       // 存档失败不影响游戏进行
     }
@@ -649,6 +650,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       await db.setSetting(_dailyNoRewardKey(), 'false');
     }
     ref.invalidate(nextMainLevelProvider);
+    ref.invalidate(nextMainLevelResumableProvider);
     ref.invalidate(collectionProvider);
     ref.invalidate(completedLevelsProvider);
     ref.invalidate(levelWordsProvider);

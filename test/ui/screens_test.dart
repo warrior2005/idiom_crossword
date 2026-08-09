@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
+import 'package:idiom_crossword/src/state/level_state_codec.dart';
 import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/achievements_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/collection_screen.dart';
@@ -640,6 +641,37 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('今日一读'), findsOneWidget);
+  });
+
+  testWidgets('首页：未开始关卡显示开始，有存档显示继续', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const HomeScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('开始第 1 关'), findsOneWidget);
+
+    await db.saveLevelState(
+      levelNumber: 1,
+      levelJson: '{}',
+      stateJson: encodeGameState(
+        SavedGameState(
+          answers: {(0, 0): '画'},
+          usedCandidateSlots: const {},
+          fillHistory: const [],
+          cellToCandidateSlot: const {},
+          candidateBoard: const [[]],
+          hintUsesThisLevel: 0,
+          errorsMade: 0,
+          correctStreak: 0,
+          totalFills: 0,
+        ),
+      ),
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(_wrap(db, const HomeScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('继续第 1 关'), findsOneWidget);
   });
 
   testWidgets('收藏页：设计卡片样式渲染成语', (tester) async {

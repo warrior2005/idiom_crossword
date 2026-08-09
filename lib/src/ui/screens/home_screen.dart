@@ -4,6 +4,7 @@ import '../../state/player_state.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
 import '../../state/daily_challenge.dart';
+import '../../state/level_progress_providers.dart';
 import '../../data/growth_manager.dart';
 import '../../data/database.dart';
 import '../../engine/spiral_difficulty.dart';
@@ -14,6 +15,7 @@ import 'mine_screen.dart';
 import 'daily_review_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/app_card.dart';
+import '../widgets/app_seal.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
 import '../widgets/primary_button.dart';
@@ -48,6 +50,8 @@ class HomeScreen extends ConsumerWidget {
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
     final dailyIssue = ref.watch(dailyIssueProvider).value ?? 1;
     final nextMainLevel = ref.watch(nextMainLevelProvider).value;
+    final nextResumable =
+        ref.watch(nextMainLevelResumableProvider).value ?? false;
     final nextTitle = player.level >= GrowthManager.maxLevel
         ? ''
         : GrowthManager.titleForLevel(player.level + 1);
@@ -162,9 +166,10 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // 继续第 N 关
+            // 开始/继续第 N 关
             PrimaryButton(
-              label: '继续第 ${nextMainLevel ?? '…'} 关',
+              label:
+                  '${nextResumable ? '继续' : '开始'}第 ${nextMainLevel ?? '…'} 关',
               onTap: () => _startGame(context, ref),
             ),
             const SizedBox(height: 8),
@@ -311,20 +316,53 @@ class HomeScreen extends ConsumerWidget {
         if (!context.mounted) return;
         await showDialog<void>(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('欢迎来到成语填字'),
-            content: const Text(
-              '1. 点击下方候选字，填入选中空格\n'
-              '2. 一个字可能同时属于横、纵两个成语\n'
-              '3. 交叉点同时满足两条线索才是正确解\n\n'
-              '填满所有空格即可过关！',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('开始'),
+          builder: (ctx) => Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: AppColors.border),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x66140A00),
+                    blurRadius: 60,
+                    offset: Offset(0, 24),
+                  ),
+                ],
               ),
-            ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const AppSeal('学', size: 64, fontSize: 24),
+                  const SizedBox(height: 16),
+                  Text(
+                    '欢迎来到成语填字',
+                    style: displayStyle(size: 24, weight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    '1. 点击下方候选字，填入选中空格\n'
+                    '2. 一个字可能同时属于横、纵两个成语\n'
+                    '3. 交叉点同时满足两条线索才是正确解\n\n'
+                    '填满所有空格即可过关！',
+                    textAlign: TextAlign.center,
+                    style: bodyStyle(size: 13, color: AppColors.fg),
+                  ),
+                  const SizedBox(height: 22),
+                  SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton(
+                      label: '开始',
+                      small: true,
+                      onTap: () => Navigator.of(ctx).pop(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       }

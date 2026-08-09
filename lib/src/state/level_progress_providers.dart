@@ -43,6 +43,16 @@ final levelWordsProvider = FutureProvider<Map<int, String>>((ref) async {
   return words;
 });
 
+/// 下一个主线关卡是否已有可续玩的填字进度
+final nextMainLevelResumableProvider = FutureProvider<bool>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final next = await db.getNextMainLevel();
+  final saved = await db.getLevelState(next);
+  if (saved == null) return false;
+  final state = decodeGameState(saved.stateJson);
+  return state != null && state.answers.isNotEmpty;
+});
+
 int? _firstIdiomId(String raw) {
   final cleaned = raw.trim().replaceAll(RegExp(r'[\[\]"]'), '');
   if (cleaned.isEmpty) return null;
