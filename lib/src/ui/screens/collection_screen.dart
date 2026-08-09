@@ -1,44 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../state/database_provider.dart';
+import '../../state/collection_provider.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
 import '../widgets/banner_ad_view.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
-
-class CollectionItem {
-  final String word;
-  final String explanation;
-  final String? derivation;
-  final String pinyin;
-  final DateTime collectedAt;
-
-  const CollectionItem({
-    required this.word,
-    required this.explanation,
-    required this.derivation,
-    required this.pinyin,
-    required this.collectedAt,
-  });
-}
-
-final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
-  final db = ref.watch(databaseProvider);
-  final rows = await db.getCollectionWithDetails();
-  return rows
-      .map(
-        (i) => CollectionItem(
-          word: i.word,
-          explanation: i.explanation,
-          derivation: i.derivation,
-          pinyin: i.pinyin,
-          collectedAt: i.createdAt,
-        ),
-      )
-      .toList();
-});
 
 class CollectionScreen extends ConsumerStatefulWidget {
   final bool bannerActive;
@@ -63,15 +31,23 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
       body: SafeArea(
         child: collectionAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('加载失败: $e', style: bodyStyle(color: AppColors.accent))),
+          error: (e, _) => Center(
+            child: Text('加载失败: $e', style: bodyStyle(color: AppColors.accent)),
+          ),
           data: (collection) {
             final filtered = _query.isEmpty
                 ? collection
                 : collection
-                      .where((c) => c.word.contains(_query) || c.explanation.contains(_query))
+                      .where(
+                        (c) =>
+                            c.word.contains(_query) ||
+                            c.explanation.contains(_query),
+                      )
                       .toList();
             final weekAgo = DateTime.now().subtract(const Duration(days: 7));
-            final weekNew = collection.where((c) => c.collectedAt.isAfter(weekAgo)).length;
+            final weekNew = collection
+                .where((c) => c.collectedAt.isAfter(weekAgo))
+                .length;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +57,10 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('成语收藏', style: displayStyle(size: 30, weight: FontWeight.w700)),
+                      Text(
+                        '成语收藏',
+                        style: displayStyle(size: 30, weight: FontWeight.w700),
+                      ),
                       const SizedBox(height: 6),
                       Text('已通关成语自动收录 · 附释义与出处', style: kickerStyle()),
                       const SizedBox(height: 12),
@@ -95,9 +74,17 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('共 ${collection.length} 则',
-                              style: displayStyle(size: 15, weight: FontWeight.w700)),
-                          BadgeSoft('本周新增 $weekNew', color: BadgeSoftColor.leaf),
+                          Text(
+                            '共 ${collection.length} 则',
+                            style: displayStyle(
+                              size: 15,
+                              weight: FontWeight.w700,
+                            ),
+                          ),
+                          BadgeSoft(
+                            '本周新增 $weekNew',
+                            color: BadgeSoftColor.leaf,
+                          ),
                         ],
                       ),
                     ],
@@ -105,14 +92,15 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                 ),
                 Expanded(
                   child: collection.isEmpty
-                      ? const _EmptyState(
-                          title: '还没有收藏任何成语',
-                          sub: '通关后自动收录',
-                        )
+                      ? const _EmptyState(title: '还没有收藏任何成语', sub: '通关后自动收录')
                       : filtered.isEmpty
                       ? const _EmptyState(title: '没有找到匹配的成语', sub: '换个关键词试试')
                       : () {
-                          final maxPage = ((filtered.length / _pageSize).ceil() - 1).clamp(0, 1 << 31);
+                          final maxPage =
+                              ((filtered.length / _pageSize).ceil() - 1).clamp(
+                                0,
+                                1 << 31,
+                              );
                           final page = _page.clamp(0, maxPage);
                           final items = filtered.sublist(
                             page * _pageSize,
@@ -134,7 +122,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                               return _ColCard(item: item);
                             },
                           );
-                      }(),
+                        }(),
                 ),
                 BannerAdView(active: widget.bannerActive),
               ],
@@ -195,7 +183,10 @@ class _ColCard extends StatelessWidget {
         children: [
           SizedBox(
             width: 96,
-            child: Text(item.word, style: displayStyle(size: 24, weight: FontWeight.w900)),
+            child: Text(
+              item.word,
+              style: displayStyle(size: 24, weight: FontWeight.w900),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -204,14 +195,23 @@ class _ColCard extends StatelessWidget {
               children: [
                 Text(
                   item.pinyin.toUpperCase(),
-                  style: bodyStyle(size: 11, color: AppColors.muted).copyWith(letterSpacing: 1.2),
+                  style: bodyStyle(
+                    size: 11,
+                    color: AppColors.muted,
+                  ).copyWith(letterSpacing: 1.2),
                 ),
                 const SizedBox(height: 6),
-                Text(item.explanation, style: bodyStyle(size: 13, color: const Color(0xFF4A4438))),
+                Text(
+                  item.explanation,
+                  style: bodyStyle(size: 13, color: const Color(0xFF4A4438)),
+                ),
                 if (item.derivation != null && item.derivation!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: Text('· ${item.derivation}', style: bodyStyle(size: 11, color: AppColors.faint)),
+                    child: Text(
+                      '· ${item.derivation}',
+                      style: bodyStyle(size: 11, color: AppColors.faint),
+                    ),
                   ),
               ],
             ),
@@ -266,10 +266,16 @@ class _Pager extends StatelessWidget {
           icon: const AppIcon('back', size: 18),
           color: AppColors.muted,
         ),
-        Text('第 ${page + 1} / ${maxPage + 1} 页', style: bodyStyle(size: 12, color: AppColors.muted)),
+        Text(
+          '第 ${page + 1} / ${maxPage + 1} 页',
+          style: bodyStyle(size: 12, color: AppColors.muted),
+        ),
         IconButton(
           onPressed: page < maxPage ? onNext : null,
-          icon: Transform.rotate(angle: 3.14159, child: const AppIcon('back', size: 18)),
+          icon: Transform.rotate(
+            angle: 3.14159,
+            child: const AppIcon('back', size: 18),
+          ),
           color: AppColors.muted,
         ),
       ],

@@ -10,6 +10,8 @@ import '../../state/database_provider.dart';
 import '../../state/player_state.dart';
 import '../../state/level_generation.dart';
 import '../../state/level_state_codec.dart';
+import '../../state/collection_provider.dart';
+import '../../state/level_progress_providers.dart';
 import '../../state/leaderboard_service.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
@@ -647,6 +649,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       await db.setSetting(_dailyNoRewardKey(), 'false');
     }
     ref.invalidate(nextMainLevelProvider);
+    ref.invalidate(collectionProvider);
+    ref.invalidate(completedLevelsProvider);
+    ref.invalidate(levelWordsProvider);
 
     // 成就判定
     final alreadyUnlocked = <AchievementId>{};
