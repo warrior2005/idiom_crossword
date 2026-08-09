@@ -8,7 +8,9 @@ import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
 import '../widgets/banner_ad_view.dart';
+import '../widgets/primary_button.dart';
 import '../widgets/section_title.dart';
+import '../widgets/theme_dialog.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../theme/grid_skins.dart';
@@ -77,25 +79,43 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(
-          '确认购买',
-          style: displayStyle(size: 20, weight: FontWeight.w700),
+      builder: (dialogContext) => ThemeDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '确认购买',
+              style: displayStyle(size: 20, weight: FontWeight.w900),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '花费 $points 积分购买「$name」？',
+              style: bodyStyle(size: 14, color: AppColors.fg),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: '取消',
+                    small: true,
+                    ghost: true,
+                    onTap: () => Navigator.of(dialogContext).pop(false),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: PrimaryButton(
+                    label: '确认',
+                    small: true,
+                    onTap: () => Navigator.of(dialogContext).pop(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        content: Text(
-          '花费 $points 积分购买「$name」？',
-          style: bodyStyle(size: 14, color: AppColors.fg),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('确认'),
-          ),
-        ],
       ),
     );
     return confirmed ?? false;
@@ -104,33 +124,51 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   void _showPointsGuide(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(
-          '积分说明',
-          style: displayStyle(size: 20, weight: FontWeight.w700),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _guideLine(
-              '激励广告',
-              '观看完成 +3 积分；每天最多 100 次，前 10 次冷却 1 分钟，之后每次冷却 2 分钟。',
-            ),
-            _guideLine('插屏广告', '通关结算前随机展示，单次观看满 10 秒 +2 积分。'),
-            _guideLine(
-              '横幅广告',
-              '关卡/收藏/商城底部常驻，每累计观看 1 分钟 +1 积分，每天上限 $kMaxBannerPointsPerDay 积分。',
-            ),
-            _guideLine('积分用途', '兑换提示卡、复活卡、备考礼盒、广告兑换网格皮肤与头像框。'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('知道了'),
+      builder: (dialogContext) => ThemeDialog(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(dialogContext).height * 0.7,
           ),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '积分说明',
+                style: displayStyle(size: 20, weight: FontWeight.w900),
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _guideLine(
+                        '激励广告',
+                        '观看完成 +3 积分；每天最多 100 次，前 10 次冷却 1 分钟，之后每次冷却 2 分钟。',
+                      ),
+                      _guideLine('插屏广告', '通关结算前随机展示，单次观看满 10 秒 +2 积分。'),
+                      _guideLine(
+                        '横幅广告',
+                        '关卡/收藏/商城底部常驻，每累计观看 1 分钟 +1 积分，每天上限 $kMaxBannerPointsPerDay 积分。',
+                      ),
+                      _guideLine('积分用途', '兑换提示卡、复活卡、备考礼盒、广告兑换网格皮肤与头像框。'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: PrimaryButton(
+                  label: '知道了',
+                  small: true,
+                  onTap: () => Navigator.of(dialogContext).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

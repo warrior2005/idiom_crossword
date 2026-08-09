@@ -20,6 +20,7 @@ import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/section_title.dart';
+import '../widgets/theme_dialog.dart';
 import '../widgets/xp_track.dart';
 import '../widgets/level_loading_dialog.dart';
 import '../widgets/lunar_date_label.dart';
@@ -398,15 +399,31 @@ class HomeScreen extends ConsumerWidget {
       if (context.mounted) {
         showDialog<void>(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('今日挑战已完成'),
-            content: const Text('明天再来挑战新的关卡吧！'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('好的'),
-              ),
-            ],
+          builder: (ctx) => ThemeDialog(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '今日挑战已完成',
+                  style: displayStyle(size: 20, weight: FontWeight.w900),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '明天再来挑战新的关卡吧！',
+                  style: bodyStyle(size: 14, color: AppColors.fg),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: '好的',
+                    small: true,
+                    onTap: () => Navigator.of(ctx).pop(),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       }
