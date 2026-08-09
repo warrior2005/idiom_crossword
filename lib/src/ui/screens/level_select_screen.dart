@@ -70,7 +70,7 @@ class LevelSelectScreen extends ConsumerStatefulWidget {
 }
 
 class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
-  static const _pageSize = 24;
+  static const _pageSize = 20;
   int _page = 0;
   bool _pageInitialized = false;
 
@@ -159,8 +159,8 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 4,
-                                      mainAxisSpacing: 12,
-                                      crossAxisSpacing: 12,
+                                      mainAxisSpacing: 16,
+                                      crossAxisSpacing: 16,
                                       childAspectRatio: 1,
                                     ),
                                 itemCount: _pageSize,
@@ -379,7 +379,7 @@ class _LevelNode extends StatelessWidget {
                 Text(
                   '$levelNumber',
                   style: displayStyle(
-                    size: 22,
+                    size: 24,
                     weight: FontWeight.w700,
                     color: isNext
                         ? const Color(0xFFFFF6EC)
@@ -393,7 +393,7 @@ class _LevelNode extends StatelessWidget {
                   word ?? '??',
                   style: TextStyle(
                     fontFamily: kSans,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: isNext
                         ? const Color(0xFFFFF6EC).withValues(alpha: 0.82)

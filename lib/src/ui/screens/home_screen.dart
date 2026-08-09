@@ -214,7 +214,7 @@ class HomeScreen extends ConsumerWidget {
   InlineSpan _dailyMeta(DailyInfo? daily) {
     if (daily == null) {
       return TextSpan(
-        text: '今日谜面生成中…',
+        text: '今日挑战生成中…',
         style: bodyStyle(size: 12.5, color: AppColors.muted),
       );
     }
@@ -227,7 +227,7 @@ class HomeScreen extends ConsumerWidget {
     return TextSpan(
       children: [
         TextSpan(
-          text: '今日谜面难度 ',
+          text: '难度 ',
           style: bodyStyle(size: 12.5, color: AppColors.muted),
         ),
         TextSpan(
@@ -240,7 +240,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         TextSpan(
           text:
-              ' · ${daily.idiomCount} 条成语 · 约 ${(daily.durationSeconds / 60).ceil()} 分钟'
+              ' · ${daily.idiomCount} 条成语 · ${(daily.durationSeconds / 60).ceil()} 分钟'
               ' · ${GrowthManager.dailyChallengeXp} 经验',
           style: bodyStyle(size: 12.5, color: AppColors.muted),
         ),

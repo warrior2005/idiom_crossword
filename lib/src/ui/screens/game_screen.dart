@@ -1022,7 +1022,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '失误满格后可重整旗鼓，保留已填正确字',
+                          '恢复所有生命值，保留已填正确字',
                           style: bodyStyle(size: 11.5, color: AppColors.muted),
                         ),
                       ],

@@ -416,7 +416,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       _PackTile(
                         iconName: 'pen',
                         name: '提示卡 ×1',
-                        desc: '每次使用消耗一张提示卡',
+                        desc: '显示当前空格的正确字',
                         price: '$kHintCardPoints 积分',
                         onBuy: () => _buyFunctional(
                           context,
@@ -428,7 +428,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       _PackTile(
                         iconName: 'revive',
                         name: '复活卡 ×1',
-                        desc: '失误满格后可重整旗鼓，保留已填正确字',
+                        desc: '恢复所有生命值，保留已填正确字',
                         price: '$kReviveCardPoints 积分',
                         onBuy: () => _buyFunctional(
                           context,
@@ -440,7 +440,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       _PackTile(
                         iconName: 'star',
                         name: '备考礼盒（提示×3 + 复活×1）',
-                        desc: '冲刺阶段一次备齐，限量供应',
+                        desc: '冲关阶段一次备齐',
                         price: '$kGiftBoxPoints 积分',
                         onBuy: () => _buyFunctional(
                           context,
@@ -691,6 +691,8 @@ class _PackTile extends StatelessWidget {
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 44,
@@ -708,6 +710,7 @@ class _PackTile extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(name, style: bodyStyle(size: 14, weight: FontWeight.w600)),
                 const SizedBox(height: 3),
@@ -737,6 +740,7 @@ class _PurchaseBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           priceText,

@@ -1839,14 +1839,14 @@ class HomeScreen extends ConsumerWidget {
   }
 
   String _dailyMeta(DailyInfo? daily) {
-    if (daily == null) return '今日谜面生成中…';
+    if (daily == null) return '今日挑战生成中…';
     final diffLabel = switch (daily.avgDifficulty) {
       <= 10 => '入门',
       <= 25 => '进阶',
       <= 40 => '高手',
       _ => '大师',
     };
-    return '今日谜面难度 $diffLabel · ${daily.idiomCount} 条成语 · 约 ${(daily.durationSeconds / 60).ceil()} 分钟';
+    return '难度 $diffLabel · ${daily.idiomCount} 条成语 · 约 ${(daily.durationSeconds / 60).ceil()} 分钟';
   }
 
   int _dailyIssue() => epochDay();
@@ -2710,14 +2710,14 @@ class ShopScreen extends ConsumerWidget {
             _PackCard(
               iconName: 'revive',
               name: '复活卡 ×5',
-              desc: '失误满格后可重整旗鼓，保留已填正确字',
+              desc: '恢复所有生命值，保留已填正确字',
               price: '¥12',
               onBuy: () => _comingSoon(context),
             ),
             _PackCard(
               iconName: 'star',
               name: '备考礼盒（提示×10 + 复活×5）',
-              desc: '冲刺阶段一次备齐，限量供应',
+              desc: '冲关阶段一次备齐',
               price: '¥15',
               oldPrice: '¥21',
               onBuy: () => _comingSoon(context),
@@ -3985,7 +3985,7 @@ class DailyReviewScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                daily == null ? '今日谜面生成中…' : '全服同题 · 明日刷新',
+                                daily == null ? '今日挑战生成中…' : '全服同题 · 明日刷新',
                                 style: bodyStyle(size: 11.5, color: AppColors.muted),
                               ),
                             ],

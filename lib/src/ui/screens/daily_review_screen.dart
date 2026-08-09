@@ -206,7 +206,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
                 const SizedBox(height: 4),
                 Text(
                   daily == null
-                      ? '今日谜面生成中…'
+                      ? '今日挑战生成中…'
                       : dailyDone
                       ? '全服同题 · 已完成 · 明日刷新'
                       : '全服同题 · 明日刷新',
