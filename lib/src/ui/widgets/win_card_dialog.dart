@@ -103,7 +103,7 @@ class WinCard extends StatelessWidget {
               TextSpan(
                 children: [
                   const TextSpan(
-                    text: '获得经验 ',
+                    text: '经验 ',
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.accentDeep,
@@ -134,28 +134,16 @@ class WinCard extends StatelessWidget {
               ),
             if (idioms.isNotEmpty) ...[
               const Divider(color: AppColors.border),
-              const SizedBox(height: 8),
               for (final idiom in idioms.take(3))
                 SizedBox(
                   width: double.infinity,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
                           key: ValueKey('win-card-idiom-${idiom.word}'),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.accent,
-                              width: 1.2,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
                           child: Text(
                             idiom.word,
                             style: displayStyle(
@@ -165,7 +153,7 @@ class WinCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 2),
                         Expanded(
                           child: Text.rich(
                             TextSpan(

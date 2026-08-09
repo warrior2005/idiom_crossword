@@ -792,8 +792,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     showWinCardDialog(
       context,
       seal: '通',
-      title: _isDaily ? '每日挑战 · 完成' : '${widget.level.title} · 通关',
-      subtitle: '用时 ${_formatDuration(timeSpentMs)} · 填错 $_errorsMade',
+      title: _isDaily ? '每日挑战 · 完成' : '恭喜通过 · ${widget.level.title}',
+      subtitle:
+          '用时 ${_formatDuration(timeSpentMs)}${(_errorsMade <= 0) ? '' : ' · 填错 $_errorsMade'}',
       xpText: xpText,
       idioms: wrongIdioms,
       actions: [
