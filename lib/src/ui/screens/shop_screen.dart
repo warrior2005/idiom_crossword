@@ -729,7 +729,12 @@ class _PackTile extends StatelessWidget {
 class _PurchaseBlock extends StatelessWidget {
   final String priceText;
   final VoidCallback onBuy;
-  const _PurchaseBlock({required this.priceText, required this.onBuy});
+  final Color? priceColor;
+  const _PurchaseBlock({
+    required this.priceText,
+    required this.onBuy,
+    this.priceColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -742,7 +747,7 @@ class _PurchaseBlock extends StatelessWidget {
           style: displayStyle(
             size: 14,
             weight: FontWeight.w700,
-            color: AppColors.accent,
+            color: priceColor ?? AppColors.accent,
           ),
         ),
         const SizedBox(height: 6),
@@ -821,6 +826,9 @@ class _SkinsCard extends StatelessWidget {
     final isLevelSkin = skin.source == 'level';
     final price = kAdSkinPoints[skin.id] ?? 0;
     final unlockLevel = kLevelSkinUnlockLevels[skin.id] ?? 0;
+    final priceColor = skin.surface.computeLuminance() < 0.5
+        ? skin.accent
+        : AppColors.accent;
     final statusText = isActive
         ? '当前使用'
         : isOwned
@@ -893,6 +901,7 @@ class _SkinsCard extends StatelessWidget {
             else if (!isOwned && !isLevelSkin && price > 0)
               _PurchaseBlock(
                 priceText: '$price 积分',
+                priceColor: priceColor,
                 onBuy: () => onSelect(skin.id),
               )
             else if (!isOwned)

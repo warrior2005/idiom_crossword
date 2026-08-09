@@ -53,6 +53,7 @@ class MineScreen extends ConsumerWidget {
                 onTap: () => Navigator.pop(sheetContext, 'clear'),
               ),
             ListTile(
+              leading: const Icon(Icons.close, color: AppColors.muted),
               title: const Text('关闭'),
               onTap: () => Navigator.pop(sheetContext),
             ),
