@@ -123,80 +123,78 @@ class MineScreen extends ConsumerWidget {
             // 头像卡
             AppCard(
               padding: const EdgeInsets.all(20),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: Stack(
-                  children: [
-                    // 背景水印：当前印章（士/官/卿/相/公/龙）
-                    Positioned(
-                      right: -6,
-                      top: 4,
-                      child: Text(
-                        avatarSeal,
-                        style: displayStyle(
-                          size: 76,
-                          weight: FontWeight.w900,
-                          color: AppColors.accent.withValues(alpha: 0.10),
-                          height: 1.0,
-                        ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // 背景水印：当前印章（士/官/卿/相/公/龙）
+                  Positioned(
+                    right: -6,
+                    top: 4,
+                    child: Text(
+                      avatarSeal,
+                      style: displayStyle(
+                        size: 76,
+                        weight: FontWeight.w900,
+                        color: AppColors.accent.withValues(alpha: 0.10),
+                        height: 1.0,
                       ),
                     ),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => _pickAvatar(context, ref),
-                          child: DecoratedSeal(
-                            frameId: player.activeAvatarFrame,
-                            child: UserAvatar(
-                              seal: avatarSeal,
-                              customAvatarPath: player.customAvatarPath,
-                              size: 76,
-                              fontSize: 36,
-                              fontWeight: FontWeight.w900,
+                  ),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => _pickAvatar(context, ref),
+                        child: DecoratedSeal(
+                          frameId: player.activeAvatarFrame,
+                          child: UserAvatar(
+                            seal: avatarSeal,
+                            customAvatarPath: player.customAvatarPath,
+                            size: 76,
+                            fontSize: 36,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 36),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${GrowthManager.levelLabel(player.level)} · ${player.title}',
+                              style: applyTitleEffect(
+                                player.activeTitleEffect,
+                                displayStyle(
+                                  size: 21,
+                                  weight: FontWeight.w900,
+                                  color: AppColors.accentDeep,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 3),
+                            Text(
+                              '已获 ${player.completedLevels} 关 · ${player.totalXp} 经验',
+                              style: bodyStyle(
+                                size: 12.5,
+                                color: AppColors.muted,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              player.level >= titles.length
+                                  ? '已达最高等级「$nextTitle」'
+                                  : '再通关 $levelsToNextTitle 关，晋升「$nextTitle」',
+                              style: bodyStyle(
+                                size: 11.5,
+                                color: AppColors.faint,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 36),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${GrowthManager.levelLabel(player.level)} · ${player.title}',
-                                style: applyTitleEffect(
-                                  player.activeTitleEffect,
-                                  displayStyle(
-                                    size: 21,
-                                    weight: FontWeight.w900,
-                                    color: AppColors.accentDeep,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '已获 ${player.completedLevels} 关 · ${player.totalXp} 经验',
-                                style: bodyStyle(
-                                  size: 12.5,
-                                  color: AppColors.muted,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                player.level >= titles.length
-                                    ? '已达最高等级「$nextTitle」'
-                                    : '再通关 $levelsToNextTitle 关，晋升「$nextTitle」',
-                                style: bodyStyle(
-                                  size: 11.5,
-                                  color: AppColors.faint,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
