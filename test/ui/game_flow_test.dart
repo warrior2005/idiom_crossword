@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -180,6 +181,53 @@ void main() {
     final history = await db.getLevelHistory();
     expect(history.single.hintsUsed, 1);
     expect((await db.getPlayerProgress())!.hintCards, 2);
+  });
+
+  testWidgets('最后一个格子使用提示后自动通关并收录成语', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db
+        .into(db.idioms)
+        .insert(
+          IdiomsCompanion(
+            word: const Value('画蛇添足'),
+            pinyin: const Value('hua she tian zu'),
+            pinyinAbbr: const Value('hstz'),
+            explanation: const Value('比喻做了多余的事'),
+            firstChar: const Value('画'),
+            lastChar: const Value('足'),
+            difficulty: const Value(1),
+          ),
+        );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (final ch in ['蛇', '添']) {
+      await tester.tap(find.text(ch));
+      await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    }
+
+    await tester.tap(find.text('提示'));
+    await _pumpUntil(
+      tester,
+      () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
+    expect((await db.getPlayerProgress())!.totalXp, 10);
+
+    final idiomId = await db.findIdiomIdByWord('画蛇添足');
+    expect(idiomId, isNotNull);
+    expect(await db.getCollection(), contains(idiomId));
+
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 800));
   });
 
   testWidgets('过关弹窗展示本局填错过的成语', (tester) async {

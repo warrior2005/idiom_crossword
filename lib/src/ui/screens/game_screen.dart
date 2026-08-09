@@ -38,7 +38,7 @@ import 'learning_screen.dart';
 ///   ├──────────────────┤
 ///   │  填字网格区域        │  ← CustomPainter 绘制
 ///   ├──────────────────┤
-///   │  候选字盘 (3行)     │  ← 点击填入
+///   │  候选字盘 (4行)     │  ← 点击填入
 ///   ├──────────────────┤
 ///   │  提示/撤销/清空     │
 ///   └──────────────────┘
@@ -142,7 +142,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     _candidateBoard = _distractorEngine.generateCandidateBoard(
       correctAnswers: correctAnswers,
-      rows: 3,
+      rows: 4,
       countPerRow: 10,
     );
   }
@@ -1185,9 +1185,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   _buildTopBar(),
                   _buildProgress(),
                   _buildCompletedIdiomsSection(),
-                  Expanded(flex: 7, child: _buildGrid()),
+                  Expanded(flex: 6, child: _buildGrid()),
                   _buildStatusLine(),
-                  Expanded(flex: 3, child: _buildCandidateBoardWidget()),
+                  Expanded(flex: 4, child: _buildCandidateBoardWidget()),
                   _buildToolbar(),
                 ],
               ),
@@ -1646,6 +1646,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       HapticFeedback.lightImpact();
       GameAudio.instance.play('fill.wav');
     }
+    _moveToNextEmptyCell();
     _saveState();
   }
 

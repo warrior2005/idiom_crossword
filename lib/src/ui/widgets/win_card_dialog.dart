@@ -159,13 +159,6 @@ class WinCard extends StatelessWidget {
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: '：',
-                                  style: bodyStyle(
-                                    size: 13,
-                                    color: AppColors.fg,
-                                  ),
-                                ),
-                                TextSpan(
                                   text: idiom.meaning,
                                   style: bodyStyle(
                                     size: 13,
