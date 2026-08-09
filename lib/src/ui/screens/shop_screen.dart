@@ -18,10 +18,10 @@ import '../theme/decoration_catalog.dart';
 
 /// 广告兑换皮肤积分定价（初值，可后续调整）
 const Map<String, int> kAdSkinPoints = {
-  'qiuxiang': 2000, // 秋香
-  'moyu': 3000, // 墨玉
-  'zhusha': 3000, // 朱砂
-  'dailan': 4000, // 黛蓝
+  'qiuxiang': 1000, // 秋香
+  'moyu': 2000, // 墨玉
+  'zhusha': 2500, // 朱砂
+  'dailan': 3000, // 黛蓝
   'ouhe': 4000, // 藕荷
   'jiangzi': 5000, // 绛紫
 };
@@ -1151,19 +1151,16 @@ class _DecoTile extends StatelessWidget {
               ),
               child: Center(
                 child: frame?.asset != null
-                    ? Opacity(
-                        opacity: isActive || isOwned ? 1 : 0.6,
-                        child: Image.asset(
-                          frame!.asset!,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) => Text(
-                            glyph,
-                            style: TextStyle(
-                              fontFamily: kSerif,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: effect?.textColor ?? AppColors.accentDeep,
-                            ),
+                    ? Image.asset(
+                        frame!.asset!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Text(
+                          glyph,
+                          style: TextStyle(
+                            fontFamily: kSerif,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: effect?.textColor ?? AppColors.accentDeep,
                           ),
                         ),
                       )

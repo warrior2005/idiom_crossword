@@ -174,7 +174,7 @@ class MineScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              '已获 ${player.completedLevels} 关 · ${player.totalXp} 经验',
+                              '已通 ${player.completedLevels} 关 · ${player.totalXp} 经验',
                               style: bodyStyle(
                                 size: 12.5,
                                 color: AppColors.muted,
@@ -184,7 +184,7 @@ class MineScreen extends ConsumerWidget {
                             Text(
                               player.level >= titles.length
                                   ? '已达最高等级「$nextTitle」'
-                                  : '再通关 $levelsToNextTitle 关，晋升「$nextTitle」',
+                                  : '差 $levelsToNextTitle 关，晋升「$nextTitle」',
                               style: bodyStyle(
                                 size: 11.5,
                                 color: AppColors.faint,

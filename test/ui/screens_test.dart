@@ -299,7 +299,7 @@ void main() {
     ).clearSnackBars();
     await tester.pumpAndSettle();
 
-    // 广告皮肤秋香 2000 积分购买并切换
+    // 广告皮肤秋香 1000 积分购买并切换
     await tester.scrollUntilVisible(
       find.text('秋香'),
       200,
@@ -313,7 +313,7 @@ void main() {
     await tester.tap(find.text('确认'));
     await tester.pump();
     expect(find.text('已购买并切换网格皮肤：秋香'), findsOneWidget);
-    expect((await db.getPlayerProgress())!.points, 3000);
+    expect((await db.getPlayerProgress())!.points, 4000);
     expect(await db.getActiveDecorationId('grid_skin'), 'qiuxiang');
   });
 
@@ -405,7 +405,7 @@ void main() {
     await tester.tap(find.text('确认'));
     await tester.pump();
     expect(find.text('已购买并切换头像框：东坡巾'), findsOneWidget);
-    expect((await db.getPlayerProgress())!.points, 5000);
+    expect((await db.getPlayerProgress())!.points, 6000);
     expect(await db.getActiveDecorationId('avatar_frame'), 'dongpo');
 
     ScaffoldMessenger.of(
@@ -426,7 +426,7 @@ void main() {
     await tester.tap(find.text('确认'));
     await tester.pump();
     expect(find.text('已购买并切换头像框：翼善冠'), findsOneWidget);
-    expect((await db.getPlayerProgress())!.points, 0);
+    expect((await db.getPlayerProgress())!.points, 1000);
     expect(await db.getActiveDecorationId('avatar_frame'), 'yishan');
 
     ScaffoldMessenger.of(

@@ -57,7 +57,7 @@ const List<AvatarFrameDef> avatarFrames = [
     color: Color(0xFF6E8A7A),
     glow: Color(0x336E8A7A),
     source: 'points',
-    points: 2000,
+    points: 1000,
     asset: 'assets/images/东坡巾.png',
   ),
   AvatarFrameDef(
