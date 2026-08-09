@@ -265,6 +265,71 @@ void main() {
     expect(find.text('积分不足，可观看广告赚取积分'), findsOneWidget);
   });
 
+  testWidgets('半句可交换成语：先填交换位任一顺序都可通关', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db
+        .into(db.idioms)
+        .insert(
+          IdiomsCompanion(
+            word: const Value('如痴如醉'),
+            pinyin: const Value('ru chi ru zui'),
+            pinyinAbbr: const Value('rcrz'),
+            explanation: const Value('形容沉迷于某种状态'),
+            firstChar: const Value('如'),
+            lastChar: const Value('醉'),
+            difficulty: const Value(1),
+            reversible: const Value(true),
+          ),
+        );
+    final idA = await db.findIdiomIdByWord('如痴如醉');
+    await db
+        .into(db.idioms)
+        .insert(
+          IdiomsCompanion(
+            word: const Value('如醉如痴'),
+            pinyin: const Value('ru zui ru chi'),
+            pinyinAbbr: const Value('rzrc'),
+            explanation: const Value('形容沉迷于某种状态'),
+            firstChar: const Value('如'),
+            lastChar: const Value('痴'),
+            difficulty: const Value(1),
+            reversible: const Value(true),
+          ),
+        );
+    final idB = await db.findIdiomIdByWord('如醉如痴');
+    await db
+        .into(db.idiomReversiblePair)
+        .insert(
+          IdiomReversiblePairCompanion(
+            idiomIdA: Value(idA!),
+            idiomIdB: Value(idB!),
+          ),
+        );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildReversibleLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('醉'));
+    await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    await tester.tap(find.text('痴'));
+    await _pumpUntil(
+      tester,
+      () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
+    expect(find.text('生命值：3'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 800));
+  });
+
   testWidgets('过关弹窗展示本局填错过的成语', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -439,6 +504,35 @@ engine.CrosswordLevel _buildLevel({int levelId = 1}) {
     grid: grid,
     placements: [placement],
     givenCharacters: {'画'},
+    title: levelId >= dailyLevelOffset ? '每日挑战' : '第 1 关',
+  );
+}
+
+engine.CrosswordLevel _buildReversibleLevel({int levelId = 1}) {
+  final grid = engine.CrosswordGrid(rows: 5, cols: 5);
+  const idiom = engine.Idiom(
+    text: '如痴如醉',
+    pinyin: 'ru chi ru zui',
+    meaning: '形容沉迷于某种状态',
+    difficulty: 1,
+  );
+  final placement = engine.Placement(
+    idiom: idiom,
+    startRow: 1,
+    startCol: 1,
+    direction: engine.Direction.horizontal,
+  );
+  for (var k = 0; k < 4; k++) {
+    final cell = grid.cellAt(1, 1 + k);
+    cell.state = engine.CellState.filled;
+    cell.character = idiom.text[k];
+    if (k == 0 || k == 2) cell.isGiven = true;
+  }
+  return engine.CrosswordLevel(
+    levelId: levelId,
+    grid: grid,
+    placements: [placement],
+    givenCharacters: {'如'},
     title: levelId >= dailyLevelOffset ? '每日挑战' : '第 1 关',
   );
 }

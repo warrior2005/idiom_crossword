@@ -113,6 +113,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   // 填入正确字时的闪烁反馈
   (int, int)? _flashCell;
 
+  /// 本关成语的“前后两半可交换”倒装对（word -> 交换后的词）
+  final Map<String, String> _reversiblePairs = {};
+
   @override
   void initState() {
     super.initState();
@@ -122,12 +125,35 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _levelStartTime = DateTime.now();
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
     if (_isDaily) _startDailyTimer();
-    _restoreSavedState();
+    _loadReversiblePairs().then((_) => _restoreSavedState());
     // 提前预加载插屏广告，确保通关结算时有较高概率已就绪
     if (AdManager.isSupportedPlatform) {
       unawaited(AdManager().loadInterstitialAd());
     }
   }
+
+  /// 从数据库读取本关成语的倒装对（仅保留 ABCD ↔ CDAB 这种半句交换）
+  Future<void> _loadReversiblePairs() async {
+    try {
+      final db = ref.read(databaseProvider);
+      for (final placement in widget.level.placements) {
+        final word = placement.idiom.text;
+        final id = await db.findIdiomIdByWord(word);
+        if (id == null) continue;
+        final pair = await db.findReversibleForm(id);
+        if (pair != null &&
+            pair.word == _swapHalves(word) &&
+            !_reversiblePairs.containsKey(word)) {
+          _reversiblePairs[word] = pair.word;
+        }
+      }
+    } catch (_) {
+      // 倒装信息加载失败时按普通成语处理
+    }
+  }
+
+  String _swapHalves(String word) =>
+      word.length == 4 ? word.substring(2) + word.substring(0, 2) : word;
 
   /// 构建候选字盘
   void _buildCandidateBoard() {
@@ -221,8 +247,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         continue;
       }
       final filledChar = _candidateBoard[entry.candRow][entry.candCol];
-      final correctChar = _correctCharForCell(entry.row, entry.col);
-      if (filledChar != correctChar) {
+      if (!_isCharCorrectForCell(entry.row, entry.col, filledChar)) {
         _wrongIdiomWords.addAll(
           _placementsContaining(entry.row, entry.col).map((p) => p.idiom.text),
         );
@@ -357,6 +382,77 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         .toList();
   }
 
+  /// 该成语是否属于“ABCD ↔ CDAB”半句交换，且当前提示/交叉条件允许两种顺序
+  bool _isHalfSwapAmbiguous(Placement p) {
+    final pair = _reversiblePairs[p.idiom.text];
+    if (pair == null) return false;
+    final swapPositions = <int>[];
+    for (var k = 0; k < 4; k++) {
+      final (r, c) = p.cellAt(k);
+      final cell = _grid.cellAt(r, c);
+      if (p.idiom.text[k] != pair[k]) {
+        swapPositions.add(k);
+        // 交换位不能是交叉点，也不能已被提示
+        if (cell.isIntersection || cell.isGiven) return false;
+      }
+    }
+    // 只有 ABAC / BACA 这种“一对共享位 + 一对交换位”才成立
+    if (swapPositions.length != 2) return false;
+    // 必须至少有一个共享位提示字（如 A），否则纯 ABCD ↔ CDAB 不适用
+    var hasSharedClue = false;
+    for (var k = 0; k < 4; k++) {
+      if (p.idiom.text[k] == pair[k]) {
+        final (r, c) = p.cellAt(k);
+        if (_grid.cellAt(r, c).isGiven) hasSharedClue = true;
+      }
+    }
+    return hasSharedClue;
+  }
+
+  /// 某格当前允许的字符集合；半句交换时随已填的另一格动态收窄
+  Set<String> _allowedCharsForCell(int row, int col) {
+    final allowed = <String>{};
+    for (final p in _placementsContaining(row, col)) {
+      if (!_isHalfSwapAmbiguous(p)) continue;
+      final k = p.cells.indexOf((row, col));
+      final word = p.idiom.text;
+      final pair = _reversiblePairs[word]!;
+      final swapPositions = <int>[
+        for (var i = 0; i < 4; i++)
+          if (word[i] != pair[i]) i,
+      ];
+      if (swapPositions.length != 2 ||
+          (k != swapPositions[0] && k != swapPositions[1])) {
+        continue;
+      }
+      final s0 = swapPositions[0];
+      final s1 = swapPositions[1];
+      final cell0 = p.cellAt(s0);
+      final cell1 = p.cellAt(s1);
+      final ans0 = _playerAnswers[cell0];
+      final ans1 = _playerAnswers[cell1];
+
+      // 先填了其中一个交换位：另一个必须是对应顺序的字
+      if ((row, col) == cell1) {
+        if (ans0 == word[s0]) return {word[s1]};
+        if (ans0 == pair[s0]) return {pair[s1]};
+      }
+      if ((row, col) == cell0) {
+        if (ans1 == word[s1]) return {word[s0]};
+        if (ans1 == pair[s1]) return {pair[s0]};
+      }
+      allowed.add(word[k]);
+      allowed.add(pair[k]);
+    }
+    if (allowed.isNotEmpty) return allowed;
+    final exact = _correctCharForCell(row, col);
+    return exact == null ? <String>{} : {exact};
+  }
+
+  bool _isCharCorrectForCell(int row, int col, String char) {
+    return _allowedCharsForCell(row, col).contains(char);
+  }
+
   /// (row, col) 的正确字（该格可能属于多个成语，答案一致）
   String? _correctCharForCell(int row, int col) {
     for (final placement in _placementsContaining(row, col)) {
@@ -375,7 +471,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     final filledRow = _focusRow;
     final filledCol = _focusCol;
-    final isCorrect = char == _correctCharForCell(filledRow, filledCol);
+    final isCorrect = _isCharCorrectForCell(filledRow, filledCol, char);
     _totalFills++; // 本关填字尝试次数（含错误字），提示填入不计
     if (isCorrect) {
       _correctStreak++;
@@ -467,7 +563,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       final filled = _playerAnswers[(r, c)];
       if (filled == null) {
         allFilled = false;
-      } else if (filled != placement.idiom.text[k]) {
+      } else if (!_isCharCorrectForCell(r, c, filled)) {
         allCorrect = false;
         _errorCells.add((r, c));
       }
@@ -580,7 +676,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         final (r, c) = placement.cellAt(k);
         if (!_grid.cellAt(r, c).isGiven) {
           final filled = _playerAnswers[(r, c)];
-          if (filled != placement.idiom.text[k]) {
+          if (filled == null || !_isCharCorrectForCell(r, c, filled)) {
             allDone = false;
             break;
           }
@@ -980,8 +1076,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _clearWrongAnswers() {
     final wrongCells = <(int, int)>{};
     for (final entry in _playerAnswers.entries) {
-      final correct = _correctCharForCell(entry.key.$1, entry.key.$2);
-      if (entry.value != correct) wrongCells.add(entry.key);
+      if (!_isCharCorrectForCell(entry.key.$1, entry.key.$2, entry.value)) {
+        wrongCells.add(entry.key);
+      }
     }
     for (final cell in wrongCells) {
       _playerAnswers.remove(cell);
@@ -1701,8 +1798,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   bool _hasCorrectAnswer() {
     if (_focusRow < 0 || _focusCol < 0) return false;
-    return _playerAnswers[(_focusRow, _focusCol)] ==
-        _correctCharForCell(_focusRow, _focusCol);
+    final answer = _playerAnswers[(_focusRow, _focusCol)];
+    return answer != null &&
+        _isCharCorrectForCell(_focusRow, _focusCol, answer);
   }
 
   void _undo() {
@@ -1730,7 +1828,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (cell.isGiven) return;
 
     // 找到焦点格子的正确字
-    final correctChar = _correctCharForCell(_focusRow, _focusCol);
+    final allowed = _allowedCharsForCell(_focusRow, _focusCol);
+    final correctChar = allowed.length == 1
+        ? allowed.first
+        : _correctCharForCell(_focusRow, _focusCol);
     if (correctChar == null ||
         _playerAnswers[(_focusRow, _focusCol)] == correctChar) {
       return;
