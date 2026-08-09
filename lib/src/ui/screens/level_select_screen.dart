@@ -118,7 +118,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                     style: displayStyle(size: 30, weight: FontWeight.w700),
                   ),
                   const SizedBox(height: 6),
-                  Text('由浅入深 · 每关约 8–12 条成语', style: kickerStyle()),
+                  Text('由浅入深 · 每关 5–12 条成语', style: kickerStyle()),
                   const SizedBox(height: 12),
                   if (!dailyDone)
                     _DailyPin(onTap: _startDaily, locked: !dailyUnlocked),
@@ -198,6 +198,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
         db,
         levelNumber,
         globalRange: ref.read(playerProvider).level >= 20,
+        playerLevel: ref.read(playerProvider).level,
       );
       if (!mounted) return;
       Navigator.pop(context);
@@ -250,13 +251,13 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       final spiral = SpiralDifficulty.calculate(
         ref.read(playerProvider).completedLevels + 1,
       );
-      final minD = (spiral.mainMin + 2).clamp(1, 50);
-      final maxD = (spiral.mainMax + 6).clamp(1, 50);
+      final minD = (spiral.mainMin + 5).clamp(10, 50);
+      final maxD = (spiral.mainMax + 5).clamp(10, 50);
       final level = await generateLevel(
         db,
         levelNumber,
         seed: epochDay(),
-        targetSize: 6,
+        targetSize: 12,
         difficultyRange: (minD, maxD),
         title: '每日挑战',
       );

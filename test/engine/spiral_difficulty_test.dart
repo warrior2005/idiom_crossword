@@ -65,29 +65,83 @@ void main() {
 
   // 测试 6：成语数量选择
   print('\n--- 测试 6: 成语数量选择 ---');
-  final (mainC1, tailC1, previewC1) = SpiralDifficulty.selectIdiomCounts(1);
+  final (mainC1, tailC1, previewC1) = SpiralDifficulty.selectIdiomCounts(
+    1,
+    playerLevel: 1,
+  );
   assert(
     mainC1 == 5 && tailC1 == 0 && previewC1 == 0,
-    'teaching level should have 5 main, 0 tail, 0 preview',
+    'level 1 should have 5 main, 0 tail, 0 preview',
   );
   print('  level 1: main=$mainC1, tail=$tailC1, preview=$previewC1');
 
-  final (mainC100, tailC100, previewC100) = SpiralDifficulty.selectIdiomCounts(
-    100,
+  final (mainC2, tailC2, previewC2) = SpiralDifficulty.selectIdiomCounts(
+    2,
+    playerLevel: 1,
   );
   assert(
-    mainC100 == 5 && tailC100 == 1 && previewC100 == 0,
-    'transition level should have 5 main, 1 tail, 0 preview',
+    mainC2 == 6 && tailC2 == 0 && previewC2 == 0,
+    'level 2 should have 6 main, 0 tail, 0 preview',
+  );
+  print('  level 2: main=$mainC2, tail=$tailC2, preview=$previewC2');
+
+  final (mainC34, tailC34, previewC34) = SpiralDifficulty.selectIdiomCounts(
+    3,
+    playerLevel: 1,
+  );
+  assert(
+    mainC34 == 7 && tailC34 == 0 && previewC34 == 0,
+    'level 3-4 should have 7 main, 0 tail, 0 preview',
+  );
+  print('  level 3: main=$mainC34, tail=$tailC34, preview=$previewC34');
+
+  final (mainC5, tailC5, previewC5) = SpiralDifficulty.selectIdiomCounts(
+    5,
+    playerLevel: 1,
+  );
+  assert(
+    mainC5 == 8 && tailC5 == 0 && previewC5 == 0,
+    'level 5 should have 8 main, 0 tail, 0 preview',
+  );
+  print('  level 5: main=$mainC5, tail=$tailC5, preview=$previewC5');
+
+  final (mainC100, tailC100, previewC100) = SpiralDifficulty.selectIdiomCounts(
+    100,
+    playerLevel: 4,
+  );
+  assert(
+    mainC100 == 8 &&
+        tailC100 >= 0 &&
+        tailC100 <= 1 &&
+        previewC100 >= 0 &&
+        previewC100 <= 1,
+    'Lv.5 前 should have 8 main, 0-1 tail, 0-1 preview',
   );
   print('  level 100: main=$mainC100, tail=$tailC100, preview=$previewC100');
 
   final (mainC500, tailC500, previewC500) = SpiralDifficulty.selectIdiomCounts(
     500,
+    playerLevel: 8,
   );
-  assert(mainC500 >= 7 && mainC500 <= 9, 'main count should be 7-9');
-  assert(tailC500 >= 1 && tailC500 <= 2, 'tail count should be 1-2');
-  assert(previewC500 >= 0 && previewC500 <= 1, 'preview count should be 0-1');
+  assert(
+    mainC500 == 8 &&
+        tailC500 >= 0 &&
+        tailC500 <= 1 &&
+        previewC500 >= 1 &&
+        previewC500 <= 2,
+    'Lv.5-9 should have 8 main, 0-1 tail, 1-2 preview',
+  );
   print('  level 500: main=$mainC500, tail=$tailC500, preview=$previewC500');
+
+  final (mainC1000, tailC1000, previewC1000) =
+      SpiralDifficulty.selectIdiomCounts(1000, playerLevel: 12);
+  assert(
+    mainC1000 == 7 && tailC1000 >= 1 && tailC1000 <= 2 && previewC1000 == 3,
+    'Lv.10-19 should have 7 main, 1-2 tail, 3 preview',
+  );
+  print(
+    '  level 1000: main=$mainC1000, tail=$tailC1000, preview=$previewC1000',
+  );
   print('  ✓ 成语数量选择正确');
 
   // 测试 7：边界值 - 高等级 base=50

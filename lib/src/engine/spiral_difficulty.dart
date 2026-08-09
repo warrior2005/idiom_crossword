@@ -31,6 +31,20 @@ class SpiralDifficultyResult {
 class SpiralDifficulty {
   static final Random _random = Random();
 
+  /// 近似正态分布取 [min, max] 区间内的整数（Box-Muller，中心概率更高）
+  static int normalIntInRange(Random rng, int min, int max) {
+    if (min >= max) return min;
+    final mean = (min + max) / 2;
+    final sd = (max - min + 1) / 6;
+    double u1;
+    do {
+      u1 = rng.nextDouble();
+    } while (u1 <= 1e-12);
+    final u2 = rng.nextDouble();
+    final z = sqrt(-2 * log(u1)) * cos(2 * pi * u2);
+    return (mean + sd * z).round().clamp(min, max);
+  }
+
   /// 计算关卡的螺旋难度分布
   ///
   /// [levelNumber] 关卡编号 (1-based)
@@ -75,24 +89,33 @@ class SpiralDifficulty {
   /// 根据螺旋难度选择成语数量
   ///
   /// [levelNumber] 关卡编号
+  /// [playerLevel] 玩家科举等级
   /// 返回：(主体数量, 长尾数量, 预览数量)
   static (int mainCount, int tailCount, int previewCount) selectIdiomCounts(
     int levelNumber, {
+    required int playerLevel,
     Random? random,
   }) {
     final rng = random ?? _random;
     if (levelNumber <= 5) {
-      // 教学关：固定 5 条
-      return (5, 0, 0);
-    } else if (levelNumber <= 200) {
-      // 过渡关：6 条
-      return (5, 1, 0);
-    } else {
-      // 正式关：8-12 条（7-9 主体 + 1-2 长尾 + 0-1 预览）
-      final mainCount = 7 + rng.nextInt(3); // 7-9
-      final tailCount = 1 + rng.nextInt(2); // 1-2
-      final previewCount = rng.nextInt(2); // 0-1
-      return (mainCount, tailCount, previewCount);
+      // 教学关：1-5 关主体数量递增
+      return switch (levelNumber) {
+        1 => (5, 0, 0),
+        2 => (6, 0, 0),
+        3 || 4 => (7, 0, 0),
+        _ => (8, 0, 0),
+      };
     }
+    final level = playerLevel.clamp(1, 19);
+    if (level < 5) {
+      // 6 关起、Lv.5 前：8 + 0-1 + 0-1
+      return (8, normalIntInRange(rng, 0, 1), normalIntInRange(rng, 0, 1));
+    }
+    if (level < 10) {
+      // Lv.5 起、Lv.10 前：8 + 0-1 + 1-2
+      return (8, normalIntInRange(rng, 0, 1), normalIntInRange(rng, 1, 2));
+    }
+    // Lv.10 起、Lv.20 前：7 + 1-2 + 3
+    return (7, normalIntInRange(rng, 1, 2), 3);
   }
 }

@@ -92,10 +92,10 @@ void main() {
     // 过关对话框出现（异步完成流程需要轮询）
     await _pumpUntil(
       tester,
-      () => find.text('第 1 关 · 通关').evaluate().isNotEmpty,
+      () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
       const Duration(seconds: 5),
     );
-    expect(find.text('第 1 关 · 通关'), findsOneWidget);
+    expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
     expect(find.text('通'), findsOneWidget);
     expect(find.text('下一关'), findsOneWidget);
 
@@ -169,10 +169,10 @@ void main() {
 
     await _pumpUntil(
       tester,
-      () => find.text('第 1 关 · 通关').evaluate().isNotEmpty,
+      () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
       const Duration(seconds: 5),
     );
-    expect(find.text('第 1 关 · 通关'), findsOneWidget);
+    expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
@@ -228,10 +228,10 @@ void main() {
 
     await _pumpUntil(
       tester,
-      () => find.text('第 1 关 · 通关').evaluate().isNotEmpty,
+      () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
       const Duration(seconds: 5),
     );
-    expect(find.text('第 1 关 · 通关'), findsOneWidget);
+    expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
     expect(find.text('返回主页'), findsOneWidget);
     expect(find.byKey(const ValueKey('win-card-idiom-画蛇添足')), findsOneWidget);
 
@@ -283,7 +283,7 @@ void main() {
     }
     await _pumpUntil(
       tester,
-      () => find.text('第 1 关 · 通关').evaluate().isNotEmpty,
+      () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
       const Duration(seconds: 5),
     );
     await tester.pump(const Duration(milliseconds: 400));

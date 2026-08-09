@@ -40,7 +40,11 @@ void main() {
         expect(gd.center, inInclusiveRange(20, 40));
         expect(gd.reviewMax, lessThan(gd.mainMin));
         expect(gd.mainMax, lessThan(gd.sprintMin));
-        expect(gd.targetSize, inInclusiveRange(8, 12));
+        expect(gd.targetSize, inInclusiveRange(10, 12));
+        expect(gd.mainCount, 8);
+        expect(gd.reviewCount, 0);
+        expect(gd.sprintCount, inInclusiveRange(2, 3));
+        expect(gd.surpriseCount, inInclusiveRange(0, 1));
         expect(
           gd.mainCount + gd.reviewCount + gd.sprintCount + gd.surpriseCount,
           gd.targetSize,

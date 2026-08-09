@@ -70,14 +70,14 @@ void main() {
       db,
       dailyNumber,
       seed: 20454,
-      targetSize: 6,
+      targetSize: 12,
       difficultyRange: (10, 40),
     );
     final dailyB = await generateLevel(
       db,
       dailyNumber,
       seed: 20454,
-      targetSize: 6,
+      targetSize: 12,
       difficultyRange: (10, 40),
     );
     expect(dailyA, isNotNull);

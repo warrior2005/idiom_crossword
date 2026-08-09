@@ -289,6 +289,7 @@ class HomeScreen extends ConsumerWidget {
         db,
         nextLevel,
         globalRange: player.level >= 20,
+        playerLevel: player.level,
       );
 
       if (!context.mounted) return;
@@ -381,13 +382,13 @@ class HomeScreen extends ConsumerWidget {
       final spiral = SpiralDifficulty.calculate(
         ref.read(playerProvider).completedLevels + 1,
       );
-      final minD = (spiral.mainMin + 2).clamp(1, 50);
-      final maxD = (spiral.mainMax + 6).clamp(1, 50);
+      final minD = (spiral.mainMin + 5).clamp(10, 50);
+      final maxD = (spiral.mainMax + 5).clamp(10, 50);
       final level = await generateLevel(
         db,
         levelNumber,
         seed: epochDay(),
-        targetSize: 6,
+        targetSize: 12,
         difficultyRange: (minD, maxD),
         title: '每日挑战',
       );

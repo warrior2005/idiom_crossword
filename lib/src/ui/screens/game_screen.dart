@@ -1081,6 +1081,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         db,
         widget.level.levelId + 1,
         globalRange: ref.read(playerProvider).level >= 20,
+        playerLevel: ref.read(playerProvider).level,
       );
       if (!mounted) return;
       Navigator.pop(context); // 关闭加载框

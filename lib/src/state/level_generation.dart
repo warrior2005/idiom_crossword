@@ -37,6 +37,7 @@ Future<engine.CrosswordLevel?> generateLevel(
   (int, int)? difficultyRange,
   String? title,
   bool globalRange = false,
+  int playerLevel = 1,
 }) async {
   final (minD, maxD) = globalRange
       ? (1, 50)
@@ -98,6 +99,7 @@ Future<engine.CrosswordLevel?> generateLevel(
   }
   return generator.generateSpiral(
     levelNumber: levelNumber,
+    playerLevel: playerLevel,
     maxAttempts: maxAttempts,
   );
 }
@@ -187,6 +189,7 @@ Future<engine.CrosswordLevel?> loadOrGenerateLevel(
   AppDatabase db,
   int levelNumber, {
   bool globalRange = false,
+  int playerLevel = 1,
 }) async {
   // 1) 未完成存档优先（断点续玩）
   final saved = await db.getLevelState(levelNumber);
@@ -201,5 +204,10 @@ Future<engine.CrosswordLevel?> loadOrGenerateLevel(
     if (restored != null) return restored;
   }
   // 3) 否则新生成
-  return generateLevel(db, levelNumber, globalRange: globalRange);
+  return generateLevel(
+    db,
+    levelNumber,
+    globalRange: globalRange,
+    playerLevel: playerLevel,
+  );
 }

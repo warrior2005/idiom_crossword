@@ -532,11 +532,19 @@ class IntegratedGenerator {
   /// [levelNumber] 关卡编号 (1-based)
   CrosswordLevel? generateSpiral({
     required int levelNumber,
+    int playerLevel = 1,
     int maxAttempts = 50,
   }) {
     final spiral = SpiralDifficulty.calculate(levelNumber);
-    final (mainCount, tailCount, previewCount) =
-        SpiralDifficulty.selectIdiomCounts(levelNumber, random: _random);
+    final (
+      mainCount,
+      tailCount,
+      previewCount,
+    ) = SpiralDifficulty.selectIdiomCounts(
+      levelNumber,
+      playerLevel: playerLevel,
+      random: _random,
+    );
     final targetSize = mainCount + tailCount + previewCount;
 
     // 设计 §4.3 混排：主体为主（约 70%），混入长尾与预览
