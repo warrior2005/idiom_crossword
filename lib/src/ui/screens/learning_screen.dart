@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database.dart';
 import '../../state/database_provider.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text.dart';
+import '../widgets/app_card.dart';
 
 /// 本关成语的完整资料（释义/出处/例句）
 final learningDetailsProvider =
@@ -32,11 +34,15 @@ class LearningScreen extends ConsumerWidget {
     final detailsAsync = ref.watch(learningDetailsProvider(words));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
+      backgroundColor: AppColors.bg,
       appBar: AppBar(
-        title: const Text('本关成语'),
-        backgroundColor: Colors.transparent,
+        title: Text(
+          '本关成语',
+          style: displayStyle(size: 20, weight: FontWeight.w900),
+        ),
+        backgroundColor: AppColors.bg,
         elevation: 0,
+        foregroundColor: AppColors.fg,
       ),
       body: detailsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -49,68 +55,66 @@ class LearningScreen extends ConsumerWidget {
             ...rows.where((i) => !wrongWords.contains(i.word)),
           ];
           return ListView.builder(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             itemCount: ordered.length,
             itemBuilder: (context, index) {
               final idiom = ordered[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            idiom.word,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.brown.shade900,
-                            ),
-                          ),
-                          const Spacer(),
-                          if (wrongWords.contains(idiom.word))
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.accent,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Text(
-                                '填错',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      if (idiom.pinyin.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+              return AppCard(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
                         Text(
-                          idiom.pinyin,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.brown.shade500,
+                          idiom.word,
+                          style: displayStyle(
+                            size: 24,
+                            weight: FontWeight.w900,
+                            color: AppColors.accentDeep,
                           ),
                         ),
+                        const Spacer(),
+                        if (wrongWords.contains(idiom.word))
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.accent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              '填错',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                       ],
-                      const SizedBox(height: 10),
-                      _detailRow('释义', idiom.explanation),
-                      if (idiom.derivation != null &&
-                          idiom.derivation!.isNotEmpty)
-                        _detailRow('出处', idiom.derivation!),
-                      if (idiom.example != null && idiom.example!.isNotEmpty)
-                        _detailRow('例句', idiom.example!),
+                    ),
+                    if (idiom.pinyin.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        idiom.pinyin,
+                        style: bodyStyle(
+                          size: 11,
+                          color: AppColors.muted,
+                        ).copyWith(letterSpacing: 1.2),
+                      ),
                     ],
-                  ),
+                    const SizedBox(height: 10),
+                    _detailRow('释义', idiom.explanation),
+                    if (idiom.derivation != null &&
+                        idiom.derivation!.isNotEmpty)
+                      _detailRow('出处', idiom.derivation!),
+                    if (idiom.example != null && idiom.example!.isNotEmpty)
+                      _detailRow('例句', idiom.example!),
+                  ],
                 ),
               );
             },
@@ -130,16 +134,12 @@ class LearningScreen extends ConsumerWidget {
               text: '$label：',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.brown.shade700,
+                color: AppColors.accentDeep,
               ),
             ),
             TextSpan(
               text: content,
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.5,
-                color: Colors.brown.shade800,
-              ),
+              style: TextStyle(fontSize: 14, height: 1.5, color: AppColors.fg),
             ),
           ],
         ),

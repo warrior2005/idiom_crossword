@@ -46,8 +46,8 @@ class GrowthManager {
   /// 每日挑战固定经验（按约 1000 次每日挑战估算，可让升 20 级提前约 970 关）
   static const int dailyChallengeXp = 300;
 
-  /// 每日挑战开启等级（Lv.4 贡生后开放，避免初期 300 经验跳级）
-  static const int dailyChallengeUnlockLevel = 4;
+  /// 每日挑战开启等级（Lv.3 廪生后开放）
+  static const int dailyChallengeUnlockLevel = 3;
 
   /// 是否已开启每日挑战
   static bool canAccessDaily(int level) => level >= dailyChallengeUnlockLevel;

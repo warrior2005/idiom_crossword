@@ -134,7 +134,7 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 10),
                   if (!GrowthManager.canAccessDaily(player.level))
                     PrimaryButton(
-                      label: '到达Lv.4·贡生后开启',
+                      label: '到达Lv.3·廪生后开启',
                       small: true,
                       onTap: null,
                     )
@@ -387,7 +387,7 @@ class HomeScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('到达Lv.4·贡生后开启每日挑战')));
+        ).showSnackBar(const SnackBar(content: Text('到达Lv.3·廪生后开启每日挑战')));
       }
       return;
     }

@@ -278,6 +278,8 @@ class DistractorEngine {
       );
       allDistractors.addAll(distractors);
     }
+    // 防御：任何干扰字都不能与待填字重复，避免同一个字出现超过实际需填次数
+    allDistractors.removeWhere(correctAnswers.contains);
 
     // 混合正确答案和干扰项
     final allCandidates = [

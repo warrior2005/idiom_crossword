@@ -189,7 +189,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('到达Lv.4·贡生后开启每日挑战')));
+        ).showSnackBar(const SnackBar(content: Text('到达Lv.3·廪生后开启每日挑战')));
       }
       return;
     }
@@ -274,7 +274,7 @@ class _DailyPin extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onTap,
-            child: BadgeSoft(locked ? 'Lv.4 开启' : '挑战'),
+            child: BadgeSoft(locked ? 'Lv.3 开启' : '挑战'),
           ),
         ],
       ),

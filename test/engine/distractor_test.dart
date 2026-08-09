@@ -63,6 +63,23 @@ void main() {
     print('  ✗ 重复字: $duplicates');
   }
 
+  // 验证：待填字数量与候选盘中的数量完全一致，不额外增加重复项
+  final duplicateAnswers = ['一', '一', '海', '海', '山', '水'];
+  final board2 = engine.generateCandidateBoard(
+    correctAnswers: duplicateAnswers,
+    rows: 2,
+    countPerRow: 8,
+  );
+  final counts = <String, int>{};
+  for (final c in board2.expand((row) => row)) {
+    counts[c] = (counts[c] ?? 0) + 1;
+  }
+  for (final c in duplicateAnswers.toSet()) {
+    final expected = duplicateAnswers.where((x) => x == c).length;
+    assert(counts[c] == expected, '字 "$c" 应出现 $expected 次，实际 ${counts[c]} 次');
+  }
+  print('  ✓ 待填字数量与候选盘完全一致，无多余重复');
+
   print('\n--- 测试 3: 核心混淆字对验证 ---');
   // 验证一些著名的混淆对确实存在于数据中
   final famousPairs = [

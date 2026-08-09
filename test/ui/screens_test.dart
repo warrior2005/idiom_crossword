@@ -466,7 +466,7 @@ void main() {
   testWidgets('首页：每日挑战在数据库无成语时提示生成失败', (tester) async {
     final db = AppDatabase(NativeDatabase.memory()); // 空库，无成语
     addTearDown(db.close);
-    // 每日挑战 Lv.4 开启：Lv1-3 累计经验 100+160+256=516
+    // 每日挑战 Lv.3 开启：Lv1-2 累计经验 100+160=260
     await db.updatePlayerProgress(
       level: 4,
       totalXp: 516,
@@ -647,14 +647,14 @@ void main() {
     expect(find.text('已完成'), findsOneWidget);
   });
 
-  testWidgets('首页：未达Lv4时每日挑战显示开启提示', (tester) async {
+  testWidgets('首页：未达Lv3时每日挑战显示开启提示', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
 
     await tester.pumpWidget(_wrap(db, const HomeScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('到达Lv.4·贡生后开启'), findsOneWidget);
+    expect(find.text('到达Lv.3·廪生后开启'), findsOneWidget);
     expect(find.text('开始挑战'), findsNothing);
     expect(find.text('往期回顾'), findsNothing);
   });
@@ -670,7 +670,7 @@ void main() {
     expect(find.text('科举仕途'), findsOneWidget);
     expect(find.text('书卷小径'), findsOneWidget);
     expect(find.textContaining('农历'), findsOneWidget);
-    expect(find.text('到达Lv.4·贡生后开启'), findsOneWidget);
+    expect(find.text('到达Lv.3·廪生后开启'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('今日一读'),
       100,

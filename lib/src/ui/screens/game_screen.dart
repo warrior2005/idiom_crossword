@@ -131,16 +131,17 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 构建候选字盘
   void _buildCandidateBoard() {
-    // 收集所有正确答案
-    final correctAnswers = <String>[];
+    // 按格子收集正确答案，交叉格只计一次，避免候选字数量超过实际需填字数
+    final correctCells = <(int, int), String>{};
     for (final placement in widget.level.placements) {
       for (int k = 0; k < placement.idiom.text.length; k++) {
         final (r, c) = placement.cellAt(k);
         if (!widget.level.grid.cellAt(r, c).isGiven) {
-          correctAnswers.add(placement.idiom.text[k]);
+          correctCells[(r, c)] = placement.idiom.text[k];
         }
       }
     }
+    final correctAnswers = correctCells.values.toList();
 
     _candidateBoard = _distractorEngine.generateCandidateBoard(
       correctAnswers: correctAnswers,
@@ -994,6 +995,114 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   String _dailyNoRewardKey() => 'daily_no_reward_${widget.level.levelId}';
 
+  void _showHintPurchaseDialog() {
+    final points = ref.read(playerProvider).points;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentPale,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Center(
+                      child: AppIcon('hint', size: 28, color: AppColors.accent),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '提示卡 ×1',
+                          style: bodyStyle(size: 15, weight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '揭示当前选中格子的正确答案',
+                          style: bodyStyle(size: 11.5, color: AppColors.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$kHintCardPoints 积分',
+                    style: displayStyle(
+                      size: 15,
+                      weight: FontWeight.w700,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '当前积分：$points',
+                style: bodyStyle(size: 12, color: AppColors.muted),
+              ),
+              const SizedBox(height: 14),
+              GestureDetector(
+                onTap: () async {
+                  final notifier = ref.read(playerProvider.notifier);
+                  final ok = await notifier.spendPoints(kHintCardPoints);
+                  if (!ok) {
+                    if (!ctx.mounted || !mounted) return;
+                    Navigator.of(ctx).pop();
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('积分不足，可观看广告赚取积分')),
+                    );
+                    return;
+                  }
+                  await notifier.addHintCards(1);
+                  if (!ctx.mounted || !mounted) return;
+                  Navigator.of(ctx).pop();
+                  if (!mounted) return;
+                  await _showHint();
+                },
+                child: Container(
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    '购买',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFFF6EC),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showRevivePurchaseDialog() {
     final points = ref.read(playerProvider).points;
     showDialog<void>(
@@ -1570,7 +1679,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         !_completedCells.contains((_focusRow, _focusCol)) &&
         !_grid.cellAt(_focusRow, _focusCol).isGiven &&
         !_hasCorrectAnswer();
-    final canSingleHint = focusReady && hintCount > 0;
+    final canSingleHint = focusReady;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -1630,9 +1739,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final hintCards =
         ref.read(playerProvider).functionalItems['hint_card'] ?? 0;
     if (hintCards <= 0) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('提示卡不足')));
+      _showHintPurchaseDialog();
       return;
     }
     await ref.read(playerProvider.notifier).useHintCard();

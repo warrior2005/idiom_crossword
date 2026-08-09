@@ -230,6 +230,41 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
   });
 
+  testWidgets('提示卡为0时可打开积分购买弹框', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 0,
+      hintCards: 0,
+      reviveCards: 2,
+    );
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('提示'));
+    await tester.pumpAndSettle();
+    expect(find.text('提示卡 ×1'), findsOneWidget);
+    expect(find.text('10 积分'), findsOneWidget);
+    expect(find.text('当前积分：0'), findsOneWidget);
+
+    await tester.tap(find.text('购买'));
+    await tester.pumpAndSettle();
+    expect(find.text('积分不足，可观看广告赚取积分'), findsOneWidget);
+  });
+
   testWidgets('过关弹窗展示本局填错过的成语', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
