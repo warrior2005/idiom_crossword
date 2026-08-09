@@ -223,7 +223,7 @@ void main() {
     expect(find.text('确认购买'), findsOneWidget);
     await tester.tap(find.text('取消'));
     await tester.pumpAndSettle();
-    expect((await db.getPlayerProgress())!.hintCards, 0);
+    expect((await db.getPlayerProgress())!.hintCards, 5);
     expect((await db.getPlayerProgress())!.points, 100);
 
     await tester.tap(find.text('购买').first);
@@ -231,7 +231,7 @@ void main() {
     await tester.tap(find.text('确认'));
     await tester.pump();
     expect(find.text('购买成功：提示卡 ×1'), findsOneWidget);
-    expect((await db.getPlayerProgress())!.hintCards, 1);
+    expect((await db.getPlayerProgress())!.hintCards, 6);
     expect((await db.getPlayerProgress())!.points, 90);
   });
 

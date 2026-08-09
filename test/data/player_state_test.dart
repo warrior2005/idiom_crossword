@@ -44,6 +44,12 @@ void main() {
     expect(progress.completedLevels, 1);
   });
 
+  test('新账号初始库存为 5 提示卡 + 2 复活卡', () {
+    final state = container.read(playerProvider);
+    expect(state.functionalItems['hint_card'], 5);
+    expect(state.functionalItems['revive_card'], 2);
+  });
+
   test('升级发放头像框奖励并持久化', () async {
     final notifier = container.read(playerProvider.notifier);
     // 10 个教学关 → 100xp → 升到 2 级（奖励头像框·四方平定巾）
@@ -57,13 +63,13 @@ void main() {
     final state = container.read(playerProvider);
     expect(state.level, 2);
     expect(state.title, '生员');
-    expect(state.functionalItems['hint_card'] ?? 0, 0);
+    expect(state.functionalItems['hint_card'], 5);
     expect(state.ownedDecorations, contains('avatar_frame_sifang'));
     expect(state.xpProgress, closeTo(0.0, 0.001)); // 刚升级，本级进度 0
 
     final progress = await db.getPlayerProgress();
     expect(progress!.level, 2);
-    expect(progress.hintCards, 0);
+    expect(progress.hintCards, 5);
     expect(await db.getOwnedDecorationIds(), contains('avatar_frame_sifang'));
   });
 
@@ -82,15 +88,15 @@ void main() {
   test('用提示卡扣减并持久化，不会扣成负数', () async {
     final notifier = container.read(playerProvider.notifier);
     await notifier.addHintCards(2);
-    expect(container.read(playerProvider).functionalItems['hint_card'], 2);
+    expect(container.read(playerProvider).functionalItems['hint_card'], 7);
 
     await notifier.useHintCard();
-    expect(container.read(playerProvider).functionalItems['hint_card'], 1);
-    expect((await db.getPlayerProgress())!.hintCards, 1);
+    expect(container.read(playerProvider).functionalItems['hint_card'], 6);
+    expect((await db.getPlayerProgress())!.hintCards, 6);
 
-    await notifier.useHintCard();
-    await notifier.useHintCard();
-    await notifier.useHintCard(); // 已用完，不应变负
+    for (var i = 0; i < 6; i++) {
+      await notifier.useHintCard();
+    }
     expect(container.read(playerProvider).functionalItems['hint_card'], 0);
     expect((await db.getPlayerProgress())!.hintCards, 0);
   });
@@ -197,11 +203,11 @@ void main() {
     await notifier.addHintCards(10);
     await notifier.addReviveCards(5);
 
-    expect(container.read(playerProvider).functionalItems['hint_card'], 10);
-    expect(container.read(playerProvider).functionalItems['revive_card'], 5);
+    expect(container.read(playerProvider).functionalItems['hint_card'], 15);
+    expect(container.read(playerProvider).functionalItems['revive_card'], 7);
     final progress = await db.getPlayerProgress();
-    expect(progress!.hintCards, 10);
-    expect(progress.reviveCards, 5);
+    expect(progress!.hintCards, 15);
+    expect(progress.reviveCards, 7);
   });
 
   test('积分增加/消费并持久化，积分不足时不扣减', () async {

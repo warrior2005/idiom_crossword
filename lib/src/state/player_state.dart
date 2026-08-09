@@ -31,6 +31,11 @@ const String kBannerPointsDateKey = 'banner_points_date';
 const String kBannerPointsCountKey = 'banner_points_count';
 const String kCustomAvatarPathKey = 'custom_avatar_path';
 
+/// 积分定价（与商城一致）
+const int kHintCardPoints = 10;
+const int kReviveCardPoints = 15;
+const int kGiftBoxPoints = 40;
+
 /// 激励广告当前可用状态
 class RewardedAdStatus {
   final int countToday;
@@ -147,7 +152,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       completedLevels: 0,
       currentCorrectStreak: 0,
       bestCorrectStreak: 0,
-      functionalItems: {},
+      functionalItems: {'hint_card': 5, 'revive_card': 2},
       ownedDecorations: {},
       activeGridSkin: 'paper',
       activeAvatarFrame: null,

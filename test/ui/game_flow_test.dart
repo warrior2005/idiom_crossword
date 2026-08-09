@@ -242,10 +242,22 @@ void main() {
   testWidgets('每日挑战倒计时结束显示失败弹框', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 0,
+      hintCards: 5,
+      reviveCards: 0,
+    );
 
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [databaseProvider.overrideWithValue(db)],
+      UncontrolledProviderScope(
+        container: container,
         child: MaterialApp(
           home: GameScreen(level: _buildLevel(levelId: dailyLevelNumber())),
         ),
@@ -261,6 +273,17 @@ void main() {
     expect(find.text('重玩本关（无经验）'), findsOneWidget);
     expect(find.text('返回主页'), findsOneWidget);
     expect(await db.getLevelState(dailyLevelNumber()), isNull);
+
+    await tester.tap(find.text('复活(剩余 0)'));
+    await tester.pumpAndSettle();
+    expect(find.text('复活卡 ×1'), findsOneWidget);
+    expect(find.text('15 积分'), findsOneWidget);
+    expect(find.text('当前积分：0'), findsOneWidget);
+    expect(find.text('内购功能即将上线'), findsNothing);
+
+    await tester.tap(find.text('购买'));
+    await tester.pumpAndSettle();
+    expect(find.text('积分不足，可观看广告赚取积分'), findsOneWidget);
   });
 
   testWidgets('noReward 关卡通关不获得经验', (tester) async {

@@ -14,11 +14,6 @@ import '../theme/app_text.dart';
 import '../theme/grid_skins.dart';
 import '../theme/decoration_catalog.dart';
 
-/// 积分定价（按广告价值估算后的初值，可后续调整）
-const int kHintCardPoints = 10;
-const int kReviveCardPoints = 15;
-const int kGiftBoxPoints = 40;
-
 /// 广告兑换皮肤积分定价（初值，可后续调整）
 const Map<String, int> kAdSkinPoints = {
   'qiuxiang': 2000, // 秋香

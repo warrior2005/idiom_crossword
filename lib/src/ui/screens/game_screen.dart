@@ -397,6 +397,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       ref.read(playerProvider.notifier).recordWrongFill();
     }
 
+    var idiomCompleted = false;
     setState(() {
       // 覆盖填入时，释放旧字占用的候选槽位
       final oldSlot = _cellToCandidateSlot[(_focusRow, _focusCol)];
@@ -412,7 +413,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         candCol: col,
       ));
       _cellToCandidateSlot[(_focusRow, _focusCol)] = (row, col);
-      _checkCompletionForCurrentIdiom();
+      idiomCompleted = _checkCompletionForCurrentIdiom();
     });
 
     if (!isCorrect && _lives <= 0) {
@@ -420,23 +421,30 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       return;
     }
 
-    HapticFeedback.lightImpact();
-    GameAudio.instance.play(isCorrect ? 'correct.wav' : 'wrong.wav');
+    if (isCorrect && idiomCompleted) {
+      HapticFeedback.mediumImpact();
+      GameAudio.instance.play('idiom.wav');
+    } else {
+      HapticFeedback.lightImpact();
+      GameAudio.instance.play(isCorrect ? 'correct.wav' : 'wrong.wav');
+    }
     _moveToNextEmptyCell();
     if (isCorrect) _flashCellAt(filledRow, filledCol);
     _saveState();
   }
 
-  /// 检查当前焦点所在成语的完成状态
-  void _checkCompletionForCurrentIdiom() {
+  /// 检查当前焦点所在成语的完成状态；返回是否新完成了至少一个成语
+  bool _checkCompletionForCurrentIdiom() {
     // 焦点格可能同时属于横、纵两个成语，需要都检查
+    var completed = false;
     for (final placement in _placementsContaining(_focusRow, _focusCol)) {
-      _checkIdiomCompletion(placement);
+      completed = _checkIdiomCompletion(placement) || completed;
     }
+    return completed;
   }
 
   /// 检查一个成语是否已被完整且正确地填入
-  void _checkIdiomCompletion(Placement placement) {
+  bool _checkIdiomCompletion(Placement placement) {
     // 先清除这个 placement 的旧错误标记，再重新计算
     for (int k = 0; k < placement.idiom.text.length; k++) {
       final (r, c) = placement.cellAt(k);
@@ -461,11 +469,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       }
     }
 
-    if (!allFilled || !allCorrect) return;
+    if (!allFilled || !allCorrect) return false;
 
     // 成语完成
-    HapticFeedback.mediumImpact();
-    GameAudio.instance.play('idiom.wav');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('√ ${placement.idiom.text}'),
@@ -485,6 +491,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       meaning: placement.idiom.meaning,
     ));
     _selectedCompletedIndex = _completedIdiomList.length - 1;
+    return true;
   }
 
   /// 自动移到下一个空白格（沿当前成语方向移动）
@@ -698,7 +705,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 胜利结算弹框前，40% 概率展示插屏广告
   Future<void> _maybeShowInterstitial(VoidCallback onDone) async {
-    if (!AdManager.isSupportedPlatform ||
+    if (widget.level.levelId <= 5 || // 教学关 1-5 不展示插屏
+        !AdManager.isSupportedPlatform ||
         Random().nextDouble() >= _interstitialAdChance) {
       onDone();
       return;
@@ -979,6 +987,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   String _dailyNoRewardKey() => 'daily_no_reward_${widget.level.levelId}';
 
   void _showRevivePurchaseDialog() {
+    final points = ref.read(playerProvider).points;
     showDialog<void>(
       context: context,
       builder: (ctx) => Dialog(
@@ -1018,7 +1027,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '复活卡 ×5',
+                          '复活卡 ×1',
                           style: bodyStyle(size: 15, weight: FontWeight.w600),
                         ),
                         const SizedBox(height: 3),
@@ -1031,7 +1040,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '¥12',
+                    '$kReviveCardPoints 积分',
                     style: displayStyle(
                       size: 15,
                       weight: FontWeight.w700,
@@ -1040,13 +1049,30 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 10),
+              Text(
+                '当前积分：$points',
+                style: bodyStyle(size: 12, color: AppColors.muted),
+              ),
               const SizedBox(height: 14),
               GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  final notifier = ref.read(playerProvider.notifier);
+                  final ok = await notifier.spendPoints(kReviveCardPoints);
+                  if (!ok) {
+                    if (!ctx.mounted || !mounted) return;
+                    Navigator.of(ctx).pop();
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('积分不足，可观看广告赚取积分')),
+                    );
+                    return;
+                  }
+                  await notifier.addReviveCards(1);
+                  if (!ctx.mounted || !mounted) return;
                   Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('内购功能即将上线')));
+                  if (!mounted) return;
+                  await _handleRevive();
                 },
                 child: Container(
                   height: 40,
@@ -1607,13 +1633,19 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     await ref.read(playerProvider.notifier).useHintCard();
     _hintUsesThisLevel++;
 
+    var idiomCompleted = false;
     setState(() {
       _applyAnswer(_focusRow, _focusCol, correctChar);
-      _checkCompletionForCurrentIdiom();
+      idiomCompleted = _checkCompletionForCurrentIdiom();
     });
 
-    HapticFeedback.lightImpact();
-    GameAudio.instance.play('fill.wav');
+    if (idiomCompleted) {
+      HapticFeedback.mediumImpact();
+      GameAudio.instance.play('idiom.wav');
+    } else {
+      HapticFeedback.lightImpact();
+      GameAudio.instance.play('fill.wav');
+    }
     _saveState();
   }
 
