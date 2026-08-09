@@ -104,10 +104,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
 
-    // 教学关经验 +10，通关记录已落库
+    // 教学关经验 +20，通关记录已落库
     final progress = await db.getPlayerProgress();
     expect(progress, isNotNull);
-    expect(progress!.totalXp, 10);
+    expect(progress!.totalXp, 20);
     expect(progress.completedLevels, 1);
     expect(await db.getCompletedLevelNumbers(), {1});
 
@@ -220,7 +220,7 @@ void main() {
       const Duration(seconds: 5),
     );
     expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
-    expect((await db.getPlayerProgress())!.totalXp, 10);
+    expect((await db.getPlayerProgress())!.totalXp, 20);
 
     final idiomId = await db.findIdiomIdByWord('画蛇添足');
     expect(idiomId, isNotNull);

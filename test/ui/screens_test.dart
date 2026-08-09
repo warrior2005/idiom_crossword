@@ -68,11 +68,15 @@ void main() {
     await tester.pumpWidget(_wrap(db, const CollectionScreen()));
     await tester.pumpAndSettle();
     expect(find.text('画蛇添足'), findsOneWidget);
+    expect(find.text('本周新增 1'), findsOneWidget);
 
     // 搜索过滤：命中保留，未命中显示空态
     await tester.enterText(find.byType(TextField), '画蛇');
     await tester.pumpAndSettle();
     expect(find.text('画蛇添足'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '比喻做了多余的事');
+    await tester.pumpAndSettle();
+    expect(find.text('没有找到匹配的成语'), findsOneWidget);
     await tester.enterText(find.byType(TextField), '不存在');
     await tester.pumpAndSettle();
     expect(find.text('没有找到匹配的成语'), findsOneWidget);
@@ -578,6 +582,38 @@ void main() {
     expect(find.text('画蛇添足'), findsOneWidget);
     expect(find.textContaining('语出《战国策》'), findsOneWidget);
     expect(find.textContaining('多此一举'), findsOneWidget);
+  });
+
+  testWidgets('本关成语：填错词优先展示并显示填错tag', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db
+        .into(db.idioms)
+        .insert(
+          IdiomsCompanion(
+            word: const Value('画龙点睛'),
+            pinyin: const Value('hua long dian jing'),
+            pinyinAbbr: const Value('hldj'),
+            explanation: const Value('比喻在关键处加上精辟的语句'),
+            firstChar: const Value('画'),
+            lastChar: const Value('睛'),
+            difficulty: const Value(1),
+          ),
+        );
+
+    await tester.pumpWidget(
+      _wrap(
+        db,
+        const LearningScreen(words: ['画蛇添足', '画龙点睛'], wrongWords: {'画蛇添足'}),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('填错'), findsOneWidget);
+    expect(find.textContaining('难度'), findsNothing);
+    final wrongY = tester.getTopLeft(find.text('画蛇添足')).dy;
+    final correctY = tester.getTopLeft(find.text('画龙点睛')).dy;
+    expect(wrongY, lessThan(correctY));
   });
 
   testWidgets('首页：每日挑战完成后按钮显示完成态', (tester) async {

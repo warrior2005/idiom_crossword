@@ -234,7 +234,7 @@ class GrowthManager {
       return dailyChallengeXp; // 每日挑战固定 300 经验
     }
     if (levelNumber <= 5) {
-      return 10; // 教学关固定 10 经验
+      return 20; // 教学关固定 20 经验
     }
     // 通关经验随关卡号缓慢递增：第 6 关起约 5 点起步，
     // 每 1000 关约增加 43 点，保证不做每日时约 7500 关升到 20 级。

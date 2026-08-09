@@ -20,15 +20,15 @@ class CollectionItem {
 
 final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
   final db = ref.watch(databaseProvider);
-  final rows = await db.getCollectionWithDetails();
+  final rows = await db.getCollectionWithCollectedAt();
   return rows
       .map(
-        (i) => CollectionItem(
-          word: i.word,
-          explanation: i.explanation,
-          derivation: i.derivation,
-          pinyin: i.pinyin,
-          collectedAt: i.createdAt,
+        (r) => CollectionItem(
+          word: r.idiom.word,
+          explanation: r.idiom.explanation,
+          derivation: r.idiom.derivation,
+          pinyin: r.idiom.pinyin,
+          collectedAt: r.collectedAt,
         ),
       )
       .toList();

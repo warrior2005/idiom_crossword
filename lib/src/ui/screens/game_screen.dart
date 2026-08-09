@@ -844,6 +844,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       MaterialPageRoute(
         builder: (_) => LearningScreen(
           words: widget.level.idioms.map((i) => i.text).toList(),
+          wrongWords: Set.from(_wrongIdiomWords),
         ),
       ),
     );
@@ -1192,9 +1193,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   _buildTopBar(),
                   _buildProgress(),
                   _buildCompletedIdiomsSection(),
-                  Expanded(flex: 6, child: _buildGrid()),
+                  Expanded(flex: 7, child: _buildGrid()),
                   _buildStatusLine(),
-                  Expanded(flex: 4, child: _buildCandidateBoardWidget()),
+                  Expanded(flex: 3, child: _buildCandidateBoardWidget()),
                   _buildToolbar(),
                 ],
               ),
@@ -1547,15 +1548,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            '生命值：$_lives',
-            style: bodyStyle(size: 11.5, color: AppColors.muted),
-          ),
+          Text('生命值：$_lives', style: bodyStyle(size: 12, color: AppColors.fg)),
           if (_isDaily) ...[
             const SizedBox(width: 16),
             Text(
               '倒计时：$_countdownText',
-              style: bodyStyle(size: 11.5, color: AppColors.muted),
+              style: bodyStyle(size: 12, color: AppColors.fg),
             ),
           ],
         ],

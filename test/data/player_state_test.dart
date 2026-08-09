@@ -28,19 +28,19 @@ void main() {
     final notifier = container.read(playerProvider.notifier);
     expect(container.read(playerProvider).level, 1);
 
-    final result = await notifier.completeLevel(1, [5, 5, 5, 5, 5]); // 教学关 10xp
-    expect(result.xpGained, 10);
+    final result = await notifier.completeLevel(1, [5, 5, 5, 5, 5]); // 教学关 20xp
+    expect(result.xpGained, 20);
     expect(result.leveledUp, isFalse);
 
     final state = container.read(playerProvider);
-    expect(state.totalXp, 10);
+    expect(state.totalXp, 20);
     expect(state.completedLevels, 1);
-    expect(state.xpProgress, closeTo(0.1, 0.001)); // 10/100
-    expect(state.xpRemaining, 90); // 升 2 级还差 90 经验
+    expect(state.xpProgress, closeTo(0.2, 0.001)); // 20/100
+    expect(state.xpRemaining, 80); // 升 2 级还差 80 经验
 
     final progress = await db.getPlayerProgress();
     expect(progress, isNotNull);
-    expect(progress!.totalXp, 10);
+    expect(progress!.totalXp, 20);
     expect(progress.completedLevels, 1);
   });
 
@@ -52,9 +52,9 @@ void main() {
 
   test('升级发放头像框奖励并持久化', () async {
     final notifier = container.read(playerProvider.notifier);
-    // 10 个教学关 → 100xp → 升到 2 级（奖励头像框·四方平定巾）
+    // 5 个教学关 → 100xp → 升到 2 级（奖励头像框·四方平定巾）
     ExperienceResult? last;
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 5; i++) {
       last = await notifier.completeLevel(1, [5, 5, 5, 5, 5]);
     }
     expect(last!.leveledUp, isTrue);
@@ -75,8 +75,8 @@ void main() {
 
   test('装饰奖励写入数据库', () async {
     final notifier = container.read(playerProvider.notifier);
-    // 26 个教学关 → 260xp → 3 级（奖励网格皮肤·竹简）
-    for (var i = 0; i < 26; i++) {
+    // 13 个教学关 → 260xp → 3 级（奖励网格皮肤·竹简）
+    for (var i = 0; i < 13; i++) {
       await notifier.completeLevel(1, [5, 5, 5, 5, 5]);
     }
     final state = container.read(playerProvider);

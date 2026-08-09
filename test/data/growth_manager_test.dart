@@ -97,8 +97,8 @@ void main() {
   // 测试 5：经验值计算
   print('\n--- 测试 5: 经验值计算 ---');
   final xpTeaching = GrowthManager.calculateXp(3, [5, 10, 15]);
-  assert(xpTeaching == 10, 'teaching level should give 10 XP');
-  print('  ✓ teaching level 3: 10 XP');
+  assert(xpTeaching == 20, 'teaching level should give 20 XP');
+  print('  ✓ teaching level 3: 20 XP');
 
   final xpFormal = GrowthManager.calculateXp(10, [20, 30, 40]);
   assert(xpFormal == 5, 'expected 5, got $xpFormal');
@@ -109,14 +109,14 @@ void main() {
 
   // 测试 6：估算后续通关关数
   print('\n--- 测试 6: 估算晋升所需通关关数 ---');
-  assert(GrowthManager.estimatedXpForLevel(1) == 10);
+  assert(GrowthManager.estimatedXpForLevel(1) == 20);
   assert(GrowthManager.estimatedXpForLevel(6) == 5);
   final levels = GrowthManager.levelsToNextTitle(
     xpRemaining: 90,
     nextMainLevel: 1,
   );
-  assert(levels == 13, 'expected 13, got $levels');
-  print('  ✓ 还差 90 经验时预计需通关 13 关');
+  assert(levels == 5, 'expected 5, got $levels');
+  print('  ✓ 还差 90 经验时预计需通关 5 关');
 
   // 测试 7：头像印章分档（6 档）
   print('\n--- 测试 7: 头像印章分档（6 档）---');

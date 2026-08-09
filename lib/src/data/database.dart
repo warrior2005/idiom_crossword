@@ -520,6 +520,22 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  /// 获取收藏详情及各自收藏时间（按收藏时间倒序）
+  Future<List<({Idiom idiom, DateTime collectedAt})>>
+  getCollectionWithCollectedAt() async {
+    final rows = await (select(collection).join([
+      innerJoin(idioms, idioms.id.equalsExp(collection.idiomId)),
+    ])..orderBy([OrderingTerm.desc(collection.collectedAt)])).get();
+    return rows
+        .map(
+          (row) => (
+            idiom: row.readTable(idioms),
+            collectedAt: row.readTable(collection).collectedAt,
+          ),
+        )
+        .toList();
+  }
+
   /// 检查成语是否在收藏中
   Future<bool> isInCollection(int idiomId) async {
     final result =

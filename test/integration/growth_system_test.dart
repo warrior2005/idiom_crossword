@@ -13,7 +13,7 @@ void main() {
       var level = GrowthManager.levelFromXp(totalXp);
       expect(level, 1);
 
-      // 完成 15 个主线关：1-5 关各 10 经验，6-15 关各 5 经验，合计 100
+      // 完成 15 个主线关：1-5 关各 20 经验，6-15 关各 5 经验，合计 150
       for (int i = 1; i <= 15; i++) {
         totalXp += GrowthManager.calculateXp(i, [5, 5, 5, 5, 5]);
       }

@@ -18,7 +18,7 @@ class CollectionScreen extends ConsumerStatefulWidget {
 }
 
 class _CollectionScreenState extends ConsumerState<CollectionScreen> {
-  static const _pageSize = 30;
+  static const _pageSize = 10;
   String _query = '';
   int _page = 0;
 
@@ -37,13 +37,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
           data: (collection) {
             final filtered = _query.isEmpty
                 ? collection
-                : collection
-                      .where(
-                        (c) =>
-                            c.word.contains(_query) ||
-                            c.explanation.contains(_query),
-                      )
-                      .toList();
+                : collection.where((c) => c.word.contains(_query)).toList();
             final weekAgo = DateTime.now().subtract(const Duration(days: 7));
             final weekNew = collection
                 .where((c) => c.collectedAt.isAfter(weekAgo))
@@ -155,7 +149,7 @@ class _SearchField extends StatelessWidget {
           Expanded(
             child: TextField(
               decoration: const InputDecoration(
-                hintText: '搜索成语或释义',
+                hintText: '搜索成语',
                 hintStyle: TextStyle(fontSize: 14, color: AppColors.faint),
                 border: InputBorder.none,
                 isDense: true,
