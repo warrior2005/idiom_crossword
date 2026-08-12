@@ -1387,20 +1387,30 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: SafeArea(
-        child: _restoring
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  _buildTopBar(),
-                  _buildProgress(),
-                  _buildCompletedIdiomsSection(),
-                  Expanded(flex: 7, child: _buildGrid()),
-                  _buildStatusLine(),
-                  Expanded(flex: 3, child: _buildCandidateBoardWidget()),
-                  _buildToolbar(),
-                ],
-              ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/background_default.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          SafeArea(
+            child: _restoring
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      _buildTopBar(),
+                      _buildProgress(),
+                      _buildCompletedIdiomsSection(),
+                      Expanded(flex: 7, child: _buildGrid()),
+                      _buildStatusLine(),
+                      Expanded(flex: 3, child: _buildCandidateBoardWidget()),
+                      _buildToolbar(),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
