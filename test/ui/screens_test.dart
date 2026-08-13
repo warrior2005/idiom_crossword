@@ -18,7 +18,8 @@ import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/level_select_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/learning_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/mine_screen.dart';
-import 'package:idiom_crossword/src/audio/game_audio.dart';
+import 'package:idiom_crossword/src/audio/music_manager.dart';
+import 'package:idiom_crossword/src/audio/sound_manager.dart';
 import 'package:idiom_crossword/src/ui/widgets/user_avatar.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 
@@ -170,9 +171,26 @@ void main() {
   });
 
   testWidgets('设置页：音效开关持久化', (tester) async {
-    GameAudio.instance.muted = false;
+    SoundManager.instance.setEnabled(true);
     final db = await _memoryDb();
     addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const SettingsScreen()));
+    await tester.pumpAndSettle();
+
+    final switchFinder = find.byType(Switch).at(1);
+    expect(tester.widget<Switch>(switchFinder).value, isTrue);
+
+    await tester.tap(switchFinder);
+    await tester.pumpAndSettle();
+    expect(SoundManager.instance.enabled, isFalse);
+    expect(await db.getSetting(soundEnabledKey), 'false');
+  });
+
+  testWidgets('设置页：音乐开关持久化', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    addTearDown(() => MusicManager.instance.setMusicEnabled(true));
 
     await tester.pumpWidget(_wrap(db, const SettingsScreen()));
     await tester.pumpAndSettle();
@@ -182,8 +200,8 @@ void main() {
 
     await tester.tap(switchFinder);
     await tester.pumpAndSettle();
-    expect(GameAudio.instance.muted, isTrue);
-    expect(await db.getSetting(soundEnabledKey), 'false');
+    expect(MusicManager.instance.musicEnabled, isFalse);
+    expect(await db.getSetting(musicEnabledKey), 'false');
   });
 
   testWidgets('设置页：触感开关持久化，无语言/成语数据库行', (tester) async {
@@ -198,8 +216,8 @@ void main() {
     expect(find.text('成语数据库'), findsNothing);
 
     final switches = find.byType(Switch);
-    expect(tester.widget<Switch>(switches.at(1)).value, isTrue); // 触感默认开
-    await tester.tap(switches.at(1));
+    expect(tester.widget<Switch>(switches.at(2)).value, isTrue); // 触感默认开
+    await tester.tap(switches.at(2));
     await tester.pumpAndSettle();
     expect(await db.getSetting(hapticEnabledKey), 'false');
   });

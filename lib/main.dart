@@ -7,7 +7,9 @@ import 'src/state/database_provider.dart';
 import 'src/state/player_state.dart';
 import 'src/utils/ad_manager.dart';
 import 'src/ui/screens/root_screen.dart';
-import 'src/audio/game_audio.dart';
+import 'src/audio/music_manager.dart';
+import 'src/audio/audio_route_observer.dart';
+import 'src/audio/sound_manager.dart';
 import 'src/ui/screens/settings_screen.dart';
 import 'src/ui/theme/app_text.dart';
 
@@ -30,16 +32,25 @@ Future<void> main() async {
 
   // 先加载已保存的玩家进度，避免启动后闪回默认值
   final container = ProviderContainer();
+  var isSoundEnabled = true;
+  var isMusicEnabled = true;
   try {
     final db = container.read(databaseProvider);
-    final (_, soundEnabled) = await (
+    final (_, soundEnabled, musicEnabled) = await (
       container.read(playerProvider.notifier).loadFromDatabase(db),
       db.getSetting(soundEnabledKey),
+      db.getSetting(musicEnabledKey),
     ).wait;
-    GameAudio.instance.muted = soundEnabled == 'false';
+    isSoundEnabled = soundEnabled != 'false';
+    isMusicEnabled = musicEnabled != 'false';
   } catch (_) {
     // 数据库不可用时以默认进度启动，进入游戏时会给出错误提示
   }
+  await MusicManager.instance.init(
+    musicEnabled: isMusicEnabled,
+    soundEnabled: isSoundEnabled,
+  );
+  await SoundManager.instance.init(enabled: isSoundEnabled);
 
   runApp(
     UncontrolledProviderScope(
@@ -57,6 +68,7 @@ class IdiomCrosswordApp extends StatelessWidget {
     return MaterialApp(
       title: '成语填字',
       debugShowCheckedModeBanner: false,
+      navigatorObservers: [audioRouteObserver],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFB33B27),

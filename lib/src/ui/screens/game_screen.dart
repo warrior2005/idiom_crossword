@@ -15,7 +15,9 @@ import '../../state/level_progress_providers.dart';
 import '../../state/leaderboard_service.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
-import '../../audio/game_audio.dart';
+import '../../audio/music_manager.dart';
+import '../../audio/audio_route_observer.dart';
+import '../../audio/sound_manager.dart';
 import '../widgets/level_loading_dialog.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
@@ -27,6 +29,7 @@ import '../theme/grid_skins.dart';
 import '../theme/decoration_catalog.dart';
 import '../../utils/ad_manager.dart';
 import 'learning_screen.dart';
+import 'settings_screen.dart';
 
 /// 游戏主界面
 ///
@@ -55,7 +58,7 @@ class GameScreen extends ConsumerStatefulWidget {
   ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends ConsumerState<GameScreen> {
+class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   static const int _initialLives = 3;
   static const int _dailyTimeLimitSeconds = 120;
   static const double _interstitialAdChance = 0.4;
@@ -115,10 +118,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 本关成语的“前后两半可交换”倒装对（word -> 交换后的词）
   final Map<String, String> _reversiblePairs = {};
+  PageRoute<dynamic>? _subscribedRoute;
 
   @override
   void initState() {
     super.initState();
+    MusicManager.instance.enterGame(this);
     _grid = widget.level.grid;
     _buildCandidateBoard();
     _findFirstEmptyCell();
@@ -130,6 +135,27 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     if (AdManager.isSupportedPlatform) {
       unawaited(AdManager().loadInterstitialAd());
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute<dynamic> && route != _subscribedRoute) {
+      if (_subscribedRoute != null) audioRouteObserver.unsubscribe(this);
+      _subscribedRoute = route;
+      audioRouteObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didPopNext() {
+    MusicManager.instance.revealGame(this);
+  }
+
+  @override
+  void didPushNext() {
+    MusicManager.instance.coverGame(this);
   }
 
   /// 从数据库读取本关成语的倒装对（仅保留 ABCD ↔ CDAB 这种半句交换）
@@ -360,6 +386,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   @override
   void dispose() {
+    audioRouteObserver.unsubscribe(this);
+    _subscribedRoute = null;
+    MusicManager.instance.exitGame(this);
     _dailyTimer?.cancel();
     // 中途退出时保存进度；通关/放弃后 _levelFinished 为 true 不再写
     if (!_levelFinished && widget.level.levelId > 0) {
@@ -523,10 +552,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     if (isCorrect && idiomCompleted) {
       HapticFeedback.mediumImpact();
-      GameAudio.instance.play('idiom.wav');
+      SoundManager.instance.playIdiom();
     } else {
       HapticFeedback.lightImpact();
-      GameAudio.instance.play(isCorrect ? 'correct.wav' : 'wrong.wav');
+      if (isCorrect) {
+        SoundManager.instance.playCorrect();
+      } else {
+        SoundManager.instance.playWrong();
+      }
     }
     _moveToNextEmptyCell();
     if (isCorrect) _flashCellAt(filledRow, filledCol);
@@ -685,7 +718,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
     if (allDone) {
       HapticFeedback.heavyImpact();
-      GameAudio.instance.play('complete.wav');
+      SoundManager.instance.playComplete();
       _onLevelComplete();
     }
   }
@@ -1418,7 +1451,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// 顶栏：返回 + 关卡标题 + 徽章 + 声音开关
   Widget _buildTopBar() {
-    final muted = GameAudio.instance.muted;
+    final soundEnabled =
+        ref.watch(soundEnabledProvider).value ?? SoundManager.instance.enabled;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
       child: Row(
@@ -1448,7 +1482,9 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () => setState(() => GameAudio.instance.muted = !muted),
+            onTap: () => ref
+                .read(soundEnabledProvider.notifier)
+                .setEnabled(!soundEnabled),
             child: Container(
               width: 40,
               height: 40,
@@ -1459,7 +1495,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               ),
               child: Center(
                 child: Opacity(
-                  opacity: muted ? 0.4 : 1,
+                  opacity: soundEnabled ? 1 : 0.4,
                   child: const AppIcon('sound', size: 20),
                 ),
               ),
@@ -1861,10 +1897,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     if (idiomCompleted) {
       HapticFeedback.mediumImpact();
-      GameAudio.instance.play('idiom.wav');
+      SoundManager.instance.playIdiom();
     } else {
       HapticFeedback.lightImpact();
-      GameAudio.instance.play('fill.wav');
+      SoundManager.instance.playFill();
     }
     _moveToNextEmptyCell();
     _saveState();

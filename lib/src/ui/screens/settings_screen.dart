@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../audio/game_audio.dart';
+import '../../audio/music_manager.dart';
+import '../../audio/sound_manager.dart';
 import '../../state/database_provider.dart';
 import '../widgets/sub_page_header.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
 const String soundEnabledKey = 'sound_enabled';
+const String musicEnabledKey = 'music_enabled';
 const String tutorialShownKey = 'tutorial_shown';
 const String hapticEnabledKey = 'haptic_enabled';
 const String showPinyinKey = 'show_pinyin';
@@ -23,15 +25,39 @@ class SoundSettingNotifier extends AsyncNotifier<bool> {
     final db = ref.watch(databaseProvider);
     final value = await db.getSetting(soundEnabledKey);
     final enabled = value != 'false';
-    GameAudio.instance.muted = !enabled;
+    SoundManager.instance.setEnabled(enabled);
     return enabled;
   }
 
   Future<void> setEnabled(bool enabled) async {
-    GameAudio.instance.muted = !enabled;
+    SoundManager.instance.setEnabled(enabled);
     await ref
         .read(databaseProvider)
         .setSetting(soundEnabledKey, enabled.toString());
+    state = AsyncData(enabled);
+  }
+}
+
+/// 背景音乐开关（持久化到 settings 表）
+final musicEnabledProvider = AsyncNotifierProvider<MusicSettingNotifier, bool>(
+  MusicSettingNotifier.new,
+);
+
+class MusicSettingNotifier extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() async {
+    final db = ref.watch(databaseProvider);
+    final value = await db.getSetting(musicEnabledKey);
+    final enabled = value != 'false';
+    await MusicManager.instance.setMusicEnabled(enabled);
+    return enabled;
+  }
+
+  Future<void> setEnabled(bool enabled) async {
+    await MusicManager.instance.setMusicEnabled(enabled);
+    await ref
+        .read(databaseProvider)
+        .setSetting(musicEnabledKey, enabled.toString());
     state = AsyncData(enabled);
   }
 }
@@ -108,6 +134,7 @@ class SettingsScreen extends ConsumerWidget {
                 children: [
                   _Group(
                     children: const [
+                      _MusicRow(),
                       _SoundRow(),
                       _HapticRow(),
                     ],
@@ -130,6 +157,22 @@ class SettingsScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _MusicRow extends ConsumerWidget {
+  const _MusicRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enabled = ref.watch(musicEnabledProvider).value ?? true;
+    return _SwitchRow(
+      title: '音乐',
+      sub: '页面与填字游戏背景音乐',
+      value: enabled,
+      onChanged: (value) =>
+          ref.read(musicEnabledProvider.notifier).setEnabled(value),
     );
   }
 }
