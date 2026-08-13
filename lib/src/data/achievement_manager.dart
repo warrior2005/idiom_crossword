@@ -1,172 +1,265 @@
-/// 成就系统：定义与解锁判定
+/// 成就定义与解锁判定。
 ///
-/// 纯逻辑、无 Flutter 依赖，便于单元测试。
-
+/// App Store Connect 中的成就总分为 1000 分。
 library;
 
+enum AchievementCategory { level, collection, streak, skill, daily, xp }
+
 enum AchievementId {
-  firstLevel, // 首战告捷：完成第 1 关
-  level10, // 十关
-  level50, // 五十关
-  level100, // 百关斩
-  level500, // 五百关
-  level1000, // 千关斩
-  collector50, // 成语收藏家：收藏 50 个
-  collector100, // 收藏 100 个
-  collector200, // 收藏 200 个
-  streak10, // 十连击：连续答对 10 字
-  streak20, // 二十连击
-  streak30, // 三十连击
-  noHint, // 不靠提示：无提示通关
-  noHint10, // 十次无提示通关
-  flawless, // 零失误：无错误通关
-  flawless10, // 十次零失误通关
-  speedrun, // 速战速决：60 秒内通关
-  speedrun10, // 十次速通
-  dailyChallenge, // 每日打卡：完成一次每日挑战
-  daily7, // 七日挑战：累计 7 次
-  xp100000, // 经验大师：累计 10 万经验
+  firstLevel,
+  level10,
+  level50,
+  level100,
+  level500,
+  level1000,
+  level5000,
+  level10000,
+  collector50,
+  collector200,
+  collector1000,
+  streak10,
+  streak30,
+  streak100,
+  noHint10,
+  noHint100,
+  flawless10,
+  flawless100,
+  dailyChallenge,
+  daily7,
+  daily30,
+  xp10000,
+  xp100000,
+  xp1000000,
 }
 
 class AchievementDef {
   final AchievementId id;
+  final String gameCenterId;
   final String title;
   final String description;
+  final AchievementCategory category;
+  final int points;
 
   const AchievementDef({
     required this.id,
+    required this.gameCenterId,
     required this.title,
     required this.description,
+    required this.category,
+    required this.points,
   });
 }
 
-/// 全部成就定义（展示顺序即列表顺序）
+const _gameCenterPrefix = 'com.sunnywarrior.idiomcrossword.achievement';
+
+/// 展示顺序也是 App 内成就顺序。
 const List<AchievementDef> achievementDefs = [
   AchievementDef(
     id: AchievementId.firstLevel,
-    title: '首战告捷',
-    description: '完成第 1 关',
+    gameCenterId: '$_gameCenterPrefix.first_level',
+    title: '初露锋芒',
+    description: '累计通关 1 关',
+    category: AchievementCategory.level,
+    points: 10,
   ),
   AchievementDef(
     id: AchievementId.level10,
-    title: '十关',
+    gameCenterId: '$_gameCenterPrefix.level_10',
+    title: '小试牛刀',
     description: '累计通关 10 关',
+    category: AchievementCategory.level,
+    points: 10,
   ),
   AchievementDef(
     id: AchievementId.level50,
-    title: '五十关',
+    gameCenterId: '$_gameCenterPrefix.level_50',
+    title: '渐入佳境',
     description: '累计通关 50 关',
+    category: AchievementCategory.level,
+    points: 20,
   ),
   AchievementDef(
     id: AchievementId.level100,
-    title: '百关斩',
+    gameCenterId: '$_gameCenterPrefix.level_100',
+    title: '百尺竿头',
     description: '累计通关 100 关',
+    category: AchievementCategory.level,
+    points: 30,
   ),
   AchievementDef(
     id: AchievementId.level500,
-    title: '五百关',
+    gameCenterId: '$_gameCenterPrefix.level_500',
+    title: '熟能生巧',
     description: '累计通关 500 关',
+    category: AchievementCategory.level,
+    points: 40,
   ),
   AchievementDef(
     id: AchievementId.level1000,
-    title: '千关斩',
+    gameCenterId: '$_gameCenterPrefix.level_1000',
+    title: '千锤百炼',
     description: '累计通关 1000 关',
+    category: AchievementCategory.level,
+    points: 50,
+  ),
+  AchievementDef(
+    id: AchievementId.level5000,
+    gameCenterId: '$_gameCenterPrefix.level_5000',
+    title: '炉火纯青',
+    description: '累计通关 5000 关',
+    category: AchievementCategory.level,
+    points: 80,
+  ),
+  AchievementDef(
+    id: AchievementId.level10000,
+    gameCenterId: '$_gameCenterPrefix.level_10000',
+    title: '登峰造极',
+    description: '累计通关 10000 关',
+    category: AchievementCategory.level,
+    points: 100,
   ),
   AchievementDef(
     id: AchievementId.collector50,
-    title: '成语收藏家',
+    gameCenterId: '$_gameCenterPrefix.collect_50',
+    title: '集腋成裘',
     description: '收藏 50 个成语',
-  ),
-  AchievementDef(
-    id: AchievementId.collector100,
-    title: '收藏百条',
-    description: '收藏 100 个成语',
+    category: AchievementCategory.collection,
+    points: 20,
   ),
   AchievementDef(
     id: AchievementId.collector200,
-    title: '收藏两百',
+    gameCenterId: '$_gameCenterPrefix.collect_200',
+    title: '博闻强识',
     description: '收藏 200 个成语',
+    category: AchievementCategory.collection,
+    points: 40,
+  ),
+  AchievementDef(
+    id: AchievementId.collector1000,
+    gameCenterId: '$_gameCenterPrefix.collect_1000',
+    title: '汗牛充栋',
+    description: '收藏 1000 个成语',
+    category: AchievementCategory.collection,
+    points: 80,
   ),
   AchievementDef(
     id: AchievementId.streak10,
-    title: '十连击',
+    gameCenterId: '$_gameCenterPrefix.streak_10',
+    title: '一气呵成',
     description: '连续答对 10 个字',
-  ),
-  AchievementDef(
-    id: AchievementId.streak20,
-    title: '二十连击',
-    description: '连续答对 20 个字',
+    category: AchievementCategory.streak,
+    points: 20,
   ),
   AchievementDef(
     id: AchievementId.streak30,
-    title: '三十连击',
+    gameCenterId: '$_gameCenterPrefix.streak_30',
+    title: '势如破竹',
     description: '连续答对 30 个字',
+    category: AchievementCategory.streak,
+    points: 40,
   ),
   AchievementDef(
-    id: AchievementId.noHint,
-    title: '不靠提示',
-    description: '不使用提示通关一关',
+    id: AchievementId.streak100,
+    gameCenterId: '$_gameCenterPrefix.streak_100',
+    title: '百发百中',
+    description: '连续答对 100 个字',
+    category: AchievementCategory.streak,
+    points: 80,
   ),
   AchievementDef(
     id: AchievementId.noHint10,
-    title: '十次不靠提示',
+    gameCenterId: '$_gameCenterPrefix.no_hint_10',
+    title: '自力更生',
     description: '累计 10 次无提示通关',
+    category: AchievementCategory.skill,
+    points: 30,
   ),
   AchievementDef(
-    id: AchievementId.flawless,
-    title: '零失误',
-    description: '无错误填写通关一关',
+    id: AchievementId.noHint100,
+    gameCenterId: '$_gameCenterPrefix.no_hint_100',
+    title: '独当一面',
+    description: '累计 100 次无提示通关',
+    category: AchievementCategory.skill,
+    points: 60,
   ),
   AchievementDef(
     id: AchievementId.flawless10,
-    title: '十次零失误',
+    gameCenterId: '$_gameCenterPrefix.flawless_10',
+    title: '精益求精',
     description: '累计 10 次零失误通关',
+    category: AchievementCategory.skill,
+    points: 30,
   ),
   AchievementDef(
-    id: AchievementId.speedrun,
-    title: '速战速决',
-    description: '60 秒内通关一关',
-  ),
-  AchievementDef(
-    id: AchievementId.speedrun10,
-    title: '十次速通',
-    description: '累计 10 次 60 秒内通关',
+    id: AchievementId.flawless100,
+    gameCenterId: '$_gameCenterPrefix.flawless_100',
+    title: '无懈可击',
+    description: '累计 100 次零失误通关',
+    category: AchievementCategory.skill,
+    points: 60,
   ),
   AchievementDef(
     id: AchievementId.dailyChallenge,
-    title: '每日打卡',
-    description: '完成一次每日挑战',
+    gameCenterId: '$_gameCenterPrefix.daily_1',
+    title: '闻鸡起舞',
+    description: '完成 1 次每日挑战',
+    category: AchievementCategory.daily,
+    points: 10,
   ),
   AchievementDef(
     id: AchievementId.daily7,
-    title: '七日挑战',
+    gameCenterId: '$_gameCenterPrefix.daily_7',
+    title: '七步成诗',
     description: '累计完成 7 次每日挑战',
+    category: AchievementCategory.daily,
+    points: 30,
+  ),
+  AchievementDef(
+    id: AchievementId.daily30,
+    gameCenterId: '$_gameCenterPrefix.daily_30',
+    title: '持之以恒',
+    description: '累计完成 30 次每日挑战',
+    category: AchievementCategory.daily,
+    points: 50,
+  ),
+  AchievementDef(
+    id: AchievementId.xp10000,
+    gameCenterId: '$_gameCenterPrefix.xp_10000',
+    title: '积少成多',
+    description: '累计获得 1 万经验',
+    category: AchievementCategory.xp,
+    points: 20,
   ),
   AchievementDef(
     id: AchievementId.xp100000,
-    title: '经验大师',
+    gameCenterId: '$_gameCenterPrefix.xp_100000',
+    title: '厚积薄发',
     description: '累计获得 10 万经验',
+    category: AchievementCategory.xp,
+    points: 30,
+  ),
+  AchievementDef(
+    id: AchievementId.xp1000000,
+    gameCenterId: '$_gameCenterPrefix.xp_1000000',
+    title: '功成名就',
+    description: '累计获得 100 万经验',
+    category: AchievementCategory.xp,
+    points: 60,
   ),
 ];
 
+AchievementDef achievementDefFor(AchievementId id) =>
+    achievementDefs.firstWhere((definition) => definition.id == id);
+
 class AchievementManager {
-  /// 通关事件触发的一次性判定：返回本次新解锁的成就
-  ///
-  /// 计数类参数由调用方从通关历史统计后传入。
   static List<AchievementId> evaluateOnLevelComplete({
     required Set<AchievementId> alreadyUnlocked,
-    required int levelNumber,
     required int totalCompleted,
     required int noHintCompletions,
     required int flawlessCompletions,
-    required int speedrunCompletions,
     required int dailyCompletions,
     required int totalXp,
     required int collectionCount,
-    required bool isDaily,
-    required int hintsUsed,
-    required int errorsMade,
-    required int timeSpentMs,
   }) {
     final unlocked = <AchievementId>{};
 
@@ -174,25 +267,48 @@ class AchievementManager {
       if (condition && !alreadyUnlocked.contains(id)) unlocked.add(id);
     }
 
-    check(AchievementId.firstLevel, levelNumber == 1);
-    check(AchievementId.level10, totalCompleted >= 10);
-    check(AchievementId.level50, totalCompleted >= 50);
-    check(AchievementId.level100, totalCompleted >= 100);
-    check(AchievementId.level500, totalCompleted >= 500);
-    check(AchievementId.level1000, totalCompleted >= 1000);
-    check(AchievementId.collector50, collectionCount >= 50);
-    check(AchievementId.collector100, collectionCount >= 100);
-    check(AchievementId.collector200, collectionCount >= 200);
-    check(AchievementId.noHint, hintsUsed == 0);
+    for (final (id, threshold) in const [
+      (AchievementId.firstLevel, 1),
+      (AchievementId.level10, 10),
+      (AchievementId.level50, 50),
+      (AchievementId.level100, 100),
+      (AchievementId.level500, 500),
+      (AchievementId.level1000, 1000),
+      (AchievementId.level5000, 5000),
+      (AchievementId.level10000, 10000),
+    ]) {
+      check(id, totalCompleted >= threshold);
+    }
+    for (final (id, threshold) in const [
+      (AchievementId.collector50, 50),
+      (AchievementId.collector200, 200),
+      (AchievementId.collector1000, 1000),
+    ]) {
+      check(id, collectionCount >= threshold);
+    }
     check(AchievementId.noHint10, noHintCompletions >= 10);
-    check(AchievementId.flawless, errorsMade == 0);
+    check(AchievementId.noHint100, noHintCompletions >= 100);
     check(AchievementId.flawless10, flawlessCompletions >= 10);
-    check(AchievementId.speedrun, timeSpentMs > 0 && timeSpentMs < 60000);
-    check(AchievementId.speedrun10, speedrunCompletions >= 10);
-    check(AchievementId.dailyChallenge, isDaily);
+    check(AchievementId.flawless100, flawlessCompletions >= 100);
+    check(AchievementId.dailyChallenge, dailyCompletions >= 1);
     check(AchievementId.daily7, dailyCompletions >= 7);
+    check(AchievementId.daily30, dailyCompletions >= 30);
+    check(AchievementId.xp10000, totalXp >= 10000);
     check(AchievementId.xp100000, totalXp >= 100000);
+    check(AchievementId.xp1000000, totalXp >= 1000000);
 
     return achievementDefs.map((d) => d.id).where(unlocked.contains).toList();
   }
+
+  static List<AchievementId> evaluateStreak({
+    required Set<AchievementId> alreadyUnlocked,
+    required int streak,
+  }) => [
+    if (streak >= 10 && !alreadyUnlocked.contains(AchievementId.streak10))
+      AchievementId.streak10,
+    if (streak >= 30 && !alreadyUnlocked.contains(AchievementId.streak30))
+      AchievementId.streak30,
+    if (streak >= 100 && !alreadyUnlocked.contains(AchievementId.streak100))
+      AchievementId.streak100,
+  ];
 }

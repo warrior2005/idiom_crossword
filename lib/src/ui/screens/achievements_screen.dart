@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/achievement_manager.dart';
 import '../../state/database_provider.dart';
+import '../../state/game_center_service.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_seal.dart';
 import '../widgets/sub_page_header.dart';
@@ -11,6 +12,7 @@ import '../theme/app_text.dart';
 
 final achievementsProvider = FutureProvider<Set<AchievementId>>((ref) async {
   final db = ref.watch(databaseProvider);
+  await GameCenterService.syncAchievements(db);
   final unlocked = <AchievementId>{};
   for (final s in await db.getUnlockedAchievementIds()) {
     for (final id in AchievementId.values) {
@@ -20,16 +22,13 @@ final achievementsProvider = FutureProvider<Set<AchievementId>>((ref) async {
   return unlocked;
 });
 
-/// 成就分组（按枚举名前缀）
-const Map<String, String> _groupTitles = {
-  'level': '通关',
-  'collector': '收藏',
-  'streak': '连击',
-  'noHint': '无提示',
-  'flawless': '零失误',
-  'speedrun': '速通',
-  'daily': '每日',
-  'xp': '经验',
+const Map<AchievementCategory, String> _groupTitles = {
+  AchievementCategory.level: '通关',
+  AchievementCategory.collection: '收藏',
+  AchievementCategory.streak: '连击',
+  AchievementCategory.skill: '技艺',
+  AchievementCategory.daily: '每日',
+  AchievementCategory.xp: '经验',
 };
 
 /// 成就界面
@@ -52,13 +51,17 @@ class AchievementsScreen extends ConsumerWidget {
             Expanded(
               child: unlockedAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Center(child: Text('加载失败: $e', style: bodyStyle(color: AppColors.accent))),
+                error: (e, _) => Center(
+                  child: Text(
+                    '加载失败: $e',
+                    style: bodyStyle(color: AppColors.accent),
+                  ),
+                ),
                 data: (unlocked) {
                   final total = achievementDefs.length;
-                  final groups = <String, List<AchievementDef>>{};
+                  final groups = <AchievementCategory, List<AchievementDef>>{};
                   for (final def in achievementDefs) {
-                    final prefix = _groupFor(def.id);
-                    groups.putIfAbsent(prefix, () => []).add(def);
+                    groups.putIfAbsent(def.category, () => []).add(def);
                   }
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
@@ -68,16 +71,32 @@ class AchievementsScreen extends ConsumerWidget {
                           children: [
                             Text(
                               '${unlocked.length}',
-                              style: displayStyle(size: 44, weight: FontWeight.w900, color: AppColors.accent, height: 1.1),
+                              style: displayStyle(
+                                size: 44,
+                                weight: FontWeight.w900,
+                                color: AppColors.accent,
+                                height: 1.1,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('已解锁 / $total 项', style: bodyStyle(size: 12.5, color: AppColors.muted)),
+                                  Text(
+                                    '已解锁 / $total 项',
+                                    style: bodyStyle(
+                                      size: 12.5,
+                                      color: AppColors.muted,
+                                    ),
+                                  ),
                                   const SizedBox(height: 10),
-                                  XpTrack(progress: total == 0 ? 0 : unlocked.length / total, height: 10),
+                                  XpTrack(
+                                    progress: total == 0
+                                        ? 0
+                                        : unlocked.length / total,
+                                    height: 10,
+                                  ),
                                 ],
                               ),
                             ),
@@ -89,15 +108,28 @@ class AchievementsScreen extends ConsumerWidget {
                           padding: const EdgeInsets.only(top: 18, bottom: 10),
                           child: Row(
                             children: [
-                              Text(_groupTitles[entry.key] ?? entry.key,
-                                  style: displayStyle(size: 15, weight: FontWeight.w700)),
+                              Text(
+                                _groupTitles[entry.key]!,
+                                style: displayStyle(
+                                  size: 15,
+                                  weight: FontWeight.w700,
+                                ),
+                              ),
                               const SizedBox(width: 10),
-                              Expanded(child: Container(height: 1, color: AppColors.border)),
+                              Expanded(
+                                child: Container(
+                                  height: 1,
+                                  color: AppColors.border,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         for (final def in entry.value)
-                          _AchRow(def: def, unlocked: unlocked.contains(def.id)),
+                          _AchRow(
+                            def: def,
+                            unlocked: unlocked.contains(def.id),
+                          ),
                       ],
                     ],
                   );
@@ -108,14 +140,6 @@ class AchievementsScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _groupFor(AchievementId id) {
-    final name = id.name;
-    for (final key in _groupTitles.keys) {
-      if (name.startsWith(key)) return key;
-    }
-    return '其他';
   }
 }
 
@@ -143,15 +167,25 @@ class _AchRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(def.title, style: bodyStyle(size: 14.5, weight: FontWeight.w600)),
+                Text(
+                  def.title,
+                  style: bodyStyle(size: 14.5, weight: FontWeight.w600),
+                ),
                 const SizedBox(height: 3),
-                Text(def.description, style: bodyStyle(size: 11.5, color: AppColors.muted)),
+                Text(
+                  def.description,
+                  style: bodyStyle(size: 11.5, color: AppColors.muted),
+                ),
               ],
             ),
           ),
           Text(
-            unlocked ? '已获' : '—',
-            style: bodyStyle(size: 12, weight: FontWeight.w700, color: AppColors.accent),
+            unlocked ? '已获' : '${def.points} 点',
+            style: bodyStyle(
+              size: 12,
+              weight: FontWeight.w700,
+              color: AppColors.accent,
+            ),
           ),
         ],
       ),

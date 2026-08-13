@@ -13,6 +13,7 @@ import 'level_select_screen.dart';
 import 'collection_screen.dart';
 import 'mine_screen.dart';
 import 'daily_review_screen.dart';
+import 'leaderboard_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_seal.dart';
@@ -196,6 +197,15 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 12),
+            _Tile(
+              iconName: 'trophy',
+              label: '天下英雄榜',
+              desc: '总榜 · 每周榜',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LeaderboardScreen()),
+              ),
             ),
             // 今日一读
             const SectionTitle(title: '今日一读'),

@@ -13,6 +13,7 @@ import '../../state/level_state_codec.dart';
 import '../../state/collection_provider.dart';
 import '../../state/level_progress_providers.dart';
 import '../../state/leaderboard_service.dart';
+import '../../state/game_center_service.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
 import '../../audio/music_manager.dart';
@@ -359,13 +360,14 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   /// 解锁成就并提示（幂等）
   Future<void> _unlockAndNotify(AchievementId id) async {
     final db = ref.read(databaseProvider);
+    var isNew = false;
     try {
-      final unlocked = await db.getUnlockedAchievementIds();
-      if (unlocked.contains(id.name)) return; // 已解锁过，不再重复提示
-      await db.unlockAchievement(id.name);
-    } catch (_) {}
-    if (!mounted) return;
-    final def = achievementDefs.firstWhere((d) => d.id == id);
+      isNew = await GameCenterService.unlockAchievement(db, id);
+    } catch (_) {
+      return;
+    }
+    if (!mounted || !isNew) return;
+    final def = achievementDefFor(id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('解锁成就：${def.title}'),
@@ -505,13 +507,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     if (isCorrect) {
       _correctStreak++;
       ref.read(playerProvider.notifier).recordCorrectFill();
-      const streakThresholds = [
-        (AchievementId.streak10, 10),
-        (AchievementId.streak20, 20),
-        (AchievementId.streak30, 30),
-      ];
-      for (final (id, threshold) in streakThresholds) {
-        if (_correctStreak >= threshold && !_streakHandled.contains(id)) {
+      for (final id in AchievementManager.evaluateStreak(
+        alreadyUnlocked: _streakHandled,
+        streak: _correctStreak,
+      )) {
+        if (!_streakHandled.contains(id)) {
           _streakHandled.add(id);
           _unlockAndNotify(id);
         }
@@ -795,44 +795,29 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     // 从通关历史统计计数类成就的进度（含本次通关）
     var noHintCompletions = 0;
     var flawlessCompletions = 0;
-    var speedrunCompletions = 0;
     var dailyCompletions = 0;
     for (final h in await db.getLevelHistory()) {
       if (h.hintsUsed == 0) noHintCompletions++;
       if (h.errorsMade == 0) flawlessCompletions++;
-      if (h.timeSpentMs != null && h.timeSpentMs! < 60000) {
-        speedrunCompletions++;
-      }
       if (h.levelNumber >= dailyLevelOffset) dailyCompletions++;
     }
     final newly = AchievementManager.evaluateOnLevelComplete(
       alreadyUnlocked: alreadyUnlocked,
-      levelNumber: widget.level.levelId,
       totalCompleted: ref.read(playerProvider).completedLevels,
       noHintCompletions: noHintCompletions,
       flawlessCompletions: flawlessCompletions,
-      speedrunCompletions: speedrunCompletions,
       dailyCompletions: dailyCompletions,
       totalXp: ref.read(playerProvider).totalXp,
       collectionCount: await db.getCollectionCount(),
-      isDaily: _isDaily,
-      hintsUsed: _hintUsesThisLevel,
-      errorsMade: _errorsMade,
-      timeSpentMs: timeSpentMs,
     );
     for (final id in newly) {
-      await db.unlockAchievement(id.name);
+      await GameCenterService.unlockAchievement(db, id);
     }
     final newDefs = achievementDefs.where((d) => newly.contains(d.id)).toList();
 
     await db.clearLevelState(widget.level.levelId);
     _levelFinished = true;
-    if (_isDaily) {
-      // 每日挑战用时上报 Game Center 排行榜
-      await LeaderboardService.submitDailyTime(
-        DateTime.now().difference(_levelStartTime),
-      );
-    }
+    await LeaderboardService.submitScores(db, ref.read(playerProvider).totalXp);
 
     await _maybeShowInterstitial(() {
       if (!mounted) return;

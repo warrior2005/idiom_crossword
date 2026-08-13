@@ -657,6 +657,13 @@ class AppDatabase extends _$AppDatabase {
     )..orderBy([(t) => OrderingTerm.asc(t.levelNumber)])).get();
   }
 
+  /// 指定时间起的通关记录（排行榜按自然周统计经验）。
+  Future<List<LevelHistoryData>> getLevelHistorySince(DateTime start) async {
+    return await (select(
+      levelHistory,
+    )..where((t) => t.completedAt.isBiggerOrEqualValue(start))).get();
+  }
+
   /// 收藏数量
   Future<int> getCollectionCount() async {
     return await (select(collection)).get().then((rows) => rows.length);

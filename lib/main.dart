@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/state/database_provider.dart';
 import 'src/state/player_state.dart';
+import 'src/state/game_center_service.dart';
+import 'src/state/leaderboard_service.dart';
 import 'src/utils/ad_manager.dart';
 import 'src/ui/screens/root_screen.dart';
 import 'src/audio/music_manager.dart';
@@ -32,10 +34,10 @@ Future<void> main() async {
 
   // 先加载已保存的玩家进度，避免启动后闪回默认值
   final container = ProviderContainer();
+  final db = container.read(databaseProvider);
   var isSoundEnabled = true;
   var isMusicEnabled = true;
   try {
-    final db = container.read(databaseProvider);
     final (_, soundEnabled, musicEnabled) = await (
       container.read(playerProvider.notifier).loadFromDatabase(db),
       db.getSetting(soundEnabledKey),
@@ -57,6 +59,12 @@ Future<void> main() async {
       container: container,
       child: const IdiomCrosswordApp(),
     ),
+  );
+
+  // 启动后登录 Game Center，并补齐离线期间的成就和排行榜分数。
+  unawaited(GameCenterService.syncAchievements(db));
+  unawaited(
+    LeaderboardService.submitScores(db, container.read(playerProvider).totalXp),
   );
 }
 

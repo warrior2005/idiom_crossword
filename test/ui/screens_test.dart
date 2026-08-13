@@ -17,6 +17,7 @@ import 'package:idiom_crossword/src/ui/screens/stats_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/level_select_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/learning_screen.dart';
+import 'package:idiom_crossword/src/ui/screens/leaderboard_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/mine_screen.dart';
 import 'package:idiom_crossword/src/audio/music_manager.dart';
 import 'package:idiom_crossword/src/audio/sound_manager.dart';
@@ -90,7 +91,7 @@ void main() {
     await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
     await tester.pumpAndSettle();
     expect(find.text('已解锁 / ${achievementDefs.length} 项'), findsOneWidget);
-    expect(find.text('首战告捷'), findsOneWidget);
+    expect(find.text('初露锋芒'), findsOneWidget);
 
     await db.unlockAchievement(AchievementId.firstLevel.name);
     await tester.pumpWidget(const SizedBox.shrink());
@@ -107,8 +108,22 @@ void main() {
     await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
     await tester.pumpAndSettle();
     expect(find.textContaining('已解锁'), findsOneWidget);
-    expect(find.text('首战告捷'), findsOneWidget);
+    expect(find.text('初露锋芒'), findsOneWidget);
     expect(find.byType(AppSeal), findsWidgets);
+  });
+
+  testWidgets('排行榜页：自绘双榜并在非 iOS 环境展示本机成绩', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const LeaderboardScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('天下英雄榜'), findsOneWidget);
+    expect(find.text('每周英雄榜'), findsOneWidget);
+    expect(find.text('我'), findsOneWidget);
+    expect(find.text('Lv.1'), findsOneWidget);
+    expect(find.text('0 经验'), findsOneWidget);
   });
 
   testWidgets('统计页：展示通关记录明细', (tester) async {
@@ -748,6 +763,12 @@ void main() {
     expect(find.text('书卷小径'), findsOneWidget);
     expect(find.textContaining('农历'), findsOneWidget);
     expect(find.text('到达Lv.3·廪生后开启'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('天下英雄榜'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('天下英雄榜'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('今日一读'),
       100,
