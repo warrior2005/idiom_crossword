@@ -1271,7 +1271,7 @@ class _BackgroundsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _DecoCard(
       title: '背景',
-      hint: '默认免费，其余积分购买，点击切换游戏背景',
+      hint: '点击切换游戏背景',
       children: [
         for (final bg in backgrounds)
           _BackgroundTile(
