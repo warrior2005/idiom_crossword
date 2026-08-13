@@ -466,6 +466,24 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(
+      find.text('文房四宝'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('文房四宝'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('文房四宝'));
+    await tester.pump();
+    expect(find.text('已切换背景：文房四宝'), findsOneWidget);
+    expect(container.read(playerProvider).activeBackground, 'default');
+    expect((await db.getPlayerProgress())!.points, 1000);
+
+    ScaffoldMessenger.of(
+      tester.element(find.byType(ShopScreen)),
+    ).clearSnackBars();
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
       find.text('梅'),
       200,
       scrollable: find.byType(Scrollable).first,
@@ -480,7 +498,10 @@ void main() {
     expect(find.text('已购买并切换背景：梅'), findsOneWidget);
     expect((await db.getPlayerProgress())!.points, 0);
     expect(container.read(playerProvider).activeBackground, 'mei');
-    expect(container.read(playerProvider).ownedDecorations, contains('梅'));
+    expect(
+      container.read(playerProvider).ownedDecorations,
+      contains('background_mei'),
+    );
     expect(await db.getSetting(kActiveBackgroundKey), 'mei');
   });
 

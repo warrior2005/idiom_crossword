@@ -60,6 +60,12 @@ const String kDefaultBackgroundAsset = 'assets/images/background_default.png';
 /// 游戏背景目录（积分购买）
 const List<BackgroundDef> backgrounds = [
   BackgroundDef(
+    id: 'default',
+    name: '文房四宝',
+    asset: kDefaultBackgroundAsset,
+    points: 0,
+  ),
+  BackgroundDef(
     id: 'mei',
     name: '梅',
     asset: 'assets/images/梅.png',

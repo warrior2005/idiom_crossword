@@ -360,6 +360,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final notifier = ref.read(playerProvider.notifier);
     final player = ref.read(playerProvider);
     final def = backgroundById(id);
+    if (id == 'default') {
+      await notifier.setActiveBackground(id);
+      _showSnack('已切换背景：${def?.name ?? '默认'}');
+      return;
+    }
     final isOwned = player.ownedDecorations.contains('background_$id');
     if (!isOwned && def != null) {
       final confirmed = await _confirmPurchase(context, def.name, def.points);
@@ -1266,13 +1271,14 @@ class _BackgroundsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _DecoCard(
       title: '背景',
-      hint: '积分购买，点击切换游戏背景',
+      hint: '默认免费，其余积分购买，点击切换游戏背景',
       children: [
         for (final bg in backgrounds)
           _BackgroundTile(
             bg: bg,
             isActive: active == bg.id,
-            isOwned: owned.contains('background_${bg.id}'),
+            isOwned:
+                bg.id == 'default' || owned.contains('background_${bg.id}'),
             onTap: () => onSelect(bg.id),
           ),
       ],
@@ -1297,6 +1303,8 @@ class _BackgroundTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusText = isActive
         ? '使用中'
+        : bg.id == 'default'
+        ? '默认'
         : isOwned
         ? '已拥有'
         : '积分购买';
