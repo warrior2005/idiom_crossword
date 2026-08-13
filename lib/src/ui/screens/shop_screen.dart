@@ -352,6 +352,32 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     _showSnack('已切换头像框：${def?.name ?? id}');
   }
 
+  Future<void> _onBackgroundTap(
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+  ) async {
+    final notifier = ref.read(playerProvider.notifier);
+    final player = ref.read(playerProvider);
+    final def = backgroundById(id);
+    final isOwned = player.ownedDecorations.contains('background_$id');
+    if (!isOwned && def != null) {
+      final confirmed = await _confirmPurchase(context, def.name, def.points);
+      if (!confirmed) return;
+      final ok = await notifier.spendPoints(def.points);
+      if (!ok) {
+        _showSnack('积分不足，可观看广告赚取积分');
+        return;
+      }
+      await notifier.unlockBackground(id);
+      await notifier.setActiveBackground(id);
+      _showSnack('已购买并切换背景：${def.name}');
+      return;
+    }
+    await notifier.setActiveBackground(id);
+    _showSnack('已切换背景：${def?.name ?? id}');
+  }
+
   Future<void> _onEffectTap(
     BuildContext context,
     WidgetRef ref,
@@ -493,6 +519,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     owned: player.ownedDecorations,
                     active: player.activeGridSkin,
                     onSelect: (id) => _onSkinTap(context, ref, id),
+                  ),
+                  _BackgroundsCard(
+                    owned: player.ownedDecorations,
+                    active: player.activeBackground,
+                    onSelect: (id) => _onBackgroundTap(context, ref, id),
                   ),
                   _FramesCard(
                     owned: player.ownedDecorations,
@@ -1212,6 +1243,108 @@ class _DecoTile extends StatelessWidget {
               _PurchaseBlock(priceText: '${frame!.points} 积分', onBuy: onTap)
             else if (!isOwned)
               BadgeSoft(lockBadge, color: BadgeSoftColor.leaf),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 游戏背景选择卡
+class _BackgroundsCard extends StatelessWidget {
+  final Set<String> owned;
+  final String active;
+  final ValueChanged<String> onSelect;
+
+  const _BackgroundsCard({
+    required this.owned,
+    required this.active,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _DecoCard(
+      title: '背景',
+      hint: '积分购买，点击切换游戏背景',
+      children: [
+        for (final bg in backgrounds)
+          _BackgroundTile(
+            bg: bg,
+            isActive: active == bg.id,
+            isOwned: owned.contains('background_${bg.id}'),
+            onTap: () => onSelect(bg.id),
+          ),
+      ],
+    );
+  }
+}
+
+class _BackgroundTile extends StatelessWidget {
+  final BackgroundDef bg;
+  final bool isActive;
+  final bool isOwned;
+  final VoidCallback onTap;
+
+  const _BackgroundTile({
+    required this.bg,
+    required this.isActive,
+    required this.isOwned,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final statusText = isActive
+        ? '使用中'
+        : isOwned
+        ? '已拥有'
+        : '积分购买';
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: kShopItemHeight,
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isActive ? AppColors.accent : AppColors.border,
+            width: isActive ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: 44,
+                height: 44,
+                child: Image.asset(bg.asset, fit: BoxFit.cover),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    bg.name,
+                    style: bodyStyle(size: 14, weight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    statusText,
+                    style: bodyStyle(size: 11, color: AppColors.muted),
+                  ),
+                ],
+              ),
+            ),
+            if (isActive)
+              BadgeSoft('使用中', color: BadgeSoftColor.gold)
+            else if (!isOwned)
+              _PurchaseBlock(priceText: '${bg.points} 积分', onBuy: onTap),
           ],
         ),
       ),

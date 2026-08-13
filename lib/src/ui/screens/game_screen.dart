@@ -1385,13 +1385,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activeBackground = ref.watch(playerProvider).activeBackground;
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/background_default.png',
+              backgroundAsset(activeBackground),
               fit: BoxFit.cover,
             ),
           ),

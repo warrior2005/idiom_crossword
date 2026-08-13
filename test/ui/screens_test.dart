@@ -446,6 +446,44 @@ void main() {
     expect(find.text('该头像框为 Lv.2 升级奖励，达到等级后解锁'), findsOneWidget);
   });
 
+  testWidgets('商城：游戏背景可用积分购买并切换', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+    await container.read(playerProvider.notifier).addPoints(1000);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: ShopScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('梅'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('梅'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('梅'));
+    await tester.pumpAndSettle();
+    expect(find.text('确认购买'), findsOneWidget);
+    await tester.tap(find.text('确认'));
+    await tester.pump();
+    expect(find.text('已购买并切换背景：梅'), findsOneWidget);
+    expect((await db.getPlayerProgress())!.points, 0);
+    expect(container.read(playerProvider).activeBackground, 'mei');
+    expect(container.read(playerProvider).ownedDecorations, contains('梅'));
+    expect(await db.getSetting(kActiveBackgroundKey), 'mei');
+  });
+
   testWidgets('商城：积分说明弹窗展示积分规则', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);

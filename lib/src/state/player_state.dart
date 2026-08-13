@@ -29,6 +29,7 @@ const String kRewardedAdsLastTsKey = 'rewarded_ads_last_ts';
 const String kBannerPointsDateKey = 'banner_points_date';
 const String kBannerPointsCountKey = 'banner_points_count';
 const String kCustomAvatarPathKey = 'custom_avatar_path';
+const String kActiveBackgroundKey = 'active_background';
 
 /// 积分定价（与商城一致）
 const int kHintCardPoints = 10;
@@ -62,6 +63,7 @@ class PlayerState {
   final Map<String, int> functionalItems;
   final Set<String> ownedDecorations;
   final String activeGridSkin;
+  final String activeBackground;
   final String? activeAvatarFrame;
   final String? customAvatarPath;
   final String? activeTitleEffect;
@@ -78,6 +80,7 @@ class PlayerState {
     required this.functionalItems,
     required this.ownedDecorations,
     required this.activeGridSkin,
+    this.activeBackground = 'default',
     required this.activeAvatarFrame,
     this.customAvatarPath,
     required this.activeTitleEffect,
@@ -108,6 +111,7 @@ class PlayerState {
     Map<String, int>? functionalItems,
     Set<String>? ownedDecorations,
     String? activeGridSkin,
+    String? activeBackground,
     String? activeAvatarFrame,
     String? customAvatarPath,
     String? activeTitleEffect,
@@ -124,6 +128,7 @@ class PlayerState {
       functionalItems: functionalItems ?? this.functionalItems,
       ownedDecorations: ownedDecorations ?? this.ownedDecorations,
       activeGridSkin: activeGridSkin ?? this.activeGridSkin,
+      activeBackground: activeBackground ?? this.activeBackground,
       activeAvatarFrame: activeAvatarFrame ?? this.activeAvatarFrame,
       customAvatarPath: customAvatarPath ?? this.customAvatarPath,
       activeTitleEffect: activeTitleEffect ?? this.activeTitleEffect,
@@ -154,6 +159,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       functionalItems: {'hint_card': 5, 'revive_card': 2},
       ownedDecorations: {},
       activeGridSkin: 'paper',
+      activeBackground: 'default',
       activeAvatarFrame: null,
       activeTitleEffect: null,
     );
@@ -202,6 +208,11 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final customAvatarPath = (savedAvatar == null || savedAvatar.isEmpty)
         ? null
         : savedAvatar;
+    final savedBackground = await db.getSetting(kActiveBackgroundKey);
+    final activeBackground =
+        (savedBackground == null || savedBackground.isEmpty)
+        ? 'default'
+        : savedBackground;
 
     state = PlayerState(
       level: progress.level,
@@ -220,6 +231,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       },
       ownedDecorations: owned,
       activeGridSkin: await db.getActiveDecorationId('grid_skin') ?? 'paper',
+      activeBackground: activeBackground,
       activeAvatarFrame: activeAvatarFrame,
       customAvatarPath: customAvatarPath,
       activeTitleEffect: await db.getActiveDecorationId('title_effect'),
@@ -510,6 +522,20 @@ class PlayerNotifier extends Notifier<PlayerState> {
   Future<void> setActiveGridSkin(String id) async {
     state = state.copyWith(activeGridSkin: id);
     await ref.read(databaseProvider).setActiveDecoration('grid_skin', id);
+  }
+
+  /// 解锁游戏背景（购买后加入拥有集合并写入数据库）
+  Future<void> unlockBackground(String id) async {
+    state = state.copyWith(
+      ownedDecorations: {...state.ownedDecorations, 'background_$id'},
+    );
+    await ref.read(databaseProvider).addDecoration('background', id);
+  }
+
+  /// 切换当前游戏背景
+  Future<void> setActiveBackground(String id) async {
+    state = state.copyWith(activeBackground: id);
+    await ref.read(databaseProvider).setSetting(kActiveBackgroundKey, id);
   }
 
   Future<void> setActiveAvatarFrame(String id) async {

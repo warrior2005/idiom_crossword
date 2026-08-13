@@ -40,6 +40,61 @@ class TitleEffectDef {
   });
 }
 
+/// 游戏背景定义
+class BackgroundDef {
+  final String id;
+  final String name;
+  final String asset;
+  final int points;
+
+  const BackgroundDef({
+    required this.id,
+    required this.name,
+    required this.asset,
+    required this.points,
+  });
+}
+
+const String kDefaultBackgroundAsset = 'assets/images/background_default.png';
+
+/// 游戏背景目录（积分购买）
+const List<BackgroundDef> backgrounds = [
+  BackgroundDef(
+    id: 'mei',
+    name: '梅',
+    asset: 'assets/images/梅.png',
+    points: 1000,
+  ),
+  BackgroundDef(
+    id: 'lan',
+    name: '兰',
+    asset: 'assets/images/兰.png',
+    points: 1000,
+  ),
+  BackgroundDef(
+    id: 'zhu',
+    name: '竹',
+    asset: 'assets/images/竹.png',
+    points: 1000,
+  ),
+  BackgroundDef(
+    id: 'ju',
+    name: '菊',
+    asset: 'assets/images/菊.png',
+    points: 1000,
+  ),
+];
+
+BackgroundDef? backgroundById(String id) {
+  for (final def in backgrounds) {
+    if (def.id == id) return def;
+  }
+  return null;
+}
+
+String backgroundAsset(String id) =>
+    backgroundById(id)?.asset ?? kDefaultBackgroundAsset;
+
 /// 头像框目录（等级奖励解锁 / 积分购买）
 const List<AvatarFrameDef> avatarFrames = [
   AvatarFrameDef(
