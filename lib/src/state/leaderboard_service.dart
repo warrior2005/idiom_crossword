@@ -64,7 +64,7 @@ class LeaderboardService {
 
   static Future<int> currentWeekXp(AppDatabase db) async {
     final history = await db.getLevelHistorySince(startOfWeek(DateTime.now()));
-    return history.fold(0, (sum, item) => sum + item.xpGained);
+    return history.fold<int>(0, (sum, item) => sum + (item.xpGained));
   }
 
   /// 总榜提交总经验；周榜提交本周累计经验。

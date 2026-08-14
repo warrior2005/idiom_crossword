@@ -4,8 +4,7 @@ import 'package:audio_session/audio_session.dart' as audio_session;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:sound_mode/sound_mode.dart';
-import 'package:sound_mode/utils/ringer_mode_statuses.dart';
+import 'package:sound_mode_advanced/sound_mode_advanced.dart';
 
 /// 管理页面背景音乐、系统音频中断和物理静音状态。
 class MusicManager with WidgetsBindingObserver {

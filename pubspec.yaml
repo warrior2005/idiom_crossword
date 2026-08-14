@@ -23,7 +23,7 @@ dependencies:
   # 音效
   audio_session: ^0.2.3
   audioplayers: ^6.8.1
-  sound_mode: ^3.1.1
+  sound_mode_advanced: ^4.0.0
 
   # Game Center（排行榜）
   games_services: ^5.1.0
