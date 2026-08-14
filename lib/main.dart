@@ -29,7 +29,7 @@ Future<void> main() async {
     ),
   );
 
-  // 初始化广告 SDK（横幅/插屏/激励广告在各自页面加载）
+  // 初始化广告 SDK（横幅/插页式激励/激励广告在各自页面加载）
   unawaited(AdManager().initialize());
 
   // 先加载已保存的玩家进度，避免启动后闪回默认值

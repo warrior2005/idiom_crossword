@@ -17,8 +17,8 @@ const int kRewardedAdLaterCooldownSeconds = 120;
 /// 每则激励广告奖励积分（按激励广告 eCPM 估算，可后续调整）
 const int kRewardedAdPointsReward = 3;
 
-/// 插屏广告关闭即奖励积分（按插屏 eCPM 估算）
-const int kInterstitialAdPointsReward = 2;
+/// 完成插页式激励广告后奖励积分。
+const int kRewardedInterstitialAdPointsReward = 2;
 
 /// 横幅广告每观看 1 分钟奖励 1 积分，每日上限 120 积分
 const int kMaxBannerPointsPerDay = 120;

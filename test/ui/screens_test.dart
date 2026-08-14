@@ -551,7 +551,8 @@ void main() {
       (w) => w is RichText && w.text.toPlainText().contains(text),
     );
     expect(richTextContaining('激励广告'), findsOneWidget);
-    expect(richTextContaining('插屏广告'), findsOneWidget);
+    expect(richTextContaining('插页式激励广告'), findsOneWidget);
+    expect(richTextContaining('未完成不奖励'), findsOneWidget);
     expect(richTextContaining('横幅广告'), findsOneWidget);
   });
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -34,23 +35,28 @@ class AdManager with WidgetsBindingObserver {
   String _bannerAdUnitId = 'ca-app-pub-5534836333837678/7104085737';
   // 激励视频广告ID, android
   String _rewardedAdUnitId = 'ca-app-pub-5534836333837678/4514481146';
-  // 插屏广告ID, android
-  String _interstitialAdUnitId = 'ca-app-pub-5534836333837678/4185542267';
+  // 插页式激励广告ID, android
+  String _rewardedInterstitialAdUnitId =
+      'ca-app-pub-5534836333837678/4185542267';
 
   // 广告实例
   BannerAd? _bannerAd;
   RewardedAd? _rewardedAd;
-  InterstitialAd? _interstitialAd;
+  RewardedInterstitialAd? _rewardedInterstitialAd;
 
   // 广告加载状态
   bool _isRewardedAdLoaded = false;
-  bool _isInterstitialAdLoaded = false;
+  bool _isRewardedInterstitialAdLoaded = false;
+  bool _isRewardedInterstitialAdLoading = false;
   bool _isInitialized = false;
   bool? _canRequestAdsCached;
   Future<void>? _initializationFuture;
   Future<bool>? _rewardedAdLoadFuture;
   Timer? _rewardedAdRetryTimer;
   int _rewardedAdRetryAttempt = 0;
+
+  bool get isRewardedInterstitialAdReady =>
+      _rewardedInterstitialAd != null && _isRewardedInterstitialAdLoaded;
 
   Future<void> initialize() async {
     if (_isInitialized) {
@@ -77,15 +83,23 @@ class AdManager with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     if (Platform.isIOS) {
       // ios 平台使用不同的广告单位ID
-      _bannerAdUnitId = 'ca-app-pub-5534836333837678/7104085737';
-      _rewardedAdUnitId = 'ca-app-pub-5534836333837678/4514481146';
-      _interstitialAdUnitId = 'ca-app-pub-5534836333837678/4185542267';
+      _bannerAdUnitId = 'ca-app-pub-5534836333837678/2782055476';
+      _rewardedAdUnitId = 'ca-app-pub-5534836333837678/3903565451';
+      _rewardedInterstitialAdUnitId = 'ca-app-pub-5534836333837678/9654585587';
     }
     // 测试id
     if (kDebugMode) {
-      _bannerAdUnitId = 'ca-app-pub-3940256099942544/2435281174';
-      _rewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313';
-      _interstitialAdUnitId = 'ca-app-pub-3940256099942544/4411468910';
+      if (Platform.isIOS) {
+        _bannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716';
+        _rewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313';
+        _rewardedInterstitialAdUnitId =
+            'ca-app-pub-3940256099942544/6978759866';
+      } else {
+        _bannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
+        _rewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
+        _rewardedInterstitialAdUnitId =
+            'ca-app-pub-3940256099942544/5354046379';
+      }
     }
     // 1. 定义隐私请求参数
     // 如果是测试阶段，可以强制开启调试，模拟欧盟地区
@@ -433,83 +447,117 @@ class AdManager with WidgetsBindingObserver {
     isRewardedAdReadyNotifier.value = false;
   }
 
-  /// 加载插屏广告
-  Future<void> loadInterstitialAd() async {
-    if (!(await canRequestAds())) {
-      _logger.w('由于无权展示广告，取消插屏广告加载');
+  /// 预加载插页式激励广告。
+  Future<void> loadRewardedInterstitialAd() async {
+    if (isRewardedInterstitialAdReady || _isRewardedInterstitialAdLoading) {
       return;
     }
+    if (!(await canRequestAds())) {
+      _logger.w('由于无权展示广告，取消插页式激励广告加载');
+      return;
+    }
+    _isRewardedInterstitialAdLoading = true;
     try {
-      InterstitialAd.load(
-        adUnitId: _interstitialAdUnitId,
+      await RewardedInterstitialAd.load(
+        adUnitId: _rewardedInterstitialAdUnitId,
         request: getAdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
+        rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
           onAdLoaded: (ad) {
-            _logger.i('插屏广告加载成功');
-            _isInterstitialAdLoaded = true;
-            _interstitialAd = ad;
+            _logger.i('插页式激励广告加载成功');
+            _isRewardedInterstitialAdLoading = false;
+            _isRewardedInterstitialAdLoaded = true;
+            _rewardedInterstitialAd = ad;
           },
           onAdFailedToLoad: (error) {
-            _logger.e('插屏广告加载失败: $error');
-            _isInterstitialAdLoaded = false;
-            _interstitialAd = null;
+            _logger.e('插页式激励广告加载失败: $error');
+            _isRewardedInterstitialAdLoading = false;
+            _isRewardedInterstitialAdLoaded = false;
+            _rewardedInterstitialAd = null;
           },
         ),
       );
-    } catch (e) {
-      _logger.e('加载插屏广告时出错: $e');
+    } catch (error, stackTrace) {
+      _isRewardedInterstitialAdLoading = false;
+      _logger.e('加载插页式激励广告时出错', error: error, stackTrace: stackTrace);
     }
   }
 
-  /// 显示插屏广告
-  /// [onAdClosed] 当广告关闭或播放失败时触发的回调，用于让游戏继续运行或恢复UI。
-  bool showInterstitialAd({VoidCallback? onAdClosed}) {
-    if (_interstitialAd != null && _isInterstitialAdLoaded) {
-      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+  /// 显示插页式激励广告。奖励只通过 [onRewardEarned] 发放。
+  bool showRewardedInterstitialAd({
+    required void Function(String type, int amount) onRewardEarned,
+    VoidCallback? onAdClosed,
+  }) {
+    if (_rewardedInterstitialAd != null && _isRewardedInterstitialAdLoaded) {
+      final ad = _rewardedInterstitialAd!;
+      _rewardedInterstitialAd = null;
+      _isRewardedInterstitialAdLoaded = false;
+      var rewardDelivered = false;
+      var adFinished = false;
+
+      void finishAd() {
+        if (adFinished) return;
+        adFinished = true;
+        ad.dispose();
+        onAdClosed?.call();
+        unawaited(loadRewardedInterstitialAd());
+      }
+
+      ad.fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (ad) {
-          _logger.i('插屏广告全屏内容显示');
+          _logger.i('插页式激励广告全屏内容显示');
         },
         onAdDismissedFullScreenContent: (ad) {
-          _logger.i('插屏广告全屏内容关闭');
-          _isInterstitialAdLoaded = false;
-          ad.dispose();
-          _interstitialAd = null;
-          if (onAdClosed != null) onAdClosed(); // 触发外部回调
-          loadInterstitialAd(); // 预加载下一个插屏广告
+          _logger.i('插页式激励广告全屏内容关闭');
+          finishAd();
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
-          _logger.e('插屏广告全屏内容显示失败: $error');
-          _isInterstitialAdLoaded = false;
-          ad.dispose();
-          _interstitialAd = null;
-          if (onAdClosed != null) onAdClosed(); // 即使失败也需要触发回调让游戏继续
-          loadInterstitialAd(); // 尝试重新加载
+          _logger.e('插页式激励广告全屏内容显示失败: $error');
+          finishAd();
         },
         onAdClicked: (ad) {
-          _logger.i('插屏广告被点击');
+          _logger.i('插页式激励广告被点击');
         },
       );
-
-      _interstitialAd!.show();
+      try {
+        unawaited(
+          ad
+              .show(
+                onUserEarnedReward: (ad, reward) {
+                  if (rewardDelivered) return;
+                  rewardDelivered = true;
+                  _logger.i('用户获得插页式广告奖励: ${reward.type}, ${reward.amount}');
+                  onRewardEarned(reward.type, reward.amount.toInt());
+                },
+              )
+              .catchError((Object error, StackTrace stackTrace) {
+                _logger.e('插页式激励广告显示异常', error: error, stackTrace: stackTrace);
+                finishAd();
+              }),
+        );
+      } catch (error, stackTrace) {
+        _logger.e('插页式激励广告显示异常', error: error, stackTrace: stackTrace);
+        finishAd();
+      }
       return true;
     } else {
-      _logger.w('插屏广告未加载，无法显示');
-      loadInterstitialAd(); // 触发重新加载
+      _logger.w('插页式激励广告未加载，无法显示');
+      unawaited(loadRewardedInterstitialAd());
       return false;
     }
   }
 
-  /// 销毁插屏广告
-  void disposeInterstitialAd() {
-    _interstitialAd?.dispose();
-    _interstitialAd = null;
-    _isInterstitialAdLoaded = false;
+  /// 销毁插页式激励广告。
+  void disposeRewardedInterstitialAd() {
+    _rewardedInterstitialAd?.dispose();
+    _rewardedInterstitialAd = null;
+    _isRewardedInterstitialAdLoaded = false;
+    _isRewardedInterstitialAdLoading = false;
   }
 
   // 销毁所有广告
   void disposeAllAds() {
     disposeBannerAd();
     disposeRewardedAd();
-    disposeInterstitialAd();
+    disposeRewardedInterstitialAd();
   }
 }

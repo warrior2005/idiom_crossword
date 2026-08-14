@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../engine/grid_engine.dart';
 import '../../engine/distractor_engine.dart';
 import '../../state/database_provider.dart';
@@ -24,6 +25,8 @@ import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/win_card_dialog.dart';
 import '../widgets/xp_track.dart';
+import '../widgets/primary_button.dart';
+import '../widgets/theme_dialog.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../theme/grid_skins.dart';
@@ -62,7 +65,7 @@ class GameScreen extends ConsumerStatefulWidget {
 class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   static const int _initialLives = 3;
   static const int _dailyTimeLimitSeconds = 120;
-  static const double _interstitialAdChance = 0.4;
+  static const double _rewardedInterstitialAdChance = 0.4;
 
   late CrosswordGrid _grid;
   final DistractorEngine _distractorEngine = DistractorEngine();
@@ -132,9 +135,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
     if (_isDaily) _startDailyTimer();
     _loadReversiblePairs().then((_) => _restoreSavedState());
-    // 提前预加载插屏广告，确保通关结算时有较高概率已就绪
+    // 提前预加载插页式激励广告，避免在通关后等待加载。
     if (AdManager.isSupportedPlatform) {
-      unawaited(AdManager().loadInterstitialAd());
+      unawaited(AdManager().loadRewardedInterstitialAd());
     }
   }
 
@@ -819,35 +822,94 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     _levelFinished = true;
     await LeaderboardService.submitScores(db, ref.read(playerProvider).totalXp);
 
-    await _maybeShowInterstitial(() {
+    await _maybeShowRewardedInterstitial(() {
       if (!mounted) return;
       _showSettlement(result, newDefs, timeSpentMs);
     });
   }
 
-  /// 胜利结算弹框前，40% 概率展示插屏广告
-  Future<void> _maybeShowInterstitial(VoidCallback onDone) async {
-    if (widget.level.levelId <= 5 || // 教学关 1-5 不展示插屏
+  /// 胜利结算前有 40% 概率询问是否观看插页式激励广告。
+  Future<void> _maybeShowRewardedInterstitial(VoidCallback onDone) async {
+    final adManager = AdManager();
+    if (widget.level.levelId <= 5 || // 教学关 1-5 不提供插页式激励广告
         !AdManager.isSupportedPlatform ||
-        Random().nextDouble() >= _interstitialAdChance) {
+        Random().nextDouble() >= _rewardedInterstitialAdChance) {
+      onDone();
+      return;
+    }
+    if (!adManager.isRewardedInterstitialAdReady) {
+      unawaited(adManager.loadRewardedInterstitialAd());
       onDone();
       return;
     }
     if (!mounted) return;
-    final shown = AdManager().showInterstitialAd(
-      onAdClosed: () {
-        // 插屏广告关闭即奖励积分
+    final accepted = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => ThemeDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '观看广告领奖励',
+              style: displayStyle(size: 20, weight: FontWeight.w900),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '观看完整的插页式激励广告，可获得 '
+              '$kRewardedInterstitialAdPointsReward 积分。你也可以跳过，通关结算不受影响。',
+              style: bodyStyle(size: 13.5, color: AppColors.muted),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: '跳过',
+                    small: true,
+                    ghost: true,
+                    onTap: () => Navigator.of(dialogContext).pop(false),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: PrimaryButton(
+                    label: '观看广告',
+                    small: true,
+                    onTap: () => Navigator.of(dialogContext).pop(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (accepted != true) {
+      onDone();
+      return;
+    }
+
+    var rewardGranted = false;
+    final shown = adManager.showRewardedInterstitialAd(
+      onRewardEarned: (_, _) {
+        if (rewardGranted) return;
+        rewardGranted = true;
         unawaited(
           ref
               .read(playerProvider.notifier)
-              .addPoints(kInterstitialAdPointsReward),
+              .addPoints(kRewardedInterstitialAdPointsReward),
         );
+      },
+      onAdClosed: () {
         onDone();
       },
     );
     if (!shown) {
-      // 未就绪时不阻塞结算弹框，并预加载下一次插屏
-      unawaited(AdManager().loadInterstitialAd());
+      // 广告状态在确认期间发生变化时，直接继续结算且不发奖励。
+      unawaited(adManager.loadRewardedInterstitialAd());
       onDone();
     }
   }
