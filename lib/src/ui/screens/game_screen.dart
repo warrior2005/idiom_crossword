@@ -820,7 +820,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
     await db.clearLevelState(widget.level.levelId);
     _levelFinished = true;
-    await LeaderboardService.submitScores(db, ref.read(playerProvider).totalXp);
+    // Game Center 网络调用不能阻塞本地通关结算。
+    unawaited(
+      LeaderboardService.submitScores(db, ref.read(playerProvider).totalXp),
+    );
 
     await _maybeShowRewardedInterstitial(() {
       if (!mounted) return;
