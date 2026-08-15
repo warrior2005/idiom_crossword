@@ -61,10 +61,14 @@ Future<engine.CrosswordLevel?> generateLevel(
     );
   }
 
+  final needsLargeCandidatePool = targetSize != null
+      ? targetSize >= 10
+      : levelNumber > 5 && playerLevel >= 10;
+  final candidateLimit = needsLargeCandidatePool ? 600 : 300;
   final dbIdioms = await db.findIdiomsByDifficulty(
     minD,
     maxD,
-    300,
+    candidateLimit,
     randomOrder: seed == null,
   );
   if (dbIdioms.length < 5) return null;

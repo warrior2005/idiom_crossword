@@ -129,6 +129,42 @@ void main() {
     });
   }
 
+  for (var bandIndex = 0; bandIndex < bands.length; bandIndex++) {
+    final band = bands[bandIndex];
+    test('12 词关卡 ${band.label} 保持紧凑且可生成', () {
+      final compactGenerator = IntegratedGenerator(
+        graph: graph,
+        random: Random(20260815 + bandIndex),
+      );
+      var success = 0;
+      var maxSideTotal = 0;
+      var imbalanceTotal = 0;
+      var multiCrossTotal = 0;
+
+      for (var i = 0; i < 10; i++) {
+        final level = compactGenerator.generate(
+          targetSize: 12,
+          minDifficulty: band.minD,
+          maxDifficulty: band.maxD,
+          maxAttempts: 50,
+          levelNumber: i + 1,
+        );
+        if (level == null) continue;
+        success++;
+        final (rows, cols) = _usedDimensions(level);
+        maxSideTotal += max(rows, cols);
+        imbalanceTotal += (rows - cols).abs();
+        multiCrossTotal += level.multiCrossingPlacementCount;
+        expect(level.hasAmbiguousAdjacency, isFalse);
+      }
+
+      expect(success, greaterThanOrEqualTo(9));
+      expect(maxSideTotal / success, lessThanOrEqualTo(10.5));
+      expect(imbalanceTotal / success, lessThanOrEqualTo(2.0));
+      expect(multiCrossTotal / success, greaterThanOrEqualTo(6.0));
+    });
+  }
+
   test('同一种子生成结果确定（每日挑战全服同题）', () {
     const seed = 20454;
     final gen1 = IntegratedGenerator(
@@ -235,4 +271,19 @@ List<Idiom> _loadIdioms() {
     );
   }
   return idioms;
+}
+
+(int, int) _usedDimensions(CrosswordLevel level) {
+  final cells = level.placements.expand((placement) => placement.cells);
+  var minRow = level.grid.rows;
+  var maxRow = -1;
+  var minCol = level.grid.cols;
+  var maxCol = -1;
+  for (final (row, col) in cells) {
+    minRow = min(minRow, row);
+    maxRow = max(maxRow, row);
+    minCol = min(minCol, col);
+    maxCol = max(maxCol, col);
+  }
+  return (maxRow - minRow + 1, maxCol - minCol + 1);
 }

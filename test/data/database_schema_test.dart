@@ -442,6 +442,37 @@ void main() {
     );
   });
 
+  test('12 词关卡在五个难度段都能生成紧凑网格', () async {
+    final tmpDir = await Directory.systemTemp.createTemp('idiom_compact_db');
+    final tmpDb = File('${tmpDir.path}/test.db');
+    await File('assets/data/idiom_crossword.db').copy(tmpDb.path);
+    final db = AppDatabase(NativeDatabase(tmpDb));
+    addTearDown(db.close);
+    addTearDown(() => tmpDir.delete(recursive: true));
+    const bands = [(1, 10), (11, 20), (21, 30), (31, 40), (41, 50)];
+
+    for (var bandIndex = 0; bandIndex < bands.length; bandIndex++) {
+      final (minDifficulty, maxDifficulty) = bands[bandIndex];
+      final level = await generateLevel(
+        db,
+        0,
+        seed: 20260815 + bandIndex,
+        targetSize: 12,
+        difficultyRange: (minDifficulty, maxDifficulty),
+        maxAttempts: 50,
+      );
+      expect(level, isNotNull, reason: '$minDifficulty-$maxDifficulty 应能生成');
+      final usedRows = level!.grid.rows - 2;
+      final usedCols = level.grid.cols - 2;
+      expect(usedRows, lessThanOrEqualTo(11));
+      expect(usedCols, lessThanOrEqualTo(11));
+      expect((usedRows - usedCols).abs(), lessThanOrEqualTo(2));
+      expect(level.hasAmbiguousAdjacency, isFalse);
+
+      expect(level.multiCrossingPlacementCount, greaterThanOrEqualTo(6));
+    }
+  });
+
   test('getIdiomAtOffset：空库返回 null，非空按偏移取', () async {
     final db = await _memoryDb(); // 含画蛇添足一条
     addTearDown(db.close);

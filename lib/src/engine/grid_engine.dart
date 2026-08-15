@@ -88,6 +88,45 @@ class Placement {
   }
 }
 
+/// 检查已占用格子是否形成了没有对应答案槽位的连续四字片段。
+bool hasAmbiguousWordRuns(Iterable<Placement> placements) {
+  final placementList = placements.toList();
+  final occupied = placementList.expand((placement) => placement.cells).toSet();
+
+  bool isRealSlot(int row, int col, int length, Direction direction) {
+    return placementList.any(
+      (placement) =>
+          placement.direction == direction &&
+          placement.startRow == row &&
+          placement.startCol == col &&
+          placement.idiom.text.length == length,
+    );
+  }
+
+  for (final (row, col) in occupied) {
+    if (!occupied.contains((row, col - 1))) {
+      var length = 1;
+      while (occupied.contains((row, col + length))) {
+        length++;
+      }
+      if (length >= 4 && !isRealSlot(row, col, length, Direction.horizontal)) {
+        return true;
+      }
+    }
+
+    if (!occupied.contains((row - 1, col))) {
+      var length = 1;
+      while (occupied.contains((row + length, col))) {
+        length++;
+      }
+      if (length >= 4 && !isRealSlot(row, col, length, Direction.vertical)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 /// 填字游戏网格
 class CrosswordGrid {
   final int rows;
@@ -158,6 +197,18 @@ class CrosswordLevel {
   /// 本关涉及的所有成语
   List<Idiom> get idioms => placements.map((p) => p.idiom).toList();
 
+  /// 与至少两个其他成语交叉的成语数。
+  int get multiCrossingPlacementCount => placements.where((placement) {
+    var intersections = 0;
+    for (final other in placements) {
+      if (other != placement &&
+          grid.findIntersection(placement, other) != null) {
+        intersections++;
+      }
+    }
+    return intersections >= 2;
+  }).length;
+
   /// 玩家需要填入的格子数
   int get fillableCells {
     int count = 0;
@@ -183,49 +234,10 @@ class CrosswordLevel {
     return false;
   }
 
-  /// 是否存在传统填字规则不允许的视觉粘连。
+  /// 是否存在足以被误认为四字成语的视觉粘连。
   ///
-  /// 同向词首尾不能直接相接；非交叉格的垂直方向也不能紧邻其他格子。
-  bool get hasAmbiguousAdjacency {
-    final useCounts = <(int, int), int>{};
-    for (final placement in placements) {
-      for (final cell in placement.cells) {
-        useCounts.update(cell, (count) => count + 1, ifAbsent: () => 1);
-      }
-    }
-
-    for (final placement in placements) {
-      final before = placement.direction == Direction.horizontal
-          ? (placement.startRow, placement.startCol - 1)
-          : (placement.startRow - 1, placement.startCol);
-      final after = placement.direction == Direction.horizontal
-          ? (
-              placement.startRow,
-              placement.startCol + placement.idiom.text.length,
-            )
-          : (
-              placement.startRow + placement.idiom.text.length,
-              placement.startCol,
-            );
-      if (useCounts.containsKey(before) || useCounts.containsKey(after)) {
-        return true;
-      }
-
-      for (final (row, col) in placement.cells) {
-        if (useCounts[(row, col)]! > 1) continue;
-        final sideA = placement.direction == Direction.horizontal
-            ? (row - 1, col)
-            : (row, col - 1);
-        final sideB = placement.direction == Direction.horizontal
-            ? (row + 1, col)
-            : (row, col + 1);
-        if (useCounts.containsKey(sideA) || useCounts.containsKey(sideB)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
+  /// 连续一到三格可以紧邻；四格及以上必须恰好对应一个真实槽位。
+  bool get hasAmbiguousAdjacency => hasAmbiguousWordRuns(placements);
 
   bool isInterchangeablePlacement(Placement placement) {
     return placements.any(

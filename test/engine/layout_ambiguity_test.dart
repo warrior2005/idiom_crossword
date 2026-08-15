@@ -2,6 +2,40 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart';
 
 void main() {
+  test('三个字的伪连续片段不构成歧义', () {
+    final grid = CrosswordGrid(rows: 3, cols: 4);
+    const words = ['ABCD', 'EFGH', 'IJKL'];
+    final placements = <Placement>[];
+
+    for (var row = 0; row < words.length; row++) {
+      final idiom = Idiom(text: words[row]);
+      placements.add(
+        Placement(
+          idiom: idiom,
+          startRow: row,
+          startCol: 0,
+          direction: Direction.horizontal,
+        ),
+      );
+      for (var col = 0; col < idiom.text.length; col++) {
+        final cell = grid.cellAt(row, col);
+        cell
+          ..state = CellState.filled
+          ..character = idiom.text[col];
+      }
+    }
+
+    final level = CrosswordLevel(
+      levelId: 1,
+      grid: grid,
+      placements: placements,
+      givenCharacters: const {},
+      title: '',
+    );
+
+    expect(level.hasAmbiguousAdjacency, isFalse);
+  });
+
   test('紧邻的同向成语会形成可视歧义', () {
     final grid = CrosswordGrid(rows: 4, cols: 4);
     const words = ['ABCD', 'EFGH', 'IJKL', 'MNOP'];

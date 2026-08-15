@@ -12,6 +12,15 @@ import 'crossing_graph.dart';
 import 'grid_engine.dart';
 import 'spiral_difficulty.dart';
 
+typedef _ScoredCrossOption = ({
+  _CrossOption option,
+  int intersections,
+  int maxSide,
+  int imbalance,
+  int area,
+});
+typedef _LevelQuality = ({int maxSide, int imbalance, int multiCrossings});
+
 class _PlacedNode {
   final int idiomIdx;
   Direction direction;
@@ -70,15 +79,42 @@ class IntegratedGenerator {
     }
     if (candidates.length < targetSize) return null;
 
+    CrosswordLevel? bestLevel;
+    var validLevelCount = 0;
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
       final result = _tryGenerate(candidates, targetSize, levelNumber);
       if (result != null &&
           !result.hasInterchangeableAnswers &&
           !result.hasAmbiguousAdjacency) {
-        return result;
+        if (targetSize < 10) return result;
+        validLevelCount++;
+        if (bestLevel == null || _compareLevels(result, bestLevel) < 0) {
+          bestLevel = result;
+        }
+        if (validLevelCount >= 4) return bestLevel;
       }
     }
-    return null;
+    return bestLevel;
+  }
+
+  int _compareLevels(CrosswordLevel a, CrosswordLevel b) {
+    final aQuality = _levelQuality(a);
+    final bQuality = _levelQuality(b);
+    final byMaxSide = aQuality.maxSide.compareTo(bQuality.maxSide);
+    if (byMaxSide != 0) return byMaxSide;
+    final byImbalance = aQuality.imbalance.compareTo(bQuality.imbalance);
+    if (byImbalance != 0) return byImbalance;
+    return bQuality.multiCrossings.compareTo(aQuality.multiCrossings);
+  }
+
+  _LevelQuality _levelQuality(CrosswordLevel level) {
+    final rows = level.grid.rows - 2;
+    final cols = level.grid.cols - 2;
+    return (
+      maxSide: max(rows, cols),
+      imbalance: (rows - cols).abs(),
+      multiCrossings: level.multiCrossingPlacementCount,
+    );
   }
 
   CrosswordLevel? _tryGenerate(
@@ -118,9 +154,10 @@ class IntegratedGenerator {
           .getNeighbors(current)
           .where((n) => candidates.contains(n) && !visited.contains(n))
           .toList();
-      neighbors.shuffle(_random);
+      _prioritizeNeighbors(neighbors, placed.keys);
 
       bool addedAny = false;
+      var addedCount = 0;
       for (final neighbor in neighbors) {
         visited.add(neighbor);
 
@@ -138,7 +175,9 @@ class IntegratedGenerator {
           frontier.add(neighbor);
           reversedForms.add(_reverse(neighborText));
           addedAny = true;
-          if (placed.length >= targetSize) break;
+          addedCount++;
+          // 限制单个中心词的扩展数，避免生成大量只交叉一次的叶子。
+          if (addedCount >= 2 || placed.length >= targetSize) break;
         }
         // 放不下就继续试下一个邻居，不影响
       }
@@ -154,7 +193,7 @@ class IntegratedGenerator {
               .getNeighbors(pid)
               .where((n) => candidates.contains(n) && !placed.containsKey(n))
               .toList();
-          otherNeighbors.shuffle(_random);
+          _prioritizeNeighbors(otherNeighbors, placed.keys);
 
           for (final n in otherNeighbors) {
             visited.add(n);
@@ -237,28 +276,130 @@ class IntegratedGenerator {
 
     if (crossCandidates.isEmpty) return false;
 
-    // 打乱尝试顺序
+    // 先打乱作为同分时的随机顺序，再选交叉多且接近正方形的位置。
     crossCandidates.shuffle(_random);
-
+    final validCandidates = <_ScoredCrossOption>[];
     for (final opt in crossCandidates) {
-      // 检查是否可以放置
-      if (_canPlace(opt, length, occupied, placed, node)) {
-        // 还需要验证与所有已放置节点的其他交叉约束
-        // （如果 node 跟多个已放置节点共享字，需要检查所有交叉点）
-        if (_verifyAllCrossings(node, opt, placed, length)) {
-          placed[node] = _PlacedNode(
-            idiomIdx: node,
-            direction: opt.direction,
-            startRow: opt.startRow,
-            startCol: opt.startCol,
-          );
-          _markCells(placed[node]!, length, occupied, node);
-          return true;
-        }
+      if (!_canPlace(opt, length, occupied, placed, node) ||
+          !_verifyAllCrossings(node, opt, placed, length)) {
+        continue;
+      }
+      final candidate = _PlacedNode(
+        idiomIdx: node,
+        direction: opt.direction,
+        startRow: opt.startRow,
+        startCol: opt.startCol,
+      );
+      if (_hasAmbiguousRunAfterPlacement(node, candidate, placed)) continue;
+      validCandidates.add(_scoreOption(opt, candidate, placed));
+    }
+    if (validCandidates.isEmpty) return false;
+
+    validCandidates.sort(_compareOptions);
+    final best = validCandidates.first.option;
+    placed[node] = _PlacedNode(
+      idiomIdx: node,
+      direction: best.direction,
+      startRow: best.startRow,
+      startCol: best.startCol,
+    );
+    _markCells(placed[node]!, length, occupied, node);
+    return true;
+  }
+
+  void _prioritizeNeighbors(List<int> neighbors, Iterable<int> placedIds) {
+    final placedWords = placedIds.map((id) => graph.idioms[id].text).toList();
+    final connectionCounts = <int, int>{};
+    for (final id in neighbors) {
+      final chars = graph.idioms[id].text.split('').toSet();
+      connectionCounts[id] = placedWords
+          .where((word) => word.split('').any(chars.contains))
+          .length;
+    }
+
+    neighbors.shuffle(_random);
+    neighbors.sort(
+      (a, b) => connectionCounts[b]!.compareTo(connectionCounts[a]!),
+    );
+  }
+
+  bool _hasAmbiguousRunAfterPlacement(
+    int node,
+    _PlacedNode candidate,
+    Map<int, _PlacedNode> placed,
+  ) {
+    final placements = [
+      for (final entry in placed.entries)
+        Placement(
+          idiom: graph.idioms[entry.key],
+          startRow: entry.value.startRow,
+          startCol: entry.value.startCol,
+          direction: entry.value.direction,
+        ),
+      Placement(
+        idiom: graph.idioms[node],
+        startRow: candidate.startRow,
+        startCol: candidate.startCol,
+        direction: candidate.direction,
+      ),
+    ];
+    return hasAmbiguousWordRuns(placements);
+  }
+
+  _ScoredCrossOption _scoreOption(
+    _CrossOption option,
+    _PlacedNode candidate,
+    Map<int, _PlacedNode> placed,
+  ) {
+    var intersections = 0;
+    final candidateLength = graph.idioms[candidate.idiomIdx].text.length;
+    final candidateCells = {
+      for (var k = 0; k < candidateLength; k++)
+        candidate.cellAt(k, candidateLength),
+    };
+    for (final other in placed.values) {
+      final otherCells = {
+        for (var k = 0; k < graph.idioms[other.idiomIdx].text.length; k++)
+          other.cellAt(k, graph.idioms[other.idiomIdx].text.length),
+      };
+      if (candidateCells.any(otherCells.contains)) {
+        intersections++;
       }
     }
 
-    return false;
+    var minRow = candidate.startRow;
+    var maxRow = candidate.startRow;
+    var minCol = candidate.startCol;
+    var maxCol = candidate.startCol;
+    for (final item in [...placed.values, candidate]) {
+      final length = graph.idioms[item.idiomIdx].text.length;
+      for (var k = 0; k < length; k++) {
+        final (row, col) = item.cellAt(k, length);
+        minRow = min(minRow, row);
+        maxRow = max(maxRow, row);
+        minCol = min(minCol, col);
+        maxCol = max(maxCol, col);
+      }
+    }
+    final rows = maxRow - minRow + 1;
+    final cols = maxCol - minCol + 1;
+    return (
+      option: option,
+      intersections: intersections,
+      maxSide: max(rows, cols),
+      imbalance: (rows - cols).abs(),
+      area: rows * cols,
+    );
+  }
+
+  int _compareOptions(_ScoredCrossOption a, _ScoredCrossOption b) {
+    final byIntersections = b.intersections.compareTo(a.intersections);
+    if (byIntersections != 0) return byIntersections;
+    final byMaxSide = a.maxSide.compareTo(b.maxSide);
+    if (byMaxSide != 0) return byMaxSide;
+    final byImbalance = a.imbalance.compareTo(b.imbalance);
+    if (byImbalance != 0) return byImbalance;
+    return a.area.compareTo(b.area);
   }
 
   /// 检查放置是否不与已有格子冲突。
@@ -272,16 +413,6 @@ class IntegratedGenerator {
   ) {
     final word = graph.idioms[node].text;
 
-    final before = opt.direction == Direction.horizontal
-        ? (opt.startRow, opt.startCol - 1)
-        : (opt.startRow - 1, opt.startCol);
-    final after = opt.direction == Direction.horizontal
-        ? (opt.startRow, opt.startCol + length)
-        : (opt.startRow + length, opt.startCol);
-    if (occupied.containsKey(before) || occupied.containsKey(after)) {
-      return false;
-    }
-
     for (int k = 0; k < length; k++) {
       final r = opt.direction == Direction.vertical
           ? opt.startRow + k
@@ -293,17 +424,6 @@ class IntegratedGenerator {
       if (r < -5 || r >= 30 || c < -5 || c >= 30) return false;
 
       final occ = occupied[(r, c)];
-      if (occ == null) {
-        final sideA = opt.direction == Direction.horizontal
-            ? (r - 1, c)
-            : (r, c - 1);
-        final sideB = opt.direction == Direction.horizontal
-            ? (r + 1, c)
-            : (r, c + 1);
-        if (occupied.containsKey(sideA) || occupied.containsKey(sideB)) {
-          return false;
-        }
-      }
       if (occ != null && occ != node) {
         // 格子已被其他成语占用，检查字符是否一致
         final otherPlaced = placed[occ];
