@@ -24,15 +24,14 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<!-- AdMob 应用 ID -->
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-5534836333837678~8946914357</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>用于展示个性化广告，并为您提供观看广告赚取积分的机会。</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>用于从相册选择图片设置为游戏头像。</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>用于从相册选择图片设置为游戏头像。</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>用于展示个性化广告，并为您提供观看广告赚取积分的机会。</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -63,6 +62,13 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 </dict>
 </plist>

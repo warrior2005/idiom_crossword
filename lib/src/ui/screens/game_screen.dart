@@ -291,22 +291,22 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     _completedCells.clear();
     _completedIdiomList.clear();
     _selectedCompletedIndex = null;
+    final usedAnswers = <String>{};
 
     for (final placement in widget.level.placements) {
       var allFilled = true;
-      var allCorrect = true;
       for (int k = 0; k < placement.idiom.text.length; k++) {
         final (r, c) = placement.cellAt(k);
         if (_grid.cellAt(r, c).isGiven) continue;
         final filled = _playerAnswers[(r, c)];
         if (filled == null) {
           allFilled = false;
-        } else if (filled != placement.idiom.text[k]) {
-          allCorrect = false;
-          _errorCells.add((r, c));
         }
       }
-      if (allFilled && allCorrect) {
+      final completedIdiom = allFilled
+          ? widget.level.completedIdiomFor(placement, _playerAnswers)
+          : null;
+      if (completedIdiom != null && usedAnswers.add(completedIdiom.text)) {
         for (int k = 0; k < placement.idiom.text.length; k++) {
           final (r, c) = placement.cellAt(k);
           if (!_grid.cellAt(r, c).isGiven) {
@@ -314,9 +314,14 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
           }
         }
         _completedIdiomList.add((
-          word: placement.idiom.text,
-          meaning: placement.idiom.meaning,
+          word: completedIdiom.text,
+          meaning: completedIdiom.meaning,
         ));
+      } else if (allFilled) {
+        for (int k = 0; k < placement.idiom.text.length; k++) {
+          final (r, c) = placement.cellAt(k);
+          if (!_grid.cellAt(r, c).isGiven) _errorCells.add((r, c));
+        }
       }
     }
     if (_completedIdiomList.isNotEmpty) {
@@ -445,8 +450,13 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
   /// 某格当前允许的字符集合；半句交换时随已填的另一格动态收窄
   Set<String> _allowedCharsForCell(int row, int col) {
+    final placements = _placementsContaining(row, col);
+    if (placements.any(widget.level.isInterchangeablePlacement)) {
+      return widget.level.allowedCharactersAt(row, col, _playerAnswers);
+    }
+
     final allowed = <String>{};
-    for (final p in _placementsContaining(row, col)) {
+    for (final p in placements) {
       if (!_isHalfSwapAmbiguous(p)) continue;
       final k = p.cells.indexOf((row, col));
       final word = p.idiom.text;
@@ -605,12 +615,23 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       }
     }
 
-    if (!allFilled || !allCorrect) return false;
+    var completedIdiom = allFilled && allCorrect
+        ? widget.level.completedIdiomFor(placement, _playerAnswers)
+        : null;
+    // 保留数据库登记的“半句互换”旧规则。
+    if (completedIdiom == null && allFilled && allCorrect) {
+      completedIdiom = placement.idiom;
+    }
+    if (completedIdiom == null) return false;
+    final resolvedIdiom = completedIdiom;
+    if (_completedIdiomList.any((item) => item.word == resolvedIdiom.text)) {
+      return false;
+    }
 
     // 成语完成
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('√ ${placement.idiom.text}'),
+        content: Text('√ ${resolvedIdiom.text}'),
         duration: const Duration(milliseconds: 800),
       ),
     );
@@ -623,8 +644,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       }
     }
     _completedIdiomList.add((
-      word: placement.idiom.text,
-      meaning: placement.idiom.meaning,
+      word: resolvedIdiom.text,
+      meaning: resolvedIdiom.meaning,
     ));
     _selectedCompletedIndex = _completedIdiomList.length - 1;
     return true;
@@ -706,15 +727,20 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
   /// 检查整关是否完成
   void _checkLevelComplete() {
-    bool allDone = true;
-    for (final placement in widget.level.placements) {
-      for (int k = 0; k < placement.idiom.text.length; k++) {
-        final (r, c) = placement.cellAt(k);
-        if (!_grid.cellAt(r, c).isGiven) {
-          final filled = _playerAnswers[(r, c)];
-          if (filled == null || !_isCharCorrectForCell(r, c, filled)) {
-            allDone = false;
-            break;
+    final hasInterchangeableAnswers = widget.level.hasInterchangeableAnswers;
+    var allDone = hasInterchangeableAnswers
+        ? widget.level.matchesAnswers(_playerAnswers)
+        : true;
+    if (!hasInterchangeableAnswers) {
+      for (final placement in widget.level.placements) {
+        for (int k = 0; k < placement.idiom.text.length; k++) {
+          final (r, c) = placement.cellAt(k);
+          if (!_grid.cellAt(r, c).isGiven) {
+            final filled = _playerAnswers[(r, c)];
+            if (filled == null || !_isCharCorrectForCell(r, c, filled)) {
+              allDone = false;
+              break;
+            }
           }
         }
       }

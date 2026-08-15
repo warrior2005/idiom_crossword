@@ -169,4 +169,151 @@ class CrosswordLevel {
     }
     return count;
   }
+
+  /// 是否存在两个槽位的答案在当前提示/交叉约束下可互换。
+  bool get hasInterchangeableAnswers {
+    for (var i = 0; i < placements.length; i++) {
+      for (var j = i + 1; j < placements.length; j++) {
+        if (_wordFitsSlot(placements[i].idiom.text, placements[j]) &&
+            _wordFitsSlot(placements[j].idiom.text, placements[i])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool isInterchangeablePlacement(Placement placement) {
+    return placements.any(
+      (other) =>
+          other != placement &&
+          _wordFitsSlot(other.idiom.text, placement) &&
+          _wordFitsSlot(placement.idiom.text, other),
+    );
+  }
+
+  /// 某格在当前已填内容下可继续构成的答案字符。
+  Set<String> allowedCharactersAt(
+    int row,
+    int col,
+    Map<(int, int), String> answers,
+  ) {
+    final result = <String>{};
+    final containing = placements.where((p) => p.cells.contains((row, col)));
+    var firstPlacement = true;
+    for (final placement in containing) {
+      final position = placement.cells.indexOf((row, col));
+      final allowedForPlacement = <String>{};
+      for (final answer in _answersForSlot(placement).map((i) => i.text)) {
+        if (!_wordFitsSlot(answer, placement)) continue;
+        var matches = true;
+        for (var k = 0; k < answer.length; k++) {
+          if (k == position) continue;
+          final filled = answers[placement.cellAt(k)];
+          if (filled != null && filled != answer[k]) {
+            matches = false;
+            break;
+          }
+        }
+        if (matches) allowedForPlacement.add(answer[position]);
+      }
+      if (firstPlacement) {
+        result.addAll(allowedForPlacement);
+        firstPlacement = false;
+      } else {
+        result.retainAll(allowedForPlacement);
+      }
+    }
+    return result;
+  }
+
+  /// 所有槽位填满后，检查是否能将本关答案一对一分配给槽位。
+  bool matchesAnswers(Map<(int, int), String> answers) {
+    final candidates = <List<int>>[];
+    for (final placement in placements) {
+      final slotCandidates = <int>[];
+      for (
+        var answerIndex = 0;
+        answerIndex < placements.length;
+        answerIndex++
+      ) {
+        final word = placements[answerIndex].idiom.text;
+        if (!_wordFitsSlot(word, placement)) continue;
+        var matches = true;
+        for (var k = 0; k < word.length; k++) {
+          final (row, col) = placement.cellAt(k);
+          final cell = grid.cellAt(row, col);
+          final filled = cell.isGiven ? cell.character : answers[(row, col)];
+          if (filled == null || filled != word[k]) {
+            matches = false;
+            break;
+          }
+        }
+        if (matches) slotCandidates.add(answerIndex);
+      }
+      if (slotCandidates.isEmpty) return false;
+      candidates.add(slotCandidates);
+    }
+
+    final answerToSlot = List<int>.filled(placements.length, -1);
+    bool assign(int slot, Set<int> seen) {
+      for (final answer in candidates[slot]) {
+        if (!seen.add(answer)) continue;
+        if (answerToSlot[answer] == -1 || assign(answerToSlot[answer], seen)) {
+          answerToSlot[answer] = slot;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    for (var slot = 0; slot < placements.length; slot++) {
+      if (!assign(slot, <int>{})) return false;
+    }
+    return true;
+  }
+
+  Idiom? completedIdiomFor(
+    Placement placement,
+    Map<(int, int), String> answers,
+  ) {
+    final text = StringBuffer();
+    for (var k = 0; k < placement.idiom.text.length; k++) {
+      final (row, col) = placement.cellAt(k);
+      final cell = grid.cellAt(row, col);
+      final char = cell.isGiven ? cell.character : answers[(row, col)];
+      if (char == null) return null;
+      text.write(char);
+    }
+    final word = text.toString();
+    for (final candidate in _answersForSlot(placement)) {
+      if (candidate.text == word) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+
+  bool _wordFitsSlot(String word, Placement placement) {
+    if (word.length != placement.idiom.text.length) return false;
+    for (var k = 0; k < word.length; k++) {
+      final (row, col) = placement.cellAt(k);
+      final cell = grid.cellAt(row, col);
+      if ((cell.isGiven || cell.isIntersection) && word[k] != cell.character) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Iterable<Idiom> _answersForSlot(Placement placement) sync* {
+    yield placement.idiom;
+    for (final other in placements) {
+      if (other != placement &&
+          _wordFitsSlot(other.idiom.text, placement) &&
+          _wordFitsSlot(placement.idiom.text, other)) {
+        yield other.idiom;
+      }
+    }
+  }
 }
