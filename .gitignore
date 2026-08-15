@@ -7,6 +7,7 @@ coverage/
 .idea/
 .vscode/
 *.g.dart
+devtools_options.yaml
 
 # Flutter plugins
 .flutter-plugins

@@ -172,7 +172,7 @@ class HomeScreen extends ConsumerWidget {
                   '${nextResumable ? '继续' : '开始'}第 ${nextMainLevel ?? '…'} 关',
               onTap: () => _startGame(context, ref),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
