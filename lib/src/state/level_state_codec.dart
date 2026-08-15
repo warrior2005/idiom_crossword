@@ -117,9 +117,11 @@ class SavedGameState {
   final int errorsMade;
   final int correctStreak;
   final int totalFills;
+  final Set<String> wrongIdiomWords;
   final int lives;
   final int remainingSeconds;
   final bool revived;
+  final int reviveUsesThisLevel;
   final int? focusRow;
   final int? focusCol;
   final Direction? direction;
@@ -134,9 +136,11 @@ class SavedGameState {
     required this.errorsMade,
     required this.correctStreak,
     required this.totalFills,
+    this.wrongIdiomWords = const {},
     this.lives = 3,
-    this.remainingSeconds = 120,
+    this.remainingSeconds = 180,
     this.revived = false,
+    this.reviveUsesThisLevel = 0,
     this.focusRow,
     this.focusCol,
     this.direction,
@@ -161,9 +165,11 @@ String encodeGameState(SavedGameState state) {
     'errors': state.errorsMade,
     'streak': state.correctStreak,
     'fills': state.totalFills,
+    'wrongWords': state.wrongIdiomWords.toList(),
     'lives': state.lives,
     'time': state.remainingSeconds,
     'revived': state.revived ? 1 : 0,
+    'reviveUses': state.reviveUsesThisLevel,
     'focus': (state.focusRow == null || state.focusCol == null)
         ? null
         : [state.focusRow, state.focusCol],
@@ -221,9 +227,13 @@ SavedGameState? decodeGameState(String source) {
       errorsMade: data['errors'] as int,
       correctStreak: data['streak'] as int,
       totalFills: data['fills'] as int? ?? 0,
+      wrongIdiomWords: (data['wrongWords'] as List? ?? const [])
+          .cast<String>()
+          .toSet(),
       lives: data['lives'] as int? ?? 3,
-      remainingSeconds: data['time'] as int? ?? 120,
+      remainingSeconds: data['time'] as int? ?? 180,
       revived: (data['revived'] as int? ?? 0) == 1,
+      reviveUsesThisLevel: data['reviveUses'] as int? ?? 0,
       focusRow: focus == null ? null : focus[0] as int,
       focusCol: focus == null ? null : focus[1] as int,
       direction: dirRaw == null ? null : Direction.values[dirRaw],

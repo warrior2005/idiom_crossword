@@ -100,6 +100,14 @@ void main() {
     expect(find.text('通'), findsOneWidget);
     expect(find.text('下一关'), findsOneWidget);
 
+    // 可关闭结算弹框回看终局，点击游戏区会再次唤起。
+    await tester.tap(find.byTooltip('关闭'));
+    await tester.pumpAndSettle();
+    expect(find.text('恭喜通过 · 第 1 关'), findsNothing);
+    await tester.tapAt(tester.getCenter(find.byType(CustomPaint).first));
+    await tester.pumpAndSettle();
+    expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
+
     // 排空闪烁动画 / SnackBar 的挂起定时器
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
@@ -174,6 +182,7 @@ void main() {
       const Duration(seconds: 5),
     );
     expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
+    expect(find.byKey(const ValueKey('win-card-idiom-画蛇添足')), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
@@ -324,7 +333,8 @@ void main() {
       const Duration(seconds: 5),
     );
     expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
-    expect(find.text('生命值：3'), findsOneWidget);
+    expect(find.byKey(const ValueKey('life-heart-0')), findsOneWidget);
+    expect(find.byIcon(Icons.favorite), findsNWidgets(3));
 
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
@@ -387,6 +397,93 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
   });
 
+  testWidgets('3 颗心允许填错 3 次，第 4 次才失败', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final wrongChar = find.byWidgetPredicate(
+      (w) =>
+          w is Text &&
+          w.data != null &&
+          w.data!.length == 1 &&
+          !'蛇添足'.contains(w.data!),
+    );
+    final gridRect = tester.getRect(
+      find.byWidgetPredicate(
+        (w) => w is CustomPaint && w.painter is GridPainter,
+      ),
+    );
+    final snakeCell = Offset(
+      gridRect.left + gridRect.width * 3 / 8,
+      gridRect.center.dy,
+    );
+
+    for (var error = 1; error <= 3; error++) {
+      await tester.tap(wrongChar.at(error - 1));
+      await tester.pump();
+      expect(find.text('挑战失败'), findsNothing);
+      expect(find.byIcon(Icons.favorite), findsNWidgets(3 - error));
+      await tester.tapAt(snakeCell);
+      await tester.pump();
+    }
+    await tester.tap(wrongChar.at(3));
+    await tester.pumpAndSettle();
+    expect(find.text('挑战失败'), findsOneWidget);
+    expect(find.text('看广告复活'), findsOneWidget);
+  });
+
+  testWidgets('交叉格填错只记当前方向成语', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildCrossingLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final wrongChar = find.byWidgetPredicate(
+      (w) =>
+          w is Text &&
+          w.data != null &&
+          w.data!.length == 1 &&
+          !'蛇添足蝎心'.contains(w.data!),
+    );
+    await tester.tap(wrongChar.first);
+    await tester.pump();
+
+    final gridRect = tester.getRect(
+      find.byWidgetPredicate(
+        (w) => w is CustomPaint && w.painter is GridPainter,
+      ),
+    );
+    final cellSize = gridRect.width / 4;
+    await tester.tapAt(
+      Offset(gridRect.left + cellSize * 1.5, gridRect.top + cellSize / 2),
+    );
+    await tester.pump();
+    for (final char in ['蛇', '添', '足', '蝎', '心']) {
+      await tester.tap(find.text(char));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await _pumpUntil(
+      tester,
+      () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    expect(find.byKey(const ValueKey('win-card-idiom-画蛇添足')), findsOneWidget);
+    expect(find.byKey(const ValueKey('win-card-idiom-蛇蝎心肠')), findsNothing);
+    await tester.pump(const Duration(milliseconds: 300));
+  });
+
   testWidgets('每日挑战倒计时结束显示失败弹框', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -412,26 +509,20 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(find.text('03:00'), findsOneWidget);
 
-    await tester.pump(const Duration(seconds: 121));
+    await tester.pump(const Duration(seconds: 181));
     await tester.pumpAndSettle();
 
     expect(find.text('挑战失败'), findsOneWidget);
-    expect(find.text('复活(剩余 0)'), findsOneWidget);
+    expect(find.text('看广告复活'), findsOneWidget);
     expect(find.text('重玩本关（无经验）'), findsOneWidget);
     expect(find.text('返回主页'), findsOneWidget);
     expect(await db.getLevelState(dailyLevelNumber()), isNull);
 
-    await tester.tap(find.text('复活(剩余 0)'));
+    await tester.tap(find.text('重玩本关（无经验）'));
     await tester.pumpAndSettle();
-    expect(find.text('复活卡 ×1'), findsOneWidget);
-    expect(find.text('15 积分'), findsOneWidget);
-    expect(find.text('当前积分：0'), findsOneWidget);
-    expect(find.text('内购功能即将上线'), findsNothing);
-
-    await tester.tap(find.text('购买'));
-    await tester.pumpAndSettle();
-    expect(find.text('积分不足，可观看广告赚取积分'), findsOneWidget);
+    expect(find.byIcon(Icons.timer_outlined), findsNothing);
   });
 
   testWidgets('noReward 关卡通关不获得经验', (tester) async {
@@ -534,5 +625,53 @@ engine.CrosswordLevel _buildReversibleLevel({int levelId = 1}) {
     placements: [placement],
     givenCharacters: {'如'},
     title: levelId >= dailyLevelOffset ? '每日挑战' : '第 1 关',
+  );
+}
+
+engine.CrosswordLevel _buildCrossingLevel() {
+  final grid = engine.CrosswordGrid(rows: 6, cols: 6);
+  const horizontal = engine.Idiom(
+    text: '画蛇添足',
+    pinyin: 'hua she tian zu',
+    meaning: '比喻做了多余的事',
+    difficulty: 1,
+  );
+  const vertical = engine.Idiom(
+    text: '蛇蝎心肠',
+    pinyin: 'she xie xin chang',
+    meaning: '形容心肠狠毒',
+    difficulty: 1,
+  );
+  final placements = [
+    const engine.Placement(
+      idiom: horizontal,
+      startRow: 1,
+      startCol: 1,
+      direction: engine.Direction.horizontal,
+    ),
+    const engine.Placement(
+      idiom: vertical,
+      startRow: 1,
+      startCol: 2,
+      direction: engine.Direction.vertical,
+    ),
+  ];
+  for (final placement in placements) {
+    for (var k = 0; k < 4; k++) {
+      final (row, col) = placement.cellAt(k);
+      final cell = grid.cellAt(row, col);
+      if (cell.state == engine.CellState.filled) cell.isIntersection = true;
+      cell.state = engine.CellState.filled;
+      cell.character = placement.idiom.text[k];
+    }
+  }
+  grid.cellAt(1, 1).isGiven = true;
+  grid.cellAt(4, 2).isGiven = true;
+  return engine.CrosswordLevel(
+    levelId: 1,
+    grid: grid,
+    placements: placements,
+    givenCharacters: const {'画', '肠'},
+    title: '第 1 关',
   );
 }

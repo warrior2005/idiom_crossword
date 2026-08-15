@@ -26,12 +26,15 @@ final leaderboardProvider = FutureProvider.autoDispose
 
 /// 使用 Game Center 数据绘制的双榜页面。
 class LeaderboardScreen extends ConsumerWidget {
-  const LeaderboardScreen({super.key});
+  final int initialIndex;
+
+  const LeaderboardScreen({super.key, this.initialIndex = 0});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
       length: LeaderboardKind.values.length,
+      initialIndex: initialIndex,
       child: Scaffold(
         backgroundColor: AppColors.bg,
         body: SafeArea(
@@ -165,6 +168,12 @@ class _LeaderboardRow extends StatelessWidget {
     return AppCard(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      color: entry.isCurrentPlayer
+          ? AppColors.accent.withValues(alpha: 0.1)
+          : AppColors.surface,
+      borderColor: entry.isCurrentPlayer
+          ? AppColors.accent.withValues(alpha: 0.35)
+          : AppColors.border,
       child: Row(
         children: [
           SizedBox(

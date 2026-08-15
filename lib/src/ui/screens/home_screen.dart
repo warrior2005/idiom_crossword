@@ -9,8 +9,6 @@ import '../../data/growth_manager.dart';
 import '../../data/database.dart';
 import '../../engine/spiral_difficulty.dart';
 import 'game_screen.dart';
-import 'level_select_screen.dart';
-import 'collection_screen.dart';
 import 'mine_screen.dart';
 import 'daily_review_screen.dart';
 import 'leaderboard_screen.dart';
@@ -174,38 +172,37 @@ class HomeScreen extends ConsumerWidget {
                   '${nextResumable ? '继续' : '开始'}第 ${nextMainLevel ?? '…'} 关',
               onTap: () => _startGame(context, ref),
             ),
-            const SizedBox(height: 8),
-            // 书卷小径
-            const SectionTitle(title: '书卷小径'),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
                   child: _Tile(
-                    iconName: 'levels',
-                    label: '选择关卡',
-                    desc: '由浅入深 · 循序渐进',
-                    onTap: () => _switchTab(context, 1),
+                    iconName: 'trophy',
+                    label: '天下英雄榜',
+                    desc: '累计经验排名',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const LeaderboardScreen(initialIndex: 0),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _Tile(
-                    iconName: 'book',
-                    label: '成语收藏',
-                    desc: '温故知新 · 日积月累',
-                    onTap: () => _switchTab(context, 2),
+                    iconName: 'trophy',
+                    label: '每周英雄榜',
+                    desc: '本周经验排名',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const LeaderboardScreen(initialIndex: 1),
+                      ),
+                    ),
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: 12),
-            _Tile(
-              iconName: 'trophy',
-              label: '天下英雄榜',
-              desc: '总榜 · 每周榜',
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LeaderboardScreen()),
-              ),
             ),
             // 今日一读
             const SectionTitle(title: '今日一读'),
@@ -271,20 +268,6 @@ class HomeScreen extends ConsumerWidget {
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const MineScreen()));
-    }
-  }
-
-  void _switchTab(BuildContext context, int tabIndex) {
-    if (onSwitchTab != null) {
-      onSwitchTab!(tabIndex);
-    } else if (tabIndex == 1) {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const LevelSelectScreen()));
-    } else {
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const CollectionScreen()));
     }
   }
 

@@ -11,6 +11,8 @@ import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/achievements_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/collection_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_seal.dart';
+import 'package:idiom_crossword/src/ui/widgets/app_card.dart';
+import 'package:idiom_crossword/src/ui/theme/app_colors.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/shop_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/stats_screen.dart';
@@ -124,6 +126,10 @@ void main() {
     expect(find.text('我'), findsOneWidget);
     expect(find.text('Lv.1'), findsOneWidget);
     expect(find.text('0 经验'), findsOneWidget);
+    final currentPlayerCard = tester.widget<AppCard>(
+      find.ancestor(of: find.text('我'), matching: find.byType(AppCard)).first,
+    );
+    expect(currentPlayerCard.color, AppColors.accent.withValues(alpha: 0.1));
   });
 
   testWidgets('统计页：展示通关记录明细', (tester) async {
@@ -550,7 +556,7 @@ void main() {
     Finder richTextContaining(String text) => find.byWidgetPredicate(
       (w) => w is RichText && w.text.toPlainText().contains(text),
     );
-    expect(richTextContaining('激励广告'), findsOneWidget);
+    expect(richTextContaining('激励广告：观看完成'), findsOneWidget);
     expect(richTextContaining('插页式激励广告'), findsOneWidget);
     expect(richTextContaining('未完成不奖励'), findsOneWidget);
     expect(richTextContaining('横幅广告'), findsOneWidget);
@@ -761,7 +767,9 @@ void main() {
 
     expect(find.text('成语填字'), findsOneWidget);
     expect(find.text('科举仕途'), findsOneWidget);
-    expect(find.text('书卷小径'), findsOneWidget);
+    expect(find.text('书卷小径'), findsNothing);
+    expect(find.text('选择关卡'), findsNothing);
+    expect(find.text('成语收藏'), findsNothing);
     expect(find.textContaining('农历'), findsOneWidget);
     expect(find.text('到达Lv.3·廪生后开启'), findsOneWidget);
     await tester.scrollUntilVisible(
@@ -770,6 +778,7 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('天下英雄榜'), findsOneWidget);
+    expect(find.text('每周英雄榜'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('今日一读'),
       100,

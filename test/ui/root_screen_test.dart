@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/ui/screens/root_screen.dart';
+import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 import 'package:drift/native.dart';
 
 void main() {
@@ -24,7 +25,7 @@ void main() {
     }
   });
 
-  testWidgets('首页书卷小径 tile 切换 Tab 而非 push', (tester) async {
+  testWidgets('首页去除重复入口，两个英雄榜卡片进入对应 Tab', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -45,28 +46,46 @@ void main() {
     await tester.pumpAndSettle();
     expect(stack().index, 4);
 
-    // 回首页点「选择关卡」→ 切到关卡 Tab
+    // 与底部导航重复的入口已移除
     await tester.tap(find.text('首页'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('选择关卡'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(find.text('选择关卡'));
-    await tester.pumpAndSettle();
-    expect(stack().index, 1);
+    expect(find.text('书卷小径'), findsNothing);
+    expect(find.text('选择关卡'), findsNothing);
+    expect(find.text('成语收藏'), findsNothing);
 
-    // 回首页点「成语收藏」→ 切到收藏 Tab
-    await tester.tap(find.text('首页'));
-    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.text('成语收藏'),
+      find.text('天下英雄榜'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('成语收藏'));
+    await tester.ensureVisible(find.text('天下英雄榜'));
     await tester.pumpAndSettle();
-    expect(stack().index, 2);
+    await tester.tap(find.text('天下英雄榜'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TabBar), findsOneWidget);
+    expect(
+      DefaultTabController.of(tester.element(find.byType(TabBar))).index,
+      0,
+    );
+
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) => widget is AppIcon && widget.name == 'back',
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('每周英雄榜'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('每周英雄榜'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('每周英雄榜'));
+    await tester.pumpAndSettle();
+    expect(
+      DefaultTabController.of(tester.element(find.byType(TabBar))).index,
+      1,
+    );
   });
 }

@@ -50,7 +50,7 @@ final dailyInfoProvider = FutureProvider<DailyInfo?>((ref) async {
     word: featured.text,
     idiomCount: idioms.length,
     avgDifficulty: avg,
-    durationSeconds: 120, // 每日挑战限时 2 分钟
+    durationSeconds: 180, // 每日挑战限时 3 分钟
     meaning: featured.meaning,
   );
 });

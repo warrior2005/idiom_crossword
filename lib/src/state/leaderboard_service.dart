@@ -99,20 +99,27 @@ class LeaderboardService {
     final localXp = kind == LeaderboardKind.allTime
         ? localTotalXp
         : localWeeklyXp;
-    final fallback = LeaderboardEntry(
+    LeaderboardEntry fallback([String displayName = '我']) => LeaderboardEntry(
       rank: null,
       playerId: 'local-player',
-      displayName: '我',
+      displayName: displayName,
       xp: localXp,
       isCurrentPlayer: true,
     );
     if (!await GameCenterService.ensureSignedIn()) {
       return LeaderboardSnapshot(
         leaders: const [],
-        currentPlayer: fallback,
+        currentPlayer: fallback(),
         connected: false,
       );
     }
+
+    var displayName = '我';
+    try {
+      final playerName = (await Player.getPlayerName())?.trim();
+      if (playerName != null && playerName.isNotEmpty) displayName = playerName;
+    } catch (_) {}
+    final signedInFallback = fallback(displayName);
 
     try {
       final scores =
@@ -140,7 +147,7 @@ class LeaderboardService {
           .map((score) => _entry(score, currentPlayerId))
           .toList();
       final current = playerScore == null
-          ? fallback
+          ? signedInFallback
           : _entry(playerScore, currentPlayerId, forceCurrent: true);
       return LeaderboardSnapshot(
         leaders: leaders,
@@ -150,7 +157,7 @@ class LeaderboardService {
     } catch (_) {
       return LeaderboardSnapshot(
         leaders: const [],
-        currentPlayer: fallback,
+        currentPlayer: signedInFallback,
         connected: false,
       );
     }

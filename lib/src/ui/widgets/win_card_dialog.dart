@@ -190,21 +190,36 @@ Future<void> showWinCardDialog(
   required String xpText,
   List<WinCardIdiom> idioms = const [],
   List<WinCardAction> actions = const [],
+  bool dismissible = false,
 }) {
   return showDialog<void>(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: dismissible,
     builder: (ctx) => Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-      child: WinCard(
-        seal: seal,
-        title: title,
-        subtitle: subtitle,
-        xpText: xpText,
-        idioms: idioms,
-        actions: actions,
+      child: Stack(
+        children: [
+          WinCard(
+            seal: seal,
+            title: title,
+            subtitle: subtitle,
+            xpText: xpText,
+            idioms: idioms,
+            actions: actions,
+          ),
+          if (dismissible)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                tooltip: '关闭',
+                onPressed: () => Navigator.of(ctx).pop(),
+                icon: const Icon(Icons.close, color: AppColors.muted),
+              ),
+            ),
+        ],
       ),
     ),
   );

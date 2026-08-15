@@ -8,15 +8,23 @@ void main() {
       usedCandidateSlots: const {},
       fillHistory: const [],
       cellToCandidateSlot: const {},
-      candidateBoard: const [['一'], ['二']],
+      candidateBoard: const [
+        ['一'],
+        ['二'],
+      ],
       hintUsesThisLevel: 0,
       errorsMade: 0,
       correctStreak: 0,
       totalFills: 7,
+      wrongIdiomWords: const {'画蛇添足'},
+      reviveUsesThisLevel: 2,
     );
     final decoded = decodeGameState(encodeGameState(s));
     expect(decoded, isNotNull);
     expect(decoded!.totalFills, 7);
+    expect(decoded.wrongIdiomWords, {'画蛇添足'});
+    expect(decoded.remainingSeconds, 180);
+    expect(decoded.reviveUsesThisLevel, 2);
 
     // 旧存档（无 fills 键）→ 0
     final legacy = decodeGameState(

@@ -55,8 +55,14 @@ import 'settings_screen.dart';
 class GameScreen extends ConsumerStatefulWidget {
   final CrosswordLevel level;
   final bool noReward;
+  final bool dailyTimerEnabled;
 
-  const GameScreen({super.key, required this.level, this.noReward = false});
+  const GameScreen({
+    super.key,
+    required this.level,
+    this.noReward = false,
+    this.dailyTimerEnabled = true,
+  });
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -64,7 +70,7 @@ class GameScreen extends ConsumerStatefulWidget {
 
 class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   static const int _initialLives = 3;
-  static const int _dailyTimeLimitSeconds = 120;
+  static const int _dailyTimeLimitSeconds = 180;
   static const double _rewardedInterstitialAdChance = 0.4;
 
   late CrosswordGrid _grid;
@@ -73,8 +79,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   int _lives = _initialLives;
   int _remainingSeconds = _dailyTimeLimitSeconds;
   Timer? _dailyTimer;
+  bool _dailyRetryWithoutTimer = false;
   bool _failed = false;
   bool _revived = false;
+  int _reviveUsesThisLevel = 0;
+  Future<void> Function()? _terminalDialog;
+  bool _terminalDialogVisible = false;
 
   // 当前焦点格子
   int _focusRow = -1;
@@ -133,11 +143,14 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     _findFirstEmptyCell();
     _levelStartTime = DateTime.now();
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
-    if (_isDaily) _startDailyTimer();
-    _loadReversiblePairs().then((_) => _restoreSavedState());
+    _loadReversiblePairs().then((_) async {
+      await _restoreSavedState();
+      await _configureDailyTimer();
+    });
     // 提前预加载插页式激励广告，避免在通关后等待加载。
     if (AdManager.isSupportedPlatform) {
       unawaited(AdManager().loadRewardedInterstitialAd());
+      unawaited(AdManager().loadRewardedAd());
     }
   }
 
@@ -248,9 +261,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
         _errorsMade = state.errorsMade;
         _correctStreak = state.correctStreak;
         _totalFills = state.totalFills;
+        _wrongIdiomWords.addAll(state.wrongIdiomWords);
         _lives = state.lives;
         _remainingSeconds = state.remainingSeconds;
         _revived = state.revived;
+        _reviveUsesThisLevel = state.reviveUsesThisLevel;
         if (state.focusRow != null && state.focusCol != null) {
           _focusRow = state.focusRow!;
           _focusCol = state.focusCol!;
@@ -268,6 +283,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
   /// 从填字历史重建本局填错过的成语（断点续玩后仍能统计）
   void _rebuildWrongIdiomsFromHistory() {
+    if (_wrongIdiomWords.isNotEmpty) return;
     _wrongIdiomWords.clear();
     for (final entry in _fillHistory) {
       if (entry.candRow < 0 ||
@@ -278,9 +294,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       }
       final filledChar = _candidateBoard[entry.candRow][entry.candCol];
       if (!_isCharCorrectForCell(entry.row, entry.col, filledChar)) {
-        _wrongIdiomWords.addAll(
-          _placementsContaining(entry.row, entry.col).map((p) => p.idiom.text),
-        );
+        final placement = _placementsContaining(
+          entry.row,
+          entry.col,
+        ).firstOrNull;
+        if (placement != null) _wrongIdiomWords.add(placement.idiom.text);
       }
     }
   }
@@ -350,9 +368,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
             errorsMade: _errorsMade,
             correctStreak: _correctStreak,
             totalFills: _totalFills,
+            wrongIdiomWords: Set.from(_wrongIdiomWords),
             lives: _lives,
             remainingSeconds: _remainingSeconds,
             revived: _revived,
+            reviveUsesThisLevel: _reviveUsesThisLevel,
             focusRow: _focusRow < 0 ? null : _focusRow,
             focusCol: _focusCol < 0 ? null : _focusCol,
             direction: _currentDirection,
@@ -419,6 +439,20 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     return widget.level.placements
         .where((p) => p.cells.any((c) => c == target))
         .toList();
+  }
+
+  Placement? _activePlacementForCell(int row, int col) {
+    final placements = _placementsContaining(row, col);
+    if (placements.isEmpty) return null;
+    for (final placement in placements) {
+      if (placement.direction == _currentDirection) return placement;
+    }
+    return placements.first;
+  }
+
+  void _markActiveIdiomWrong(int row, int col) {
+    final placement = _activePlacementForCell(row, col);
+    if (placement != null) _wrongIdiomWords.add(placement.idiom.text);
   }
 
   /// 该成语是否属于“ABCD ↔ CDAB”半句交换，且当前提示/交叉条件允许两种顺序
@@ -516,6 +550,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     final filledRow = _focusRow;
     final filledCol = _focusCol;
     final isCorrect = _isCharCorrectForCell(filledRow, filledCol, char);
+    final shouldFail = !isCorrect && _lives == 0;
     _totalFills++; // 本关填字尝试次数（含错误字），提示填入不计
     if (isCorrect) {
       _correctStreak++;
@@ -531,11 +566,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       }
     } else {
       _errorsMade++;
-      _lives--;
+      _lives = max(0, _lives - 1);
       _correctStreak = 0;
-      _wrongIdiomWords.addAll(
-        _placementsContaining(filledRow, filledCol).map((p) => p.idiom.text),
-      );
+      _markActiveIdiomWrong(filledRow, filledCol);
       ref.read(playerProvider.notifier).recordWrongFill();
     }
 
@@ -558,7 +591,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       idiomCompleted = _checkCompletionForCurrentIdiom();
     });
 
-    if (!isCorrect && _lives <= 0) {
+    if (shouldFail) {
       unawaited(_failLevel());
       return;
     }
@@ -1006,37 +1039,42 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
         .take(3)
         .map((i) => (word: i.word, meaning: i.meaning))
         .toList();
-    showWinCardDialog(
-      context,
-      seal: '通',
-      title: _isDaily ? '每日挑战 · 完成' : '恭喜通过 · ${widget.level.title}',
-      subtitle:
-          '用时 ${_formatDuration(timeSpentMs)}${(_errorsMade <= 0) ? '' : ' · 填错 $_errorsMade'}',
-      xpText: xpText,
-      idioms: wrongIdioms,
-      actions: [
-        if (!_isDaily)
+    _showTerminalDialog(
+      () => showWinCardDialog(
+        context,
+        seal: '通',
+        title: _isDaily ? '每日挑战 · 完成' : '恭喜通过 · ${widget.level.title}',
+        subtitle:
+            '用时 ${_formatDuration(timeSpentMs)}${(_errorsMade <= 0) ? '' : ' · 填错 $_errorsMade'}',
+        xpText: xpText,
+        idioms: wrongIdioms,
+        dismissible: true,
+        actions: [
+          if (!_isDaily)
+            WinCardAction(
+              label: '下一关',
+              primary: true,
+              onTap: () {
+                _clearTerminalDialog();
+                Navigator.of(context).pop();
+                _startNextLevel();
+              },
+            ),
           WinCardAction(
-            label: '下一关',
-            primary: true,
+            label: '学习本关成语',
+            ghost: true,
+            onTap: () => _showLearning(context),
+          ),
+          WinCardAction(
+            label: '返回主页',
+            ghost: true,
             onTap: () {
-              Navigator.of(context).pop();
-              _startNextLevel();
+              _clearTerminalDialog();
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
           ),
-        WinCardAction(
-          label: '学习本关成语',
-          ghost: true,
-          onTap: () => _showLearning(context),
-        ),
-        WinCardAction(
-          label: '返回主页',
-          ghost: true,
-          onTap: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1055,6 +1093,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   /// 每日挑战关卡（专用关卡号段）
   bool get _isDaily => widget.level.levelId >= dailyLevelOffset;
 
+  bool get _usesDailyTimer =>
+      _isDaily && widget.dailyTimerEnabled && !_dailyRetryWithoutTimer;
+
   String get _countdownText {
     final m = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
     final s = (_remainingSeconds % 60).toString().padLeft(2, '0');
@@ -1071,23 +1112,47 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
   /// 重玩已通关关卡：不再发放奖励
   void _showReplayCompleteDialog() {
-    showWinCardDialog(
-      context,
-      seal: '通',
-      title: '本关已完成',
-      subtitle: '重玩关卡不重复发放经验与收藏。',
-      xpText: '+0',
-      actions: [
-        WinCardAction(
-          label: '返回',
-          ghost: true,
-          onTap: () {
-            Navigator.of(context).pop();
-            if (mounted) Navigator.of(context).pop();
-          },
-        ),
-      ],
+    _showTerminalDialog(
+      () => showWinCardDialog(
+        context,
+        seal: '通',
+        title: '本关已完成',
+        subtitle: '重玩关卡不重复发放经验与收藏。',
+        xpText: '+0',
+        dismissible: true,
+        actions: [
+          WinCardAction(
+            label: '返回',
+            ghost: true,
+            onTap: () {
+              _clearTerminalDialog();
+              Navigator.of(context).pop();
+              if (mounted) Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
     );
+  }
+
+  Future<void> _showTerminalDialog(Future<void> Function() dialog) async {
+    _terminalDialog = dialog;
+    if (_terminalDialogVisible || !mounted) return;
+    setState(() => _terminalDialogVisible = true);
+    await dialog();
+    if (mounted && _terminalDialog != null) {
+      setState(() => _terminalDialogVisible = false);
+    }
+  }
+
+  void _clearTerminalDialog() {
+    _terminalDialog = null;
+    _terminalDialogVisible = false;
+  }
+
+  void _reopenTerminalDialog() {
+    final dialog = _terminalDialog;
+    if (dialog != null) unawaited(_showTerminalDialog(dialog));
   }
 
   void _startDailyTimer() {
@@ -1103,6 +1168,22 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     });
   }
 
+  Future<void> _configureDailyTimer() async {
+    if (!_isDaily || !widget.dailyTimerEnabled) return;
+    var failedBefore = false;
+    try {
+      failedBefore =
+          await ref.read(databaseProvider).getSetting(_dailyNoRewardKey()) ==
+          'true';
+    } catch (_) {}
+    if (!mounted) return;
+    if (failedBefore) {
+      setState(() => _dailyRetryWithoutTimer = true);
+    } else {
+      _startDailyTimer();
+    }
+  }
+
   Future<void> _failLevel({bool timeUp = false}) async {
     if (_failed || _levelFinished) return;
     _failed = true;
@@ -1113,37 +1194,74 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     } catch (_) {}
     if (!mounted) return;
     if (_isDaily) {
-      ref.read(databaseProvider).setSetting(_dailyNoRewardKey(), 'true');
+      await ref.read(databaseProvider).setSetting(_dailyNoRewardKey(), 'true');
+      if (!mounted) return;
     }
+    final usesAdRevive = _reviveUsesThisLevel < 3;
     final reviveCount =
         ref.read(playerProvider).functionalItems['revive_card'] ?? 0;
-    showWinCardDialog(
-      context,
-      seal: '败',
-      title: '挑战失败',
-      subtitle: _isDaily ? (timeUp ? '倒计时结束' : '生命值耗尽') : '生命值耗尽',
-      xpText: '+0',
-      actions: [
-        WinCardAction(
-          label: '复活(剩余 $reviveCount)',
-          primary: true,
-          onTap: _handleRevive,
-        ),
-        WinCardAction(
-          label: _isDaily ? '重玩本关（无经验）' : '重玩本关',
-          ghost: true,
-          onTap: _replayLevel,
-        ),
-        WinCardAction(
-          label: '返回主页',
-          ghost: true,
-          onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
-        ),
-      ],
+    _showTerminalDialog(
+      () => showWinCardDialog(
+        context,
+        seal: '败',
+        title: '挑战失败',
+        subtitle: _isDaily ? (timeUp ? '倒计时结束' : '生命值耗尽') : '生命值耗尽',
+        xpText: '+0',
+        dismissible: true,
+        actions: [
+          WinCardAction(
+            label: usesAdRevive ? '看广告复活' : '复活卡(剩余 $reviveCount)',
+            primary: true,
+            onTap: _handleRevive,
+          ),
+          WinCardAction(
+            label: _isDaily ? '重玩本关（无经验）' : '重玩本关',
+            ghost: true,
+            onTap: _replayLevel,
+          ),
+          WinCardAction(
+            label: '返回主页',
+            ghost: true,
+            onTap: () {
+              _clearTerminalDialog();
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          ),
+        ],
+      ),
     );
   }
 
   Future<void> _handleRevive() async {
+    if (_reviveUsesThisLevel < 3) {
+      final adManager = AdManager();
+      final ready =
+          adManager.isRewardedAdReadyNotifier.value ||
+          await adManager.loadRewardedAd();
+      if (!mounted) return;
+      if (!ready) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('广告暂未就绪，请稍后重试')));
+        return;
+      }
+      var rewarded = false;
+      final shown = adManager.showRewardedAd(
+        onRewardEarned: (_, _) {
+          if (rewarded) return;
+          rewarded = true;
+          _reviveUsesThisLevel++;
+          _resumeAfterRevive();
+        },
+      );
+      if (!shown && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('广告暂未就绪，请稍后重试')));
+      }
+      return;
+    }
+
     final reviveCount =
         ref.read(playerProvider).functionalItems['revive_card'] ?? 0;
     if (reviveCount <= 0) {
@@ -1152,6 +1270,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     }
     await ref.read(playerProvider.notifier).useReviveCard();
     if (!mounted) return;
+    _resumeAfterRevive();
+  }
+
+  void _resumeAfterRevive() {
+    if (!mounted) return;
+    _clearTerminalDialog();
     Navigator.of(context).pop(); // 关闭失败弹框
     setState(() {
       _lives = _initialLives;
@@ -1160,7 +1284,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       _revived = true;
       _clearWrongAnswers();
     });
-    if (_isDaily) _startDailyTimer();
+    if (_usesDailyTimer) _startDailyTimer();
     _saveState();
   }
 
@@ -1169,11 +1293,16 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       await ref.read(databaseProvider).clearLevelState(widget.level.levelId);
     } catch (_) {}
     if (!mounted) return;
+    _clearTerminalDialog();
     Navigator.of(context).pop(); // 关闭失败弹框
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => GameScreen(level: widget.level, noReward: _isDaily),
+        builder: (_) => GameScreen(
+          level: widget.level,
+          noReward: _isDaily,
+          dailyTimerEnabled: !_isDaily,
+        ),
       ),
     );
   }
@@ -1495,6 +1624,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     final activeBackground = ref.watch(playerProvider).activeBackground;
+    final terminal = _failed || _levelFinished;
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: Stack(
@@ -1511,15 +1641,44 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                 : Column(
                     children: [
                       _buildTopBar(),
-                      _buildProgress(),
-                      _buildCompletedIdiomsSection(),
-                      Expanded(flex: 7, child: _buildGrid()),
-                      _buildStatusLine(),
-                      Expanded(flex: 3, child: _buildCandidateBoardWidget()),
-                      _buildToolbar(),
+                      Expanded(
+                        child: IgnorePointer(
+                          ignoring: terminal,
+                          child: Column(
+                            children: [
+                              _buildProgress(),
+                              _buildCompletedIdiomsSection(),
+                              Expanded(flex: 7, child: _buildGrid()),
+                              _buildStatusLine(),
+                              Expanded(
+                                flex: 3,
+                                child: _buildCandidateBoardWidget(),
+                              ),
+                              _buildToolbar(),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
           ),
+          if (terminal && !_terminalDialogVisible) ...[
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _reopenTerminalDialog,
+              ),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: _buildExitButton(),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1533,19 +1692,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).maybePop(),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                border: Border.all(color: AppColors.border),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(child: AppIcon('back', size: 20)),
-            ),
-          ),
+          _buildExitButton(),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1578,6 +1725,22 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildExitButton() {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).maybePop(),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(child: AppIcon('back', size: 20)),
       ),
     );
   }
@@ -1850,7 +2013,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                         child: Text(
                           char,
                           style: displayStyle(
-                            size: 19,
+                            size: 22,
                             weight: FontWeight.w600,
                             color: isUsed ? AppColors.faint : AppColors.fg,
                           ),
@@ -1873,12 +2036,49 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('生命值：$_lives', style: bodyStyle(size: 12, color: AppColors.fg)),
-          if (_isDaily) ...[
-            const SizedBox(width: 16),
-            Text(
-              '倒计时：$_countdownText',
-              style: bodyStyle(size: 12, color: AppColors.fg),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < _initialLives; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Icon(
+                    i < _lives ? Icons.favorite : Icons.favorite_border,
+                    key: ValueKey('life-heart-$i'),
+                    size: 24,
+                    color: i < _lives ? Colors.red : AppColors.faint,
+                  ),
+                ),
+            ],
+          ),
+          if (_usesDailyTimer) ...[
+            const SizedBox(width: 18),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.goldSoft,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: AppColors.gold),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.timer_outlined,
+                    size: 20,
+                    color: AppColors.gold,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    _countdownText,
+                    style: bodyStyle(
+                      size: 17,
+                      weight: FontWeight.w900,
+                      color: AppColors.fg,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ],
@@ -1964,6 +2164,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     }
     await ref.read(playerProvider.notifier).useHintCard();
     _hintUsesThisLevel++;
+    _markActiveIdiomWrong(_focusRow, _focusCol);
 
     var idiomCompleted = false;
     setState(() {
@@ -2207,8 +2408,8 @@ class GridPainter extends CustomPainter {
           paint,
         );
 
-        // given 格右上角朱砂小圆点
-        if (cell.isGiven) {
+        // 交叉格右上角朱砂小圆点，与当前是否已填字无关
+        if (cell.isIntersection) {
           canvas.drawCircle(
             Offset(x + s - 6, y + 6),
             2.5,
