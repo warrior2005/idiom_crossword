@@ -80,6 +80,11 @@ void main() {
 
         // 连通性：每个成语至少与另一个成语有交叉
         expect(level.placements.length, targetSize);
+        expect(
+          level.hasAmbiguousAdjacency,
+          isFalse,
+          reason: '${band.label} 布局不应出现同向紧邻或首尾相连',
+        );
         for (final placement in level.placements) {
           final hasCross = level.placements.any(
             (other) =>
@@ -168,10 +173,10 @@ void main() {
   });
 
   test('螺旋关卡包含长尾/预览混排（设计 §4.3）', () {
-    // 固定种子保证确定性（种子 1 已探测：6 次全部生成成功且出现混排）
+    // 固定种子保证确定性（种子 16 已探测：严格间距下可生成混排）
     final spiralGen = IntegratedGenerator(
       graph: CrossingGraph(idioms: allIdioms),
-      random: Random(1),
+      random: Random(16),
     );
     const levelNumber = 6000; // base 30：tail 20-25，preview 33-35
     final spiral = SpiralDifficulty.calculate(levelNumber);

@@ -343,6 +343,62 @@ void main() {
     expect(history.single.totalFills, 5);
   });
 
+  test('最近三个普通关卡的成语可用于跨关去重', () async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    final id = await db.findIdiomIdByWord('画蛇添足');
+
+    for (final levelNumber in [1, 2, 3, 4]) {
+      await db.addLevelHistory(
+        levelNumber: levelNumber,
+        xpGained: 1,
+        idiomsUsed: levelNumber == 1 ? const [999] : [id!],
+      );
+    }
+    await db.addLevelHistory(
+      levelNumber: dailyLevelOffset + 1,
+      xpGained: 1,
+      idiomsUsed: const [888],
+    );
+
+    expect(await db.getRecentlyUsedMainIdiomIds(3), {id});
+  });
+
+  test('普通关卡生成会排除最近三关的成语', () async {
+    final tmpDir = await Directory.systemTemp.createTemp('idiom_recent_test');
+    final tmpDb = File('${tmpDir.path}/test.db');
+    await File('assets/data/idiom_crossword.db').copy(tmpDb.path);
+    final db = AppDatabase(NativeDatabase(tmpDb));
+    addTearDown(db.close);
+    addTearDown(() => tmpDir.delete(recursive: true));
+
+    final recent = await db.findIdiomsByDifficulty(1, 10, 18);
+    final recentIds = recent.map((idiom) => idiom.id).toList();
+    for (var levelNumber = 1; levelNumber <= 3; levelNumber++) {
+      await db.addLevelHistory(
+        levelNumber: levelNumber,
+        xpGained: 1,
+        idiomsUsed: recentIds.skip((levelNumber - 1) * 6).take(6).toList(),
+      );
+    }
+
+    final level = await generateLevel(
+      db,
+      4,
+      targetSize: 6,
+      difficultyRange: (1, 10),
+      maxAttempts: 100,
+    );
+    expect(level, isNotNull);
+    final generatedIds = await db.findIdiomIdsByWords(
+      level!.idioms.map((idiom) => idiom.text).toList(),
+    );
+    expect(
+      generatedIds.values.toSet().intersection(recentIds.toSet()),
+      isEmpty,
+    );
+  });
+
   test('schema v9：跨关卡连胜列可写入读取', () async {
     final db = await _memoryDb();
     addTearDown(db.close);

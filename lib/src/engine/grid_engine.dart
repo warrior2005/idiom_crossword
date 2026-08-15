@@ -183,6 +183,50 @@ class CrosswordLevel {
     return false;
   }
 
+  /// 是否存在传统填字规则不允许的视觉粘连。
+  ///
+  /// 同向词首尾不能直接相接；非交叉格的垂直方向也不能紧邻其他格子。
+  bool get hasAmbiguousAdjacency {
+    final useCounts = <(int, int), int>{};
+    for (final placement in placements) {
+      for (final cell in placement.cells) {
+        useCounts.update(cell, (count) => count + 1, ifAbsent: () => 1);
+      }
+    }
+
+    for (final placement in placements) {
+      final before = placement.direction == Direction.horizontal
+          ? (placement.startRow, placement.startCol - 1)
+          : (placement.startRow - 1, placement.startCol);
+      final after = placement.direction == Direction.horizontal
+          ? (
+              placement.startRow,
+              placement.startCol + placement.idiom.text.length,
+            )
+          : (
+              placement.startRow + placement.idiom.text.length,
+              placement.startCol,
+            );
+      if (useCounts.containsKey(before) || useCounts.containsKey(after)) {
+        return true;
+      }
+
+      for (final (row, col) in placement.cells) {
+        if (useCounts[(row, col)]! > 1) continue;
+        final sideA = placement.direction == Direction.horizontal
+            ? (row - 1, col)
+            : (row, col - 1);
+        final sideB = placement.direction == Direction.horizontal
+            ? (row + 1, col)
+            : (row, col + 1);
+        if (useCounts.containsKey(sideA) || useCounts.containsKey(sideB)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   bool isInterchangeablePlacement(Placement placement) {
     return placements.any(
       (other) =>

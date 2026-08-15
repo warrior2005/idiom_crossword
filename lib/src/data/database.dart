@@ -657,6 +657,21 @@ class AppDatabase extends _$AppDatabase {
     )..orderBy([(t) => OrderingTerm.asc(t.levelNumber)])).get();
   }
 
+  /// 最近若干个普通关卡使用过的成语 ID（跨关去重用）。
+  Future<Set<int>> getRecentlyUsedMainIdiomIds(int levelCount) async {
+    final rows =
+        await (select(levelHistory)
+              ..where((t) => t.levelNumber.isSmallerThanValue(1000000))
+              ..orderBy([(t) => OrderingTerm.desc(t.levelNumber)])
+              ..limit(levelCount))
+            .get();
+    return rows
+        .expand((row) => row.idiomsUsed.split(','))
+        .map(int.tryParse)
+        .whereType<int>()
+        .toSet();
+  }
+
   /// 指定时间起的通关记录（排行榜按自然周统计经验）。
   Future<List<LevelHistoryData>> getLevelHistorySince(DateTime start) async {
     return await (select(

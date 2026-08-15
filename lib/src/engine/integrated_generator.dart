@@ -72,7 +72,11 @@ class IntegratedGenerator {
 
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
       final result = _tryGenerate(candidates, targetSize, levelNumber);
-      if (result != null && !result.hasInterchangeableAnswers) return result;
+      if (result != null &&
+          !result.hasInterchangeableAnswers &&
+          !result.hasAmbiguousAdjacency) {
+        return result;
+      }
     }
     return null;
   }
@@ -268,6 +272,16 @@ class IntegratedGenerator {
   ) {
     final word = graph.idioms[node].text;
 
+    final before = opt.direction == Direction.horizontal
+        ? (opt.startRow, opt.startCol - 1)
+        : (opt.startRow - 1, opt.startCol);
+    final after = opt.direction == Direction.horizontal
+        ? (opt.startRow, opt.startCol + length)
+        : (opt.startRow + length, opt.startCol);
+    if (occupied.containsKey(before) || occupied.containsKey(after)) {
+      return false;
+    }
+
     for (int k = 0; k < length; k++) {
       final r = opt.direction == Direction.vertical
           ? opt.startRow + k
@@ -279,6 +293,17 @@ class IntegratedGenerator {
       if (r < -5 || r >= 30 || c < -5 || c >= 30) return false;
 
       final occ = occupied[(r, c)];
+      if (occ == null) {
+        final sideA = opt.direction == Direction.horizontal
+            ? (r - 1, c)
+            : (r, c - 1);
+        final sideB = opt.direction == Direction.horizontal
+            ? (r + 1, c)
+            : (r, c + 1);
+        if (occupied.containsKey(sideA) || occupied.containsKey(sideB)) {
+          return false;
+        }
+      }
       if (occ != null && occ != node) {
         // 格子已被其他成语占用，检查字符是否一致
         final otherPlaced = placed[occ];
@@ -467,7 +492,7 @@ class IntegratedGenerator {
             targetSize: targetSize,
             minDifficulty: 1,
             maxDifficulty: 50,
-            maxAttempts: maxAttempts ~/ 2,
+            maxAttempts: maxAttempts,
             levelNumber: levelNumber,
             candidatePool: mixedPool,
           )

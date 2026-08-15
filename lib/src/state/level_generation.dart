@@ -11,6 +11,9 @@ import 'level_state_codec.dart';
 /// 每日挑战专用关卡号段起点（1000000+epochDay，与普通关卡区分）
 const int dailyLevelOffset = 1000000;
 
+/// 普通关卡不重复使用最近这些关卡出现过的成语。
+const int recentLevelExclusionCount = 3;
+
 /// 今日每日挑战关卡号
 int dailyLevelNumber([DateTime? now]) {
   final day = (now ?? DateTime.now())
@@ -42,6 +45,10 @@ Future<engine.CrosswordLevel?> generateLevel(
   final (minD, maxD) = globalRange
       ? (1, 50)
       : difficultyRange ?? _spiralRange(levelNumber);
+  final excludedIds =
+      seed == null && levelNumber > 0 && levelNumber < dailyLevelOffset
+      ? await db.getRecentlyUsedMainIdiomIds(recentLevelExclusionCount)
+      : const <int>{};
 
   if (globalRange && targetSize == null) {
     return _generateGlobalLevel(
@@ -50,6 +57,7 @@ Future<engine.CrosswordLevel?> generateLevel(
       maxAttempts: maxAttempts,
       seed: seed,
       title: title,
+      excludedIds: excludedIds,
     );
   }
 
@@ -62,6 +70,7 @@ Future<engine.CrosswordLevel?> generateLevel(
   if (dbIdioms.length < 5) return null;
 
   final engineIdioms = dbIdioms
+      .where((i) => !excludedIds.contains(i.id))
       .map(
         (i) => engine.Idiom(
           text: i.word,
@@ -111,6 +120,7 @@ Future<engine.CrosswordLevel?> _generateGlobalLevel(
   required int maxAttempts,
   int? seed,
   String? title,
+  required Set<int> excludedIds,
 }) async {
   final global = GlobalDifficulty.calculate(
     levelNumber,
@@ -130,9 +140,10 @@ Future<engine.CrosswordLevel?> _generateGlobalLevel(
       minD,
       maxD,
       limit,
-      randomOrder: true,
+      randomOrder: seed == null,
     );
     for (final row in rows) {
+      if (excludedIds.contains(row.id)) continue;
       byWord.putIfAbsent(row.word, () => row);
     }
   }
