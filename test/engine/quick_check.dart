@@ -8,7 +8,7 @@ import 'package:idiom_crossword/src/engine/integrated_generator.dart';
 
 void main() {
   final raw =
-      json.decode(File('assets/data/scoring_progress.json').readAsStringSync())
+      json.decode(File('data/scoring_progress.json').readAsStringSync())
           as Map<String, dynamic>;
   final scores = raw['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];

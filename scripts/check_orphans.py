@@ -1,6 +1,6 @@
 import json
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\idiom.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\idiom.json','r',encoding='utf-8') as f:
     raw = json.load(f)
 
 targets = ['高高兴兴','百闻不如一见']

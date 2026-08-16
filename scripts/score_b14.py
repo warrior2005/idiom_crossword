@@ -42,11 +42,11 @@ s={
 '两次三番':22,'两道三科':38,'两面二舌':35,'两头三绪':32,'临文不讳':42,
 }
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','r',encoding='utf-8') as f:
     p=json.load(f)
 for w,sc in s.items(): p['scores'][w]=sc
 p['batches_done'].append(14)
 p['scored_count']=len(p['scores'])
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','w',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','w',encoding='utf-8') as f:
     json.dump(p,f,ensure_ascii=False,indent=2)
 print(f'B14 done: {p["scored_count"]}/{p["total"]} ({p["scored_count"]/p["total"]*100:.1f}%)')

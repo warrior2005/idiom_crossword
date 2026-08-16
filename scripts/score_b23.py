@@ -42,11 +42,11 @@ s={
 '好自为之':20,'浩浩荡荡':10,'浩然之气':22,'喝西北风':14,'合胆同心':32,
 }
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','r',encoding='utf-8') as f:
     p=json.load(f)
 for w,sc in s.items(): p['scores'][w]=sc
 p['batches_done'].append(23)
 p['scored_count']=len(p['scores'])
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','w',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','w',encoding='utf-8') as f:
     json.dump(p,f,ensure_ascii=False,indent=2)
 print(f'B23 done: {p["scored_count"]}/{p["total"]} ({p["scored_count"]/p["total"]*100:.1f}%)')

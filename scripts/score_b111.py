@@ -42,11 +42,11 @@ s={
 '窒碍难行':30,'置锥之地':32,'众寡势殊':30,'众口熏天':42,'众目具瞻':38,
 }
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','r',encoding='utf-8') as f:
     p=json.load(f)
 for w,sc in s.items(): p['scores'][w]=sc
 p['batches_done'].append(111)
 p['scored_count']=len(p['scores'])
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','w',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','w',encoding='utf-8') as f:
     json.dump(p,f,ensure_ascii=False,indent=2)
 print(f'B111 done: {p["scored_count"]}/{p["total"]} ({p["scored_count"]/p["total"]*100:.1f}%)')

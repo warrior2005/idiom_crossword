@@ -42,11 +42,11 @@ s={
 '案牍劳形':38,'八万四千':42,'跋山涉川':32,'白璧青蝇':42,'百丈竿头':40,
 }
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','r',encoding='utf-8') as f:
     p=json.load(f)
 for w,sc in s.items(): p['scores'][w]=sc
 p['batches_done'].append(102)
 p['scored_count']=len(p['scores'])
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','w',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','w',encoding='utf-8') as f:
     json.dump(p,f,ensure_ascii=False,indent=2)
 print(f'B102 done: {p["scored_count"]}/{p["total"]} ({p["scored_count"]/p["total"]*100:.1f}%)')

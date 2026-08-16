@@ -42,11 +42,11 @@ s={
 '岁月如流':22,'碎心裂胆':40,'孙康映雪':40,'损公肥私':14,'损人害己':18,
 }
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','r',encoding='utf-8') as f:
     p=json.load(f)
 for w,sc in s.items(): p['scores'][w]=sc
 p['batches_done'].append(33)
 p['scored_count']=len(p['scores'])
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','w',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','w',encoding='utf-8') as f:
     json.dump(p,f,ensure_ascii=False,indent=2)
 print(f'B33 done: {p["scored_count"]}/{p["total"]} ({p["scored_count"]/p["total"]*100:.1f}%)')

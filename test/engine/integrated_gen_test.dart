@@ -92,7 +92,7 @@ void main() {
 }
 
 List<Idiom> _loadFromDb() {
-  final jsonStr = File('assets/data/scoring_progress.json').readAsStringSync();
+  final jsonStr = File('data/scoring_progress.json').readAsStringSync();
   final data = json.decode(jsonStr) as Map<String, dynamic>;
   final scores = data['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];

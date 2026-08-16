@@ -43,7 +43,7 @@ scores = {
     '屡战屡败':14,'论功行封':32,'马腹逃鞭':35,'马首欲东':35,'买东买西':16,
 }
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json', 'r', encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json', 'r', encoding='utf-8') as f:
     progress = json.load(f)
 
 for w, s in scores.items():
@@ -51,7 +51,7 @@ for w, s in scores.items():
 progress['batches_done'].append(1)
 progress['scored_count'] = len(progress['scores'])
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json', 'w', encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json', 'w', encoding='utf-8') as f:
     json.dump(progress, f, ensure_ascii=False, indent=2)
 
 print(f'Batch 1 done. Total: {progress["scored_count"]}/{progress["total"]}')

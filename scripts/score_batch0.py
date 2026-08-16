@@ -65,7 +65,7 @@ scores = {
 }
 
 # 保存
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json', 'r', encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json', 'r', encoding='utf-8') as f:
     progress = json.load(f)
 
 for w, s in scores.items():
@@ -73,7 +73,7 @@ for w, s in scores.items():
 progress['batches_done'].append(0)
 progress['scored_count'] = len(progress['scores'])
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json', 'w', encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json', 'w', encoding='utf-8') as f:
     json.dump(progress, f, ensure_ascii=False, indent=2)
 
 print(f'OK: batch 0 done, total scored: {progress["scored_count"]}')

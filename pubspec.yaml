@@ -52,7 +52,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/data/
+    - assets/data/idiom_crossword.db
     - assets/audio/
     - assets/images/
 

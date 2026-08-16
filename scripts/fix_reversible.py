@@ -31,14 +31,14 @@ for new_d, id_, _, _ in fixes:
 c.commit()
 
 # 同步更新 scoring_progress.json
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json', 'r', encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json', 'r', encoding='utf-8') as f:
     p = json.load(f)
 for _, _, w, _ in fixes:
     # 从 DB 读新值
     r = c.execute('SELECT difficulty FROM idiom WHERE word=?', (w,)).fetchone()
     p['scores'][w] = r[0]
 p['reversible_unified'] = True
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json', 'w', encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json', 'w', encoding='utf-8') as f:
     json.dump(p, f, ensure_ascii=False, indent=2)
 
 # 验证

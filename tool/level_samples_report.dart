@@ -1,7 +1,7 @@
 // 生成各难度段位的关卡样本报告（供人工复核，PLANS 1.6）
 //
 // 使用：dart run tool/level_samples_report.dart
-// 输出：assets/data/level_samples_report.md
+// 输出：docs/specs/level_samples_report.md
 
 import 'dart:convert';
 import 'dart:io';
@@ -85,14 +85,14 @@ void main() {
     }
   }
 
-  final outPath = 'assets/data/level_samples_report.md';
+  final outPath = 'docs/specs/level_samples_report.md';
   File(outPath).writeAsStringSync(buf.toString());
   stdout.writeln('已生成 $outPath');
 }
 
 List<Idiom> _loadIdioms() {
   final data =
-      json.decode(File('assets/data/scoring_progress.json').readAsStringSync())
+      json.decode(File('data/scoring_progress.json').readAsStringSync())
           as Map<String, dynamic>;
   final scores = data['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];

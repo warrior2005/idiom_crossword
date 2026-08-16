@@ -260,7 +260,7 @@ void main() {
 
 List<Idiom> _loadIdioms() {
   final data =
-      json.decode(File('assets/data/scoring_progress.json').readAsStringSync())
+      json.decode(File('data/scoring_progress.json').readAsStringSync())
           as Map<String, dynamic>;
   final scores = data['scores'] as Map<String, dynamic>;
   final idioms = <Idiom>[];

@@ -11,11 +11,13 @@ import unicodedata
 from pathlib import Path
 
 
-DATA_DIR = Path(__file__).resolve().parent.parent / 'assets' / 'data'
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+SOURCE_DATA_DIR = PROJECT_DIR / 'data'
+DB_PATH = PROJECT_DIR / 'assets' / 'data' / 'idiom_crossword.db'
 
 
 def load_json(name):
-    with (DATA_DIR / name).open(encoding='utf-8') as file:
+    with (SOURCE_DATA_DIR / name).open(encoding='utf-8') as file:
         return json.load(file)
 
 
@@ -53,7 +55,7 @@ def analyze(raw_items, score_items, scores):
         if item.get('pinyin', '') != normalize_pinyin(raw[word].get('pinyin', ''))
     ))
 
-    connection = sqlite3.connect(DATA_DIR / 'idiom_crossword.db')
+    connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
     rows = connection.execute('SELECT * FROM idioms').fetchall()
     connection.close()
@@ -92,13 +94,13 @@ def fix_explanations(raw_items, score_items):
         print('释义无需修复')
         return
 
-    target = DATA_DIR / 'to_score.json'
+    target = SOURCE_DATA_DIR / 'to_score.json'
     temporary = target.with_suffix('.json.tmp')
     with temporary.open('w', encoding='utf-8') as file:
         json.dump(score_items, file, ensure_ascii=False, indent=2)
     os.replace(temporary, target)
 
-    connection = sqlite3.connect(DATA_DIR / 'idiom_crossword.db')
+    connection = sqlite3.connect(DB_PATH)
     connection.executemany(
         'UPDATE idioms SET explanation = ? WHERE word = ?',
         updates,

@@ -10,10 +10,12 @@
 idiom_crossword/
 ├── pubspec.yaml
 ├── assets/data/
-│   ├── idiom.json                    # 原始数据源（30895 条，chinese-xinhua）
-│   ├── idiom_cleaned.json           # 清洗后四字成语（29502 条）
+│   └── idiom_crossword.db           # 应用运行时数据库
+├── data/
+│   ├── idiom.json                   # 原始数据源（30895 条，chinese-xinhua）
 │   ├── to_score.json                # 待评分数据（29502 条，含 word/old_score/hint/pinyin）
-│   └── scoring_progress.json        # 最终评分（29502/29502，scores 字典 + batches_done 列表）
+│   ├── scoring_progress.json        # 最终评分（29502/29502，scores 字典 + batches_done 列表）
+│   └── common3500.txt               # 常用汉字参考数据
 ├── docs/superpowers/specs/
 │   └── 2026-07-04-growth-system-design.md  # 科举仕途成长系统设计文档
 ├── lib/
@@ -379,8 +381,9 @@ idiom_crossword/
 
 | 用途 | 路径 |
 |------|------|
-| 最终评分 | `assets/data/scoring_progress.json` |
-| 待评分数据 | `assets/data/to_score.json` |
+| 原始成语 | `data/idiom.json` |
+| 最终评分 | `data/scoring_progress.json` |
+| 待评分数据 | `data/to_score.json` |
 | SQLite 数据库 | `assets/data/idiom_crossword.db`（variant_normalized_v2） |
 | 旧版备份 | `assets/data/idiom_crossword_v1.db`（重平衡 v1）、`idiom_crossword_old.db`（原始 LLM 评分） |
 | 数据库构建脚本 | `scripts/build_database.py` |
@@ -403,8 +406,8 @@ idiom_crossword/
 | 集成测试 | `test/integration/growth_system_test.dart` |
 | 数据库端到端测试 | `test/data/database_schema_test.dart` |
 | 界面/流程测试 | `test/ui/screens_test.dart`、`game_flow_test.dart` |
-| 关卡样本报告 | `assets/data/level_samples_report.md`（tool/level_samples_report.dart 生成） |
-| 评分分布 | `assets/data/score_distribution.md` |
+| 关卡样本报告 | `docs/specs/level_samples_report.md`（tool/level_samples_report.dart 生成） |
+| 评分分布 | `docs/specs/score_distribution.md` |
 | 最终校验 | `scripts/final_check.py` |
 | 成长系统设计 | `docs/superpowers/specs/2026-07-04-growth-system-design.md` |
 | 实现计划 | `docs/superpowers/plans/2026-07-04-growth-system-implementation.md` |
@@ -429,6 +432,6 @@ idiom_crossword/
 ### 提交前
 - [ ] `flutter analyze`、`flutter test`、`dart format --set-exit-if-changed` 全绿（CI 已自动执行）
 - [ ] `flutter build ios --no-codesign` 通过
-- [ ] 关卡样本人工复核（`assets/data/level_samples_report.md`）
+- [ ] 关卡样本人工复核（`docs/specs/level_samples_report.md`）
 - [ ] 隐私政策（`docs/AppStore/privacy_policy.md`，草稿）与商店描述（`docs/AppStore/description.md`，草稿）核对
 - [ ] 更新日志（`CHANGELOG.md`）随版本更新

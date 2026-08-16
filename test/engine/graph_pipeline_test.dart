@@ -14,7 +14,7 @@ void main() {
   print('=== 连通图管道实测（29502条真实成语）===\n');
 
   // 1. 加载数据
-  final jsonStr = File('assets/data/scoring_progress.json').readAsStringSync();
+  final jsonStr = File('data/scoring_progress.json').readAsStringSync();
   final Map<String, dynamic> rawData = json.decode(jsonStr);
   final scores = rawData['scores'] as Map<String, dynamic>;
 

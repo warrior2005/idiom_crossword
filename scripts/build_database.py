@@ -1,9 +1,9 @@
 """成语填字游戏 — SQLite 数据库构建脚本
 
 数据源:
-  - assets/data/scoring_progress.json → 人工难度评分（1-50）
-  - assets/data/to_score.json         → 无声调拼音等评分期元数据
-  - assets/data/idiom.json            → 释义、出处、例句等原始字段
+  - data/scoring_progress.json → 人工难度评分（1-50）
+  - data/to_score.json         → 无声调拼音等评分期元数据
+  - data/idiom.json            → 释义、出处、例句等原始字段
 
 输出:
   - assets/data/idiom_crossword.db    → SQLite 数据库（对齐 Drift v2 Schema）
@@ -25,18 +25,19 @@ import sqlite3
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
-DATA_DIR = os.path.join(PROJECT_DIR, 'assets', 'data')
+SOURCE_DATA_DIR = os.path.join(PROJECT_DIR, 'data')
+ASSET_DATA_DIR = os.path.join(PROJECT_DIR, 'assets', 'data')
 
 
 def load_data():
     """加载所有数据源"""
-    with open(os.path.join(DATA_DIR, 'to_score.json'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(SOURCE_DATA_DIR, 'to_score.json'), 'r', encoding='utf-8') as f:
         to_score = json.load(f)
 
-    with open(os.path.join(DATA_DIR, 'scoring_progress.json'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(SOURCE_DATA_DIR, 'scoring_progress.json'), 'r', encoding='utf-8') as f:
         progress = json.load(f)
 
-    with open(os.path.join(DATA_DIR, 'idiom.json'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(SOURCE_DATA_DIR, 'idiom.json'), 'r', encoding='utf-8') as f:
         idiom_raw = json.load(f)
 
     scores = progress['scores']
@@ -55,7 +56,7 @@ def extract_pinyin_abbr(pinyin):
 
 def build_db(scores, meta, extra):
     """构建与 Drift v2 Schema 对齐的 SQLite 数据库"""
-    db_path = os.path.join(DATA_DIR, 'idiom_crossword.db')
+    db_path = os.path.join(ASSET_DATA_DIR, 'idiom_crossword.db')
 
     # 删除旧文件及可能的 WAL 残留
     for suffix in ('', '-wal', '-shm'):

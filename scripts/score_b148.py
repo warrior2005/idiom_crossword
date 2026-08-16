@@ -1,8 +1,8 @@
 import json
 
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','r',encoding='utf-8') as f:
     p=json.load(f)
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\to_score.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\to_score.json','r',encoding='utf-8') as f:
     all_idioms=json.load(f)
 
 remaining=[item for item in all_idioms if item['word'] not in p['scores']]
@@ -25,6 +25,6 @@ for item in remaining:
 for w,sc in s.items(): p['scores'][w]=sc
 p['batches_done'].append(148)
 p['scored_count']=len(p['scores'])
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','w',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','w',encoding='utf-8') as f:
     json.dump(p,f,ensure_ascii=False,indent=2)
 print(f'B148 done: {p["scored_count"]}/{p["total"]} ({p["scored_count"]/p["total"]*100:.1f}%)')

@@ -210,10 +210,9 @@
     - pinyin_abbr = 从 pinyin 提取声母
 
  3. 导入难度评分：
-    - difficulty 从 assets/data/to_score.json 读取（已完成人工标注 → 重平衡，1-50 等量分布）
+    - difficulty 从 data/scoring_progress.json 读取（已完成人工标注 → 重平衡，1-50 等量分布）
     - difficulty_original / difficulty_rank 等元数据一并导入
  
  4. 逐字插入 idiom_char_index（每条成语 4 行）
 
- 5. 数据已清洗：原始 idiom.json 30895 条 → 四字成语 29502 条（assets/data/to_score.json）
-
+ 5. 数据已清洗：原始 idiom.json 30895 条 → 四字成语 29502 条（data/to_score.json）

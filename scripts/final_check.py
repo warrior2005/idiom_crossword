@@ -1,9 +1,9 @@
 import json
 
 # Load data
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','r',encoding='utf-8') as f:
     p = json.load(f)
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\to_score.json','r',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\to_score.json','r',encoding='utf-8') as f:
     all_idioms = json.load(f)
 
 # Build reference set
@@ -63,7 +63,7 @@ for w,s in sorted(sample, key=lambda x:x[1]):
     print(f'  {w}: {s:>2}')
 
 # Save cleaned
-with open(r'D:\HanaWorkspace\idiom_crossword\assets\data\scoring_progress.json','w',encoding='utf-8') as f:
+with open(r'D:\HanaWorkspace\idiom_crossword\data\scoring_progress.json','w',encoding='utf-8') as f:
     json.dump(p, f, ensure_ascii=False, indent=2)
 
 print(f'\n=== 清理完成 ===')
