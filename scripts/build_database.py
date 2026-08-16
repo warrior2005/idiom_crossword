@@ -2,8 +2,8 @@
 
 数据源:
   - assets/data/scoring_progress.json → 人工难度评分（1-50）
-  - assets/data/to_score.json         → 拼音、释义等元数据
-  - assets/data/idiom.json            → 出处、例句等扩展字段
+  - assets/data/to_score.json         → 无声调拼音等评分期元数据
+  - assets/data/idiom.json            → 释义、出处、例句等原始字段
 
 输出:
   - assets/data/idiom_crossword.db    → SQLite 数据库（对齐 Drift v2 Schema）
@@ -242,7 +242,7 @@ def build_db(scores, meta, extra):
         raw = extra.get(word, {})
         pinyin = info.get('pinyin', '')
         abbr = extract_pinyin_abbr(pinyin)
-        explanation = info.get('hint', '')
+        explanation = raw.get('explanation', '')
         derivation = raw.get('derivation', '')
         example = raw.get('example', '')
 
