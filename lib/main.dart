@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'src/data/database.dart';
 import 'src/state/database_provider.dart';
 import 'src/state/player_state.dart';
 import 'src/state/game_center_service.dart';
 import 'src/state/leaderboard_service.dart';
+import 'src/state/cloud_save_service.dart';
 import 'src/utils/ad_manager.dart';
 import 'src/ui/screens/root_screen.dart';
 import 'src/audio/music_manager.dart';
@@ -57,19 +59,15 @@ Future<void> main() async {
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: const IdiomCrosswordApp(),
+      child: IdiomCrosswordApp(home: _CloudSaveBootstrap(db: db)),
     ),
-  );
-
-  // 启动后登录 Game Center，并补齐离线期间的成就和排行榜分数。
-  unawaited(GameCenterService.syncAchievements(db));
-  unawaited(
-    LeaderboardService.submitScores(db, container.read(playerProvider).totalXp),
   );
 }
 
 class IdiomCrosswordApp extends StatelessWidget {
-  const IdiomCrosswordApp({super.key});
+  final Widget? home;
+
+  const IdiomCrosswordApp({super.key, this.home});
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +85,63 @@ class IdiomCrosswordApp extends StatelessWidget {
         fontFamily: kSans,
         fontFamilyFallback: const ['PingFang SC', 'Songti SC'],
       ),
-      home: const RootScreen(),
+      home: home ?? const RootScreen(),
+    );
+  }
+}
+
+class _CloudSaveBootstrap extends ConsumerStatefulWidget {
+  final AppDatabase db;
+
+  const _CloudSaveBootstrap({required this.db});
+
+  @override
+  ConsumerState<_CloudSaveBootstrap> createState() =>
+      _CloudSaveBootstrapState();
+}
+
+class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
+  CloudSaveCoordinator? _coordinator;
+  var _ready = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
+  }
+
+  Future<void> _initialize() async {
+    final outcome = await CloudSaveService.restoreIfNeeded(widget.db);
+    if (outcome == CloudRestoreOutcome.restored) {
+      await ref.read(playerProvider.notifier).loadFromDatabase(widget.db);
+    }
+    if (outcome.canBackUp) {
+      _coordinator = CloudSaveCoordinator(widget.db)..start();
+    }
+
+    // 云恢复完成后再同步成就与排行榜，避免提交全新空档的数据。
+    unawaited(GameCenterService.syncAchievements(widget.db));
+    unawaited(
+      LeaderboardService.submitScores(
+        widget.db,
+        ref.read(playerProvider).totalXp,
+      ),
+    );
+    if (mounted) setState(() => _ready = true);
+  }
+
+  @override
+  void dispose() {
+    _coordinator?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_ready) return const RootScreen();
+    return const Scaffold(
+      backgroundColor: Color(0xFFF3EDE1),
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

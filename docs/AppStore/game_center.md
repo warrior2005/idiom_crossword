@@ -2,6 +2,25 @@
 
 > Game Center ID 上线后不可修改。以下 ID 必须与代码完全一致。
 
+## iCloud 卸载恢复
+
+GameKit Saved Games 使用 iCloud Documents 保存用户存档。Apple Developer
+后台需要为 App ID `com.sunnywarrior.idiomCrossword` 开启 iCloud，并创建或选择
+容器 `iCloud.com.sunnywarrior.idiomCrossword`。Xcode 的 Runner target 需同时启用：
+
+- Game Center
+- iCloud → iCloud Documents
+
+真机验证时，设备必须登录 Game Center 和 iCloud，并开启 iCloud Drive。测试流程：
+
+1. 完成关卡或修改商城资产，等待 20 秒或将 App 切到后台。
+2. 删除 App 后重新安装。
+3. 使用同一 Game Center/iCloud 账号启动。
+4. 确认 Lv、经验、积分、提示卡、复活卡、关卡、收藏和商城解锁状态恢复。
+
+云存档名固定为 `player_snapshot_v1`。该版本仅用于卸载恢复，不支持两台设备
+同时游玩时的存档合并。
+
 ## 排行榜
 
 | 名称 | ID | 类型 | 排序 | 提交方式 | 分数含义 |
