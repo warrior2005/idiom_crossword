@@ -5,10 +5,12 @@ import '../../state/level_generation.dart';
 import '../../state/level_state_codec.dart';
 import '../../state/daily_challenge.dart';
 import '../../state/player_state.dart';
+import '../../data/growth_manager.dart';
 import '../../engine/spiral_difficulty.dart';
 import 'game_screen.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_seal.dart';
+import '../widgets/badge_soft.dart';
 import '../widgets/section_title.dart';
 import '../widgets/sub_page_header.dart';
 import '../widgets/vertical_word.dart';
@@ -61,6 +63,9 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
   Widget build(BuildContext context) {
     final daily = ref.watch(dailyInfoProvider).value;
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
+    final dailyUnlocked = GrowthManager.canAccessDaily(
+      ref.watch(playerProvider).level,
+    );
     final dailyIssue = dailyIssueLabel();
     final pastAsync = ref.watch(pastDailyProvider);
     final past = pastAsync.value ?? const [];
@@ -84,7 +89,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
                 children: [
-                  _buildHero(daily, dailyDone, dailyIssue),
+                  _buildHero(daily, dailyDone, dailyUnlocked, dailyIssue),
                   if (daily != null)
                     AppCard(
                       padding: const EdgeInsets.all(18),
@@ -167,7 +172,12 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
     );
   }
 
-  Widget _buildHero(DailyInfo? daily, bool dailyDone, String dailyIssue) {
+  Widget _buildHero(
+    DailyInfo? daily,
+    bool dailyDone,
+    bool dailyUnlocked,
+    String dailyIssue,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -202,18 +212,21 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
                     color: AppColors.accentDeep,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  daily == null
-                      ? '今日挑战生成中…'
-                      : dailyDone
-                      ? '已完成 · 明日刷新'
-                      : '明日刷新',
-                  style: bodyStyle(size: 11.5, color: AppColors.muted),
-                ),
+                if (daily == null || dailyDone) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    daily == null ? '今日挑战生成中…' : '已完成 · 明日刷新',
+                    style: bodyStyle(size: 11.5, color: AppColors.muted),
+                  ),
+                ],
               ],
             ),
           ),
+          if (daily != null && !dailyDone)
+            GestureDetector(
+              onTap: () => _startDaily(ref),
+              child: BadgeSoft(dailyUnlocked ? '挑战' : 'Lv.3 开启'),
+            ),
         ],
       ),
     );
@@ -274,6 +287,14 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
   }
 
   Future<void> _startDaily(WidgetRef ref) async {
+    if (!GrowthManager.canAccessDaily(ref.read(playerProvider).level)) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('到达Lv.3·廪生后开启每日挑战')));
+      }
+      return;
+    }
     final db = ref.read(databaseProvider);
     final levelNumber = dailyLevelNumber();
     final isReplay = await db.isLevelCompleted(levelNumber);

@@ -2129,7 +2129,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
           if (_usesDailyTimer) ...[
             const SizedBox(width: 18),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
               decoration: BoxDecoration(
                 color: AppColors.goldSoft,
                 borderRadius: BorderRadius.circular(999),

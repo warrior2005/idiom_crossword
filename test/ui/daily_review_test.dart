@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
+import 'package:idiom_crossword/src/state/daily_challenge.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
+import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/daily_review_screen.dart';
 
 void main() {
@@ -60,5 +62,49 @@ void main() {
     await tester.tap(find.text('下一页'));
     await tester.pumpAndSettle();
     expect(find.text('第 2/2 页'), findsOneWidget);
+  });
+
+  testWidgets('每日挑战：今日未完成时顶部显示挑战入口', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 4,
+      totalXp: 516,
+      completedLevels: 0,
+      hintCards: 0,
+      reviveCards: 0,
+    );
+    final container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        dailyInfoProvider.overrideWith(
+          (ref) async => const DailyInfo(
+            word: '画蛇添足',
+            idiomCount: 12,
+            avgDifficulty: 20,
+            durationSeconds: 180,
+            meaning: '比喻做了多余的事',
+          ),
+        ),
+        dailyDoneProvider.overrideWith((ref) async => false),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: DailyReviewScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('挑战'), findsOneWidget);
+    expect(find.text('明日刷新'), findsNothing);
+
+    await tester.tap(find.text('挑战'));
+    await tester.pumpAndSettle();
+    expect(find.text('每日挑战生成失败，请重试'), findsOneWidget);
   });
 }
