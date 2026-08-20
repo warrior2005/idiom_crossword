@@ -191,18 +191,6 @@ class _LeaderboardRow extends StatelessWidget {
                 : AppSeal(medal, size: 30, fontSize: 11, vertical: false),
           ),
           const SizedBox(width: 10),
-          AppSeal(
-            kind == LeaderboardKind.allTime
-                ? GrowthManager.avatarSeal(entry.level)
-                : '周',
-            size: 38,
-            fontSize: 15,
-            vertical: false,
-            style: entry.isCurrentPlayer
-                ? AppSealStyle.solid
-                : AppSealStyle.hollow,
-          ),
-          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,14 +201,23 @@ class _LeaderboardRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: bodyStyle(size: 14, weight: FontWeight.w700),
                 ),
-                const SizedBox(height: 3),
                 Text(
-                  kind == LeaderboardKind.allTime ? entry.levelLabel : '本周累计',
+                  entry.levelLabel,
                   style: bodyStyle(size: 11.5, color: AppColors.muted),
                 ),
               ],
             ),
           ),
+          AppSeal(
+            GrowthManager.avatarSeal(entry.level),
+            size: 38,
+            fontSize: 15,
+            vertical: false,
+            style: entry.isCurrentPlayer
+                ? AppSealStyle.solid
+                : AppSealStyle.hollow,
+          ),
+          const SizedBox(width: 10),
           Text(
             '${_group(entry.xp)} ${kind == LeaderboardKind.allTime ? '经验' : '周经验'}',
             style: bodyStyle(
