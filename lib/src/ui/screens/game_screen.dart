@@ -143,14 +143,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     super.initState();
     MusicManager.instance.enterGame(this);
     _grid = widget.level.grid;
-    _buildCandidateBoard();
     _findFirstEmptyCell();
     _levelStartTime = DateTime.now();
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
-    _loadReversiblePairs().then((_) async {
-      await _restoreSavedState();
-      await _configureDailyTimer();
-    });
+    unawaited(_initializeLevel());
     // 提前预加载插页式激励广告，避免在通关后等待加载。
     if (AdManager.isSupportedPlatform) {
       unawaited(AdManager().loadRewardedInterstitialAd());
@@ -202,8 +198,16 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   String _swapHalves(String word) =>
       word.length == 4 ? word.substring(2) + word.substring(0, 2) : word;
 
+  Future<void> _initializeLevel() async {
+    await _buildCandidateBoard();
+    if (!mounted) return;
+    await _loadReversiblePairs();
+    await _restoreSavedState();
+    await _configureDailyTimer();
+  }
+
   /// 构建候选字盘
-  void _buildCandidateBoard() {
+  Future<void> _buildCandidateBoard() async {
     // 按格子收集正确答案，交叉格只计一次，避免候选字数量超过实际需填字数
     final correctCells = <(int, int), String>{};
     for (final placement in widget.level.placements) {
@@ -215,12 +219,22 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       }
     }
     final correctAnswers = correctCells.values.toList();
+    Map<String, List<String>> databaseCandidates = {};
+    try {
+      databaseCandidates = await ref
+          .read(databaseProvider)
+          .findSimilarCharsFor(correctAnswers);
+    } catch (_) {
+      // 相关字数据不可用时仍可使用内置候选表生成关卡。
+    }
+    if (!mounted) return;
 
     _candidateBoard = _distractorEngine.generateCandidateBoard(
       correctAnswers: correctAnswers,
       rows: 4,
       countPerRow: 10,
       randomRotationKey: widget.level.levelId,
+      databaseRelatedCandidates: databaseCandidates,
     );
   }
 

@@ -22,6 +22,9 @@ part 'database.g.dart';
 /// 当前数据库 schema 版本（预构建数据库会在首次打开时迁移到此版本）
 const int currentSchemaVersion = 11;
 
+/// 随包相关字数据的最低关系数，用于为旧安装补齐空数据表。
+const int minimumBundledCharSimilarCount = 90000;
+
 // ============================================================
 // 表定义
 // ============================================================
@@ -426,6 +429,24 @@ class AppDatabase extends _$AppDatabase {
           ..orderBy([(t) => OrderingTerm.desc(t.simScore)]))
         .map((row) => row.similar)
         .get();
+  }
+
+  /// 批量读取汉字的高分相关候选，每字按相似度降序。
+  Future<Map<String, List<String>>> findSimilarCharsFor(
+    Iterable<String> chars,
+  ) async {
+    final targets = chars.toSet();
+    if (targets.isEmpty) return {};
+    final rows =
+        await (select(charSimilar)
+              ..where((t) => t.char.isIn(targets))
+              ..orderBy([(t) => OrderingTerm.desc(t.simScore)]))
+            .get();
+    final result = <String, List<String>>{};
+    for (final row in rows) {
+      result.putIfAbsent(row.char, () => []).add(row.similar);
+    }
+    return result;
   }
 
   // ============================================================
@@ -902,8 +923,59 @@ LazyDatabase _openConnection() {
       }
     }
 
+    try {
+      await _refreshCharSimilarData(file, dbFolder);
+    } catch (_) {
+      // 相关字补齐失败不应阻止数据库打开，游戏内仍有内置候选表兜底。
+    }
+
     return NativeDatabase.createInBackground(file);
   });
+}
+
+Future<void> _refreshCharSimilarData(
+  File databaseFile,
+  Directory folder,
+) async {
+  final connection = sqlite3.open(databaseFile.path);
+  final seedFile = File(p.join(folder.path, 'idiom_crossword_char_seed.db'));
+  try {
+    final hasTable = connection
+        .select(
+          "SELECT name FROM sqlite_master "
+          "WHERE type='table' AND name='char_similar'",
+        )
+        .isNotEmpty;
+    if (!hasTable) return;
+    final count =
+        connection
+                .select('SELECT COUNT(*) AS count FROM char_similar')
+                .single['count']
+            as int;
+    if (count >= minimumBundledCharSimilarCount) return;
+
+    final data = await rootBundle.load('assets/data/idiom_crossword.db');
+    await seedFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    connection.execute('ATTACH DATABASE ? AS bundled', [seedFile.path]);
+    try {
+      connection.execute('BEGIN IMMEDIATE');
+      connection.execute(
+        'INSERT OR REPLACE INTO char_similar '
+        '(char, similar, sim_type, sim_score) '
+        'SELECT char, similar, sim_type, sim_score '
+        'FROM bundled.char_similar',
+      );
+      connection.execute('COMMIT');
+    } catch (_) {
+      connection.execute('ROLLBACK');
+      rethrow;
+    } finally {
+      connection.execute('DETACH DATABASE bundled');
+    }
+  } finally {
+    connection.close();
+    if (await seedFile.exists()) await seedFile.delete();
+  }
 }
 
 // ============================================================

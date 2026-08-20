@@ -66,6 +66,20 @@ void main() {
       expect(candidates.toSet(), hasLength(6));
     });
 
+    test('使用数据库相关候选组成相关配额', () {
+      const databaseCandidates = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛'];
+      final candidates = DistractorEngine(random: Random(13))
+          .generateCandidateBoard(
+            correctAnswers: const ['龘'],
+            rows: 1,
+            countPerRow: 9,
+            databaseRelatedCandidates: const {'龘': databaseCandidates},
+          )
+          .single;
+
+      expect(candidates.where(databaseCandidates.contains), hasLength(4));
+    });
+
     test('保留每个待填字的实际数量，干扰字不重复', () {
       const duplicateAnswers = ['一', '一', '海', '海', '山', '水'];
       final candidates = DistractorEngine(random: Random(11))

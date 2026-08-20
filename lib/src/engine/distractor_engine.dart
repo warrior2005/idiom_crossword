@@ -5,7 +5,7 @@
 ///   1. 形近：字形相似（如"未"↔"末"、"己"↔"已"↔"巳"）
 ///   2. 音近：拼音相同或相近（如"画"↔"化"↔"花"）
 ///
-/// 当前使用内置的常见形近/音近字映射表。
+/// 优先使用数据库相关字池，内置的常见形近/音近字表用作兜底。
 
 library;
 
@@ -270,6 +270,7 @@ class DistractorEngine {
     int rows = 3,
     int countPerRow = 8,
     int? randomRotationKey,
+    Map<String, List<String>> databaseRelatedCandidates = const {},
   }) {
     // 计算总干扰字数 = 格子总数 - 正确答案数
     final totalSlots = rows * countPerRow;
@@ -286,9 +287,10 @@ class DistractorEngine {
     final allRelatedChars = <String>{};
     for (final answer in answers) {
       final candidates =
-          _findRelated(
-              answer,
-            ).where((char) => !answerSet.contains(char)).toSet().toList()
+          [
+              ...?databaseRelatedCandidates[answer]?.take(16),
+              ..._findRelated(answer),
+            ].where((char) => !answerSet.contains(char)).toSet().toList()
             ..shuffle(_random);
       relatedByAnswer[answer] = candidates;
       allRelatedChars.addAll(candidates);
