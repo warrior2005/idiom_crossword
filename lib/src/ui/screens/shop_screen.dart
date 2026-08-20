@@ -459,7 +459,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     children: [
                       Expanded(
                         child: _WalletCard(
-                          iconName: 'pen',
+                          iconName: 'hint',
                           label: '提示卡',
                           value: '$hintCards',
                         ),
@@ -481,7 +481,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   _FunctionalCard(
                     children: [
                       _PackTile(
-                        iconName: 'pen',
+                        iconName: 'hint',
                         name: '提示卡 ×1',
                         desc: '显示当前空格的正确字',
                         price: '$kHintCardPoints 积分',
@@ -495,7 +495,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       _PackTile(
                         iconName: 'revive',
                         name: '复活卡 ×1',
-                        desc: '恢复所有生命值，保留已填正确字',
+                        desc: '恢复所有生命值，继续关卡',
                         price: '$kReviveCardPoints 积分',
                         onBuy: () => _buyFunctional(
                           context,
@@ -506,8 +506,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       ),
                       _PackTile(
                         iconName: 'star',
-                        name: '备考礼盒（提示×3 + 复活×1）',
-                        desc: '冲关阶段一次备齐',
+                        name: '备考礼盒',
+                        desc: '提示×3 + 复活×1',
                         price: '$kGiftBoxPoints 积分',
                         onBuy: () => _buyFunctional(
                           context,
@@ -755,7 +755,7 @@ class _PackTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: kShopItemHeight,
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(top: 5, bottom: 5),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -785,10 +785,9 @@ class _PackTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(name, style: bodyStyle(size: 14, weight: FontWeight.w600)),
-                const SizedBox(height: 3),
                 Text(
                   desc,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: bodyStyle(size: 11, color: AppColors.muted),
                 ),
