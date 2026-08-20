@@ -31,6 +31,14 @@ import 'package:idiom_crossword/src/state/level_generation.dart';
 
 /// 数据驱动界面的 widget 测试（内存数据库 + Provider 覆盖）
 
+Finder _priceInPreview(String previewKey, int points) => find.descendant(
+  of: find.ancestor(
+    of: find.byKey(ValueKey(previewKey)),
+    matching: find.byType(ThemeDialog),
+  ),
+  matching: find.text('$points 积分'),
+);
+
 Future<AppDatabase> _memoryDb() async {
   final db = AppDatabase(NativeDatabase.memory());
   await db
@@ -421,7 +429,7 @@ void main() {
     await tester.tap(find.text('秋香'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('grid-skin-preview')), findsOneWidget);
-    expect(find.text('需要 1000 积分'), findsOneWidget);
+    expect(_priceInPreview('grid-skin-preview', 1000), findsOneWidget);
     await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
     await tester.pump();
     expect(find.text('已购买并切换网格皮肤：秋香'), findsOneWidget);
@@ -516,7 +524,7 @@ void main() {
     await tester.tap(find.text('东坡巾'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('avatar-frame-preview')), findsOneWidget);
-    expect(find.text('需要 1000 积分'), findsOneWidget);
+    expect(_priceInPreview('avatar-frame-preview', 1000), findsOneWidget);
     await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
     await tester.pump();
     expect(find.text('已购买并切换头像框：东坡巾'), findsOneWidget);
@@ -538,7 +546,7 @@ void main() {
     await tester.tap(find.text('翼善冠'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('avatar-frame-preview')), findsOneWidget);
-    expect(find.text('需要 5000 积分'), findsOneWidget);
+    expect(_priceInPreview('avatar-frame-preview', 5000), findsOneWidget);
     await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
     await tester.pump();
     expect(find.text('已购买并切换头像框：翼善冠'), findsOneWidget);
@@ -610,7 +618,7 @@ void main() {
     await tester.tap(find.text('梅'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('background-preview')), findsOneWidget);
-    expect(find.text('需要 1000 积分'), findsOneWidget);
+    expect(_priceInPreview('background-preview', 1000), findsOneWidget);
     await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
     await tester.pump();
     expect(find.text('已购买并切换背景：梅'), findsOneWidget);
