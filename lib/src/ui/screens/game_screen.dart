@@ -1698,45 +1698,52 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                     children: [
                       _buildTopBar(),
                       Expanded(
-                        child: IgnorePointer(
-                          ignoring: terminal,
-                          child: Column(
-                            children: [
-                              _buildProgress(),
-                              _buildCompletedIdiomsSection(),
-                              Expanded(flex: 7, child: _buildGrid()),
-                              _buildStatusLine(),
-                              Expanded(
-                                flex: 3,
+                        child: Column(
+                          children: [
+                            _terminalTapRegion(
+                              terminal: terminal,
+                              child: _buildProgress(),
+                            ),
+                            _buildCompletedIdiomsSection(),
+                            Expanded(
+                              flex: 7,
+                              child: _terminalTapRegion(
+                                terminal: terminal,
+                                child: _buildGrid(),
+                              ),
+                            ),
+                            _terminalTapRegion(
+                              terminal: terminal,
+                              child: _buildStatusLine(),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: _terminalTapRegion(
+                                terminal: terminal,
                                 child: _buildCandidateBoardWidget(),
                               ),
-                              _buildToolbar(),
-                            ],
-                          ),
+                            ),
+                            _terminalTapRegion(
+                              terminal: terminal,
+                              child: _buildToolbar(),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
           ),
-          if (terminal && !_terminalDialogVisible) ...[
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _reopenTerminalDialog,
-              ),
-            ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: _buildExitButton(),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
+    );
+  }
+
+  Widget _terminalTapRegion({required bool terminal, required Widget child}) {
+    if (!terminal) return child;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _reopenTerminalDialog,
+      child: IgnorePointer(child: child),
     );
   }
 

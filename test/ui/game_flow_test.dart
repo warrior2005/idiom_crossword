@@ -204,10 +204,30 @@ void main() {
     expect(find.text('通'), findsOneWidget);
     expect(find.text('下一关'), findsOneWidget);
 
-    // 可关闭结算弹框回看终局，点击游戏区会再次唤起。
+    // 关闭结算弹框后，顶栏和已完成成语区仍可正常交互。
     await tester.tap(find.byTooltip('关闭'));
     await tester.pumpAndSettle();
     expect(find.text('恭喜通过 · 第 1 关'), findsNothing);
+
+    expect(find.text('释义：比喻做了多余的事'), findsOneWidget);
+    await tester.tap(find.text('画蛇添足'));
+    await tester.pump();
+    expect(find.text('释义：比喻做了多余的事'), findsNothing);
+    expect(find.text('恭喜通过 · 第 1 关'), findsNothing);
+
+    final soundEnabled = SoundManager.instance.enabled;
+    final soundButton = find.byWidgetPredicate(
+      (widget) => widget is AppIcon && widget.name == 'sound',
+    );
+    await tester.tap(soundButton);
+    await tester.pumpAndSettle();
+    expect(SoundManager.instance.enabled, !soundEnabled);
+    expect(find.text('恭喜通过 · 第 1 关'), findsNothing);
+    await tester.tap(soundButton);
+    await tester.pumpAndSettle();
+    expect(SoundManager.instance.enabled, soundEnabled);
+
+    // 其余游戏区域仍会重新唤起 win-card。
     await tester.tapAt(tester.getCenter(find.byType(CustomPaint).first));
     await tester.pumpAndSettle();
     expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
