@@ -192,10 +192,17 @@ void main() {
     expect(find.text('我'), findsOneWidget);
     expect(find.text('Lv.1'), findsOneWidget);
     expect(find.text('0 经验'), findsOneWidget);
+    expect(find.byType(AppSeal), findsOneWidget);
     final currentPlayerCard = tester.widget<AppCard>(
       find.ancestor(of: find.text('我'), matching: find.byType(AppCard)).first,
     );
     expect(currentPlayerCard.color, AppColors.accent.withValues(alpha: 0.1));
+
+    await tester.tap(find.text('每周英雄榜'));
+    await tester.pumpAndSettle();
+    expect(find.text('Lv.1'), findsNothing);
+    expect(find.byType(AppSeal), findsNothing);
+    expect(find.text('0 周经验'), findsOneWidget);
   });
 
   testWidgets('统计页：展示通关记录明细', (tester) async {
