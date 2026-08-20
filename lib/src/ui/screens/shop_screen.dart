@@ -495,7 +495,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       _PackTile(
                         iconName: 'revive',
                         name: '复活卡 ×1',
-                        desc: '恢复所有生命值，继续关卡',
+                        desc: '恢复所有生命值',
                         price: '$kReviveCardPoints 积分',
                         onBuy: () => _buyFunctional(
                           context,
