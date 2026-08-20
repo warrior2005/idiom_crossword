@@ -5,20 +5,16 @@
 ///   1. 形近：字形相似（如"未"↔"末"、"己"↔"已"↔"巳"）
 ///   2. 音近：拼音相同或相近（如"画"↔"化"↔"花"）
 ///
-/// 数据基础：
-///   形近字库来自 Make Me a Hanzi 项目的 graphics.txt（笔画/部件相似度）
-///   音近字库基于拼音编辑距离自动生成
-///   两者都需要导入 char_similar 表
-///
-/// 对于 MVP 阶段，我们可以用一个内置的常见形近/音近字映射表，
-///   覆盖 2000 个常用汉字，约 15000 条相似关系。
+/// 当前使用内置的常见形近/音近字映射表。
 
 library;
+
+import 'dart:math';
 
 /// 形近字组：一组在视觉上容易混淆的汉字
 ///
 /// 数据来源：教育部《通用规范汉字表》中的形近字辨析 + 人工整理
-/// MVP 内置覆盖 ~800 个核心常用字
+/// MVP 内置覆盖少量核心常用字。
 const Map<String, List<String>> shapeSimilar = {
   // 点画差异
   '大': ['太', '犬', '天'],
@@ -176,8 +172,23 @@ const Map<String, List<String>> pinyinGroup = {
   'wei4': ['为', '未', '味', '位', '卫', '胃', '魏'],
 };
 
+/// 成语库中出现频率最高的 600 个汉字，用作无关干扰字池。
+///
+/// 按 `idiom_char_index` 的出现次数降序离线生成，避免抽到一眼即可排除的生僻字。
+const String corpusRandomChars =
+    '不之一无心人风天如大言而行日地山生有为相头三自以马金水成目云高下气龙口出千玉百神意道花月万长情流雨同名文世见可重虎食门发知事声面白海手家死火然身难中足东飞分上时明深凤作其鱼子得若入安色力骨石绝年衣落眼'
+    '来古清里所断恶正才义国语西耳远功物过兵老失利惊眉胆连好小计穷后四舌非公轻五当黄两俗思光多形众八进遗闻交合方尽望求通善反民德于影破论立经离首倒新朝木从前开归狗举横满草视说河短乐斗步直车半扬牛能魂鸡命在志'
+    '投指鬼书乱变易十去毛解珠理冰故二打空苦青九外土夜本笑迹酒雪异星是七今取张忘狼强移鼠精鹤学节露容血路铁先势将春根积背虚齿祸谈顾折沉累胜辞动燕随鸣枝肠负鼓回平改法独舞至起余兴寡干引实寸就己微极走悬角退秋红'
+    '肉户章群观别孤居弃弄游甲谋转井亡危寒应待急柳武鼎刀和散腹薄劳怀暮枕逐问处往画奇守比牙肝识达饮香坐拔用败信及机私贤争旧笔脚贵冠戈歌化藏六击士尺未词亲南夫夺履度恩残结间鸿使含疾肩脑鸾欲济莫迷附养听嘴尘常息'
+    '战梦楚没罪顺伤体华卖叶女尾屋放浪锦鸟丝北官敌痛美虑野唇少曲杀终舍财与关岁暴末树调颜魄全披磨定愁束良齐乘传切堂字室富带抱接林浮运业仁会厉并怪止烟犬礼福贫屈推智真索追丧呼城复波源穿蛇超量吞吹必怨枯爱载阳师'
+    '摇景甘电盈盘荡谷贯避闲临剑壁忧报江涂点绿致饭丰原怒性我救消狐简隐雕雾音任伏始持病皮类覆还主决刻圆塞妙巧席暗沙灰薪迁逸采代倾冲博存床此焚蜂共因对疑登紫补踵冷墨奸寻布活盗贪错霜颠何依厚受喜墙夕弹数昏更权李';
+
 /// 干扰字生成器
 class DistractorEngine {
+  final Random _random;
+
+  DistractorEngine({Random? random}) : _random = random ?? Random();
+
   /// 为目标字生成 n 个干扰字
   ///
   /// 策略：
@@ -201,7 +212,7 @@ class DistractorEngine {
     final shapes = _findShapeSimilar(
       targetChar,
     ).where((c) => !exclude.contains(c)).toList();
-    shapes.shuffle();
+    shapes.shuffle(_random);
     distractors.addAll(shapes.take(count));
 
     // 第二优先级：音近字
@@ -209,7 +220,7 @@ class DistractorEngine {
       final sounds = _findSoundSimilar(
         targetChar,
       ).where((c) => !exclude.contains(c)).toList();
-      sounds.shuffle();
+      sounds.shuffle(_random);
       for (final c in sounds) {
         if (distractors.length >= count) break;
         if (!distractors.contains(c)) distractors.add(c);
@@ -221,7 +232,7 @@ class DistractorEngine {
       final radicals = _findRadicalSimilar(
         targetChar,
       ).where((c) => !exclude.contains(c)).toList();
-      radicals.shuffle();
+      radicals.shuffle(_random);
       for (final c in radicals) {
         if (distractors.length >= count) break;
         if (!distractors.contains(c)) distractors.add(c);
@@ -230,8 +241,7 @@ class DistractorEngine {
 
     // 兜底：从常见汉字中随机选取
     if (distractors.length < count) {
-      const fallbackChars = '的一是不了人我在有他这中大来上个国到说们为子和你地出会也时要就可以生';
-      final fallback = fallbackChars
+      final fallback = corpusRandomChars
           .split('')
           .where(
             (c) =>
@@ -240,14 +250,14 @@ class DistractorEngine {
                 c != targetChar,
           )
           .toList();
-      fallback.shuffle();
+      fallback.shuffle(_random);
       for (final c in fallback) {
         if (distractors.length >= count) break;
         distractors.add(c);
       }
     }
 
-    distractors.shuffle();
+    distractors.shuffle(_random);
     return distractors.take(count).toList();
   }
 
@@ -259,6 +269,7 @@ class DistractorEngine {
     required List<String> correctAnswers,
     int rows = 3,
     int countPerRow = 8,
+    int? randomRotationKey,
   }) {
     // 计算总干扰字数 = 格子总数 - 正确答案数
     final totalSlots = rows * countPerRow;
@@ -266,32 +277,85 @@ class DistractorEngine {
     if (correctCount == 0) return [];
     final distractorCount = totalSlots - correctCount;
 
-    // 为每个正确答案生成干扰字
-    final allDistractors = <String>{};
-    for (final answer in correctAnswers) {
-      final n = (distractorCount / correctCount).ceil();
-      final distractors = generate(
-        answer,
-        count: n,
-        allAnswerChars: correctAnswers,
-        excludeChars: allDistractors,
-      );
-      allDistractors.addAll(distractors);
+    final answerSet = correctAnswers.toSet();
+    final answers = answerSet.toList()..shuffle(_random);
+
+    // 相关干扰最多占一半；奇数时把多出的一个名额留给随机字。
+    final relatedQuota = distractorCount ~/ 2;
+    final relatedByAnswer = <String, List<String>>{};
+    final allRelatedChars = <String>{};
+    for (final answer in answers) {
+      final candidates =
+          _findRelated(
+              answer,
+            ).where((char) => !answerSet.contains(char)).toSet().toList()
+            ..shuffle(_random);
+      relatedByAnswer[answer] = candidates;
+      allRelatedChars.addAll(candidates);
     }
-    // 防御：任何干扰字都不能与待填字重复，避免同一个字出现超过实际需填次数
-    allDistractors.removeWhere(correctAnswers.contains);
+
+    // 轮询各答案字，避免前面的字占满相关干扰名额。
+    final relatedDistractors = <String>{};
+    var addedInRound = true;
+    while (relatedDistractors.length < relatedQuota && addedInRound) {
+      addedInRound = false;
+      for (final answer in answers) {
+        final candidates = relatedByAnswer[answer]!;
+        while (candidates.isNotEmpty) {
+          final candidate = candidates.removeLast();
+          if (relatedDistractors.add(candidate)) {
+            addedInRound = true;
+            break;
+          }
+        }
+        if (relatedDistractors.length >= relatedQuota) break;
+      }
+    }
+
+    // 随机字从成语库高频字中抽取，并排除本关已知的相关字。
+    // 若相关候选不足，剩余名额自然转为随机字，不用低质量候选硬凑。
+    final availableRandomChars = corpusRandomChars
+        .split('')
+        .where(
+          (char) =>
+              !answerSet.contains(char) &&
+              !relatedDistractors.contains(char) &&
+              !allRelatedChars.contains(char),
+        )
+        .toList();
+    final randomCandidates = <String>[];
+    if (randomRotationKey == null) {
+      availableRandomChars.shuffle(_random);
+      randomCandidates.addAll(availableRandomChars);
+    } else {
+      const rotationGroupCount = 4;
+      final preferredGroup = randomRotationKey % rotationGroupCount;
+      final preferred = <String>[];
+      final deferred = <String>[];
+      for (final (index, char) in availableRandomChars.indexed) {
+        (index % rotationGroupCount == preferredGroup ? preferred : deferred)
+            .add(char);
+      }
+      preferred.shuffle(_random);
+      deferred.shuffle(_random);
+      randomCandidates.addAll(preferred);
+      randomCandidates.addAll(deferred);
+    }
+    final randomCount = distractorCount - relatedDistractors.length;
+    final randomDistractors = randomCandidates.take(randomCount);
 
     // 混合正确答案和干扰项
     final allCandidates = [
       ...correctAnswers,
-      ...allDistractors.take(distractorCount),
+      ...relatedDistractors,
+      ...randomDistractors,
     ];
     // 补齐（以防干扰字不够）
     while (allCandidates.length < totalSlots) {
       // 不可能进这里，但做防御
       allCandidates.add('?');
     }
-    allCandidates.shuffle();
+    allCandidates.shuffle(_random);
 
     // 分到各行
     final board = <List<String>>[];
@@ -328,4 +392,9 @@ class DistractorEngine {
     // 完整版需要引入汉字部首数据和笔画分解
     return _findShapeSimilar(char);
   }
+
+  List<String> _findRelated(String char) => [
+    ..._findShapeSimilar(char),
+    ..._findSoundSimilar(char),
+  ];
 }

@@ -220,6 +220,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       correctAnswers: correctAnswers,
       rows: 4,
       countPerRow: 10,
+      randomRotationKey: widget.level.levelId,
     );
   }
 

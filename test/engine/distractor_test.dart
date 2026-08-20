@@ -1,102 +1,143 @@
-// ignore_for_file: avoid_print
+import 'dart:math';
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/engine/distractor_engine.dart';
 
-/// 干扰字引擎测试
-
 void main() {
-  final engine = DistractorEngine();
+  group('DistractorEngine.generateCandidateBoard', () {
+    const answers = ['画', '蛇', '添', '足', '守', '株', '待', '兔'];
 
-  print('=== 干扰字引擎测试 ===\n');
+    test('干扰位按一半相关、一半随机组成', () {
+      final board = DistractorEngine(random: Random(42)).generateCandidateBoard(
+        correctAnswers: answers,
+        rows: 3,
+        countPerRow: 8,
+      );
 
-  // 测试 1：单个字干扰
-  print('--- 测试 1: 单字干扰生成 ---');
-  final words = ['画', '蛇', '添', '足', '守', '株', '待', '兔'];
-  for (final w in words) {
-    final distractors = engine.generate(w, count: 3, allAnswerChars: words);
-    print('  $w → ${distractors.join(", ")}');
-  }
+      final candidates = board.expand((row) => row).toList();
+      final distractors = candidates
+          .where((char) => !answers.contains(char))
+          .toList();
+      final relatedChars = _relatedCharsFor(answers);
 
-  // 测试 2：候选字盘生成
-  print('\n--- 测试 2: 候选字盘 ---');
-  final correctAnswers = ['画', '蛇', '添', '足', '守', '株', '待', '兔'];
-  final board = engine.generateCandidateBoard(
-    correctAnswers: correctAnswers,
-    rows: 3,
-    countPerRow: 8,
-  );
+      expect(candidates, hasLength(24));
+      expect(distractors, hasLength(16));
+      expect(distractors.where(relatedChars.contains), hasLength(8));
+      expect(
+        distractors.where((char) => !relatedChars.contains(char)),
+        hasLength(8),
+      );
+    });
 
-  for (int r = 0; r < board.length; r++) {
-    final row = board[r];
-    final marked = row
-        .map((c) {
-          if (correctAnswers.contains(c)) {
-            return '[$c]'; // 正确答案标记
-          }
-          return ' $c ';
-        })
-        .join(' ');
-    print('  第${r + 1}行: $marked');
-  }
+    test('干扰位为奇数时随机字多一个', () {
+      const oddAnswers = ['画', '蛇', '添'];
+      final candidates = DistractorEngine(random: Random(7))
+          .generateCandidateBoard(
+            correctAnswers: oddAnswers,
+            rows: 1,
+            countPerRow: 10,
+          )
+          .single;
+      final distractors = candidates
+          .where((char) => !oddAnswers.contains(char))
+          .toList();
+      final relatedChars = _relatedCharsFor(oddAnswers);
 
-  // 验证：所有正确答案都在候选盘里
-  final allCandidates = board.expand((row) => row).toSet();
-  final missing = correctAnswers
-      .where((a) => !allCandidates.contains(a))
-      .toList();
-  if (missing.isEmpty) {
-    print('\n  ✓ 所有正确答案已包含在候选盘中');
-  } else {
-    print('\n  ✗ 缺失: $missing');
-  }
+      expect(distractors, hasLength(7));
+      expect(distractors.where(relatedChars.contains), hasLength(3));
+      expect(
+        distractors.where((char) => !relatedChars.contains(char)),
+        hasLength(4),
+      );
+    });
 
-  // 验证：干扰字没有重复
-  final duplicates = <String>{};
-  final seen = <String>{};
-  for (final c in allCandidates) {
-    if (seen.contains(c)) duplicates.add(c);
-    seen.add(c);
-  }
-  if (duplicates.isEmpty) {
-    print('  ✓ 候选盘无重复字');
-  } else {
-    print('  ✗ 重复字: $duplicates');
-  }
+    test('相关候选不足时用随机字补足', () {
+      final candidates = DistractorEngine(random: Random(9))
+          .generateCandidateBoard(
+            correctAnswers: const ['龘'],
+            rows: 1,
+            countPerRow: 6,
+          )
+          .single;
 
-  // 验证：待填字数量与候选盘中的数量完全一致，不额外增加重复项
-  final duplicateAnswers = ['一', '一', '海', '海', '山', '水'];
-  final board2 = engine.generateCandidateBoard(
-    correctAnswers: duplicateAnswers,
-    rows: 2,
-    countPerRow: 8,
-  );
-  final counts = <String, int>{};
-  for (final c in board2.expand((row) => row)) {
-    counts[c] = (counts[c] ?? 0) + 1;
-  }
-  for (final c in duplicateAnswers.toSet()) {
-    final expected = duplicateAnswers.where((x) => x == c).length;
-    assert(counts[c] == expected, '字 "$c" 应出现 $expected 次，实际 ${counts[c]} 次');
-  }
-  print('  ✓ 待填字数量与候选盘完全一致，无多余重复');
+      expect(candidates, hasLength(6));
+      expect(candidates, contains('龘'));
+      expect(candidates, isNot(contains('?')));
+      expect(candidates.toSet(), hasLength(6));
+    });
 
-  print('\n--- 测试 3: 核心混淆字对验证 ---');
-  // 验证一些著名的混淆对确实存在于数据中
-  final famousPairs = [
-    ('未', '末'),
-    ('己', '已'),
-    ('大', '太'),
-    ('人', '入'),
-    ('千', '干'),
-    ('兔', '免'),
-    ('拔', '拨'),
-    ('折', '拆'),
-    ('辨', '辩'),
-    ('候', '侯'),
-  ];
-  for (final (a, b) in famousPairs) {
-    final distractors = engine.generate(a, count: 5, allAnswerChars: []);
-    final found = distractors.contains(b);
-    print('  $a ${found ? '→' : '✗'} $b ${found ? '' : '(未找到)'}');
+    test('保留每个待填字的实际数量，干扰字不重复', () {
+      const duplicateAnswers = ['一', '一', '海', '海', '山', '水'];
+      final candidates = DistractorEngine(random: Random(11))
+          .generateCandidateBoard(
+            correctAnswers: duplicateAnswers,
+            rows: 2,
+            countPerRow: 8,
+          )
+          .expand((row) => row)
+          .toList();
+
+      for (final answer in duplicateAnswers.toSet()) {
+        expect(
+          candidates.where((char) => char == answer),
+          hasLength(duplicateAnswers.where((char) => char == answer).length),
+        );
+      }
+      final distractors = candidates
+          .where((char) => !duplicateAnswers.contains(char))
+          .toList();
+      expect(distractors.toSet(), hasLength(distractors.length));
+    });
+
+    test('相同种子可复现，不同种子会变化', () {
+      List<List<String>> generate(int seed) =>
+          DistractorEngine(random: Random(seed)).generateCandidateBoard(
+            correctAnswers: answers,
+            rows: 3,
+            countPerRow: 8,
+          );
+
+      expect(generate(21), generate(21));
+      expect(generate(21), isNot(generate(22)));
+    });
+
+    test('相邻关卡优先使用不同的随机字组', () {
+      Set<String> randomCharsFor(int levelNumber) =>
+          DistractorEngine(random: Random(31))
+              .generateCandidateBoard(
+                correctAnswers: const ['龘'],
+                rows: 2,
+                countPerRow: 10,
+                randomRotationKey: levelNumber,
+              )
+              .expand((row) => row)
+              .where((char) => char != '龘')
+              .toSet();
+
+      expect(randomCharsFor(100).intersection(randomCharsFor(101)), isEmpty);
+    });
+  });
+
+  test('generate 仍优先返回经典形近字', () {
+    final engine = DistractorEngine(random: Random(1));
+    final distractors = engine.generate(
+      '人',
+      count: 2,
+      allAnswerChars: const [],
+    );
+
+    expect(distractors, containsAll(const ['入', '八']));
+  });
+}
+
+Set<String> _relatedCharsFor(List<String> answers) {
+  final result = <String>{};
+  for (final answer in answers) {
+    result.addAll(shapeSimilar[answer] ?? const []);
+    for (final group in pinyinGroup.values) {
+      if (group.contains(answer)) result.addAll(group);
+    }
   }
+  result.removeAll(answers);
+  return result;
 }
