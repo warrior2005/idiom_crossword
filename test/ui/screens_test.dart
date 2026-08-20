@@ -393,14 +393,13 @@ void main() {
     await tester.ensureVisible(find.text('竹简'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('竹简'));
-    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('grid-skin-preview')), findsOneWidget);
     expect(find.text('该皮肤为 Lv.3 升级奖励，达到等级后解锁'), findsOneWidget);
+    expect(find.text('确定'), findsOneWidget);
     expect(await db.getActiveDecorationId('grid_skin'), isNull);
 
-    // 清除上一条提示，避免新提示排队
-    ScaffoldMessenger.of(
-      tester.element(find.byType(ShopScreen)),
-    ).clearSnackBars();
+    await tester.tap(find.text('确定'));
     await tester.pumpAndSettle();
 
     // 广告皮肤秋香 1000 积分购买并切换
@@ -413,8 +412,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('秋香'));
     await tester.pumpAndSettle();
-    expect(find.text('确认购买'), findsOneWidget);
-    await tester.tap(find.text('确认'));
+    expect(find.byKey(const ValueKey('grid-skin-preview')), findsOneWidget);
+    expect(find.text('需要 1000 积分'), findsOneWidget);
+    await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
     await tester.pump();
     expect(find.text('已购买并切换网格皮肤：秋香'), findsOneWidget);
     expect((await db.getPlayerProgress())!.points, 4000);
@@ -473,8 +473,10 @@ void main() {
     await tester.ensureVisible(find.text('金榜题名'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('金榜题名'));
-    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('title-effect-preview')), findsOneWidget);
     expect(find.text('该称号特效为 Lv.9 升级奖励，达到等级后解锁'), findsOneWidget);
+    expect(find.text('确定'), findsOneWidget);
   });
 
   testWidgets('商城：积分头像框可购买并切换，等级头像框未解锁提示', (tester) async {
@@ -505,8 +507,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('东坡巾'));
     await tester.pumpAndSettle();
-    expect(find.text('确认购买'), findsOneWidget);
-    await tester.tap(find.text('确认'));
+    expect(find.byKey(const ValueKey('avatar-frame-preview')), findsOneWidget);
+    expect(find.text('需要 1000 积分'), findsOneWidget);
+    await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
     await tester.pump();
     expect(find.text('已购买并切换头像框：东坡巾'), findsOneWidget);
     expect((await db.getPlayerProgress())!.points, 6000);
@@ -526,8 +529,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('翼善冠'));
     await tester.pumpAndSettle();
-    expect(find.text('确认购买'), findsOneWidget);
-    await tester.tap(find.text('确认'));
+    expect(find.byKey(const ValueKey('avatar-frame-preview')), findsOneWidget);
+    expect(find.text('需要 5000 积分'), findsOneWidget);
+    await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
     await tester.pump();
     expect(find.text('已购买并切换头像框：翼善冠'), findsOneWidget);
     expect((await db.getPlayerProgress())!.points, 1000);
@@ -546,7 +550,8 @@ void main() {
     await tester.ensureVisible(find.text('四方平定巾'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('四方平定巾'));
-    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('avatar-frame-preview')), findsOneWidget);
     expect(find.text('该头像框为 Lv.2 升级奖励，达到等级后解锁'), findsOneWidget);
   });
 
@@ -596,8 +601,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('梅'));
     await tester.pumpAndSettle();
-    expect(find.text('确认购买'), findsOneWidget);
-    await tester.tap(find.text('确认'));
+    expect(find.byKey(const ValueKey('background-preview')), findsOneWidget);
+    expect(find.text('需要 1000 积分'), findsOneWidget);
+    await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
     await tester.pump();
     expect(find.text('已购买并切换背景：梅'), findsOneWidget);
     expect((await db.getPlayerProgress())!.points, 0);
@@ -607,6 +613,44 @@ void main() {
       contains('background_mei'),
     );
     expect(await db.getSetting(kActiveBackgroundKey), 'mei');
+  });
+
+  testWidgets('商城：预览弹框购买时积分不足沿用现有提示', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: ShopScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('秋香'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('秋香'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('秋香'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(PrimaryButton, '购买'));
+    await tester.pump();
+
+    expect(find.text('积分不足，可观看广告赚取积分'), findsOneWidget);
+    expect(
+      container.read(playerProvider).ownedDecorations,
+      isNot(contains('grid_skin_qiuxiang')),
+    );
+    expect(await db.getActiveDecorationId('grid_skin'), isNull);
   });
 
   testWidgets('商城：积分说明弹窗展示积分规则', (tester) async {

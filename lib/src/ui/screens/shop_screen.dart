@@ -121,6 +121,25 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     return confirmed ?? false;
   }
 
+  Future<bool> _showLockedDecorationPreview(
+    BuildContext context, {
+    required String name,
+    required Widget preview,
+    int? points,
+    String? unlockMessage,
+  }) async {
+    final shouldBuy = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => _LockedDecorationDialog(
+        name: name,
+        preview: preview,
+        points: points,
+        unlockMessage: unlockMessage,
+      ),
+    );
+    return shouldBuy ?? false;
+  }
+
   void _showPointsGuide(BuildContext context) {
     showDialog<void>(
       context: context,
@@ -287,8 +306,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       // 等级皮肤：升级奖励解锁后才可切换
       if (!isOwned) {
         final unlockLevel = kLevelSkinUnlockLevels[id] ?? 0;
-        _showSnack(
-          unlockLevel > 0
+        await _showLockedDecorationPreview(
+          context,
+          name: name,
+          preview: _GridSkinPreview(skin: skin!),
+          unlockMessage: unlockLevel > 0
               ? '该皮肤为 Lv.$unlockLevel 升级奖励，达到等级后解锁'
               : '该皮肤为等级奖励皮肤，达到对应等级后解锁',
         );
@@ -302,8 +324,13 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     if (!isOwned) {
       final price = kAdSkinPoints[id] ?? 0;
       if (price <= 0) return;
-      final confirmed = await _confirmPurchase(context, name, price);
-      if (!confirmed) return;
+      final shouldBuy = await _showLockedDecorationPreview(
+        context,
+        name: name,
+        preview: _GridSkinPreview(skin: skin!),
+        points: price,
+      );
+      if (!shouldBuy) return;
       final ok = await notifier.spendPoints(price);
       if (!ok) {
         _showSnack('积分不足，可观看广告赚取积分');
@@ -329,12 +356,21 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final isOwned = player.ownedDecorations.contains('avatar_frame_$id');
     if (!isOwned && def?.source == 'points' && (def?.points ?? 0) > 0) {
       final frameDef = def!;
-      final confirmed = await _confirmPurchase(
+      final shouldBuy = await _showLockedDecorationPreview(
         context,
-        frameDef.name,
-        frameDef.points,
+        name: frameDef.name,
+        preview: _DecorationAssetPreview(
+          asset: frameDef.asset!,
+          previewKey: const ValueKey('avatar-frame-preview'),
+          aspectRatio: 1,
+          maxWidth: 260,
+          maxHeight: 260,
+          backgroundColor: AppColors.surface2,
+          borderColor: frameDef.color,
+        ),
+        points: frameDef.points,
       );
-      if (!confirmed) return;
+      if (!shouldBuy) return;
       final ok = await notifier.spendPoints(frameDef.points);
       if (!ok) {
         _showSnack('积分不足，可观看广告赚取积分');
@@ -346,8 +382,20 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       return;
     }
     if (!isOwned) {
-      _showSnack(
-        def != null ? '该头像框为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁' : '该头像框尚未解锁',
+      if (def == null) return;
+      await _showLockedDecorationPreview(
+        context,
+        name: def.name,
+        preview: _DecorationAssetPreview(
+          asset: def.asset!,
+          previewKey: const ValueKey('avatar-frame-preview'),
+          aspectRatio: 1,
+          maxWidth: 260,
+          maxHeight: 260,
+          backgroundColor: AppColors.surface2,
+          borderColor: def.color,
+        ),
+        unlockMessage: '该头像框为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁',
       );
       return;
     }
@@ -370,8 +418,19 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     }
     final isOwned = player.ownedDecorations.contains('background_$id');
     if (!isOwned && def != null) {
-      final confirmed = await _confirmPurchase(context, def.name, def.points);
-      if (!confirmed) return;
+      final shouldBuy = await _showLockedDecorationPreview(
+        context,
+        name: def.name,
+        preview: _DecorationAssetPreview(
+          asset: def.asset,
+          previewKey: const ValueKey('background-preview'),
+          aspectRatio: 941 / 1672,
+          maxWidth: 220,
+          maxHeight: 310,
+        ),
+        points: def.points,
+      );
+      if (!shouldBuy) return;
       final ok = await notifier.spendPoints(def.points);
       if (!ok) {
         _showSnack('积分不足，可观看广告赚取积分');
@@ -395,8 +454,12 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final player = ref.read(playerProvider);
     final def = titleEffectById(id);
     if (!player.ownedDecorations.contains('title_effect_$id')) {
-      _showSnack(
-        def != null ? '该称号特效为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁' : '该称号特效尚未解锁',
+      if (def == null) return;
+      await _showLockedDecorationPreview(
+        context,
+        name: def.name,
+        preview: _TitleEffectPreview(def: def),
+        unlockMessage: '该称号特效为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁',
       );
       return;
     }
@@ -559,6 +622,255 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             ),
             BannerAdView(active: widget.bannerActive),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LockedDecorationDialog extends StatelessWidget {
+  final String name;
+  final Widget preview;
+  final int? points;
+  final String? unlockMessage;
+
+  const _LockedDecorationDialog({
+    required this.name,
+    required this.preview,
+    this.points,
+    this.unlockMessage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ThemeDialog(
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 360,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.82,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$name预览',
+              style: displayStyle(size: 20, weight: FontWeight.w900),
+            ),
+            const SizedBox(height: 16),
+            Flexible(child: Center(child: preview)),
+            const SizedBox(height: 18),
+            if (points case final price?)
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '$price 积分',
+                      style: displayStyle(
+                        size: 16,
+                        weight: FontWeight.w700,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 112,
+                    child: PrimaryButton(
+                      label: '购买',
+                      small: true,
+                      onTap: () => Navigator.of(context).pop(true),
+                    ),
+                  ),
+                ],
+              )
+            else ...[
+              Text(
+                unlockMessage!,
+                style: bodyStyle(size: 14, color: AppColors.fg),
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: PrimaryButton(
+                  label: '确定',
+                  small: true,
+                  onTap: () => Navigator.of(context).pop(false),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GridSkinPreview extends StatelessWidget {
+  final GridSkin skin;
+
+  const _GridSkinPreview({required this.skin});
+
+  // 固定三成语：一心一意（横）、心想事成和意气风发（竖）。
+  static const _characters = <String?>[
+    '一',
+    '心',
+    '一',
+    '意',
+    null,
+    '想',
+    null,
+    '气',
+    null,
+    '事',
+    null,
+    '风',
+    null,
+    '成',
+    null,
+    '发',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        key: const ValueKey('grid-skin-preview'),
+        constraints: const BoxConstraints(maxWidth: 240, maxHeight: 240),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: skin.surface2,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: skin.border),
+        ),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+            ),
+            itemCount: _characters.length,
+            itemBuilder: (context, index) {
+              final character = _characters[index];
+              if (character == null) return const SizedBox.shrink();
+              final intersection = index == 1 || index == 3;
+              return Padding(
+                padding: const EdgeInsets.all(2),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: intersection
+                        ? Color.lerp(skin.surface2, Colors.black, 0.08)
+                        : skin.surface,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: skin.borderStrong),
+                  ),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Text(
+                          character,
+                          style: TextStyle(
+                            fontFamily: kSerif,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: skin.foreground,
+                          ),
+                        ),
+                      ),
+                      if (intersection)
+                        Positioned(
+                          right: 5,
+                          top: 5,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: skin.accent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const SizedBox.square(dimension: 5),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DecorationAssetPreview extends StatelessWidget {
+  final String asset;
+  final Key previewKey;
+  final double aspectRatio;
+  final double maxWidth;
+  final double maxHeight;
+  final Color? backgroundColor;
+  final Color? borderColor;
+
+  const _DecorationAssetPreview({
+    required this.asset,
+    required this.previewKey,
+    required this.aspectRatio,
+    required this.maxWidth,
+    required this.maxHeight,
+    this.backgroundColor,
+    this.borderColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+      child: AspectRatio(
+        aspectRatio: aspectRatio,
+        child: Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(16),
+            border: borderColor == null
+                ? null
+                : Border.all(color: borderColor!),
+          ),
+          child: Image.asset(asset, key: previewKey, fit: BoxFit.contain),
+        ),
+      ),
+    );
+  }
+}
+
+class _TitleEffectPreview extends StatelessWidget {
+  final TitleEffectDef def;
+
+  const _TitleEffectPreview({required this.def});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 300, minHeight: 140),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.surface2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Text(
+        def.name,
+        key: const ValueKey('title-effect-preview'),
+        style: applyTitleEffect(
+          def.id,
+          displayStyle(
+            size: 28,
+            weight: FontWeight.w900,
+            color: AppColors.accentDeep,
+          ),
         ),
       ),
     );
