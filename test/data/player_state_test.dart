@@ -227,6 +227,70 @@ void main() {
     expect((await db.getPlayerProgress())!.points, 5);
   });
 
+  test('每日登录奖励按七日周期发放并在第8天循环', () async {
+    final notifier = container.read(playerProvider.notifier);
+    const expectedRewards = [
+      '提示卡 ×1',
+      '提示卡 ×2',
+      '提示卡 ×3',
+      '提示卡 ×3、复活卡 ×1',
+      '50 积分',
+      '80 积分',
+      '100 积分',
+      '提示卡 ×1',
+      '提示卡 ×2',
+    ];
+
+    for (var i = 0; i < expectedRewards.length; i++) {
+      final claim = await notifier.claimDailyLoginReward(
+        now: DateTime(2026, 8, i + 1, 12),
+      );
+      expect(claim, isNotNull);
+      expect(claim!.streakDay, i + 1);
+      expect(claim.reward.label, expectedRewards[i]);
+    }
+
+    final state = container.read(playerProvider);
+    expect(state.functionalItems['hint_card'], 17);
+    expect(state.functionalItems['revive_card'], 3);
+    expect(state.points, 230);
+    final progress = await db.getPlayerProgress();
+    expect(progress!.hintCards, 17);
+    expect(progress.reviveCards, 3);
+    expect(progress.points, 230);
+    expect(await db.getSetting(kDailyLoginStreakKey), '9');
+  });
+
+  test('每日登录奖励同日不重复发放，断签后重置为第1天', () async {
+    final notifier = container.read(playerProvider.notifier);
+
+    final first = await notifier.claimDailyLoginReward(
+      now: DateTime(2026, 8, 20, 8),
+    );
+    final restartedContainer = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(restartedContainer.dispose);
+    final restartedNotifier = restartedContainer.read(playerProvider.notifier);
+    await restartedNotifier.loadFromDatabase(db);
+
+    final duplicate = await restartedNotifier.claimDailyLoginReward(
+      now: DateTime(2026, 8, 20, 20),
+    );
+    final afterGap = await restartedNotifier.claimDailyLoginReward(
+      now: DateTime(2026, 8, 22, 8),
+    );
+
+    expect(first!.streakDay, 1);
+    expect(duplicate, isNull);
+    expect(afterGap!.streakDay, 1);
+    expect(afterGap.reward.label, '提示卡 ×1');
+    expect(
+      restartedContainer.read(playerProvider).functionalItems['hint_card'],
+      7,
+    );
+  });
+
   test('激励广告：前10次冷却1分钟，之后2分钟，每日上限100次', () async {
     final notifier = container.read(playerProvider.notifier);
     var status = await notifier.rewardedAdStatus();

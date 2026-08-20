@@ -648,7 +648,7 @@ class _LockedDecorationDialog extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: 360,
-          maxHeight: MediaQuery.sizeOf(context).height * 0.82,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.55,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

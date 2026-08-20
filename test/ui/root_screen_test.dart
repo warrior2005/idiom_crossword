@@ -3,11 +3,50 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
+import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/root_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 import 'package:drift/native.dart';
 
 void main() {
+  testWidgets('当天首次打开发放奖励并展示明日预告', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: RootScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('每日登录奖励'), findsOneWidget);
+    expect(find.text('连续登录第 1 天'), findsOneWidget);
+    expect(find.text('今日获得：提示卡 ×1'), findsOneWidget);
+    expect(find.text('明日奖励：提示卡 ×2'), findsOneWidget);
+    expect(container.read(playerProvider).functionalItems['hint_card'], 6);
+
+    await tester.tap(find.text('确定'));
+    await tester.pumpAndSettle();
+    expect(find.text('每日登录奖励'), findsNothing);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: RootScreen(key: UniqueKey())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('每日登录奖励'), findsNothing);
+    expect(container.read(playerProvider).functionalItems['hint_card'], 6);
+  });
+
   testWidgets('底部五 Tab 可切换，选中态更新', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -18,6 +57,8 @@ void main() {
         child: const MaterialApp(home: RootScreen()),
       ),
     );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('确定'));
     await tester.pumpAndSettle();
 
     for (final label in ['首页', '关卡', '收藏', '商城', '我的']) {
@@ -35,6 +76,8 @@ void main() {
         child: const MaterialApp(home: RootScreen()),
       ),
     );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('确定'));
     await tester.pumpAndSettle();
 
     IndexedStack stack() =>

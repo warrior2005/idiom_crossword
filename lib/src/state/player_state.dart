@@ -36,6 +36,49 @@ const int kHintCardPoints = 10;
 const int kReviveCardPoints = 15;
 const int kGiftBoxPoints = 40;
 
+const String kDailyLoginLastDateKey = 'daily_login_last_date';
+const String kDailyLoginStreakKey = 'daily_login_streak';
+
+class DailyLoginReward {
+  final int hintCards;
+  final int reviveCards;
+  final int points;
+
+  const DailyLoginReward({
+    this.hintCards = 0,
+    this.reviveCards = 0,
+    this.points = 0,
+  });
+
+  String get label => [
+    if (hintCards > 0) '提示卡 ×$hintCards',
+    if (reviveCards > 0) '复活卡 ×$reviveCards',
+    if (points > 0) '$points 积分',
+  ].join('、');
+}
+
+class DailyLoginClaim {
+  final int streakDay;
+  final DailyLoginReward reward;
+  final DailyLoginReward nextReward;
+
+  const DailyLoginClaim({
+    required this.streakDay,
+    required this.reward,
+    required this.nextReward,
+  });
+}
+
+const List<DailyLoginReward> kDailyLoginRewards = [
+  DailyLoginReward(hintCards: 1),
+  DailyLoginReward(hintCards: 2),
+  DailyLoginReward(hintCards: 3),
+  DailyLoginReward(hintCards: 3, reviveCards: 1),
+  DailyLoginReward(points: 50),
+  DailyLoginReward(points: 80),
+  DailyLoginReward(points: 100),
+];
+
 /// 激励广告当前可用状态
 class RewardedAdStatus {
   final int countToday;
@@ -328,16 +371,71 @@ class PlayerNotifier extends Notifier<PlayerState> {
 
   /// 把当前状态写回数据库
   Future<void> _persist(AppDatabase db) {
+    return _persistState(db, state);
+  }
+
+  Future<void> _persistState(AppDatabase db, PlayerState playerState) {
     return db.updatePlayerProgress(
-      level: state.level,
-      totalXp: state.totalXp,
-      completedLevels: state.completedLevels,
-      hintCards: state.functionalItems['hint_card'] ?? 0,
-      reviveCards: state.functionalItems['revive_card'] ?? 0,
-      currentCorrectStreak: state.currentCorrectStreak,
-      bestCorrectStreak: state.bestCorrectStreak,
-      points: state.points,
+      level: playerState.level,
+      totalXp: playerState.totalXp,
+      completedLevels: playerState.completedLevels,
+      hintCards: playerState.functionalItems['hint_card'] ?? 0,
+      reviveCards: playerState.functionalItems['revive_card'] ?? 0,
+      currentCorrectStreak: playerState.currentCorrectStreak,
+      bestCorrectStreak: playerState.bestCorrectStreak,
+      points: playerState.points,
     );
+  }
+
+  /// 发放当日首次登录奖励；当天已领取时返回 null。
+  Future<DailyLoginClaim?> claimDailyLoginReward({DateTime? now}) async {
+    final db = ref.read(databaseProvider);
+    final current = now ?? DateTime.now();
+    final today = DateTime(current.year, current.month, current.day);
+    final todayKey = _dateKey(today);
+    final yesterdayKey = _dateKey(
+      DateTime(today.year, today.month, today.day - 1),
+    );
+    DailyLoginClaim? claim;
+    PlayerState? claimedState;
+
+    await db.transaction(() async {
+      final lastDate = await db.getSetting(kDailyLoginLastDateKey);
+      if (lastDate == todayKey) return;
+
+      final savedStreak =
+          int.tryParse(await db.getSetting(kDailyLoginStreakKey) ?? '0') ?? 0;
+      final streakDay = lastDate == yesterdayKey && savedStreak > 0
+          ? savedStreak + 1
+          : 1;
+      final reward =
+          kDailyLoginRewards[(streakDay - 1) % kDailyLoginRewards.length];
+      final nextReward =
+          kDailyLoginRewards[streakDay % kDailyLoginRewards.length];
+      final nextState = state.copyWith(
+        points: state.points + reward.points,
+        functionalItems: {
+          ...state.functionalItems,
+          'hint_card':
+              (state.functionalItems['hint_card'] ?? 0) + reward.hintCards,
+          'revive_card':
+              (state.functionalItems['revive_card'] ?? 0) + reward.reviveCards,
+        },
+      );
+
+      await _persistState(db, nextState);
+      await db.setSetting(kDailyLoginLastDateKey, todayKey);
+      await db.setSetting(kDailyLoginStreakKey, '$streakDay');
+      claimedState = nextState;
+      claim = DailyLoginClaim(
+        streakDay: streakDay,
+        reward: reward,
+        nextReward: nextReward,
+      );
+    });
+
+    if (claimedState case final nextState?) state = nextState;
+    return claim;
   }
 
   /// 增加积分（广告奖励、活动奖励等）
