@@ -89,6 +89,30 @@ const List<BackgroundDef> backgrounds = [
     asset: 'assets/images/菊.png',
     points: 1000,
   ),
+  BackgroundDef(
+    id: 'feng',
+    name: '风',
+    asset: 'assets/images/风.png',
+    points: 2000,
+  ),
+  BackgroundDef(
+    id: 'hua',
+    name: '花',
+    asset: 'assets/images/花.png',
+    points: 2000,
+  ),
+  BackgroundDef(
+    id: 'xue',
+    name: '雪',
+    asset: 'assets/images/雪.png',
+    points: 2000,
+  ),
+  BackgroundDef(
+    id: 'yue',
+    name: '月',
+    asset: 'assets/images/月.png',
+    points: 2000,
+  ),
 ];
 
 BackgroundDef? backgroundById(String id) {
