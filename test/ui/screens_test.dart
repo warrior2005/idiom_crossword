@@ -23,6 +23,7 @@ import 'package:idiom_crossword/src/ui/screens/level_select_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/learning_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/leaderboard_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/mine_screen.dart';
+import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 import 'package:idiom_crossword/src/audio/music_manager.dart';
 import 'package:idiom_crossword/src/audio/sound_manager.dart';
 import 'package:idiom_crossword/src/ui/widgets/user_avatar.dart';
@@ -888,6 +889,18 @@ void main() {
     );
     expect(find.text('天下英雄榜'), findsOneWidget);
     expect(find.text('每周英雄榜'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is AppIcon && widget.name == 'cup',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is AppIcon && widget.name == 'trophy',
+      ),
+      findsOneWidget,
+    );
     await tester.scrollUntilVisible(
       find.text('今日一读'),
       100,

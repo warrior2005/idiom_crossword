@@ -177,7 +177,7 @@ class HomeScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: _Tile(
-                    iconName: 'trophy',
+                    iconName: 'cup',
                     label: '天下英雄榜',
                     desc: '累计经验排名',
                     onTap: () => Navigator.of(context).push(
