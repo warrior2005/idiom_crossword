@@ -48,7 +48,7 @@ class HomeScreen extends ConsumerWidget {
     final avatarSeal = GrowthManager.avatarSeal(player.level);
     final daily = ref.watch(dailyInfoProvider).value;
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
-    final dailyIssue = ref.watch(dailyIssueProvider).value ?? 1;
+    final dailyIssue = dailyIssueLabel();
     final nextMainLevel = ref.watch(nextMainLevelProvider).value;
     final nextResumable =
         ref.watch(nextMainLevelResumableProvider).value ?? false;
@@ -112,7 +112,7 @@ class HomeScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '每日挑战 · 全服同题',
+                              '每日挑战 · 限时完成',
                               style: kickerStyle(color: AppColors.gold),
                             ),
                             const SizedBox(height: 8),
@@ -126,7 +126,7 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      BadgeSoft('第 $dailyIssue 期', color: BadgeSoftColor.gold),
+                      BadgeSoft(dailyIssue, color: BadgeSoftColor.gold),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -375,7 +375,7 @@ class HomeScreen extends ConsumerWidget {
     }
   }
 
-  /// 每日挑战：全服同题（按日期种子确定性生成），完成后次日刷新
+  /// 每日挑战：（按日期种子确定性生成），完成后次日刷新
   Future<void> _startDaily(BuildContext context, WidgetRef ref) async {
     if (!GrowthManager.canAccessDaily(ref.read(playerProvider).level)) {
       if (context.mounted) {

@@ -73,18 +73,3 @@ final dailyDoneProvider = FutureProvider<bool>((ref) async {
   final db = ref.watch(databaseProvider);
   return db.isLevelCompleted(dailyLevelNumber());
 });
-
-/// 当前每日挑战期数：按本机已完成的不同日期顺延；
-/// 已完成的今天仍显示本期，未完成时显示下一期。
-final dailyIssueProvider = FutureProvider<int>((ref) async {
-  ref.watch(playerProvider);
-  final db = ref.watch(databaseProvider);
-  final history = await db.getLevelHistory();
-  final doneDays = history
-      .where((h) => h.levelNumber >= dailyLevelOffset)
-      .map((h) => h.levelNumber)
-      .toSet();
-  final today = dailyLevelNumber();
-  final completedToday = doneDays.contains(today);
-  return doneDays.length + (completedToday ? 0 : 1);
-});

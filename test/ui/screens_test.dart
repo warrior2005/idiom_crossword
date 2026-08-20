@@ -884,6 +884,7 @@ void main() {
 
     expect(find.text('成语填字'), findsOneWidget);
     expect(find.text('科举仕途'), findsOneWidget);
+    expect(find.text(dailyIssueLabel()), findsOneWidget);
     expect(find.text('书卷小径'), findsNothing);
     expect(find.text('选择关卡'), findsNothing);
     expect(find.text('成语收藏'), findsNothing);

@@ -30,8 +30,8 @@ void main() {
 
     expect(find.text('每日挑战'), findsOneWidget);
     expect(find.text('历期回顾'), findsOneWidget);
-    expect(find.textContaining('第 2 期 ·'), findsOneWidget);
-    expect(find.text('第 1 期'), findsOneWidget);
+    expect(find.textContaining('期 ·'), findsOneWidget);
+    expect(find.text('19700106期'), findsOneWidget);
     expect(find.text('重玩今日挑战'), findsOneWidget);
     expect(find.text('次日 0 点刷新'), findsOneWidget);
   });

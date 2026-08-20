@@ -165,7 +165,7 @@ void main() {
     });
   }
 
-  test('同一种子生成结果确定（每日挑战全服同题）', () {
+  test('同一种子生成结果确定（每日挑战）', () {
     const seed = 20454;
     final gen1 = IntegratedGenerator(
       graph: CrossingGraph(idioms: allIdioms),
@@ -206,6 +206,19 @@ void main() {
     expect(epochDay(now), dailyLevelNumber(now) - dailyLevelOffset);
     expect(dailyLevelNumber(DateTime.utc(1970)), dailyLevelOffset);
     expect(dailyLevelNumber(now), greaterThan(dailyLevelOffset));
+    expect(dailyIssueLabel(DateTime(2026, 8, 20)), '20260820期');
+    expect(
+      dailyIssueLabelForLevel(dailyLevelNumber(DateTime(2027, 1, 3))),
+      '20270103期',
+    );
+    expect(
+      dailyIssueLabel(DateTime.parse('2026-08-19T15:59:59Z')),
+      '20260819期',
+    );
+    expect(
+      dailyIssueLabel(DateTime.parse('2026-08-19T16:00:00Z')),
+      '20260820期',
+    );
   });
 
   test('螺旋关卡包含长尾/预览混排（设计 §4.3）', () {

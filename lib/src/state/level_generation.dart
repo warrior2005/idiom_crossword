@@ -15,17 +15,39 @@ const int dailyLevelOffset = 1000000;
 const int recentLevelExclusionCount = 3;
 
 /// 今日每日挑战关卡号
-int dailyLevelNumber([DateTime? now]) {
-  final day = (now ?? DateTime.now())
-      .toUtc()
-      .difference(DateTime.utc(1970))
-      .inDays;
-  return dailyLevelOffset + day;
-}
+int dailyLevelNumber([DateTime? now]) => dailyLevelOffset + epochDay(now);
 
 /// 距 1970 的天数（每日挑战种子）
-int epochDay([DateTime? now]) =>
-    (now ?? DateTime.now()).toUtc().difference(DateTime.utc(1970)).inDays;
+int epochDay([DateTime? now]) {
+  final date = _chinaCalendarDate(now);
+  final calendarDay = DateTime.utc(date.year, date.month, date.day);
+  return calendarDay.difference(DateTime.utc(1970)).inDays;
+}
+
+/// 每日挑战展示日期，例如 20260820期。
+String dailyIssueLabel([DateTime? now]) {
+  final date = _chinaCalendarDate(now);
+  return _formatDailyIssue(date);
+}
+
+/// 从每日挑战专用关卡号还原展示日期。
+String dailyIssueLabelForLevel(int levelNumber) {
+  final date = DateTime.utc(
+    1970,
+    1,
+    1,
+  ).add(Duration(days: levelNumber - dailyLevelOffset));
+  return _formatDailyIssue(date);
+}
+
+String _formatDailyIssue(DateTime date) =>
+    '${date.year.toString().padLeft(4, '0')}'
+    '${date.month.toString().padLeft(2, '0')}'
+    '${date.day.toString().padLeft(2, '0')}期';
+
+/// 每日挑战按中国标准时间的日历日统一刷新。
+DateTime _chinaCalendarDate(DateTime? now) =>
+    (now ?? DateTime.now()).toUtc().add(const Duration(hours: 8));
 
 /// 按关卡编号生成一关（首页/关卡选择共用）
 ///

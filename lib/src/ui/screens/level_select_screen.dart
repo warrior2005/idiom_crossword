@@ -230,7 +230,6 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
         MaterialPageRoute(builder: (_) => GameScreen(level: level)),
       );
       ref.invalidate(dailyDoneProvider);
-      ref.invalidate(dailyIssueProvider);
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
@@ -266,7 +265,7 @@ class _DailyPin extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '全服同题 · 明日刷新',
+                  '明日刷新',
                   style: bodyStyle(size: 12, color: AppColors.muted),
                 ),
               ],

@@ -17,9 +17,9 @@ import '../widgets/level_loading_dialog.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
-/// 历期每日挑战（解码 levelJson 取成语；期数按本机完成顺序编号）
+/// 历期每日挑战（解码 levelJson 取成语）
 class PastDaily {
-  final int issue;
+  final String issue;
   final List<String> idioms;
   const PastDaily({required this.issue, required this.idioms});
 }
@@ -30,8 +30,7 @@ final pastDailyProvider = FutureProvider<List<PastDaily>>((ref) async {
   final past = history.where((h) => h.levelNumber >= dailyLevelOffset).toList()
     ..sort((a, b) => a.levelNumber.compareTo(b.levelNumber));
   final result = <PastDaily>[];
-  for (var i = 0; i < past.length; i++) {
-    final h = past[i];
+  for (final h in past) {
     List<String> idioms = const [];
     if (h.levelJson != null) {
       final level = decodeLevel(h.levelJson!);
@@ -39,7 +38,9 @@ final pastDailyProvider = FutureProvider<List<PastDaily>>((ref) async {
         idioms = level.placements.map((p) => p.idiom.text).toList();
       }
     }
-    result.add(PastDaily(issue: i + 1, idioms: idioms));
+    result.add(
+      PastDaily(issue: dailyIssueLabelForLevel(h.levelNumber), idioms: idioms),
+    );
   }
   return result.reversed.toList();
 });
@@ -60,7 +61,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
   Widget build(BuildContext context) {
     final daily = ref.watch(dailyInfoProvider).value;
     final dailyDone = ref.watch(dailyDoneProvider).value ?? false;
-    final dailyIssue = ref.watch(dailyIssueProvider).value ?? 1;
+    final dailyIssue = dailyIssueLabel();
     final pastAsync = ref.watch(pastDailyProvider);
     final past = pastAsync.value ?? const [];
 
@@ -126,9 +127,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
                             SizedBox(
                               width: 96,
                               child: Text(
-                                p.idioms.isNotEmpty
-                                    ? p.idioms.first
-                                    : '第 ${p.issue} 期',
+                                p.idioms.isNotEmpty ? p.idioms.first : p.issue,
                                 style: displayStyle(
                                   size: 24,
                                   weight: FontWeight.w900,
@@ -147,7 +146,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
                               ),
                             ),
                             Text(
-                              '· 第 ${p.issue} 期',
+                              '· ${p.issue}',
                               style: bodyStyle(
                                 size: 11,
                                 color: AppColors.faint,
@@ -168,7 +167,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
     );
   }
 
-  Widget _buildHero(DailyInfo? daily, bool dailyDone, int dailyIssue) {
+  Widget _buildHero(DailyInfo? daily, bool dailyDone, String dailyIssue) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -196,7 +195,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '第 $dailyIssue 期 · ${daily?.word ?? '——'}',
+                  '$dailyIssue · ${daily?.word ?? '——'}',
                   style: displayStyle(
                     size: 19,
                     weight: FontWeight.w900,
@@ -208,8 +207,8 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
                   daily == null
                       ? '今日挑战生成中…'
                       : dailyDone
-                      ? '全服同题 · 已完成 · 明日刷新'
-                      : '全服同题 · 明日刷新',
+                      ? '已完成 · 明日刷新'
+                      : '明日刷新',
                   style: bodyStyle(size: 11.5, color: AppColors.muted),
                 ),
               ],
@@ -309,7 +308,6 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
         ),
       );
       ref.invalidate(dailyDoneProvider);
-      ref.invalidate(dailyIssueProvider);
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
