@@ -33,3 +33,24 @@ final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
       )
       .toList();
 });
+
+final favoriteIdsProvider = FutureProvider<Set<int>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  return (await db.getFavoriteIds()).toSet();
+});
+
+final favoritesProvider = FutureProvider<List<CollectionItem>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final rows = await db.getFavoritesWithFavoritedAt();
+  return rows
+      .map(
+        (r) => CollectionItem(
+          word: r.idiom.word,
+          explanation: r.idiom.explanation,
+          derivation: r.idiom.derivation,
+          pinyin: r.idiom.pinyin,
+          collectedAt: r.favoritedAt,
+        ),
+      )
+      .toList();
+});

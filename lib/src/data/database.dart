@@ -19,8 +19,8 @@ import 'package:sqlite3/sqlite3.dart';
 
 part 'database.g.dart';
 
-/// 当前数据库 schema 版本（与预构建数据库的 PRAGMA user_version 保持一致）
-const int currentSchemaVersion = 10;
+/// 当前数据库 schema 版本（预构建数据库会在首次打开时迁移到此版本）
+const int currentSchemaVersion = 11;
 
 // ============================================================
 // 表定义
@@ -146,6 +146,17 @@ class Collection extends Table {
   Set<Column> get primaryKey => {idiomId};
 }
 
+/// 用户主动收藏的成语表
+class Favorites extends Table {
+  IntColumn get idiomId =>
+      integer().references(Idioms, #id, onDelete: KeyAction.cascade)();
+  DateTimeColumn get favoritedAt =>
+      dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {idiomId};
+}
+
 /// 关卡通关记录表
 class LevelHistory extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -221,6 +232,7 @@ class SettingsTable extends Table {
     UserProgress,
     PlayerProgressTable,
     Collection,
+    Favorites,
     LevelHistory,
     DecorationTable,
     LevelStateTable,
@@ -325,6 +337,9 @@ class AppDatabase extends _$AppDatabase {
           if (!await _columnExists('player_progress_table', 'points')) {
             await m.addColumn(playerProgressTable, playerProgressTable.points);
           }
+        }
+        if (from < 11) {
+          await m.createTable(favorites);
         }
       },
     );
@@ -544,6 +559,43 @@ class AppDatabase extends _$AppDatabase {
               ..limit(1))
             .getSingleOrNull();
     return result != null;
+  }
+
+  /// 添加成语到用户主动收藏
+  Future<void> addToFavorites(int idiomId) async {
+    await into(favorites).insert(
+      FavoritesCompanion(idiomId: Value(idiomId)),
+      mode: InsertMode.insertOrIgnore,
+    );
+  }
+
+  /// 从用户主动收藏中移除成语
+  Future<void> removeFromFavorites(int idiomId) async {
+    await (delete(favorites)..where((t) => t.idiomId.equals(idiomId))).go();
+  }
+
+  /// 获取用户主动收藏的成语 ID（按收藏时间倒序）
+  Future<List<int>> getFavoriteIds() async {
+    return (select(favorites)
+          ..orderBy([(t) => OrderingTerm.desc(t.favoritedAt)]))
+        .map((row) => row.idiomId)
+        .get();
+  }
+
+  /// 获取主动收藏详情及收藏时间（按收藏时间倒序）
+  Future<List<({Idiom idiom, DateTime favoritedAt})>>
+  getFavoritesWithFavoritedAt() async {
+    final rows = await (select(favorites).join([
+      innerJoin(idioms, idioms.id.equalsExp(favorites.idiomId)),
+    ])..orderBy([OrderingTerm.desc(favorites.favoritedAt)])).get();
+    return rows
+        .map(
+          (row) => (
+            idiom: row.readTable(idioms),
+            favoritedAt: row.readTable(favorites).favoritedAt,
+          ),
+        )
+        .toList();
   }
 
   /// 按成语原文查找成语 ID（通关后自动收录用）

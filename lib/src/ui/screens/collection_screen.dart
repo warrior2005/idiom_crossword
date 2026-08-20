@@ -8,122 +8,178 @@ import '../widgets/banner_ad_view.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
-class CollectionScreen extends ConsumerStatefulWidget {
+class CollectionScreen extends ConsumerWidget {
   final bool bannerActive;
 
   const CollectionScreen({super.key, this.bannerActive = true});
 
   @override
-  ConsumerState<CollectionScreen> createState() => _CollectionScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final collectionAsync = ref.watch(collectionProvider);
+    final favoritesAsync = ref.watch(favoritesProvider);
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: AppColors.bg,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '成语收藏',
+                      style: displayStyle(size: 30, weight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 6),
+                    Text('主动收藏与通关收录的成语', style: kickerStyle()),
+                    const SizedBox(height: 12),
+                    TabBar(
+                      labelColor: AppColors.accentDeep,
+                      unselectedLabelColor: AppColors.muted,
+                      indicatorColor: AppColors.accentDeep,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      tabs: const [
+                        Tab(text: '收藏'),
+                        Tab(text: '全部'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _CollectionList(
+                      itemsAsync: favoritesAsync,
+                      emptyTitle: '还没有收藏任何成语',
+                      emptySub: '在“本关成语”中点击收藏',
+                      weekLabel: '本周收藏',
+                    ),
+                    _CollectionList(
+                      itemsAsync: collectionAsync,
+                      emptyTitle: '还没有收录任何成语',
+                      emptySub: '通关后自动收录',
+                      weekLabel: '本周新增',
+                    ),
+                  ],
+                ),
+              ),
+              BannerAdView(active: bannerActive),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _CollectionScreenState extends ConsumerState<CollectionScreen> {
+class _CollectionList extends StatefulWidget {
+  final AsyncValue<List<CollectionItem>> itemsAsync;
+  final String emptyTitle;
+  final String emptySub;
+  final String weekLabel;
+
+  const _CollectionList({
+    required this.itemsAsync,
+    required this.emptyTitle,
+    required this.emptySub,
+    required this.weekLabel,
+  });
+
+  @override
+  State<_CollectionList> createState() => _CollectionListState();
+}
+
+class _CollectionListState extends State<_CollectionList> {
   static const _pageSize = 10;
   String _query = '';
   int _page = 0;
 
   @override
   Widget build(BuildContext context) {
-    final collectionAsync = ref.watch(collectionProvider);
+    return widget.itemsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: Text('加载失败: $e', style: bodyStyle(color: AppColors.accent)),
+      ),
+      data: (items) {
+        final filtered = _query.isEmpty
+            ? items
+            : items.where((item) => item.word.contains(_query)).toList();
+        final weekAgo = DateTime.now().subtract(const Duration(days: 7));
+        final weekNew = items
+            .where((c) => c.collectedAt.isAfter(weekAgo))
+            .length;
 
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: SafeArea(
-        child: collectionAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(
-            child: Text('加载失败: $e', style: bodyStyle(color: AppColors.accent)),
-          ),
-          data: (collection) {
-            final filtered = _query.isEmpty
-                ? collection
-                : collection.where((c) => c.word.contains(_query)).toList();
-            final weekAgo = DateTime.now().subtract(const Duration(days: 7));
-            final weekNew = collection
-                .where((c) => c.collectedAt.isAfter(weekAgo))
-                .length;
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Column(
+                children: [
+                  _SearchField(
+                    onChanged: (v) => setState(() {
+                      _query = v.trim();
+                      _page = 0;
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '成语收藏',
-                        style: displayStyle(size: 30, weight: FontWeight.w700),
+                        '共 ${items.length} 则',
+                        style: displayStyle(size: 15, weight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 6),
-                      Text('已通关成语自动收录 · 附释义与出处', style: kickerStyle()),
-                      const SizedBox(height: 12),
-                      _SearchField(
-                        onChanged: (v) => setState(() {
-                          _query = v.trim();
-                          _page = 0;
-                        }),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '共 ${collection.length} 则',
-                            style: displayStyle(
-                              size: 15,
-                              weight: FontWeight.w700,
-                            ),
-                          ),
-                          BadgeSoft(
-                            '本周新增 $weekNew',
-                            color: BadgeSoftColor.leaf,
-                          ),
-                        ],
+                      BadgeSoft(
+                        '${widget.weekLabel} $weekNew',
+                        color: BadgeSoftColor.leaf,
                       ),
                     ],
                   ),
-                ),
-                Expanded(
-                  child: collection.isEmpty
-                      ? const _EmptyState(title: '还没有收藏任何成语', sub: '通关后自动收录')
-                      : filtered.isEmpty
-                      ? const _EmptyState(title: '没有找到匹配的成语', sub: '换个关键词试试')
-                      : () {
-                          final maxPage =
-                              ((filtered.length / _pageSize).ceil() - 1).clamp(
-                                0,
-                                1 << 31,
-                              );
-                          final page = _page.clamp(0, maxPage);
-                          final items = filtered.sublist(
-                            page * _pageSize,
-                            ((page + 1) * _pageSize).clamp(0, filtered.length),
-                          );
-                          return ListView.builder(
-                            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                            itemCount: items.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index == items.length) {
-                                return _Pager(
-                                  page: page,
-                                  maxPage: maxPage,
-                                  onPrev: () => setState(() => _page--),
-                                  onNext: () => setState(() => _page++),
-                                );
-                              }
-                              final item = items[index];
-                              return _ColCard(item: item);
-                            },
-                          );
-                        }(),
-                ),
-                BannerAdView(active: widget.bannerActive),
-              ],
-            );
-          },
-        ),
-      ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: items.isEmpty
+                  ? _EmptyState(title: widget.emptyTitle, sub: widget.emptySub)
+                  : filtered.isEmpty
+                  ? const _EmptyState(title: '没有找到匹配的成语', sub: '换个关键词试试')
+                  : () {
+                      final maxPage = ((filtered.length / _pageSize).ceil() - 1)
+                          .clamp(0, 1 << 31);
+                      final page = _page.clamp(0, maxPage);
+                      final items = filtered.sublist(
+                        page * _pageSize,
+                        ((page + 1) * _pageSize).clamp(0, filtered.length),
+                      );
+                      return ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                        itemCount: items.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == items.length) {
+                            return _Pager(
+                              page: page,
+                              maxPage: maxPage,
+                              onPrev: () => setState(() => _page--),
+                              onNext: () => setState(() => _page++),
+                            );
+                          }
+                          final item = items[index];
+                          return _ColCard(key: ValueKey(item.word), item: item);
+                        },
+                      );
+                    }(),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -165,7 +221,7 @@ class _SearchField extends StatelessWidget {
 
 class _ColCard extends StatelessWidget {
   final CollectionItem item;
-  const _ColCard({required this.item});
+  const _ColCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {

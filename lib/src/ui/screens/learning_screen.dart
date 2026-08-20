@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database.dart';
+import '../../state/collection_provider.dart';
 import '../../state/database_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
@@ -32,6 +33,7 @@ class LearningScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailsAsync = ref.watch(learningDetailsProvider(words));
+    final favoriteIds = ref.watch(favoriteIdsProvider).value ?? const <int>{};
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -60,6 +62,7 @@ class LearningScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final idiom = ordered[index];
               return AppCard(
+                key: ValueKey(idiom.id),
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.only(bottom: 12),
                 child: Column(
@@ -95,6 +98,42 @@ class LearningScreen extends ConsumerWidget {
                               ),
                             ),
                           ),
+                        if (wrongWords.contains(idiom.word))
+                          const SizedBox(width: 8),
+                        OutlinedButton(
+                          onPressed: () async {
+                            final db = ref.read(databaseProvider);
+                            if (favoriteIds.contains(idiom.id)) {
+                              await db.removeFromFavorites(idiom.id);
+                            } else {
+                              await db.addToFavorites(idiom.id);
+                            }
+                            ref.invalidate(favoriteIdsProvider);
+                            ref.invalidate(favoritesProvider);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(0, 32),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            foregroundColor: favoriteIds.contains(idiom.id)
+                                ? AppColors.accentDeep
+                                : AppColors.muted,
+                            side: BorderSide(
+                              color: favoriteIds.contains(idiom.id)
+                                  ? AppColors.accentDeep
+                                  : AppColors.border,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            favoriteIds.contains(idiom.id) ? '已收藏' : '收藏',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     if (idiom.pinyin.isNotEmpty) ...[

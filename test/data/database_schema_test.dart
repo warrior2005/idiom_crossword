@@ -115,6 +115,14 @@ void main() {
     expect(collection, isNotEmpty);
     expect(collection.first.word, first.word);
 
+    // 主动收藏与通关自动收录相互独立
+    expect(await db.getFavoriteIds(), isEmpty);
+    await db.addToFavorites(first.id);
+    expect(await db.getFavoriteIds(), [first.id]);
+    expect(await db.getFavoritesWithFavoritedAt(), hasLength(1));
+    await db.removeFromFavorites(first.id);
+    expect(await db.getFavoriteIds(), isEmpty);
+
     // 关卡历史 + 完成状态查询
     expect(await db.isLevelCompleted(7), isFalse);
     await db.addLevelHistory(
@@ -179,7 +187,7 @@ void main() {
 
     // schema 版本应与 database.dart 一致
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 10);
+    expect(version.data.values.first, currentSchemaVersion);
 
     await db.close();
     await tmpDir.delete(recursive: true);
@@ -222,7 +230,7 @@ void main() {
     expect(progress.points, 0);
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 10);
+    expect(version.data.values.first, currentSchemaVersion);
 
     await db.close();
     await tmpDir.delete(recursive: true);

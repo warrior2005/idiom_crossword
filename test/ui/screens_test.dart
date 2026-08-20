@@ -54,13 +54,15 @@ Widget _wrap(AppDatabase db, Widget child) {
 }
 
 void main() {
-  testWidgets('收藏页：空态 → 收录后展示成语', (tester) async {
+  testWidgets('收藏页：收藏与全部分开展示', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
 
     await tester.pumpWidget(_wrap(db, const CollectionScreen()));
     await tester.pumpAndSettle();
     expect(find.text('还没有收藏任何成语'), findsOneWidget);
+    expect(find.text('收藏'), findsOneWidget);
+    expect(find.text('全部'), findsOneWidget);
 
     final id = await db.findIdiomIdByWord('画蛇添足');
     await db.addToCollection(id!);
@@ -70,6 +72,9 @@ void main() {
     // 卸载后重新挂载，让新的 ProviderScope 重新拉取数据
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpWidget(_wrap(db, const CollectionScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('画蛇添足'), findsNothing);
+    await tester.tap(find.text('全部'));
     await tester.pumpAndSettle();
     expect(find.text('画蛇添足'), findsOneWidget);
     expect(find.text('本周新增 1'), findsOneWidget);
@@ -84,6 +89,34 @@ void main() {
     await tester.enterText(find.byType(TextField), '不存在');
     await tester.pumpAndSettle();
     expect(find.text('没有找到匹配的成语'), findsOneWidget);
+  });
+
+  testWidgets('本关成语：可以收藏和取消收藏', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    final id = await db.findIdiomIdByWord('画蛇添足');
+
+    await tester.pumpWidget(
+      _wrap(db, const LearningScreen(words: ['画蛇添足'], wrongWords: {'画蛇添足'})),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('填错'), findsOneWidget);
+    expect(find.text('收藏'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('填错')).dx,
+      lessThan(tester.getTopLeft(find.text('收藏')).dx),
+    );
+
+    await tester.tap(find.text('收藏'));
+    await tester.pumpAndSettle();
+    expect(find.text('已收藏'), findsOneWidget);
+    expect(await db.getFavoriteIds(), [id]);
+
+    await tester.tap(find.text('已收藏'));
+    await tester.pumpAndSettle();
+    expect(find.text('收藏'), findsOneWidget);
+    expect(await db.getFavoriteIds(), isEmpty);
   });
 
   testWidgets('成就页：解锁状态与进度', (tester) async {
@@ -825,6 +858,8 @@ void main() {
     await db.addToCollection(id!);
 
     await tester.pumpWidget(_wrap(db, const CollectionScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('全部'));
     await tester.pumpAndSettle();
     expect(find.text('画蛇添足'), findsOneWidget);
     expect(find.textContaining('共'), findsOneWidget);
