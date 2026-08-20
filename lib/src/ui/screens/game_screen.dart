@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -133,6 +134,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   /// 本关成语的“前后两半可交换”倒装对（word -> 交换后的词）
   final Map<String, String> _reversiblePairs = {};
   PageRoute<dynamic>? _subscribedRoute;
+
+  // 成语释义区滚动条
+  final ScrollController _completedScrollController = ScrollController();
 
   @override
   void initState() {
@@ -599,6 +603,13 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     if (isCorrect && idiomCompleted) {
       HapticFeedback.mediumImpact();
       SoundManager.instance.playIdiom();
+      if (_completedScrollController.hasClients) {
+        _completedScrollController.animateTo(
+          _completedScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     } else {
       HapticFeedback.lightImpact();
       if (isCorrect) {
@@ -1689,7 +1700,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     final soundEnabled =
         ref.watch(soundEnabledProvider).value ?? SoundManager.instance.enabled;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Row(
         children: [
           _buildExitButton(),
@@ -1750,7 +1761,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     final total = _blankCount();
     final filled = _completedCells.length;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1872,7 +1883,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   Widget _buildCompletedIdiomsSection() {
     // 固定高度区域：出现完成词条/释义时不再挤压网格布局（避免抖动）
     return Container(
-      height: 116,
+      height: 92,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: _completedIdiomList.isEmpty
           ? const SizedBox.shrink()
@@ -1880,8 +1891,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
               width: double.infinity,
               child: AppCard(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+                  horizontal: 10,
+                  vertical: 4,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1891,6 +1902,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                       child: SizedBox(
                         width: double.infinity,
                         child: SingleChildScrollView(
+                          controller: _completedScrollController,
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -1912,8 +1924,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
+                                      horizontal: 6,
+                                      vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
                                       color: isSelected
@@ -1929,7 +1941,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                                     child: Text(
                                       item.word,
                                       style: displayStyle(
-                                        size: 13,
+                                        size: 15,
                                         weight: FontWeight.w600,
                                         color: isSelected
                                             ? AppColors.accent
@@ -1948,10 +1960,13 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                       Expanded(
                         child: SingleChildScrollView(
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Text(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: AutoSizeText(
                               '释义：'
                               '${_completedIdiomList[_selectedCompletedIndex!].meaning}',
+                              maxLines: 2,
+                              minFontSize: 8,
+                              overflow: TextOverflow.ellipsis,
                               style: bodyStyle(
                                 size: 11.5,
                                 color: AppColors.muted,
@@ -1978,7 +1993,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
             final rowIndex = entry.key;
             final row = entry.value;
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
+              padding: const EdgeInsets.symmetric(vertical: 1),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: row.asMap().entries.map((cellEntry) {
@@ -1989,7 +2004,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                     colIndex,
                   ));
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 1),
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: isUsed
@@ -1997,7 +2012,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                           : () => _onCandidateTap(rowIndex, colIndex, char),
                       child: Container(
                         width: 36,
-                        height: 38,
+                        height: 36,
                         decoration: BoxDecoration(
                           color: isUsed
                               ? AppColors.surface2
@@ -2013,7 +2028,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                         child: Text(
                           char,
                           style: displayStyle(
-                            size: 22,
+                            size: 23,
                             weight: FontWeight.w600,
                             color: isUsed ? AppColors.faint : AppColors.fg,
                           ),
@@ -2032,7 +2047,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
   Widget _buildStatusLine() {
     return Padding(
-      padding: const EdgeInsets.only(top: 4, bottom: 4),
+      padding: const EdgeInsets.only(top: 2, bottom: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -2045,8 +2060,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                   child: Icon(
                     i < _lives ? Icons.favorite : Icons.favorite_border,
                     key: ValueKey('life-heart-$i'),
-                    size: 24,
-                    color: i < _lives ? Colors.red : AppColors.faint,
+                    size: 22,
+                    color: i < _lives ? AppColors.accent : AppColors.faint,
                   ),
                 ),
             ],
@@ -2098,7 +2113,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     final canSingleHint = focusReady;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -2250,7 +2265,7 @@ class _ToolbarButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
         width: 88,
-        height: 64,
+        height: 60,
         child: Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
@@ -2260,14 +2275,13 @@ class _ToolbarButton extends StatelessWidget {
               children: [
                 AppIcon(
                   icon,
-                  size: 22,
+                  size: 24,
                   color: enabled ? AppColors.fg : AppColors.faint,
                 ),
-                const SizedBox(height: 2),
                 Text(
                   label,
                   style: bodyStyle(
-                    size: 11,
+                    size: 12,
                     weight: FontWeight.w600,
                     color: enabled ? AppColors.fg : AppColors.faint,
                   ),
@@ -2276,11 +2290,11 @@ class _ToolbarButton extends StatelessWidget {
             ),
             if (sub != null)
               Positioned(
-                top: 4,
-                right: 6,
+                top: 2,
+                right: 2,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
+                    horizontal: 4,
                     vertical: 1,
                   ),
                   decoration: BoxDecoration(
