@@ -707,11 +707,16 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       _focusRow,
       _focusCol,
     ).map((p) => (p, p.cells.indexOf((_focusRow, _focusCol)))).toList();
+    final preferredDirection =
+        _directionFromFilledPrefix(
+          containingPlacements.map((item) => item.$1),
+        ) ??
+        _currentDirection;
 
-    // 优先沿当前方向继续
-    if (_currentDirection != null) {
+    // 交叉点优先沿前方已有字的方向，否则沿当前方向继续
+    if (preferredDirection != null) {
       for (final (placement, k) in containingPlacements) {
-        if (placement.direction == _currentDirection) {
+        if (placement.direction == preferredDirection) {
           // 沿当前方向找下一个空位
           for (int next = k + 1; next < placement.idiom.text.length; next++) {
             final (nr, nc) = placement.cellAt(next);
@@ -722,6 +727,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
               setState(() {
                 _focusRow = nr;
                 _focusCol = nc;
+                _currentDirection = placement.direction;
               });
               return;
             }
@@ -733,7 +739,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     // 当前方向没有了，尝试其他方向
     for (final (placement, k) in containingPlacements) {
       // 跳过已尝试的方向
-      if (placement.direction == _currentDirection) continue;
+      if (placement.direction == preferredDirection) continue;
 
       for (int next = k + 1; next < placement.idiom.text.length; next++) {
         final (nr, nc) = placement.cellAt(next);
@@ -772,6 +778,40 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     _focusCol = -1;
     _currentDirection = null;
     _checkLevelComplete();
+  }
+
+  Direction? _directionFromFilledPrefix(Iterable<Placement> placements) {
+    final crossingPlacements = placements.toList();
+    if (crossingPlacements.length < 2) return null;
+
+    Direction? preferred;
+    var mostFilled = 0;
+    var tied = false;
+    for (final placement in crossingPlacements) {
+      final current = placement.cells.indexOf((_focusRow, _focusCol));
+      final hasEmptyAfter = placement.cells.skip(current + 1).any((position) {
+        final cell = _grid.cellAt(position.$1, position.$2);
+        return !cell.isGiven && !_playerAnswers.containsKey(position);
+      });
+      if (!hasEmptyAfter) continue;
+
+      var filledBefore = 0;
+      for (var previous = current - 1; previous >= 0; previous--) {
+        final position = placement.cellAt(previous);
+        final cell = _grid.cellAt(position.$1, position.$2);
+        if (!cell.isGiven && !_playerAnswers.containsKey(position)) break;
+        filledBefore++;
+      }
+
+      if (filledBefore > mostFilled) {
+        preferred = placement.direction;
+        mostFilled = filledBefore;
+        tied = false;
+      } else if (filledBefore == mostFilled && filledBefore > 0) {
+        tied = true;
+      }
+    }
+    return tied ? null : preferred;
   }
 
   /// 检查整关是否完成

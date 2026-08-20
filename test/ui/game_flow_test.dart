@@ -122,6 +122,38 @@ void main() {
     expect(await db.getSetting(musicEnabledKey), 'false');
   });
 
+  testWidgets('交叉格优先沿前方已有字的方向移动', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: GameScreen(level: _buildDirectionInferenceLevel()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final gridFinder = find.byWidgetPredicate(
+      (widget) => widget is CustomPaint && widget.painter is GridPainter,
+    );
+    final gridRect = tester.getRect(gridFinder);
+    final cellSize = gridRect.width / 4;
+    await tester.tapAt(
+      Offset(gridRect.left + cellSize * 2.5, gridRect.top + cellSize * 2.5),
+    );
+    await tester.pump();
+    await tester.tap(find.text('不'));
+    await tester.pump();
+
+    final painter =
+        tester.widget<CustomPaint>(gridFinder).painter! as GridPainter;
+    expect((painter.focusRow, painter.focusCol), (4, 3));
+    await tester.pump(const Duration(milliseconds: 300));
+  });
+
   testWidgets('填满空格后过关，经验与通关记录写入数据库', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -703,6 +735,55 @@ engine.CrosswordLevel _buildScrollableLevel() {
     givenCharacters: words
         .expand((word) => word.substring(0, 3).split(''))
         .toSet(),
+    title: '第 1 关',
+  );
+}
+
+engine.CrosswordLevel _buildDirectionInferenceLevel() {
+  final grid = engine.CrosswordGrid(rows: 6, cols: 6);
+  const horizontal = engine.Idiom(
+    text: '语焉不详',
+    pinyin: 'yu yan bu xiang',
+    meaning: '说得不详细',
+    difficulty: 1,
+  );
+  const vertical = engine.Idiom(
+    text: '不骄不躁',
+    pinyin: 'bu jiao bu zao',
+    meaning: '不骄傲，不急躁',
+    difficulty: 1,
+  );
+  final placements = [
+    const engine.Placement(
+      idiom: horizontal,
+      startRow: 3,
+      startCol: 1,
+      direction: engine.Direction.horizontal,
+    ),
+    const engine.Placement(
+      idiom: vertical,
+      startRow: 1,
+      startCol: 3,
+      direction: engine.Direction.vertical,
+    ),
+  ];
+  for (final placement in placements) {
+    for (var k = 0; k < placement.idiom.text.length; k++) {
+      final (row, col) = placement.cellAt(k);
+      final cell = grid.cellAt(row, col);
+      if (cell.state == engine.CellState.filled) cell.isIntersection = true;
+      cell.state = engine.CellState.filled;
+      cell.character = placement.idiom.text[k];
+    }
+  }
+  for (final position in [(3, 1), (1, 3), (2, 3)]) {
+    grid.cellAt(position.$1, position.$2).isGiven = true;
+  }
+  return engine.CrosswordLevel(
+    levelId: 1,
+    grid: grid,
+    placements: placements,
+    givenCharacters: const {'语', '不', '骄'},
     title: '第 1 关',
   );
 }
