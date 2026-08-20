@@ -2088,7 +2088,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                         child: Text(
                           char,
                           style: displayStyle(
-                            size: 23,
+                            size: 21,
                             weight: FontWeight.w600,
                             color: isUsed ? AppColors.faint : AppColors.fg,
                           ),
