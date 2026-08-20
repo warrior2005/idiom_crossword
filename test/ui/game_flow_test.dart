@@ -3,12 +3,16 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:idiom_crossword/src/audio/music_manager.dart';
+import 'package:idiom_crossword/src/audio/sound_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
+import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
+import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 
 /// 完整通关流程端到端测试：候选字填字 → 过关对话框 → 经验/记录落库
 void main() {
@@ -48,6 +52,74 @@ void main() {
     expect(usedGridBounds(grid), (2, 3));
     // 全 blocked 的网格返回 (0, 0)
     expect(usedGridBounds(engine.CrosswordGrid(rows: 3, cols: 3)), (0, 0));
+  });
+
+  testWidgets('完成新成语后滚动到列表最右侧', (tester) async {
+    tester.view.physicalSize = const Size(320, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildScrollableLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (final char in ['足', '牢', '兔', '威', '铃']) {
+      await tester.tap(find.text(char));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+    }
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    final completedScrollView = tester.widget<SingleChildScrollView>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is SingleChildScrollView &&
+            widget.scrollDirection == Axis.horizontal,
+      ),
+    );
+    final position = completedScrollView.controller!.position;
+    expect(position.maxScrollExtent, greaterThan(0));
+    expect(position.pixels, closeTo(position.maxScrollExtent, 0.01));
+  });
+
+  testWidgets('GameScreen 声音按钮同时控制音乐和音效', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    SoundManager.instance.setEnabled(true);
+    await MusicManager.instance.setMusicEnabled(true);
+    addTearDown(() async {
+      SoundManager.instance.setEnabled(true);
+      await MusicManager.instance.setMusicEnabled(true);
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) => widget is AppIcon && widget.name == 'sound',
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(SoundManager.instance.enabled, isFalse);
+    expect(MusicManager.instance.musicEnabled, isFalse);
+    expect(await db.getSetting(soundEnabledKey), 'false');
+    expect(await db.getSetting(musicEnabledKey), 'false');
   });
 
   testWidgets('填满空格后过关，经验与通关记录写入数据库', (tester) async {
@@ -596,6 +668,42 @@ engine.CrosswordLevel _buildLevel({int levelId = 1}) {
     placements: [placement],
     givenCharacters: {'画'},
     title: levelId >= dailyLevelOffset ? '每日挑战' : '第 1 关',
+  );
+}
+
+engine.CrosswordLevel _buildScrollableLevel() {
+  final grid = engine.CrosswordGrid(rows: 7, cols: 6);
+  const words = ['画蛇添足', '亡羊补牢', '守株待兔', '狐假虎威', '掩耳盗铃'];
+  final placements = <engine.Placement>[];
+  for (var row = 1; row <= words.length; row++) {
+    final idiom = engine.Idiom(
+      text: words[row - 1],
+      pinyin: '',
+      meaning: '',
+      difficulty: 1,
+    );
+    final placement = engine.Placement(
+      idiom: idiom,
+      startRow: row,
+      startCol: 1,
+      direction: engine.Direction.horizontal,
+    );
+    placements.add(placement);
+    for (var k = 0; k < idiom.text.length; k++) {
+      final cell = grid.cellAt(row, k + 1);
+      cell.state = engine.CellState.filled;
+      cell.character = idiom.text[k];
+      cell.isGiven = k < idiom.text.length - 1;
+    }
+  }
+  return engine.CrosswordLevel(
+    levelId: 1,
+    grid: grid,
+    placements: placements,
+    givenCharacters: words
+        .expand((word) => word.substring(0, 3).split(''))
+        .toSet(),
+    title: '第 1 关',
   );
 }
 

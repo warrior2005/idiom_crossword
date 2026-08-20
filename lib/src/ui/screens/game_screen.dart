@@ -603,13 +603,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     if (isCorrect && idiomCompleted) {
       HapticFeedback.mediumImpact();
       SoundManager.instance.playIdiom();
-      if (_completedScrollController.hasClients) {
-        _completedScrollController.animateTo(
-          _completedScrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
+      _scrollCompletedIdiomsToEnd();
     } else {
       HapticFeedback.lightImpact();
       if (isCorrect) {
@@ -621,6 +615,17 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     _moveToNextEmptyCell();
     if (isCorrect) _flashCellAt(filledRow, filledCol);
     _saveState();
+  }
+
+  void _scrollCompletedIdiomsToEnd() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_completedScrollController.hasClients) return;
+      _completedScrollController.animateTo(
+        _completedScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   /// 检查当前焦点所在成语的完成状态；返回是否新完成了至少一个成语
@@ -1699,6 +1704,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   Widget _buildTopBar() {
     final soundEnabled =
         ref.watch(soundEnabledProvider).value ?? SoundManager.instance.enabled;
+    final musicEnabled =
+        ref.watch(musicEnabledProvider).value ??
+        MusicManager.instance.musicEnabled;
+    final audioEnabled = soundEnabled && musicEnabled;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Row(
@@ -1716,9 +1725,13 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
             ),
           ),
           GestureDetector(
-            onTap: () => ref
-                .read(soundEnabledProvider.notifier)
-                .setEnabled(!soundEnabled),
+            onTap: () async {
+              final enabled = !audioEnabled;
+              await Future.wait([
+                ref.read(soundEnabledProvider.notifier).setEnabled(enabled),
+                ref.read(musicEnabledProvider.notifier).setEnabled(enabled),
+              ]);
+            },
             child: Container(
               width: 40,
               height: 40,
@@ -1729,7 +1742,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
               ),
               child: Center(
                 child: Opacity(
-                  opacity: soundEnabled ? 1 : 0.4,
+                  opacity: audioEnabled ? 1 : 0.4,
                   child: const AppIcon('sound', size: 20),
                 ),
               ),
