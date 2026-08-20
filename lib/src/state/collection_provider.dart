@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database_provider.dart';
 
 class CollectionItem {
+  final int id;
   final String word;
   final String explanation;
   final String? derivation;
@@ -10,6 +11,7 @@ class CollectionItem {
   final DateTime collectedAt;
 
   const CollectionItem({
+    required this.id,
     required this.word,
     required this.explanation,
     required this.derivation,
@@ -24,6 +26,7 @@ final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
   return rows
       .map(
         (r) => CollectionItem(
+          id: r.idiom.id,
           word: r.idiom.word,
           explanation: r.idiom.explanation,
           derivation: r.idiom.derivation,
@@ -45,6 +48,7 @@ final favoritesProvider = FutureProvider<List<CollectionItem>>((ref) async {
   return rows
       .map(
         (r) => CollectionItem(
+          id: r.idiom.id,
           word: r.idiom.word,
           explanation: r.idiom.explanation,
           derivation: r.idiom.derivation,

@@ -12,6 +12,8 @@ import 'package:idiom_crossword/src/ui/screens/achievements_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/collection_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_seal.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_card.dart';
+import 'package:idiom_crossword/src/ui/widgets/primary_button.dart';
+import 'package:idiom_crossword/src/ui/widgets/theme_dialog.dart';
 import 'package:idiom_crossword/src/ui/theme/app_colors.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/shop_screen.dart';
@@ -89,6 +91,36 @@ void main() {
     await tester.enterText(find.byType(TextField), '不存在');
     await tester.pumpAndSettle();
     expect(find.text('没有找到匹配的成语'), findsOneWidget);
+  });
+
+  testWidgets('收藏页：删除收藏前需要用户确认', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    final id = await db.findIdiomIdByWord('画蛇添足');
+    await db.addToFavorites(id!);
+
+    await tester.pumpWidget(_wrap(db, const CollectionScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('画蛇添足'), findsOneWidget);
+
+    await tester.tap(find.text('删除'));
+    await tester.pumpAndSettle();
+    expect(find.text('删除收藏？'), findsOneWidget);
+    expect(find.byType(ThemeDialog), findsOneWidget);
+    expect(find.byType(PrimaryButton), findsNWidgets(2));
+    expect(find.byType(AlertDialog), findsNothing);
+    await tester.tap(find.text('取消'));
+    await tester.pumpAndSettle();
+    expect(find.text('画蛇添足'), findsOneWidget);
+    expect(await db.getFavoriteIds(), [id]);
+
+    await tester.tap(find.text('删除'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('确认删除'));
+    await tester.pumpAndSettle();
+    expect(find.text('画蛇添足'), findsNothing);
+    expect(find.text('还没有收藏任何成语'), findsOneWidget);
+    expect(await db.getFavoriteIds(), isEmpty);
   });
 
   testWidgets('本关成语：可以收藏和取消收藏', (tester) async {

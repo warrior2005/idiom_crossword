@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/collection_provider.dart';
+import '../../state/database_provider.dart';
 import '../widgets/app_card.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
 import '../widgets/banner_ad_view.dart';
+import '../widgets/primary_button.dart';
+import '../widgets/theme_dialog.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
@@ -59,6 +62,7 @@ class CollectionScreen extends ConsumerWidget {
                       emptyTitle: '还没有收藏任何成语',
                       emptySub: '在“本关成语”中点击收藏',
                       weekLabel: '本周收藏',
+                      onDelete: (item) => _confirmDelete(context, ref, item),
                     ),
                     _CollectionList(
                       itemsAsync: collectionAsync,
@@ -76,6 +80,59 @@ class CollectionScreen extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    CollectionItem item,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => ThemeDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '删除收藏？',
+              style: displayStyle(size: 20, weight: FontWeight.w900),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '确定要从收藏中删除“${item.word}”吗？',
+              style: bodyStyle(size: 14, color: AppColors.fg),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: '取消',
+                    small: true,
+                    ghost: true,
+                    onTap: () => Navigator.of(dialogContext).pop(false),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: PrimaryButton(
+                    label: '确认删除',
+                    small: true,
+                    onTap: () => Navigator.of(dialogContext).pop(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    if (confirmed != true) return;
+
+    await ref.read(databaseProvider).removeFromFavorites(item.id);
+    ref.invalidate(favoriteIdsProvider);
+    ref.invalidate(favoritesProvider);
+  }
 }
 
 class _CollectionList extends StatefulWidget {
@@ -83,12 +140,14 @@ class _CollectionList extends StatefulWidget {
   final String emptyTitle;
   final String emptySub;
   final String weekLabel;
+  final ValueChanged<CollectionItem>? onDelete;
 
   const _CollectionList({
     required this.itemsAsync,
     required this.emptyTitle,
     required this.emptySub,
     required this.weekLabel,
+    this.onDelete,
   });
 
   @override
@@ -172,7 +231,13 @@ class _CollectionListState extends State<_CollectionList> {
                             );
                           }
                           final item = items[index];
-                          return _ColCard(key: ValueKey(item.word), item: item);
+                          return _ColCard(
+                            key: ValueKey(item.id),
+                            item: item,
+                            onDelete: widget.onDelete == null
+                                ? null
+                                : () => widget.onDelete!(item),
+                          );
                         },
                       );
                     }(),
@@ -221,7 +286,9 @@ class _SearchField extends StatelessWidget {
 
 class _ColCard extends StatelessWidget {
   final CollectionItem item;
-  const _ColCard({super.key, required this.item});
+  final VoidCallback? onDelete;
+
+  const _ColCard({super.key, required this.item, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -243,12 +310,34 @@ class _ColCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item.pinyin.toUpperCase(),
-                  style: bodyStyle(
-                    size: 11,
-                    color: AppColors.muted,
-                  ).copyWith(letterSpacing: 1.2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.pinyin.toUpperCase(),
+                        style: bodyStyle(
+                          size: 11,
+                          color: AppColors.muted,
+                        ).copyWith(letterSpacing: 1.2),
+                      ),
+                    ),
+                    if (onDelete != null)
+                      Semantics(
+                        button: true,
+                        label: '删除收藏 ${item.word}',
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: onDelete,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 6,
+                            ),
+                            child: BadgeSoft('删除'),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 6),
                 Text(
