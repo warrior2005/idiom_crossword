@@ -1819,7 +1819,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   /// 本关进度：N/总字数 + XpTrack
   Widget _buildProgress() {
     final total = _blankCount();
-    final filled = _completedCells.length;
+    final filled = _playerAnswers.entries.where((entry) {
+      final (row, col) = entry.key;
+      return _isCharCorrectForCell(row, col, entry.value);
+    }).length;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: Column(

@@ -91,6 +91,27 @@ void main() {
     expect(position.pixels, closeTo(position.maxScrollExtent, 0.01));
   });
 
+  testWidgets('填入正确单字后立即更新本关进度', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('0/3 字', findRichText: true), findsOneWidget);
+
+    await tester.tap(find.text('蛇'));
+    await tester.pump();
+
+    expect(find.text('1/3 字', findRichText: true), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 300));
+  });
+
   testWidgets('GameScreen 声音按钮同时控制音乐和音效', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
