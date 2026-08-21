@@ -1,5 +1,5 @@
 name: idiom_crossword
-description: 成语填字游戏
+description: 成语接龙
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -48,6 +48,14 @@ dev_dependencies:
   # 代码生成
   drift_dev: ^2.16.0
   build_runner: ^2.15.0
+  # icon生成
+  flutter_launcher_icons: ^0.14.4
+
+# dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: false
+  ios: true
+  image_path: "idiom_icon.png"
 
 flutter:
   uses-material-design: true
