@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../app_page_route.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
 import '../../state/level_state_codec.dart';
@@ -324,7 +325,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
       }
       await Navigator.push(
         context,
-        MaterialPageRoute(
+        AppPageRoute<void>(
           builder: (_) => GameScreen(level: level, noReward: isReplay),
         ),
       );

@@ -1,6 +1,7 @@
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/data/growth_manager.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
@@ -225,6 +226,21 @@ void main() {
     expect(fail, isFalse);
     expect(container.read(playerProvider).points, 5);
     expect((await db.getPlayerProgress())!.points, 5);
+  });
+
+  test('成就积分只发放一次，并为旧存档补发', () async {
+    final notifier = container.read(playerProvider.notifier);
+
+    expect(await notifier.unlockAchievement(AchievementId.firstLevel), isTrue);
+    expect(container.read(playerProvider).points, 10);
+    expect(await notifier.unlockAchievement(AchievementId.firstLevel), isFalse);
+    expect(container.read(playerProvider).points, 10);
+
+    await db.unlockAchievement(AchievementId.level10.name);
+    expect(await notifier.claimUnlockedAchievementRewards(), 10);
+    expect(await notifier.claimUnlockedAchievementRewards(), 0);
+    expect(container.read(playerProvider).points, 20);
+    expect((await db.getPlayerProgress())!.points, 20);
   });
 
   test('每日登录奖励按七日周期发放并在第8天循环', () async {

@@ -219,11 +219,8 @@ class AdManager with WidgetsBindingObserver {
 
       // 原有的初始化逻辑
       RequestConfiguration configuration = RequestConfiguration(
-        // ArtSlider 不是面向儿童设计的 App
-        tagForChildDirectedTreatment: TagForChildDirectedTreatment.no,
-
-        // 没有年龄验证，不能断言用户一定达到当地数字同意年龄
-        tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
+        // 没有年龄验证，不主动断言用户所属的年龄限制类别
+        ageRestrictedTreatment: AgeRestrictedTreatment.unspecified,
 
         // App Store 13+，允许投放适合青少年及以上的广告
         maxAdContentRating: MaxAdContentRating.t,

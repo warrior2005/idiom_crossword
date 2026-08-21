@@ -120,7 +120,7 @@ class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
     }
 
     // 云恢复完成后再同步成就与排行榜，避免提交全新空档的数据。
-    unawaited(GameCenterService.syncAchievements(widget.db));
+    unawaited(_syncAchievementsAndRewards());
     unawaited(
       LeaderboardService.submitScores(
         widget.db,
@@ -128,6 +128,11 @@ class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
       ),
     );
     if (mounted) setState(() => _ready = true);
+  }
+
+  Future<void> _syncAchievementsAndRewards() async {
+    await GameCenterService.syncAchievements(widget.db);
+    await ref.read(playerProvider.notifier).claimUnlockedAchievementRewards();
   }
 
   @override

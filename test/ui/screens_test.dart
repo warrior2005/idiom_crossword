@@ -3,6 +3,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
@@ -65,6 +66,14 @@ Widget _wrap(AppDatabase db, Widget child) {
 }
 
 void main() {
+  PackageInfo.setMockInitialValues(
+    appName: '成语填字',
+    packageName: 'com.sunnywarrior.idiomcrossword',
+    version: '0.1.0',
+    buildNumber: '1',
+    buildSignature: '',
+  );
+
   testWidgets('收藏页：收藏与全部分开展示', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
@@ -168,6 +177,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('已解锁 / ${achievementDefs.length} 项'), findsOneWidget);
     expect(find.text('初露锋芒'), findsOneWidget);
+    expect(find.text('10 积分'), findsWidgets);
 
     await db.unlockAchievement(AchievementId.firstLevel.name);
     await tester.pumpWidget(const SizedBox.shrink());
@@ -175,6 +185,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('1'), findsOneWidget);
     expect(find.text('通'), findsOneWidget);
+    expect(find.text('已获 10 积分'), findsOneWidget);
   });
 
   testWidgets('成就页：印章与分组渲染', (tester) async {
@@ -322,6 +333,26 @@ void main() {
     await tester.tap(switches.at(2));
     await tester.pumpAndSettle();
     expect(await db.getSetting(hapticEnabledKey), 'false');
+  });
+
+  testWidgets('设置页：版本跟随应用信息并可查看协议与隐私', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const SettingsScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('v0.1.0'), findsOneWidget);
+
+    await tester.tap(find.text('用户协议与隐私'));
+    await tester.pumpAndSettle();
+    expect(find.text('用户协议'), findsOneWidget);
+    expect(find.text('隐私政策'), findsOneWidget);
+    expect(find.text('一、协议说明'), findsOneWidget);
+
+    await tester.tap(find.text('隐私政策'));
+    await tester.pumpAndSettle();
+    expect(find.text('二、广告服务'), findsOneWidget);
+    expect(find.textContaining('Google 广告服务'), findsOneWidget);
   });
 
   testWidgets('商城购买提示卡后库存增加并扣减积分', (tester) async {
@@ -980,6 +1011,7 @@ void main() {
     expect(find.text('提示卡'), findsOneWidget);
     expect(find.text('复活卡'), findsOneWidget);
     expect(find.text('0/100'), findsOneWidget); // 激励广告今日次数（按钮下方）
+    expect(find.text('重新加载'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('功能道具'),
       100,
@@ -992,6 +1024,27 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('装饰藏品'), findsOneWidget);
+  });
+
+  testWidgets('商城：天子冕冠使用 Lv.∞ 并同步到预览弹框', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const ShopScreen()));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('天子冕冠'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('天子冕冠'));
+    await tester.pumpAndSettle();
+    expect(find.text('Lv.∞ 升级奖励'), findsOneWidget);
+    expect(find.text('Lv.∞'), findsOneWidget);
+
+    await tester.tap(find.text('天子冕冠'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('该头像框为 Lv.∞ 升级奖励'), findsOneWidget);
   });
 
   testWidgets('我的页：等级条三态与菜单', (tester) async {

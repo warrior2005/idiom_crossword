@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/growth_manager.dart';
 import '../../state/player_state.dart';
 import '../../utils/ad_manager.dart';
 import '../widgets/app_card.dart';
@@ -52,11 +53,13 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   int _cooldownSeconds = 0;
   int _watchedToday = 0;
   bool _maxReachedToday = false;
+  bool _rewardedAdLoading = false;
 
   @override
   void initState() {
     super.initState();
     _refreshAdStatus();
+    unawaited(_loadRewardedAd());
   }
 
   @override
@@ -243,6 +246,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       _showSnack(status.maxReached ? '今日激励广告已达上限' : '广告冷却中，请稍后再试');
       return;
     }
+    if (!AdManager().isRewardedAdReadyNotifier.value) {
+      await _loadRewardedAd(showFailure: true);
+      if (!AdManager().isRewardedAdReadyNotifier.value) return;
+    }
     final shown = AdManager().showRewardedAd(
       onRewardEarned: (type, amount) async {
         final newStatus = await notifier.consumeRewardedAd();
@@ -258,6 +265,17 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       },
     );
     if (!shown) _showSnack('广告暂未加载，请稍后再试');
+  }
+
+  Future<void> _loadRewardedAd({bool showFailure = false}) async {
+    if (!AdManager.isSupportedPlatform || _rewardedAdLoading) return;
+    setState(() => _rewardedAdLoading = true);
+    final loaded = await AdManager().loadRewardedAd();
+    if (!mounted) return;
+    setState(() => _rewardedAdLoading = false);
+    if (!loaded && showFailure) {
+      _showSnack('广告加载失败，请稍后重试');
+    }
   }
 
   Future<void> _buyFunctional(
@@ -311,7 +329,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           name: name,
           preview: _GridSkinPreview(skin: skin!),
           unlockMessage: unlockLevel > 0
-              ? '该皮肤为 Lv.$unlockLevel 升级奖励，达到等级后解锁'
+              ? '该皮肤为 ${GrowthManager.levelLabel(unlockLevel)} 升级奖励，达到等级后解锁'
               : '该皮肤为等级奖励皮肤，达到对应等级后解锁',
         );
         return;
@@ -395,7 +413,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
           backgroundColor: AppColors.surface2,
           borderColor: def.color,
         ),
-        unlockMessage: '该头像框为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁',
+        unlockMessage:
+            '该头像框为 ${GrowthManager.levelLabel(def.unlockLevel)} 升级奖励，达到等级后解锁',
       );
       return;
     }
@@ -459,7 +478,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         context,
         name: def.name,
         preview: _TitleEffectPreview(def: def),
-        unlockMessage: '该称号特效为 Lv.${def.unlockLevel} 升级奖励，达到等级后解锁',
+        unlockMessage:
+            '该称号特效为 ${GrowthManager.levelLabel(def.unlockLevel)} 升级奖励，达到等级后解锁',
       );
       return;
     }
@@ -515,6 +535,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     cooldownSeconds: _cooldownSeconds,
                     watchedToday: _watchedToday,
                     maxReached: _maxReachedToday,
+                    isAdLoading: _rewardedAdLoading,
                     onWatch: _watchRewardedAd,
                   ),
                   const SizedBox(height: 12),
@@ -882,6 +903,7 @@ class _PointsCard extends StatelessWidget {
   final int cooldownSeconds;
   final int watchedToday;
   final bool maxReached;
+  final bool isAdLoading;
   final VoidCallback onWatch;
 
   const _PointsCard({
@@ -889,6 +911,7 @@ class _PointsCard extends StatelessWidget {
     required this.cooldownSeconds,
     required this.watchedToday,
     required this.maxReached,
+    required this.isAdLoading,
     required this.onWatch,
   });
 
@@ -939,7 +962,7 @@ class _PointsCard extends StatelessWidget {
                 valueListenable: AdManager().isRewardedAdReadyNotifier,
                 builder: (context, isAdReady, child) {
                   final disabled =
-                      maxReached || cooldownSeconds > 0 || !isAdReady;
+                      maxReached || cooldownSeconds > 0 || isAdLoading;
                   return GestureDetector(
                     onTap: disabled ? null : onWatch,
                     child: Container(
@@ -964,8 +987,10 @@ class _PointsCard extends StatelessWidget {
                           Text(
                             cooldownSeconds > 0
                                 ? _formatCooldown(cooldownSeconds)
-                                : !isAdReady
+                                : isAdLoading
                                 ? '加载中…'
+                                : !isAdReady
+                                ? '重新加载'
                                 : '赚取积分',
                             style: TextStyle(
                               fontSize: 12.5,
@@ -1222,7 +1247,7 @@ class _SkinsCard extends StatelessWidget {
         : isOwned
         ? '已拥有'
         : isLevelSkin
-        ? 'Lv.$unlockLevel 升级奖励'
+        ? '${GrowthManager.levelLabel(unlockLevel)} 升级奖励'
         : '积分购买';
     return GestureDetector(
       onTap: () => onSelect(skin.id),
@@ -1294,7 +1319,10 @@ class _SkinsCard extends StatelessWidget {
                 onBuy: () => onSelect(skin.id),
               )
             else if (!isOwned)
-              BadgeSoft('Lv.$unlockLevel', color: BadgeSoftColor.leaf),
+              BadgeSoft(
+                GrowthManager.levelLabel(unlockLevel),
+                color: BadgeSoftColor.leaf,
+              ),
           ],
         ),
       ),
@@ -1334,7 +1362,7 @@ class _FramesCard extends StatelessWidget {
                 ? '使用中'
                 : owned.contains('avatar_frame_${frame.id}')
                 ? '已拥有'
-                : 'Lv.${frame.unlockLevel} 升级奖励',
+                : '${GrowthManager.levelLabel(frame.unlockLevel)} 升级奖励',
             isActive: active == frame.id,
             isOwned: owned.contains('avatar_frame_${frame.id}'),
             unlockLevel: frame.unlockLevel,
@@ -1389,7 +1417,7 @@ class _EffectsCard extends StatelessWidget {
                 ? '使用中'
                 : owned.contains('title_effect_${effect.id}')
                 ? '已拥有'
-                : 'Lv.${effect.unlockLevel} 升级奖励',
+                : '${GrowthManager.levelLabel(effect.unlockLevel)} 升级奖励',
             isActive: active == effect.id,
             isOwned: owned.contains('title_effect_${effect.id}'),
             unlockLevel: effect.unlockLevel,
@@ -1463,7 +1491,7 @@ class _DecoTile extends StatelessWidget {
     final effect = effectDef;
     final lockBadge = frame != null && frame.source == 'points'
         ? '${frame.points} 积分'
-        : 'Lv.$unlockLevel';
+        : GrowthManager.levelLabel(unlockLevel);
     return GestureDetector(
       onTap: onTap,
       child: Container(

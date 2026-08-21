@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database_provider.dart';
+import '../data/achievement_manager.dart';
 import '../data/database.dart';
 import '../data/growth_manager.dart';
+import 'game_center_service.dart';
 import 'level_generation.dart';
 
 /// 激励广告配额与冷却常量
@@ -38,6 +40,7 @@ const int kGiftBoxPoints = 40;
 
 const String kDailyLoginLastDateKey = 'daily_login_last_date';
 const String kDailyLoginStreakKey = 'daily_login_streak';
+const String _achievementRewardKeyPrefix = 'achievement_reward_claimed_';
 
 class DailyLoginReward {
   final int hintCards;
@@ -443,6 +446,50 @@ class PlayerNotifier extends Notifier<PlayerState> {
     if (amount <= 0) return;
     state = state.copyWith(points: state.points + amount);
     await _persist(ref.read(databaseProvider));
+  }
+
+  /// 解锁成就并发放一次对应积分奖励。
+  Future<bool> unlockAchievement(AchievementId id) async {
+    final db = ref.read(databaseProvider);
+    final isNew = await GameCenterService.unlockAchievement(db, id);
+    await _claimAchievementReward(id);
+    return isNew;
+  }
+
+  /// 为旧存档或 Game Center 同步回来的成就补发尚未领取的积分。
+  Future<int> claimUnlockedAchievementRewards() async {
+    final unlocked = await ref
+        .read(databaseProvider)
+        .getUnlockedAchievementIds();
+    var total = 0;
+    for (final definition in achievementDefs) {
+      if (unlocked.contains(definition.id.name)) {
+        total += await _claimAchievementReward(definition.id);
+      }
+    }
+    return total;
+  }
+
+  Future<int> _claimAchievementReward(AchievementId id) async {
+    final db = ref.read(databaseProvider);
+    final key = '$_achievementRewardKeyPrefix${id.name}';
+    final definition = achievementDefFor(id);
+    PlayerState? rewardedState;
+
+    await db.transaction(() async {
+      if (await db.getSetting(key) == 'true') return;
+      final unlocked = await db.getUnlockedAchievementIds();
+      if (!unlocked.contains(id.name)) return;
+      final savedPoints =
+          (await db.getPlayerProgress())?.points ?? state.points;
+      rewardedState = state.copyWith(points: savedPoints + definition.points);
+      await _persistState(db, rewardedState!);
+      await db.setSetting(key, 'true');
+    });
+
+    if (rewardedState == null) return 0;
+    state = rewardedState!;
+    return definition.points;
   }
 
   /// 横幅广告积分：按分钟累计，受每日上限约束；返回实际发放的积分

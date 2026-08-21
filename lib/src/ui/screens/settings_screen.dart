@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../audio/music_manager.dart';
 import '../../audio/sound_manager.dart';
 import '../../state/database_provider.dart';
+import '../app_page_route.dart';
 import '../widgets/sub_page_header.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
+import 'legal_screen.dart';
 
 const String soundEnabledKey = 'sound_enabled';
 const String musicEnabledKey = 'music_enabled';
@@ -63,9 +66,10 @@ class MusicSettingNotifier extends AsyncNotifier<bool> {
 }
 
 /// 触感反馈开关
-final hapticEnabledProvider = AsyncNotifierProvider<HapticSettingNotifier, bool>(
-  HapticSettingNotifier.new,
-);
+final hapticEnabledProvider =
+    AsyncNotifierProvider<HapticSettingNotifier, bool>(
+      HapticSettingNotifier.new,
+    );
 
 class HapticSettingNotifier extends AsyncNotifier<bool> {
   @override
@@ -109,16 +113,18 @@ final dailyReminderProvider = AsyncNotifierProvider<PrefSettingNotifier, bool>(
   () => PrefSettingNotifier(dailyReminderKey),
 );
 
+final appVersionProvider = FutureProvider<String>((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return info.version;
+});
+
 /// 设置界面
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
-  void _toast(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final version = ref.watch(appVersionProvider).value;
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: SafeArea(
@@ -133,22 +139,23 @@ class SettingsScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                 children: [
                   _Group(
-                    children: const [
-                      _MusicRow(),
-                      _SoundRow(),
-                      _HapticRow(),
-                    ],
+                    children: const [_MusicRow(), _SoundRow(), _HapticRow()],
                   ),
-                  _Group(
-                    children: const [
-                      _PinyinRow(),
-                      _ReminderRow(),
-                    ],
-                  ),
+                  _Group(children: const [_PinyinRow(), _ReminderRow()]),
                   _Group(
                     children: [
-                      const _ValueRow(title: '当前版本', value: 'v2.1'),
-                      _TapRow(title: '用户协议与隐私', onTap: () => _toast(context, '即将上线')),
+                      _ValueRow(
+                        title: '当前版本',
+                        value: version == null ? '—' : 'v$version',
+                      ),
+                      _TapRow(
+                        title: '用户协议与隐私',
+                        onTap: () => Navigator.of(context).push(
+                          AppPageRoute<void>(
+                            builder: (_) => const LegalScreen(),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -276,7 +283,10 @@ class _SwitchRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: bodyStyle(size: 14.5, weight: FontWeight.w600)),
+                Text(
+                  title,
+                  style: bodyStyle(size: 14.5, weight: FontWeight.w600),
+                ),
                 const SizedBox(height: 2),
                 Text(sub, style: bodyStyle(size: 11.5, color: AppColors.muted)),
               ],
@@ -326,7 +336,10 @@ class _TapRow extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title, style: bodyStyle(size: 14.5, weight: FontWeight.w600)),
-            const Text('›', style: TextStyle(fontSize: 16, color: AppColors.faint)),
+            const Text(
+              '›',
+              style: TextStyle(fontSize: 16, color: AppColors.faint),
+            ),
           ],
         ),
       ),

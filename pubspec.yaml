@@ -38,6 +38,7 @@ dependencies:
   # 日志
   logger: ^2.7.0
   image_picker: ^1.2.3
+  package_info_plus: ^10.2.1
 
 dev_dependencies:
   flutter_test:

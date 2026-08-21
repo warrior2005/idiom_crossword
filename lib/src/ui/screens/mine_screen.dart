@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import '../app_page_route.dart';
 import '../../state/player_state.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
@@ -240,7 +241,7 @@ class MineScreen extends ConsumerWidget {
   }
 
   void _push(BuildContext context, Widget page) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+    Navigator.of(context).push(AppPageRoute<void>(builder: (_) => page));
   }
 
   Widget _buildStats(BuildContext context, WidgetRef ref) {

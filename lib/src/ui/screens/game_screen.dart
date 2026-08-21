@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_page_route.dart';
 import '../../engine/grid_engine.dart';
 import '../../engine/distractor_engine.dart';
 import '../../state/database_provider.dart';
@@ -15,7 +16,6 @@ import '../../state/level_state_codec.dart';
 import '../../state/collection_provider.dart';
 import '../../state/level_progress_providers.dart';
 import '../../state/leaderboard_service.dart';
-import '../../state/game_center_service.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
 import '../../audio/music_manager.dart';
@@ -75,6 +75,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   static const double _rewardedInterstitialAdChance = 0.4;
 
   late CrosswordGrid _grid;
+  late final Map<(int, int), String> _pinyinByCell;
   final DistractorEngine _distractorEngine = DistractorEngine();
 
   int _lives = _initialLives;
@@ -143,6 +144,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     super.initState();
     MusicManager.instance.enterGame(this);
     _grid = widget.level.grid;
+    _pinyinByCell = pinyinByCell(widget.level);
     _findFirstEmptyCell();
     _levelStartTime = DateTime.now();
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
@@ -406,10 +408,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
   /// 解锁成就并提示（幂等）
   Future<void> _unlockAndNotify(AchievementId id) async {
-    final db = ref.read(databaseProvider);
     var isNew = false;
     try {
-      isNew = await GameCenterService.unlockAchievement(db, id);
+      isNew = await ref.read(playerProvider.notifier).unlockAchievement(id);
     } catch (_) {
       return;
     }
@@ -417,7 +418,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     final def = achievementDefFor(id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('解锁成就：${def.title}'),
+        content: Text('解锁成就：${def.title}，获得 ${def.points} 积分'),
         duration: const Duration(milliseconds: 1500),
       ),
     );
@@ -943,10 +944,15 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       totalXp: ref.read(playerProvider).totalXp,
       collectionCount: await db.getCollectionCount(),
     );
+    final unlockedNow = <AchievementId>[];
     for (final id in newly) {
-      await GameCenterService.unlockAchievement(db, id);
+      if (await ref.read(playerProvider.notifier).unlockAchievement(id)) {
+        unlockedNow.add(id);
+      }
     }
-    final newDefs = achievementDefs.where((d) => newly.contains(d.id)).toList();
+    final newDefs = achievementDefs
+        .where((definition) => unlockedNow.contains(definition.id))
+        .toList();
 
     await db.clearLevelState(widget.level.levelId);
     _levelFinished = true;
@@ -1152,7 +1158,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   /// 打开本关成语学习页（释义/出处/例句）
   void _showLearning(BuildContext dialogContext) {
     Navigator.of(dialogContext).push(
-      MaterialPageRoute(
+      AppPageRoute<void>(
         builder: (_) => LearningScreen(
           words: widget.level.idioms.map((i) => i.text).toList(),
           wrongWords: Set.from(_wrongIdiomWords),
@@ -1368,7 +1374,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     Navigator.of(context).pop(); // 关闭失败弹框
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
+      AppPageRoute<void>(
         builder: (_) => GameScreen(
           level: widget.level,
           noReward: _isDaily,
@@ -1638,7 +1644,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       }
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+        AppPageRoute<void>(builder: (_) => GameScreen(level: level)),
       );
     } catch (e) {
       if (mounted) {
@@ -1897,6 +1903,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
           final skin =
               gridSkinById(ref.watch(playerProvider).activeGridSkin) ??
               gridSkins.first;
+          final showPinyin = ref.watch(showPinyinProvider).value ?? true;
           final availableWidth = constraints.maxWidth;
           final availableHeight = constraints.maxHeight;
 
@@ -1945,6 +1952,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                       flashCell: _flashCell,
                       cellSize: actualCellSize,
                       skin: skin,
+                      showPinyin: showPinyin,
+                      pinyinByCell: _pinyinByCell,
                       // 把整个矩阵上移/左移 1 格，裁掉不绘制的边框
                       offset: Offset(-actualCellSize, -actualCellSize),
                     ),
@@ -2435,6 +2444,8 @@ class GridPainter extends CustomPainter {
   final (int, int)? flashCell;
   final double cellSize;
   final GridSkin skin;
+  final bool showPinyin;
+  final Map<(int, int), String> pinyinByCell;
   final Offset offset;
 
   GridPainter({
@@ -2447,6 +2458,8 @@ class GridPainter extends CustomPainter {
     required this.flashCell,
     required this.cellSize,
     required this.skin,
+    required this.showPinyin,
+    required this.pinyinByCell,
     required this.offset,
   });
 
@@ -2551,7 +2564,7 @@ class GridPainter extends CustomPainter {
           textColor = skin.accentDeep;
         }
 
-        final textPainter = TextPainter(
+        final characterPainter = TextPainter(
           text: TextSpan(
             text: displayChar,
             style: TextStyle(
@@ -2563,12 +2576,40 @@ class GridPainter extends CustomPainter {
           ),
           textDirection: TextDirection.ltr,
         );
-        textPainter.layout();
-        textPainter.paint(
+        characterPainter.layout();
+        final pinyin = showPinyin && displayChar.isNotEmpty
+            ? pinyinByCell[(r, c)]
+            : null;
+        final pinyinPainter = pinyin == null
+            ? null
+            : (TextPainter(
+                text: TextSpan(
+                  text: pinyin,
+                  style: TextStyle(
+                    fontFamily: kSans,
+                    fontSize: 8.0 * (s / 48.0),
+                    fontWeight: FontWeight.w500,
+                    color: tentative
+                        ? textColor.withValues(alpha: 0.45)
+                        : textColor.withValues(alpha: 0.72),
+                  ),
+                ),
+                textDirection: TextDirection.ltr,
+              )..layout(maxWidth: s - 8));
+        characterPainter.paint(
           canvas,
           Offset(
-            x + (s - textPainter.width) / 2,
-            y + (s - textPainter.height) / 2,
+            x + (s - characterPainter.width) / 2,
+            y +
+                (s - characterPainter.height) / 2 -
+                (pinyinPainter?.height ?? 0) * 0.35,
+          ),
+        );
+        pinyinPainter?.paint(
+          canvas,
+          Offset(
+            x + (s - pinyinPainter.width) / 2,
+            y + s - pinyinPainter.height - 4 * (s / 48.0),
           ),
         );
       }
@@ -2580,4 +2621,16 @@ class GridPainter extends CustomPainter {
 
   @override
   bool hitTest(Offset position) => true;
+}
+
+Map<(int, int), String> pinyinByCell(CrosswordLevel level) {
+  final result = <(int, int), String>{};
+  for (final placement in level.placements) {
+    final syllables = placement.idiom.pinyin.trim().split(RegExp(r'\s+'));
+    if (syllables.length != placement.idiom.text.length) continue;
+    for (var index = 0; index < syllables.length; index++) {
+      result.putIfAbsent(placement.cellAt(index), () => syllables[index]);
+    }
+  }
+  return result;
 }

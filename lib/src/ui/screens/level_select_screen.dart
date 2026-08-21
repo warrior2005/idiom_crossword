@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../app_page_route.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
 import '../../state/daily_challenge.dart';
@@ -168,7 +169,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       if (!mounted) return;
       await Navigator.push(
         context,
-        MaterialPageRoute(
+        AppPageRoute<void>(
           builder: (_) => GameScreen(level: level, noReward: isReplay),
         ),
       );
@@ -227,7 +228,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       }
       await Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+        AppPageRoute<void>(builder: (_) => GameScreen(level: level)),
       );
       ref.invalidate(dailyDoneProvider);
     } catch (e) {

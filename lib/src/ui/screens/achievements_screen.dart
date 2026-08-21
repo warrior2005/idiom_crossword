@@ -180,7 +180,7 @@ class _AchRow extends StatelessWidget {
             ),
           ),
           Text(
-            unlocked ? '已获' : '${def.points} 点',
+            unlocked ? '已获 ${def.points} 积分' : '${def.points} 积分',
             style: bodyStyle(
               size: 12,
               weight: FontWeight.w700,

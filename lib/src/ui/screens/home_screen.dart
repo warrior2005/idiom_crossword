@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../app_page_route.dart';
 import '../../state/player_state.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
@@ -181,7 +182,7 @@ class HomeScreen extends ConsumerWidget {
                     label: '天下英雄榜',
                     desc: '累计经验排名',
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
+                      AppPageRoute<void>(
                         builder: (_) =>
                             const LeaderboardScreen(initialIndex: 0),
                       ),
@@ -195,7 +196,7 @@ class HomeScreen extends ConsumerWidget {
                     label: '每周英雄榜',
                     desc: '本周经验排名',
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
+                      AppPageRoute<void>(
                         builder: (_) =>
                             const LeaderboardScreen(initialIndex: 1),
                       ),
@@ -267,14 +268,14 @@ class HomeScreen extends ConsumerWidget {
     } else {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (_) => const MineScreen()));
+      ).push(AppPageRoute<void>(builder: (_) => const MineScreen()));
     }
   }
 
   void _openDailyReview(BuildContext context) {
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (_) => const DailyReviewScreen()));
+    ).push(AppPageRoute<void>(builder: (_) => const DailyReviewScreen()));
   }
 
   void _startGame(BuildContext context, WidgetRef ref) async {
@@ -363,7 +364,7 @@ class HomeScreen extends ConsumerWidget {
       if (!context.mounted) return;
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+        AppPageRoute<void>(builder: (_) => GameScreen(level: level)),
       );
     } catch (e) {
       if (context.mounted) {
@@ -450,7 +451,7 @@ class HomeScreen extends ConsumerWidget {
       }
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => GameScreen(level: level)),
+        AppPageRoute<void>(builder: (_) => GameScreen(level: level)),
       );
     } catch (e) {
       if (context.mounted) {

@@ -54,6 +54,43 @@ void main() {
     expect(usedGridBounds(engine.CrosswordGrid(rows: 3, cols: 3)), (0, 0));
   });
 
+  test('网格拼音按成语字序映射到格子', () {
+    final pinyin = pinyinByCell(_buildLevel());
+
+    expect(pinyin[(1, 1)], 'hua');
+    expect(pinyin[(1, 2)], 'she');
+    expect(pinyin[(1, 3)], 'tian');
+    expect(pinyin[(1, 4)], 'zu');
+  });
+
+  testWidgets('显示拼音设置控制网格标注', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.setSetting(showPinyinKey, 'false');
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    GridPainter gridPainter() => tester
+        .widgetList<CustomPaint>(find.byType(CustomPaint))
+        .map((widget) => widget.painter)
+        .whereType<GridPainter>()
+        .single;
+    expect(gridPainter().showPinyin, isFalse);
+
+    await container.read(showPinyinProvider.notifier).setEnabled(true);
+    await tester.pump();
+    expect(gridPainter().showPinyin, isTrue);
+  });
+
   testWidgets('完成新成语后滚动到列表最右侧', (tester) async {
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1;
