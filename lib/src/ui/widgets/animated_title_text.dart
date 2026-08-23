@@ -234,12 +234,6 @@ class _TitleEffectVisual extends StatelessWidget {
 
   Widget _buildGongqing() {
     final appearance = _interval(entrance, 0, 0.55, curve: Curves.easeOutCubic);
-    final sealProgress = _interval(
-      entrance,
-      0.18,
-      0.9,
-      curve: Curves.easeOutBack,
-    );
     final phase = ambient > 0
         ? ambient
         : _interval(entrance, 0.3, 1, curve: Curves.easeInOut);
@@ -267,46 +261,24 @@ class _TitleEffectVisual extends StatelessWidget {
             entrance: appearance,
             phase: phase,
           ),
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(7, 6, 31, 6),
-                child: Stack(
-                  alignment: Alignment.centerLeft,
-                  children: [
-                    Text(text, textAlign: textAlign, style: shadowStyle),
-                    _GradientText(
-                      text: text,
-                      textAlign: textAlign,
-                      style: style,
-                      colors: const [
-                        Color(0xFF731C14),
-                        Color(0xFFD05B35),
-                        Color(0xFF8F2418),
-                      ],
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(7, 6, 7, 6),
+            child: Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                Text(text, textAlign: textAlign, style: shadowStyle),
+                _GradientText(
+                  text: text,
+                  textAlign: textAlign,
+                  style: style,
+                  colors: const [
+                    Color(0xFF731C14),
+                    Color(0xFFD05B35),
+                    Color(0xFF8F2418),
                   ],
                 ),
-              ),
-              Positioned(
-                right: 3,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: Transform.translate(
-                    offset: Offset(0, -10 * (1 - sealProgress)),
-                    child: Transform.scale(
-                      scale: 0.45 + 0.55 * sealProgress,
-                      child: Opacity(
-                        opacity: sealProgress.clamp(0.0, 1.0),
-                        child: const _GongqingSeal(),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -383,35 +355,6 @@ class _SweepText extends StatelessWidget {
         text,
         textAlign: textAlign,
         style: style.copyWith(color: Colors.white, shadows: const []),
-      ),
-    );
-  }
-}
-
-class _GongqingSeal extends StatelessWidget {
-  const _GongqingSeal();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      key: const ValueKey('title-effect-tianzi-seal'),
-      width: 22,
-      height: 22,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: const Color(0xFF9E2B1C),
-        border: Border.all(color: const Color(0xFFE4C45D), width: 1.2),
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: const [BoxShadow(color: Color(0x66D9B23C), blurRadius: 8)],
-      ),
-      child: const Text(
-        '卿',
-        style: TextStyle(
-          color: Color(0xFFFFE99A),
-          fontSize: 11,
-          height: 1,
-          fontWeight: FontWeight.w900,
-        ),
       ),
     );
   }

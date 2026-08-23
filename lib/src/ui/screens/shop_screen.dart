@@ -468,9 +468,14 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   Future<void> _onEffectTap(
     BuildContext context,
     WidgetRef ref,
-    String id,
+    String? id,
   ) async {
     final notifier = ref.read(playerProvider.notifier);
+    if (id == null) {
+      await notifier.setActiveTitleEffect(null);
+      _showSnack('已取消称号特效');
+      return;
+    }
     final player = ref.read(playerProvider);
     final def = titleEffectById(id);
     if (!player.ownedDecorations.contains('title_effect_$id')) {
@@ -1394,7 +1399,7 @@ class _FramesCard extends StatelessWidget {
 class _EffectsCard extends StatelessWidget {
   final Set<String> owned;
   final String? active;
-  final ValueChanged<String> onSelect;
+  final ValueChanged<String?> onSelect;
   const _EffectsCard({
     required this.owned,
     required this.active,
@@ -1407,6 +1412,15 @@ class _EffectsCard extends StatelessWidget {
       title: '称号特效',
       hint: '',
       children: [
+        _DecoTile(
+          glyph: '素',
+          name: '无',
+          statusText: active == null ? '使用中' : '默认',
+          isActive: active == null,
+          isOwned: true,
+          unlockLevel: 1,
+          onTap: () => onSelect(null),
+        ),
         for (final effect in titleEffects)
           _DecoTile(
             glyph: '耀',

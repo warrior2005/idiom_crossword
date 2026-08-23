@@ -559,6 +559,40 @@ void main() {
     expect(find.text('确定'), findsOneWidget);
   });
 
+  testWidgets('商城：无选项默认存在并可取消当前称号特效', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.addDecoration('title_effect', 'jinbang');
+    await db.setActiveDecoration('title_effect', 'jinbang');
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: ShopScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('无'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('无'));
+    await tester.tap(find.text('无'));
+    await tester.pump();
+
+    expect(find.text('已取消称号特效'), findsOneWidget);
+    expect(container.read(playerProvider).activeTitleEffect, isNull);
+    expect(await db.getActiveDecorationId('title_effect'), isNull);
+  });
+
   testWidgets('商城：积分头像框可购买并切换，等级头像框未解锁提示', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);

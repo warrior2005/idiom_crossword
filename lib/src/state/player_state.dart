@@ -177,6 +177,7 @@ class PlayerState {
     String? activeAvatarFrame,
     String? customAvatarPath,
     String? activeTitleEffect,
+    bool clearActiveTitleEffect = false,
   }) {
     return PlayerState(
       level: level ?? this.level,
@@ -193,7 +194,9 @@ class PlayerState {
       activeBackground: activeBackground ?? this.activeBackground,
       activeAvatarFrame: activeAvatarFrame ?? this.activeAvatarFrame,
       customAvatarPath: customAvatarPath ?? this.customAvatarPath,
-      activeTitleEffect: activeTitleEffect ?? this.activeTitleEffect,
+      activeTitleEffect: clearActiveTitleEffect
+          ? null
+          : activeTitleEffect ?? this.activeTitleEffect,
     );
   }
 
@@ -767,7 +770,12 @@ class PlayerNotifier extends Notifier<PlayerState> {
     await ref.read(databaseProvider).setSetting(kCustomAvatarPathKey, '');
   }
 
-  Future<void> setActiveTitleEffect(String id) async {
+  Future<void> setActiveTitleEffect(String? id) async {
+    if (id == null) {
+      state = state.copyWith(clearActiveTitleEffect: true);
+      await ref.read(databaseProvider).clearActiveDecoration('title_effect');
+      return;
+    }
     state = state.copyWith(activeTitleEffect: id);
     await ref.read(databaseProvider).setActiveDecoration('title_effect', id);
   }

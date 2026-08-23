@@ -895,6 +895,12 @@ class AppDatabase extends _$AppDatabase {
         ))
         .write(const DecorationTableCompanion(isActive: Value(true)));
   }
+
+  /// 取消指定类型当前使用的装饰
+  Future<void> clearActiveDecoration(String type) async {
+    await (update(decorationTable)..where((t) => t.decorationType.equals(type)))
+        .write(const DecorationTableCompanion(isActive: Value(false)));
+  }
 }
 
 LazyDatabase _openConnection() {
