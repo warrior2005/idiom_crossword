@@ -6,6 +6,13 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../state/player_state.dart';
 import '../../utils/ad_manager.dart';
 
+@visibleForTesting
+Duration bannerAdRetryDelay(int retryAttempt) => switch (retryAttempt) {
+  0 => const Duration(seconds: 15),
+  1 => const Duration(seconds: 30),
+  _ => const Duration(minutes: 1),
+};
+
 /// 页面底部横幅广告
 ///
 /// 每个页面持有独立 BannerAd 实例，页面销毁时自动释放。
@@ -27,6 +34,8 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   bool _canShowAds = false;
   bool _appForeground = true;
   Timer? _accrualTimer;
+  Timer? _bannerAdRetryTimer;
+  int _bannerAdRetryAttempt = 0;
   int _accruedSeconds = 0;
 
   @override
@@ -40,6 +49,7 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _accrualTimer?.cancel();
+    _bannerAdRetryTimer?.cancel();
     _bannerAd?.dispose();
     _bannerAd = null;
     super.dispose();
@@ -91,6 +101,9 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
     final ad = AdManager().createBannerAd(
       onAdLoaded: (ad) {
         if (mounted) {
+          _bannerAdRetryTimer?.cancel();
+          _bannerAdRetryTimer = null;
+          _bannerAdRetryAttempt = 0;
           setState(() => _isBannerLoaded = true);
           _syncAccrual();
         }
@@ -98,13 +111,25 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
       onAdFailedToLoad: (ad, error) {
         ad.dispose();
         if (mounted) {
+          _bannerAd = null;
           setState(() => _isBannerLoaded = false);
           _syncAccrual();
+          _scheduleBannerAdRetry();
         }
       },
     );
     _bannerAd = ad;
     ad.load();
+  }
+
+  void _scheduleBannerAdRetry() {
+    if (_bannerAdRetryTimer != null) return;
+    final retryDelay = bannerAdRetryDelay(_bannerAdRetryAttempt);
+    _bannerAdRetryAttempt++;
+    _bannerAdRetryTimer = Timer(retryDelay, () {
+      _bannerAdRetryTimer = null;
+      unawaited(_loadBannerAd());
+    });
   }
 
   @override
