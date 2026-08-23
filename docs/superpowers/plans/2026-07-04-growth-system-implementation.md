@@ -398,9 +398,9 @@ class GrowthManager {
     4: '贡生',
     5: '举人',
     6: '解元',
-    7: '会元',
-    8: '进士',
-    9: '殿试',
+    7: '贡士',
+    8: '会元',
+    9: '进士',
     10: '探花',
     11: '榜眼',
     12: '状元',
@@ -951,7 +951,7 @@ class LevelDisplay extends ConsumerWidget {
     if (level >= 20) return Icons.emoji_events; // 位极人臣
     if (level >= 16) return Icons.school; // 大学士+
     if (level >= 12) return Icons.workspace_premium; // 状元+
-    if (level >= 8) return Icons.book; // 进士+
+    if (level >= 8) return Icons.book; // 会元+
     if (level >= 4) return Icons.person; // 贡生+
     return Icons.menu_book; // 童生+
   }
