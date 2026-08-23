@@ -1283,18 +1283,28 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     if (!mounted) return;
     final reviveCount =
         ref.read(playerProvider).functionalItems['revive_card'] ?? 0;
+    final adManager = AdManager();
+    if (quota.adRemaining > 0 &&
+        !adManager.isRewardedAdReadyNotifier.value &&
+        AdManager.isSupportedPlatform) {
+      unawaited(adManager.loadRewardedAd());
+    }
     return showWinCardDialog(
       context,
       seal: '败',
       title: '挑战失败',
       subtitle: _isDaily ? (timeUp ? '倒计时结束' : '生命值耗尽') : '生命值耗尽',
-      xpText: '+0',
+      xpText: null,
       dismissible: true,
       actions: [
         WinCardAction(
           label: '看广告复活(${quota.adRemaining})',
           primary: true,
           onTap: quota.adRemaining > 0 ? _handleAdRevive : null,
+          enabledListenable: quota.adRemaining > 0
+              ? adManager.isRewardedAdReadyNotifier
+              : null,
+          disabledLabel: '看广告复活(加载中)',
         ),
         WinCardAction(
           label: '分享后复活(${quota.shareRemaining})',

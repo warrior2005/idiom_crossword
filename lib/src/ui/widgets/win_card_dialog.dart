@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
@@ -8,11 +9,15 @@ class WinCardAction {
   final VoidCallback? onTap;
   final bool primary;
   final bool ghost;
+  final ValueListenable<bool>? enabledListenable;
+  final String? disabledLabel;
   const WinCardAction({
     required this.label,
     this.onTap,
     this.primary = false,
     this.ghost = false,
+    this.enabledListenable,
+    this.disabledLabel,
   });
 }
 
@@ -23,7 +28,7 @@ class WinCard extends StatelessWidget {
   final String seal;
   final String title;
   final String? subtitle;
-  final String xpText;
+  final String? xpText;
   final List<WinCardIdiom> idioms;
   final List<WinCardAction> actions;
   final List<WinCardAction> inlineActions;
@@ -41,6 +46,7 @@ class WinCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final experience = xpText;
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -100,39 +106,36 @@ class WinCard extends StatelessWidget {
                 style: bodyStyle(size: 13, color: AppColors.muted),
               ),
             ],
-            const SizedBox(height: 16),
-            Text.rich(
-              TextSpan(
-                children: [
-                  const TextSpan(
-                    text: '经验 ',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.accentDeep,
-                      fontWeight: FontWeight.w600,
+            if (experience != null) ...[
+              const SizedBox(height: 16),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(
+                      text: '经验 ',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.accentDeep,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  TextSpan(
-                    text: xpText,
-                    style: displayStyle(
-                      size: 20,
-                      weight: FontWeight.w900,
-                      color: AppColors.accentDeep,
+                    TextSpan(
+                      text: experience,
+                      style: displayStyle(
+                        size: 20,
+                        weight: FontWeight.w900,
+                        color: AppColors.accentDeep,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: 16),
             for (final action in actions)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: PrimaryButton(
-                  label: action.label,
-                  small: true,
-                  ghost: action.ghost,
-                  onTap: action.onTap,
-                ),
+                child: _buildActionButton(action),
               ),
             if (inlineActions.isNotEmpty)
               Padding(
@@ -145,14 +148,7 @@ class WinCard extends StatelessWidget {
                       index++
                     ) ...[
                       if (index > 0) const SizedBox(width: 10),
-                      Expanded(
-                        child: PrimaryButton(
-                          label: inlineActions[index].label,
-                          small: true,
-                          ghost: inlineActions[index].ghost,
-                          onTap: inlineActions[index].onTap,
-                        ),
-                      ),
+                      Expanded(child: _buildActionButton(inlineActions[index])),
                     ],
                   ],
                 ),
@@ -204,6 +200,27 @@ class WinCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildActionButton(WinCardAction action) {
+    final listenable = action.enabledListenable;
+    if (listenable == null) {
+      return PrimaryButton(
+        label: action.label,
+        small: true,
+        ghost: action.ghost,
+        onTap: action.onTap,
+      );
+    }
+    return ValueListenableBuilder<bool>(
+      valueListenable: listenable,
+      builder: (context, enabled, child) => PrimaryButton(
+        label: enabled ? action.label : action.disabledLabel ?? action.label,
+        small: true,
+        ghost: action.ghost,
+        onTap: enabled ? action.onTap : null,
+      ),
+    );
+  }
 }
 
 /// 弹出 win-card（半透明遮罩 + 居中）
@@ -212,7 +229,7 @@ Future<void> showWinCardDialog(
   required String seal,
   required String title,
   String? subtitle,
-  required String xpText,
+  required String? xpText,
   List<WinCardIdiom> idioms = const [],
   List<WinCardAction> actions = const [],
   List<WinCardAction> inlineActions = const [],

@@ -14,6 +14,7 @@ import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 import 'package:idiom_crossword/src/ui/widgets/primary_button.dart';
+import 'package:idiom_crossword/src/utils/ad_manager.dart';
 
 /// 完整通关流程端到端测试：候选字填字 → 过关对话框 → 经验/记录落库
 void main() {
@@ -594,6 +595,7 @@ void main() {
   testWidgets('3 颗心允许填错 3 次，第 4 次才失败', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    AdManager().isRewardedAdReadyNotifier.value = false;
     final now = DateTime.now();
     final today =
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -705,6 +707,9 @@ void main() {
   testWidgets('每日挑战倒计时结束显示失败弹框', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    final adReady = AdManager().isRewardedAdReadyNotifier;
+    adReady.value = false;
+    addTearDown(() => adReady.value = false);
     await db.updatePlayerProgress(
       level: 1,
       totalXp: 0,
@@ -733,7 +738,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('挑战失败'), findsOneWidget);
-    expect(find.text('看广告复活(10)'), findsOneWidget);
+    expect(find.text('经验 +0', findRichText: true), findsNothing);
+    var adButton = tester.widget<PrimaryButton>(
+      find.widgetWithText(PrimaryButton, '看广告复活(加载中)'),
+    );
+    expect(adButton.onTap, isNull);
+    adReady.value = true;
+    await tester.pump();
+    adButton = tester.widget<PrimaryButton>(
+      find.widgetWithText(PrimaryButton, '看广告复活(10)'),
+    );
+    expect(adButton.onTap, isNotNull);
     expect(find.text('分享后复活(10)'), findsOneWidget);
     expect(find.text('使用复活卡(0)'), findsOneWidget);
     expect(find.text('重玩本关（无经验）'), findsOneWidget);
