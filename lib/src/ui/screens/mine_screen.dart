@@ -208,8 +208,12 @@ class MineScreen extends ConsumerWidget {
             _MenuRow(
               iconName: 'trophy',
               title: '成就',
-              hint:
-                  '已获 ${unlockedAsync.value?.length ?? 0} / ${achievementDefs.length}',
+              hint: unlockedAsync.when(
+                data: (unlocked) =>
+                    '已获 ${unlocked.length} / ${achievementDefs.length}',
+                loading: () => '读取本地成就…',
+                error: (_, _) => '本地成就暂不可用',
+              ),
               onTap: () => _push(context, const AchievementsScreen()),
             ),
             _MenuRow(

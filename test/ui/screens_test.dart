@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/native.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
@@ -186,6 +188,37 @@ void main() {
     expect(find.text('1'), findsOneWidget);
     expect(find.text('通'), findsOneWidget);
     expect(find.text('已获 10 积分'), findsOneWidget);
+  });
+
+  testWidgets('成就页：同步未完成时先展示本地成就，完成后刷新', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.unlockAchievement(AchievementId.firstLevel.name);
+    final finishSync = Completer<void>();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          achievementSyncProvider.overrideWithValue((db) async {
+            await finishSync.future;
+            await db.unlockAchievement(AchievementId.level10.name);
+          }),
+        ],
+        child: const MaterialApp(home: AchievementsScreen()),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('已获 10 积分'), findsOneWidget);
+
+    finishSync.complete();
+    await tester.pumpAndSettle();
+
+    expect(find.text('2'), findsOneWidget);
+    expect(find.text('已获 10 积分'), findsNWidgets(2));
   });
 
   testWidgets('成就页：印章与分组渲染', (tester) async {
@@ -1072,6 +1105,35 @@ void main() {
     expect(find.text('成就'), findsOneWidget);
     expect(find.text('统计'), findsOneWidget);
     expect(find.text('设置'), findsOneWidget);
+  });
+
+  testWidgets('我的页：成就同步未完成时显示本地数量', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.unlockAchievement(AchievementId.firstLevel.name);
+    final finishSync = Completer<void>();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          achievementSyncProvider.overrideWithValue((_) => finishSync.future),
+        ],
+        child: const MaterialApp(home: MineScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('已获 1 / ${achievementDefs.length}'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('已获 1 / ${achievementDefs.length}'), findsOneWidget);
+    expect(find.text('已获 0 / ${achievementDefs.length}'), findsNothing);
+
+    finishSync.complete();
+    await tester.pumpAndSettle();
   });
 
   testWidgets('我的页：点头像可打开头像设置并取消自定义头像', (tester) async {

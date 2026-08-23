@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/achievement_manager.dart';
+import '../../data/database.dart';
 import '../../state/database_provider.dart';
 import '../../state/game_center_service.dart';
 import '../widgets/app_card.dart';
@@ -10,9 +11,26 @@ import '../widgets/xp_track.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
-final achievementsProvider = FutureProvider<Set<AchievementId>>((ref) async {
+typedef AchievementSync = Future<void> Function(AppDatabase db);
+
+final achievementSyncProvider = Provider<AchievementSync>(
+  (ref) => GameCenterService.syncAchievements,
+);
+
+final achievementsProvider = StreamProvider<Set<AchievementId>>((ref) async* {
   final db = ref.watch(databaseProvider);
-  await GameCenterService.syncAchievements(db);
+  final syncAchievements = ref.watch(achievementSyncProvider);
+
+  yield await _loadLocalAchievements(db);
+  try {
+    await syncAchievements(db);
+  } catch (_) {
+    return;
+  }
+  yield await _loadLocalAchievements(db);
+});
+
+Future<Set<AchievementId>> _loadLocalAchievements(AppDatabase db) async {
   final unlocked = <AchievementId>{};
   for (final s in await db.getUnlockedAchievementIds()) {
     for (final id in AchievementId.values) {
@@ -20,7 +38,7 @@ final achievementsProvider = FutureProvider<Set<AchievementId>>((ref) async {
     }
   }
   return unlocked;
-});
+}
 
 const Map<AchievementCategory, String> _groupTitles = {
   AchievementCategory.level: '通关',
