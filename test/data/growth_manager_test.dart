@@ -139,6 +139,7 @@ void main() {
   _testDecorationName('avatar_frame_zhongjing', '头像框·忠靖冠');
   _testDecorationName('avatar_frame_tianzi', '头像框·天子冕冠');
   _testDecorationName('title_effect_jinbang', '称号特效·金榜题名');
+  _testDecorationName('title_effect_tianzi', '称号特效·位列公卿');
   _testDecorationName('custom_title_unlock', '自定义称号解锁');
 
   print('\n=== 所有测试通过 ===');

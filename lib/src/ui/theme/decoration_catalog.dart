@@ -200,7 +200,7 @@ const List<TitleEffectDef> titleEffects = [
   ),
   TitleEffectDef(
     id: 'tianzi',
-    name: '天子门生',
+    name: '位列公卿',
     unlockLevel: 17,
     textColor: Color(0xFF9E2B1C),
     glow: Color(0xFFD9B23C),
@@ -237,7 +237,7 @@ String decorationName(String item) {
     'avatar_frame_zhongjing' => '头像框·忠靖冠',
     'avatar_frame_tianzi' => '头像框·天子冕冠',
     'title_effect_jinbang' => '称号特效·金榜题名',
-    'title_effect_tianzi' => '称号特效·天子门生',
+    'title_effect_tianzi' => '称号特效·位列公卿',
     'custom_title_unlock' => '自定义称号解锁',
     _ => item,
   };
