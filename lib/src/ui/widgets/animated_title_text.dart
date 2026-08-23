@@ -27,7 +27,7 @@ class AnimatedTitleText extends StatefulWidget {
 class _AnimatedTitleTextState extends State<AnimatedTitleText>
     with TickerProviderStateMixin {
   static const _entranceDuration = Duration(milliseconds: 800);
-  static const _ambientDuration = Duration(milliseconds: 1200);
+  static const _ambientDuration = Duration(milliseconds: 1600);
 
   late final AnimationController _entranceController;
   late final AnimationController _ambientController;
@@ -98,8 +98,8 @@ class _AnimatedTitleTextState extends State<AnimatedTitleText>
     _ambientTimer?.cancel();
     if (!_animationsEnabled || !_hasEffect) return;
     final delay = widget.effectId == 'tianzi'
-        ? const Duration(milliseconds: 2800)
-        : const Duration(milliseconds: 3600);
+        ? const Duration(milliseconds: 2400)
+        : const Duration(milliseconds: 3400);
     _ambientTimer = Timer(delay, () {
       if (!mounted || !_animationsEnabled || !_hasEffect) return;
       _ambientController.forward(from: 0);
@@ -271,7 +271,7 @@ class _TitleEffectVisual extends StatelessWidget {
             alignment: Alignment.centerLeft,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(7, 4, 31, 4),
+                padding: const EdgeInsets.fromLTRB(7, 11, 31, 11),
                 child: Stack(
                   alignment: Alignment.centerLeft,
                   children: [
@@ -496,16 +496,17 @@ class _TitleAccentPainter extends CustomPainter {
 
   void _paintGongqing(Canvas canvas, Size size) {
     final pulse = math.sin(math.pi * phase).clamp(0.0, 1.0);
+    final glowScale = 0.78 + pulse * 0.18;
     final glowPaint = Paint()
       ..color = const Color(
-        0xFFD9B23C,
-      ).withValues(alpha: (0.08 + pulse * 0.12) * entrance)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
+        0xFFE0B83E,
+      ).withValues(alpha: (0.16 + pulse * 0.18) * entrance)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 13);
     canvas.drawOval(
       Rect.fromCenter(
         center: Offset(size.width * 0.48, size.height / 2),
-        width: size.width * 0.9,
-        height: size.height * 0.7,
+        width: size.width * glowScale,
+        height: (size.height - 14) * (0.7 + pulse * 0.12),
       ),
       glowPaint,
     );
@@ -513,34 +514,53 @@ class _TitleAccentPainter extends CustomPainter {
     final cloudPaint = Paint()
       ..color = const Color(
         0xFFD9B23C,
-      ).withValues(alpha: (0.2 + pulse * 0.35) * entrance)
+      ).withValues(alpha: (0.48 + pulse * 0.35) * entrance)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.1
+      ..strokeWidth = 1.35
       ..strokeCap = StrokeCap.round;
-    final cloudWidth = math.min(25.0, size.width * 0.17);
+    final cloudWidth = math.min(42.0, math.max(28.0, size.width * 0.23));
+    const cloudHeight = 8.5;
     final cloud = Path()
-      ..moveTo(2, size.height * 0.67)
+      ..moveTo(3, cloudHeight + 0.5)
+      ..lineTo(3 + cloudWidth * 0.15, cloudHeight + 0.5)
       ..cubicTo(
-        cloudWidth * 0.22,
-        size.height * 0.67,
-        cloudWidth * 0.18,
-        size.height * 0.43,
-        cloudWidth * 0.42,
-        size.height * 0.43,
+        3 + cloudWidth * 0.1,
+        cloudHeight * 0.45,
+        3 + cloudWidth * 0.28,
+        cloudHeight * 0.35,
+        3 + cloudWidth * 0.33,
+        cloudHeight * 0.68,
       )
       ..cubicTo(
-        cloudWidth * 0.62,
-        size.height * 0.43,
-        cloudWidth * 0.57,
-        size.height * 0.59,
-        cloudWidth * 0.78,
-        size.height * 0.59,
+        3 + cloudWidth * 0.34,
+        cloudHeight * 0.12,
+        3 + cloudWidth * 0.58,
+        cloudHeight * 0.05,
+        3 + cloudWidth * 0.61,
+        cloudHeight * 0.62,
       )
-      ..lineTo(cloudWidth, size.height * 0.59);
+      ..cubicTo(
+        3 + cloudWidth * 0.7,
+        cloudHeight * 0.28,
+        3 + cloudWidth * 0.85,
+        cloudHeight * 0.38,
+        3 + cloudWidth * 0.82,
+        cloudHeight * 0.72,
+      )
+      ..lineTo(3 + cloudWidth, cloudHeight * 0.72)
+      ..moveTo(3 + cloudWidth * 0.24, cloudHeight + 2)
+      ..cubicTo(
+        3 + cloudWidth * 0.38,
+        cloudHeight + 3,
+        3 + cloudWidth * 0.51,
+        cloudHeight + 2.8,
+        3 + cloudWidth * 0.59,
+        cloudHeight + 1,
+      );
     canvas.drawPath(cloud, cloudPaint);
     canvas.save();
-    canvas.translate(size.width, 0);
-    canvas.scale(-1, 1);
+    canvas.translate(size.width, size.height);
+    canvas.scale(-1, -1);
     canvas.drawPath(cloud, cloudPaint);
     canvas.restore();
   }

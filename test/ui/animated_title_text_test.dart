@@ -38,16 +38,21 @@ void main() {
 
   testWidgets('位列公卿显示朱金文字、祥云和卿字金印', (tester) async {
     await tester.pumpWidget(wrap(effectId: 'tianzi'));
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
 
-    expect(
-      find.byKey(const ValueKey('title-effect-tianzi-accents')),
-      findsOneWidget,
-    );
+    final accents = find.byKey(const ValueKey('title-effect-tianzi-accents'));
+    expect(accents, findsOneWidget);
+    expect(tester.getSize(accents).height, greaterThan(45));
     expect(
       find.byKey(const ValueKey('title-effect-tianzi-seal')),
       findsOneWidget,
     );
+
+    final idlePainter = tester.widget<CustomPaint>(accents).painter!;
+    await tester.pump(const Duration(milliseconds: 2400));
+    await tester.pump(const Duration(milliseconds: 800));
+    final pulsePainter = tester.widget<CustomPaint>(accents).painter!;
+    expect(pulsePainter.shouldRepaint(idlePainter), isTrue);
 
     await tester.pumpWidget(const SizedBox());
   });
