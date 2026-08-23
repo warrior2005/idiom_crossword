@@ -271,7 +271,7 @@ class _TitleEffectVisual extends StatelessWidget {
             alignment: Alignment.centerLeft,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(7, 11, 31, 11),
+                padding: const EdgeInsets.fromLTRB(7, 6, 31, 6),
                 child: Stack(
                   alignment: Alignment.centerLeft,
                   children: [
