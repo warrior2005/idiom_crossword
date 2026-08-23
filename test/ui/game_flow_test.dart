@@ -534,7 +534,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // 先故意填错一个字
+    // 在同一个成语中故意填错两次
     final wrongChar = find.byWidgetPredicate(
       (w) =>
           w is Text &&
@@ -543,6 +543,8 @@ void main() {
           !'蛇添足'.contains(w.data!),
     );
     await tester.tap(wrongChar.first);
+    await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    await tester.tap(wrongChar.at(1));
     await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
 
     // 回到填错的“蛇”格并改正，再依次补完
@@ -561,6 +563,13 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('蛇'));
     await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    await tester.tapAt(
+      Offset(
+        gridRect.left + 2 * cellSize + cellSize / 2,
+        gridRect.top + cellSize / 2,
+      ),
+    );
+    await tester.pump();
     for (final ch in ['添', '足']) {
       await tester.tap(find.text(ch));
       await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
@@ -572,6 +581,8 @@ void main() {
       const Duration(seconds: 5),
     );
     expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
+    expect(find.textContaining('填错 1'), findsOneWidget);
+    expect(find.textContaining('填错 2'), findsNothing);
     expect(find.text('返回主页'), findsOneWidget);
     expect(find.byKey(const ValueKey('win-card-idiom-画蛇添足')), findsOneWidget);
 

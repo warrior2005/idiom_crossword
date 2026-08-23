@@ -1111,6 +1111,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     int timeSpentMs,
   ) {
     final xpText = '${result.xpGained > 0 ? '+' : ''}${result.xpGained}';
+    final wrongIdiomCount = _wrongIdiomWords.length;
     final wrongIdioms = _completedIdiomList
         .where((i) => _wrongIdiomWords.contains(i.word))
         .take(3)
@@ -1122,7 +1123,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
         seal: '通',
         title: _isDaily ? '每日挑战 · 完成' : '恭喜通过 · ${widget.level.title}',
         subtitle:
-            '用时 ${_formatDuration(timeSpentMs)}${(_errorsMade <= 0) ? '' : ' · 填错 $_errorsMade'}',
+            '用时 ${_formatDuration(timeSpentMs)}${wrongIdiomCount == 0 ? '' : ' · 填错 $wrongIdiomCount'}',
         xpText: xpText,
         idioms: wrongIdioms,
         dismissible: true,
