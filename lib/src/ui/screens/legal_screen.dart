@@ -83,12 +83,12 @@ class _LegalDocument extends StatelessWidget {
 const _agreementSections = <({String title, String body})>[
   (
     title: '一、协议说明',
-    body: '欢迎使用“成语填字”。下载、安装或使用本应用，即表示您已阅读并同意本协议及隐私政策。若您不同意相关内容，请停止使用本应用。',
+    body: '欢迎使用“成语接龙”。下载、安装或使用本应用，即表示您已阅读并同意本协议及隐私政策。若您不同意相关内容，请停止使用本应用。',
   ),
   (
     title: '二、服务内容',
     body:
-        '本应用提供成语填字、关卡进度、收藏、成就、排行榜及装饰道具等功能。部分功能依赖 Apple 的 iCloud 和 Game Center 服务，相关服务是否可用受设备、系统设置、网络和 Apple 服务状态影响。',
+        '本应用提供成语接龙、关卡进度、收藏、成就、排行榜及装饰道具等功能。部分功能依赖 Apple 的 iCloud 和 Game Center 服务，相关服务是否可用受设备、系统设置、网络和 Apple 服务状态影响。',
   ),
   (
     title: '三、使用规则',

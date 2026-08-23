@@ -1,4 +1,4 @@
-# PLANS.md — 成语填字游戏（Idiom Crossword）
+# PLANS.md — 成语接龙游戏（Idiom Crossword）
 
 > 面向 iOS 的成语交叉填字游戏，Flutter 开发。截止 2026-07-04，核心引擎全部完成，数据评分 100% 完成，成长系统已实现。
 
@@ -342,7 +342,7 @@ idiom_crossword/
 - 2026-07-31: 完成自定义关卡（PRD 5.3 P4）：自选难度区间（1-50）与成语数量（5-12）生成练习关，不计入通关进度与成就
 - 2026-07-31: 修复螺旋难度混排缺口：generateSpiral 此前只用主体区间，现按设计 §4.3 混入长尾/预览成语（candidatePool 支持），取数范围覆盖长尾/预览区间，新增混排回归测试
 - 2026-07-31: PRD 6.2 交互细节：已填字在所属成语完成前以半透明显示（"暂定"状态）
-- 2026-07-31: 发布准备：iOS 桌面显示名改为"成语填字"（原为竞品名"成语小秀才"），版本升至 0.1.0；首页每日挑战按钮显示完成态；每日挑战全链路（DB 取数+种子）确定性回归测试
+- 2026-07-31: 发布准备：iOS 桌面显示名改为"成语接龙"（原为竞品名"成语小秀才"），版本升至 0.1.0；首页每日挑战按钮显示完成态；每日挑战全链路（DB 取数+种子）确定性回归测试
 - 2026-07-31: README 重写为项目说明（功能/技术栈/目录/构建测试命令）
 - 2026-07-31: PRD 6.2 交叉点底色加深约 10%（此前交叉点在绘制上无区分）
 - 2026-07-31: 新增 PlayerNotifier 成长流程集成测试（内存数据库），发现并修复装饰奖励未写入 PlayerState.ownedDecorations 的 bug（此前装饰奖励仅落库、UI 不显示拥有状态）
@@ -417,7 +417,7 @@ idiom_crossword/
 ## 九、发布检查清单（外部步骤，待设备/账号就绪）
 
 ### App Store Connect 配置
-- [ ] 创建 App（Bundle ID：`com.sunnywarrior.idiomCrossword`，显示名"成语填字"）
+- [ ] 创建 App（Bundle ID：`com.sunnywarrior.idiomCrossword`，显示名"成语接龙"）
 - [ ] 创建 Game Center 排行榜 `idiom_daily_challenge`（单位：秒，按最小排序）
 - [ ] 上传 1024×1024 图标（`ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png`）
 - [ ] 配置内购商品（提示卡×10 / 复活卡×5 / 装饰）并实现 `storekit` 校验（当前为占位）

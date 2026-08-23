@@ -1606,7 +1606,7 @@ git commit -m "feat: 我的 Tab（头像卡/科举等级条/学问一览/更多�
     await tester.pumpWidget(_wrap(db, const HomeScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('成语填字'), findsOneWidget);
+    expect(find.text('成语接龙'), findsOneWidget);
     expect(find.text('科举仕途'), findsOneWidget);
     expect(find.text('书卷小径'), findsOneWidget);
     expect(find.text('今日一读'), findsOneWidget);
@@ -1715,7 +1715,7 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       Text('农历三月十六', style: bodyStyle(size: 13, color: AppColors.muted)),
                       const SizedBox(height: 6),
-                      Text('成语填字', style: displayStyle(size: 30, weight: FontWeight.w700)),
+                      Text('成语接龙', style: displayStyle(size: 30, weight: FontWeight.w700)),
                     ],
                   ),
                 ),

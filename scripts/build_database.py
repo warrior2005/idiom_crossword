@@ -1,4 +1,4 @@
-"""成语填字游戏 — SQLite 数据库构建脚本
+"""成语接龙游戏 — SQLite 数据库构建脚本
 
 数据源:
   - data/scoring_progress.json → 人工难度评分（1-50）

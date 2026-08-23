@@ -995,7 +995,7 @@ import '../../state/player_state.dart';
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: const Text('成语填字'),
+      title: const Text('成语接龙'),
       actions: [
         // Add level display in app bar
         const Padding(

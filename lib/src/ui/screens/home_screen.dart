@@ -73,7 +73,7 @@ class HomeScreen extends ConsumerWidget {
                       const LunarDateLabel(),
                       const SizedBox(height: 6),
                       Text(
-                        '成语填字',
+                        '成语接龙',
                         style: displayStyle(size: 30, weight: FontWeight.w700),
                       ),
                     ],
@@ -337,7 +337,7 @@ class HomeScreen extends ConsumerWidget {
                   const AppSeal('学', size: 64, fontSize: 24),
                   const SizedBox(height: 16),
                   Text(
-                    '欢迎来到成语填字',
+                    '欢迎来到成语接龙',
                     style: displayStyle(size: 24, weight: FontWeight.w900),
                   ),
                   const SizedBox(height: 14),

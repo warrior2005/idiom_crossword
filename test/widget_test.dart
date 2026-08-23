@@ -6,6 +6,6 @@ import 'package:idiom_crossword/main.dart';
 void main() {
   testWidgets('App renders smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: IdiomCrosswordApp()));
-    expect(find.text('成语填字'), findsOneWidget);
+    expect(find.text('成语接龙'), findsOneWidget);
   });
 }

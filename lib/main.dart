@@ -72,7 +72,7 @@ class IdiomCrosswordApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '成语填字',
+      title: '成语接龙',
       debugShowCheckedModeBanner: false,
       navigatorObservers: [audioRouteObserver],
       theme: ThemeData(

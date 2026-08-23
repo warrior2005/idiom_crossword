@@ -69,7 +69,7 @@ Widget _wrap(AppDatabase db, Widget child) {
 
 void main() {
   PackageInfo.setMockInitialValues(
-    appName: '成语填字',
+    appName: '成语接龙',
     packageName: 'com.sunnywarrior.idiomcrossword',
     version: '0.1.0',
     buildNumber: '1',
@@ -988,7 +988,7 @@ void main() {
     await tester.pumpWidget(_wrap(db, const HomeScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('成语填字'), findsOneWidget);
+    expect(find.text('成语接龙'), findsOneWidget);
     expect(find.text('科举仕途'), findsOneWidget);
     expect(find.text(dailyIssueLabel()), findsOneWidget);
     expect(find.text('书卷小径'), findsNothing);
