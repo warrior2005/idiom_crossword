@@ -15,6 +15,7 @@ import 'daily_review_screen.dart';
 import 'leaderboard_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/app_card.dart';
+import '../widgets/animated_title_text.dart';
 import '../widgets/app_seal.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
@@ -29,7 +30,6 @@ import '../widgets/decorated_seal.dart';
 import '../widgets/user_avatar.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
-import '../theme/decoration_catalog.dart';
 
 /// 今日一读：按日期确定性取一条成语
 final todayIdiomProvider = FutureProvider<Idiom?>((ref) async {
@@ -497,15 +497,14 @@ class _RankCard extends StatelessWidget {
               children: [
                 Text('科举仕途', style: kickerStyle()),
                 const SizedBox(height: 6),
-                Text(
-                  '${GrowthManager.levelLabel(player.level)} · ${player.title}',
-                  style: applyTitleEffect(
-                    player.activeTitleEffect,
-                    displayStyle(
-                      size: 24,
-                      weight: FontWeight.w900,
-                      color: AppColors.accentDeep,
-                    ),
+                AnimatedTitleText(
+                  text:
+                      '${GrowthManager.levelLabel(player.level)} · ${player.title}',
+                  effectId: player.activeTitleEffect,
+                  style: displayStyle(
+                    size: 24,
+                    weight: FontWeight.w900,
+                    color: AppColors.accentDeep,
                   ),
                 ),
                 const SizedBox(height: 14),

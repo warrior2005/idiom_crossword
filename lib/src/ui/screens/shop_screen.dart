@@ -6,6 +6,7 @@ import '../../data/growth_manager.dart';
 import '../../state/player_state.dart';
 import '../../utils/ad_manager.dart';
 import '../widgets/app_card.dart';
+import '../widgets/animated_title_text.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
 import '../widgets/banner_ad_view.dart';
@@ -882,16 +883,14 @@ class _TitleEffectPreview extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
-      child: Text(
-        def.name,
+      child: AnimatedTitleText(
         key: const ValueKey('title-effect-preview'),
-        style: applyTitleEffect(
-          def.id,
-          displayStyle(
-            size: 28,
-            weight: FontWeight.w900,
-            color: AppColors.accentDeep,
-          ),
+        text: def.name,
+        effectId: def.id,
+        style: displayStyle(
+          size: 28,
+          weight: FontWeight.w900,
+          color: AppColors.accentDeep,
         ),
       ),
     );

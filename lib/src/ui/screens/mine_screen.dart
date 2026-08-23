@@ -13,13 +13,13 @@ import 'achievements_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/app_card.dart';
+import '../widgets/animated_title_text.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/section_title.dart';
 import '../widgets/decorated_seal.dart';
 import '../widgets/user_avatar.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
-import '../theme/decoration_catalog.dart';
 
 class MineScreen extends ConsumerWidget {
   const MineScreen({super.key});
@@ -162,15 +162,14 @@ class MineScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '${GrowthManager.levelLabel(player.level)} · ${player.title}',
-                              style: applyTitleEffect(
-                                player.activeTitleEffect,
-                                displayStyle(
-                                  size: 21,
-                                  weight: FontWeight.w900,
-                                  color: AppColors.accentDeep,
-                                ),
+                            AnimatedTitleText(
+                              text:
+                                  '${GrowthManager.levelLabel(player.level)} · ${player.title}',
+                              effectId: player.activeTitleEffect,
+                              style: displayStyle(
+                                size: 21,
+                                weight: FontWeight.w900,
+                                color: AppColors.accentDeep,
                               ),
                             ),
                             const SizedBox(height: 3),

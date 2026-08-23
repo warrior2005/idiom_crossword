@@ -110,11 +110,23 @@ class _RootScreenState extends ConsumerState<RootScreen> {
       body: IndexedStack(
         index: _index,
         children: [
-          HomeScreen(onSwitchTab: (i) => setState(() => _index = i)),
-          LevelSelectScreen(bannerActive: _index == 1),
-          CollectionScreen(bannerActive: _index == 2),
-          ShopScreen(bannerActive: _index == 3),
-          const MineScreen(),
+          TickerMode(
+            enabled: _index == 0,
+            child: HomeScreen(onSwitchTab: (i) => setState(() => _index = i)),
+          ),
+          TickerMode(
+            enabled: _index == 1,
+            child: LevelSelectScreen(bannerActive: _index == 1),
+          ),
+          TickerMode(
+            enabled: _index == 2,
+            child: CollectionScreen(bannerActive: _index == 2),
+          ),
+          TickerMode(
+            enabled: _index == 3,
+            child: ShopScreen(bannerActive: _index == 3),
+          ),
+          TickerMode(enabled: _index == 4, child: const MineScreen()),
         ],
       ),
       bottomNavigationBar: _buildTabBar(),
