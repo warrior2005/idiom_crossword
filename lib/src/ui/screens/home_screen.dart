@@ -296,9 +296,12 @@ class HomeScreen extends ConsumerWidget {
       Navigator.pop(context);
 
       if (level == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('关卡生成失败，请重试')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('关卡生成失败，请重试'),
+            duration: Duration(seconds: 3),
+          ),
+        );
         return;
       }
 
@@ -369,9 +372,12 @@ class HomeScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('错误: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('错误: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
     }
   }
@@ -380,9 +386,12 @@ class HomeScreen extends ConsumerWidget {
   Future<void> _startDaily(BuildContext context, WidgetRef ref) async {
     if (!GrowthManager.canAccessDaily(ref.read(playerProvider).level)) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('到达Lv.3·廪生后开启每日挑战')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('到达Lv.3·廪生后开启每日挑战'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
       return;
     }
@@ -444,9 +453,12 @@ class HomeScreen extends ConsumerWidget {
       if (!context.mounted) return;
       Navigator.pop(context);
       if (level == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('每日挑战生成失败，请重试')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('每日挑战生成失败，请重试'),
+            duration: Duration(seconds: 3),
+          ),
+        );
         return;
       }
       Navigator.push(
@@ -456,9 +468,12 @@ class HomeScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('错误: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('错误: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
     }
   }

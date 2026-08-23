@@ -1348,9 +1348,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     if (!mounted) return;
     if (!ready) {
       _reviveActionInProgress = false;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('广告暂未就绪，请稍后重试')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('广告暂未就绪，请稍后重试'),
+          duration: Duration(seconds: 3),
+        ),
+      );
       return;
     }
     var rewarded = false;
@@ -1371,9 +1374,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     );
     if (!shown && mounted) {
       _reviveActionInProgress = false;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('广告暂未就绪，请稍后重试')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('广告暂未就绪，请稍后重试'),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -1412,15 +1418,21 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
         );
         if (mounted && consumed) _resumeAfterRevive();
       } else if (result.status == ShareResultStatus.unavailable && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('当前平台无法确认分享结果')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('当前平台无法确认分享结果'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('分享失败，请稍后重试')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('分享失败，请稍后重试'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } finally {
       _reviveActionInProgress = false;
@@ -1566,7 +1578,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                     Navigator.of(ctx).pop();
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('积分不足，可观看广告赚取积分')),
+                      const SnackBar(
+                        content: Text('积分不足，可观看广告赚取积分'),
+                        duration: Duration(seconds: 3),
+                      ),
                     );
                     return;
                   }
@@ -1678,7 +1693,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                     Navigator.of(ctx).pop();
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('积分不足，可观看广告赚取积分')),
+                      const SnackBar(
+                        content: Text('积分不足，可观看广告赚取积分'),
+                        duration: Duration(seconds: 3),
+                      ),
                     );
                     return;
                   }
@@ -1726,9 +1744,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       if (!mounted) return;
       Navigator.pop(context); // 关闭加载框
       if (level == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('下一关生成失败，请重试')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('下一关生成失败，请重试'),
+            duration: Duration(seconds: 3),
+          ),
+        );
         return;
       }
       Navigator.pushReplacement(
@@ -1738,9 +1759,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('错误: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('错误: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
     }
   }

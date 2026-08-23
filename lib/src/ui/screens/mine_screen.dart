@@ -91,9 +91,12 @@ class MineScreen extends ConsumerWidget {
       await ref.read(playerProvider.notifier).setCustomAvatar(target);
     } catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('头像设置失败，请重试')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('头像设置失败，请重试'),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 

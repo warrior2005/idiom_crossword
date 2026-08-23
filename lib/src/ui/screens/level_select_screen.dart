@@ -160,9 +160,12 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       if (!mounted) return;
       Navigator.pop(context);
       if (level == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('关卡生成失败，请重试')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('关卡生成失败，请重试'),
+            duration: Duration(seconds: 3),
+          ),
+        );
         return;
       }
       final isReplay = await db.isLevelCompleted(levelNumber);
@@ -178,9 +181,12 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('错误: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('错误: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
     }
   }
@@ -188,9 +194,12 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
   Future<void> _startDaily() async {
     if (!GrowthManager.canAccessDaily(ref.read(playerProvider).level)) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('到达Lv.3·廪生后开启每日挑战')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('到达Lv.3·廪生后开启每日挑战'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
       return;
     }
@@ -221,9 +230,12 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       if (!mounted) return;
       Navigator.pop(context);
       if (level == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('每日挑战生成失败，请重试')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('每日挑战生成失败，请重试'),
+            duration: Duration(seconds: 3),
+          ),
+        );
         return;
       }
       await Navigator.push(
@@ -234,9 +246,12 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('错误: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('错误: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
     }
   }
