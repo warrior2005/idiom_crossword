@@ -5,6 +5,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../app_page_route.dart';
 import '../../engine/grid_engine.dart';
@@ -33,6 +34,7 @@ import '../theme/app_text.dart';
 import '../theme/grid_skins.dart';
 import '../theme/decoration_catalog.dart';
 import '../../utils/ad_manager.dart';
+import '../../utils/level_share_image.dart';
 import 'learning_screen.dart';
 import 'settings_screen.dart';
 
@@ -84,7 +86,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   bool _dailyRetryWithoutTimer = false;
   bool _failed = false;
   bool _revived = false;
-  int _reviveUsesThisLevel = 0;
+  bool _reviveActionInProgress = false;
   Future<void> Function()? _terminalDialog;
   bool _terminalDialogVisible = false;
 
@@ -286,7 +288,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
         _lives = state.lives;
         _remainingSeconds = state.remainingSeconds;
         _revived = state.revived;
-        _reviveUsesThisLevel = state.reviveUsesThisLevel;
         if (state.focusRow != null && state.focusCol != null) {
           _focusRow = state.focusRow!;
           _focusCol = state.focusCol!;
@@ -393,7 +394,6 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
             lives: _lives,
             remainingSeconds: _remainingSeconds,
             revived: _revived,
-            reviveUsesThisLevel: _reviveUsesThisLevel,
             focusRow: _focusRow < 0 ? null : _focusRow,
             focusCol: _focusCol < 0 ? null : _focusCol,
             direction: _currentDirection,
@@ -1275,71 +1275,149 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       await ref.read(databaseProvider).setSetting(_dailyNoRewardKey(), 'true');
       if (!mounted) return;
     }
-    final usesAdRevive = _reviveUsesThisLevel < 3;
+    _showTerminalDialog(() => _showFailureDialog(timeUp: timeUp));
+  }
+
+  Future<void> _showFailureDialog({required bool timeUp}) async {
+    final quota = await ref.read(playerProvider.notifier).dailyReviveQuota();
+    if (!mounted) return;
     final reviveCount =
         ref.read(playerProvider).functionalItems['revive_card'] ?? 0;
-    _showTerminalDialog(
-      () => showWinCardDialog(
-        context,
-        seal: '败',
-        title: '挑战失败',
-        subtitle: _isDaily ? (timeUp ? '倒计时结束' : '生命值耗尽') : '生命值耗尽',
-        xpText: '+0',
-        dismissible: true,
-        actions: [
-          WinCardAction(
-            label: usesAdRevive ? '看广告复活' : '复活卡(剩余 $reviveCount)',
-            primary: true,
-            onTap: _handleRevive,
-          ),
-          WinCardAction(
-            label: _isDaily ? '重玩本关（无经验）' : '重玩本关',
-            ghost: true,
-            onTap: _replayLevel,
-          ),
-          WinCardAction(
-            label: '返回主页',
-            ghost: true,
-            onTap: () {
-              _clearTerminalDialog();
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-          ),
-        ],
-      ),
+    return showWinCardDialog(
+      context,
+      seal: '败',
+      title: '挑战失败',
+      subtitle: _isDaily ? (timeUp ? '倒计时结束' : '生命值耗尽') : '生命值耗尽',
+      xpText: '+0',
+      dismissible: true,
+      actions: [
+        WinCardAction(
+          label: '看广告复活(${quota.adRemaining})',
+          primary: true,
+          onTap: quota.adRemaining > 0 ? _handleAdRevive : null,
+        ),
+        WinCardAction(
+          label: '分享后复活(${quota.shareRemaining})',
+          primary: true,
+          onTap: quota.shareRemaining > 0 ? _handleShareRevive : null,
+        ),
+        WinCardAction(
+          label: '使用复活卡($reviveCount)',
+          primary: true,
+          onTap: _handleCardRevive,
+        ),
+      ],
+      inlineActions: [
+        WinCardAction(
+          label: _isDaily ? '重玩本关（无经验）' : '重玩本关',
+          ghost: true,
+          onTap: _replayLevel,
+        ),
+        WinCardAction(
+          label: '返回主页',
+          ghost: true,
+          onTap: () {
+            _clearTerminalDialog();
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          },
+        ),
+      ],
     );
   }
 
-  Future<void> _handleRevive() async {
-    if (_reviveUsesThisLevel < 3) {
-      final adManager = AdManager();
-      final ready =
-          adManager.isRewardedAdReadyNotifier.value ||
-          await adManager.loadRewardedAd();
-      if (!mounted) return;
-      if (!ready) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('广告暂未就绪，请稍后重试')));
-        return;
-      }
-      var rewarded = false;
-      final shown = adManager.showRewardedAd(
-        onRewardEarned: (_, _) {
-          if (rewarded) return;
-          rewarded = true;
-          _reviveUsesThisLevel++;
-          _resumeAfterRevive();
-        },
-      );
-      if (!shown && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('广告暂未就绪，请稍后重试')));
-      }
+  Future<void> _handleAdRevive() async {
+    if (_reviveActionInProgress) return;
+    final notifier = ref.read(playerProvider.notifier);
+    final quota = await notifier.dailyReviveQuota();
+    if (quota.adRemaining <= 0 || !mounted) return;
+    _reviveActionInProgress = true;
+    final adManager = AdManager();
+    final ready =
+        adManager.isRewardedAdReadyNotifier.value ||
+        await adManager.loadRewardedAd();
+    if (!mounted) return;
+    if (!ready) {
+      _reviveActionInProgress = false;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('广告暂未就绪，请稍后重试')));
       return;
     }
+    var rewarded = false;
+    final shown = adManager.showRewardedAd(
+      onAdClosed: () => _reviveActionInProgress = false,
+      onRewardEarned: (_, _) {
+        if (rewarded) return;
+        rewarded = true;
+        unawaited(() async {
+          final consumed = await notifier.consumeDailyRevive(
+            DailyReviveMethod.ad,
+          );
+          if (!mounted) return;
+          _reviveActionInProgress = false;
+          if (consumed) _resumeAfterRevive();
+        }());
+      },
+    );
+    if (!shown && mounted) {
+      _reviveActionInProgress = false;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('广告暂未就绪，请稍后重试')));
+    }
+  }
 
+  Future<void> _handleShareRevive() async {
+    if (_reviveActionInProgress) return;
+    final notifier = ref.read(playerProvider.notifier);
+    final quota = await notifier.dailyReviveQuota();
+    if (quota.shareRemaining <= 0 || !mounted) return;
+    _reviveActionInProgress = true;
+    try {
+      final qrData = await rootBundle.load('assets/images/qrcode.png');
+      final imageBytes = await buildLevelShareImage(
+        level: widget.level,
+        qrCodeBytes: qrData.buffer.asUint8List(
+          qrData.offsetInBytes,
+          qrData.lengthInBytes,
+        ),
+      );
+      if (!mounted) return;
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          title: kLevelShareTitle,
+          subject: kLevelShareTitle,
+          text: kLevelShareTitle,
+          files: [XFile.fromData(imageBytes, mimeType: 'image/png')],
+          fileNameOverrides: [
+            'idiom-crossword-level-${widget.level.levelId}.png',
+          ],
+          sharePositionOrigin: Offset.zero & MediaQuery.sizeOf(context),
+        ),
+      );
+      if (!mounted) return;
+      if (result.status == ShareResultStatus.success) {
+        final consumed = await notifier.consumeDailyRevive(
+          DailyReviveMethod.share,
+        );
+        if (mounted && consumed) _resumeAfterRevive();
+      } else if (result.status == ShareResultStatus.unavailable && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('当前平台无法确认分享结果')));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('分享失败，请稍后重试')));
+      }
+    } finally {
+      _reviveActionInProgress = false;
+    }
+  }
+
+  Future<void> _handleCardRevive() async {
     final reviveCount =
         ref.read(playerProvider).functionalItems['revive_card'] ?? 0;
     if (reviveCount <= 0) {
@@ -1598,7 +1676,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
                   if (!ctx.mounted || !mounted) return;
                   Navigator.of(ctx).pop();
                   if (!mounted) return;
-                  await _handleRevive();
+                  await _handleCardRevive();
                 },
                 child: Container(
                   height: 40,

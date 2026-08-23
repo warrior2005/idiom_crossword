@@ -354,6 +354,61 @@ void main() {
     expect(finalStatus.cooldownSeconds, 0);
   });
 
+  test('复活额度：广告和分享每日各10次，跨关卡共享并次日重置', () async {
+    final notifier = container.read(playerProvider.notifier);
+    final firstDay = DateTime(2026, 8, 23, 9);
+
+    var quota = await notifier.dailyReviveQuota(now: firstDay);
+    expect(quota.adRemaining, 10);
+    expect(quota.shareRemaining, 10);
+
+    expect(
+      await notifier.consumeDailyRevive(DailyReviveMethod.ad, now: firstDay),
+      isTrue,
+    );
+    expect(
+      await notifier.consumeDailyRevive(DailyReviveMethod.share, now: firstDay),
+      isTrue,
+    );
+
+    final anotherLevel = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(anotherLevel.dispose);
+    quota = await anotherLevel
+        .read(playerProvider.notifier)
+        .dailyReviveQuota(now: firstDay);
+    expect(quota.adRemaining, 9);
+    expect(quota.shareRemaining, 9);
+
+    for (var i = 0; i < 9; i++) {
+      expect(
+        await notifier.consumeDailyRevive(DailyReviveMethod.ad, now: firstDay),
+        isTrue,
+      );
+      expect(
+        await notifier.consumeDailyRevive(
+          DailyReviveMethod.share,
+          now: firstDay,
+        ),
+        isTrue,
+      );
+    }
+    quota = await notifier.dailyReviveQuota(now: firstDay);
+    expect(quota.adRemaining, 0);
+    expect(quota.shareRemaining, 0);
+    expect(
+      await notifier.consumeDailyRevive(DailyReviveMethod.ad, now: firstDay),
+      isFalse,
+    );
+
+    quota = await notifier.dailyReviveQuota(
+      now: firstDay.add(const Duration(days: 1)),
+    );
+    expect(quota.adRemaining, 10);
+    expect(quota.shareRemaining, 10);
+  });
+
   test('横幅广告积分按分钟累计，每日上限120', () async {
     final notifier = container.read(playerProvider.notifier);
     for (var i = 0; i < 121; i++) {

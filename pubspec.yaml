@@ -4,8 +4,8 @@ publish_to: 'none'
 version: 0.1.0+1
 
 environment:
-  sdk: ^3.9.2
-  flutter: '>=3.16.0'
+  sdk: ^3.10.0
+  flutter: '>=3.38.1'
 
 dependencies:
   flutter:
@@ -39,6 +39,7 @@ dependencies:
   logger: ^2.7.0
   image_picker: ^1.2.3
   package_info_plus: ^10.2.1
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:

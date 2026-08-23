@@ -13,6 +13,7 @@ import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
+import 'package:idiom_crossword/src/ui/widgets/primary_button.dart';
 
 /// 完整通关流程端到端测试：候选字填字 → 过关对话框 → 经验/记录落库
 void main() {
@@ -593,6 +594,12 @@ void main() {
   testWidgets('3 颗心允许填错 3 次，第 4 次才失败', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    final now = DateTime.now();
+    final today =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    await db.setSetting(kDailyReviveDateKey, today);
+    await db.setSetting(kDailyAdReviveCountKey, '$kDailyReviveLimit');
+    await db.setSetting(kDailyShareReviveCountKey, '$kDailyReviveLimit');
     await tester.pumpWidget(
       ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
@@ -629,7 +636,25 @@ void main() {
     await tester.tap(wrongChar.at(3));
     await tester.pumpAndSettle();
     expect(find.text('挑战失败'), findsOneWidget);
-    expect(find.text('看广告复活'), findsOneWidget);
+    final adButton = tester.widget<PrimaryButton>(
+      find.widgetWithText(PrimaryButton, '看广告复活(0)'),
+    );
+    final shareButton = tester.widget<PrimaryButton>(
+      find.widgetWithText(PrimaryButton, '分享后复活(0)'),
+    );
+    expect(adButton.onTap, isNull);
+    expect(shareButton.onTap, isNull);
+    expect(find.text('使用复活卡(2)'), findsOneWidget);
+    final replayButton = find.widgetWithText(PrimaryButton, '重玩本关');
+    final homeButton = find.widgetWithText(PrimaryButton, '返回主页');
+    expect(
+      find.ancestor(of: replayButton, matching: find.byType(Row)),
+      findsOneWidget,
+    );
+    expect(
+      find.ancestor(of: homeButton, matching: find.byType(Row)),
+      findsOneWidget,
+    );
   });
 
   testWidgets('交叉格填错只记当前方向成语', (tester) async {
@@ -708,10 +733,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('挑战失败'), findsOneWidget);
-    expect(find.text('看广告复活'), findsOneWidget);
+    expect(find.text('看广告复活(10)'), findsOneWidget);
+    expect(find.text('分享后复活(10)'), findsOneWidget);
+    expect(find.text('使用复活卡(0)'), findsOneWidget);
     expect(find.text('重玩本关（无经验）'), findsOneWidget);
     expect(find.text('返回主页'), findsOneWidget);
     expect(await db.getLevelState(dailyLevelNumber()), isNull);
+
+    await tester.tap(find.text('使用复活卡(0)'));
+    await tester.pumpAndSettle();
+    expect(find.text('复活卡 ×1'), findsOneWidget);
+    expect(find.text('购买'), findsOneWidget);
+    await tester.tapAt(Offset.zero);
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('重玩本关（无经验）'));
     await tester.pumpAndSettle();

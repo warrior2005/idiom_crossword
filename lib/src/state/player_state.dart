@@ -28,6 +28,10 @@ const int kMaxBannerPointsPerDay = 120;
 const String kRewardedAdsDateKey = 'rewarded_ads_date';
 const String kRewardedAdsCountKey = 'rewarded_ads_count';
 const String kRewardedAdsLastTsKey = 'rewarded_ads_last_ts';
+const int kDailyReviveLimit = 10;
+const String kDailyReviveDateKey = 'daily_revive_date';
+const String kDailyAdReviveCountKey = 'daily_ad_revive_count';
+const String kDailyShareReviveCountKey = 'daily_share_revive_count';
 const String kBannerPointsDateKey = 'banner_points_date';
 const String kBannerPointsCountKey = 'banner_points_count';
 const String kCustomAvatarPathKey = 'custom_avatar_path';
@@ -94,6 +98,18 @@ class RewardedAdStatus {
     required this.cooldownSeconds,
     required this.canWatch,
     required this.maxReached,
+  });
+}
+
+enum DailyReviveMethod { ad, share }
+
+class DailyReviveQuota {
+  final int adRemaining;
+  final int shareRemaining;
+
+  const DailyReviveQuota({
+    required this.adRemaining,
+    required this.shareRemaining,
   });
 }
 
@@ -602,6 +618,57 @@ class PlayerNotifier extends Notifier<PlayerState> {
       canWatch: false,
       maxReached: maxReached,
     );
+  }
+
+  /// 广告与分享复活的每日剩余额度（所有关卡共享）。
+  Future<DailyReviveQuota> dailyReviveQuota({DateTime? now}) async {
+    final db = ref.read(databaseProvider);
+    final current = now ?? DateTime.now();
+    final savedDate = await db.getSetting(kDailyReviveDateKey);
+    if (savedDate != _dateKey(current)) {
+      return const DailyReviveQuota(
+        adRemaining: kDailyReviveLimit,
+        shareRemaining: kDailyReviveLimit,
+      );
+    }
+    final adUsed =
+        (int.tryParse(await db.getSetting(kDailyAdReviveCountKey) ?? '0') ?? 0)
+            .clamp(0, kDailyReviveLimit);
+    final shareUsed =
+        (int.tryParse(await db.getSetting(kDailyShareReviveCountKey) ?? '0') ??
+                0)
+            .clamp(0, kDailyReviveLimit);
+    return DailyReviveQuota(
+      adRemaining: kDailyReviveLimit - adUsed,
+      shareRemaining: kDailyReviveLimit - shareUsed,
+    );
+  }
+
+  /// 消耗一次每日复活额度；额度用尽时返回 false。
+  Future<bool> consumeDailyRevive(
+    DailyReviveMethod method, {
+    DateTime? now,
+  }) async {
+    final current = now ?? DateTime.now();
+    final quota = await dailyReviveQuota(now: current);
+    if ((method == DailyReviveMethod.ad && quota.adRemaining <= 0) ||
+        (method == DailyReviveMethod.share && quota.shareRemaining <= 0)) {
+      return false;
+    }
+
+    final adUsed =
+        kDailyReviveLimit -
+        quota.adRemaining +
+        (method == DailyReviveMethod.ad ? 1 : 0);
+    final shareUsed =
+        kDailyReviveLimit -
+        quota.shareRemaining +
+        (method == DailyReviveMethod.share ? 1 : 0);
+    final db = ref.read(databaseProvider);
+    await db.setSetting(kDailyReviveDateKey, _dateKey(current));
+    await db.setSetting(kDailyAdReviveCountKey, '$adUsed');
+    await db.setSetting(kDailyShareReviveCountKey, '$shareUsed');
+    return true;
   }
 
   /// 'grid_skin_bamboo' -> ('grid_skin', 'bamboo')

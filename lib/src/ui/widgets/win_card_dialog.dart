@@ -26,6 +26,7 @@ class WinCard extends StatelessWidget {
   final String xpText;
   final List<WinCardIdiom> idioms;
   final List<WinCardAction> actions;
+  final List<WinCardAction> inlineActions;
 
   const WinCard({
     super.key,
@@ -35,6 +36,7 @@ class WinCard extends StatelessWidget {
     required this.xpText,
     required this.idioms,
     required this.actions,
+    this.inlineActions = const [],
   });
 
   @override
@@ -132,6 +134,29 @@ class WinCard extends StatelessWidget {
                   onTap: action.onTap,
                 ),
               ),
+            if (inlineActions.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  children: [
+                    for (
+                      var index = 0;
+                      index < inlineActions.length;
+                      index++
+                    ) ...[
+                      if (index > 0) const SizedBox(width: 10),
+                      Expanded(
+                        child: PrimaryButton(
+                          label: inlineActions[index].label,
+                          small: true,
+                          ghost: inlineActions[index].ghost,
+                          onTap: inlineActions[index].onTap,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             if (idioms.isNotEmpty) ...[
               const Divider(color: AppColors.border),
               for (final idiom in idioms.take(3))
@@ -190,6 +215,7 @@ Future<void> showWinCardDialog(
   required String xpText,
   List<WinCardIdiom> idioms = const [],
   List<WinCardAction> actions = const [],
+  List<WinCardAction> inlineActions = const [],
   bool dismissible = false,
 }) {
   return showDialog<void>(
@@ -208,6 +234,7 @@ Future<void> showWinCardDialog(
             xpText: xpText,
             idioms: idioms,
             actions: actions,
+            inlineActions: inlineActions,
           ),
           if (dismissible)
             Positioned(

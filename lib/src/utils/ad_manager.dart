@@ -52,6 +52,7 @@ class AdManager with WidgetsBindingObserver {
   bool? _canRequestAdsCached;
   Future<void>? _initializationFuture;
   Future<bool>? _rewardedAdLoadFuture;
+  VoidCallback? _rewardedAdClosedCallback;
   Timer? _rewardedAdRetryTimer;
   int _rewardedAdRetryAttempt = 0;
 
@@ -359,6 +360,8 @@ class AdManager with WidgetsBindingObserver {
                 _rewardedAd = null;
                 isRewardedAdReadyNotifier.value = false;
                 ad.dispose();
+                _rewardedAdClosedCallback?.call();
+                _rewardedAdClosedCallback = null;
                 // 预加载下一个激励视频广告
                 unawaited(loadRewardedAd());
               },
@@ -368,6 +371,8 @@ class AdManager with WidgetsBindingObserver {
                 _rewardedAd = null;
                 isRewardedAdReadyNotifier.value = false;
                 ad.dispose();
+                _rewardedAdClosedCallback?.call();
+                _rewardedAdClosedCallback = null;
                 // 预加载下一个激励视频广告
                 unawaited(loadRewardedAd());
               },
@@ -412,12 +417,16 @@ class AdManager with WidgetsBindingObserver {
   }
 
   // 显示激励视频广告
-  bool showRewardedAd({required Function(String, int) onRewardEarned}) {
+  bool showRewardedAd({
+    required Function(String, int) onRewardEarned,
+    VoidCallback? onAdClosed,
+  }) {
     if (_rewardedAd != null && _isRewardedAdLoaded) {
       final ad = _rewardedAd!;
       _rewardedAd = null;
       _isRewardedAdLoaded = false;
       isRewardedAdReadyNotifier.value = false;
+      _rewardedAdClosedCallback = onAdClosed;
       ad.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
           _logger.i('用户获得奖励: ${reward.type}, ${reward.amount}');
@@ -441,6 +450,7 @@ class AdManager with WidgetsBindingObserver {
     _rewardedAd?.dispose();
     _rewardedAd = null;
     _isRewardedAdLoaded = false;
+    _rewardedAdClosedCallback = null;
     isRewardedAdReadyNotifier.value = false;
   }
 

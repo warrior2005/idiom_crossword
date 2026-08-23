@@ -29,37 +29,44 @@ class PrimaryButton extends StatelessWidget {
         ? const Color(0x14503C1E)
         : const Color(0x47B33B27);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 80),
-        height: height,
-        decoration: BoxDecoration(
-          color: baseColor,
-          borderRadius: BorderRadius.circular(radius),
-          border: ghost ? Border.all(color: AppColors.accentSoft) : null,
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor,
-              offset: Offset(0, small ? 6 : 8),
-              blurRadius: 0,
-            ),
-            if (!small)
+    return Opacity(
+      opacity: onTap == null ? 0.45 : 1,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 80),
+          height: height,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: baseColor,
+            borderRadius: BorderRadius.circular(radius),
+            border: ghost ? Border.all(color: AppColors.accentSoft) : null,
+            boxShadow: [
               BoxShadow(
-                color: softShadowColor,
-                offset: const Offset(0, 14),
-                blurRadius: 24,
+                color: shadowColor,
+                offset: Offset(0, small ? 6 : 8),
+                blurRadius: 0,
               ),
-          ],
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: small ? 15 : 17,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1,
-            color: ghost ? AppColors.accent : const Color(0xFFFFF8EF),
+              if (!small)
+                BoxShadow(
+                  color: softShadowColor,
+                  offset: const Offset(0, 14),
+                  blurRadius: 24,
+                ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: small ? 15 : 17,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
+                color: ghost ? AppColors.accent : const Color(0xFFFFF8EF),
+              ),
+            ),
           ),
         ),
       ),
