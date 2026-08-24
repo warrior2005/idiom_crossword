@@ -11,6 +11,7 @@ import '../app_page_route.dart';
 import '../../engine/grid_engine.dart';
 import '../../engine/distractor_engine.dart';
 import '../../state/database_provider.dart';
+import '../../state/daily_challenge.dart';
 import '../../state/player_state.dart';
 import '../../state/level_generation.dart';
 import '../../state/level_state_codec.dart';
@@ -203,6 +204,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       word.length == 4 ? word.substring(2) + word.substring(0, 2) : word;
 
   Future<void> _initializeLevel() async {
+    await ref.read(hapticEnabledProvider.future);
     await _buildCandidateBoard();
     if (!mounted) return;
     await _loadReversiblePairs();
@@ -559,6 +561,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     return null;
   }
 
+  void _triggerHaptic(Future<void> Function() feedback) {
+    if (ref.read(hapticEnabledProvider).value == true) {
+      unawaited(feedback());
+    }
+  }
+
   /// 玩家点击候选字
   void _onCandidateTap(int row, int col, String char) {
     if (_focusRow < 0 || _focusCol < 0) return;
@@ -617,11 +625,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     }
 
     if (isCorrect && idiomCompleted) {
-      HapticFeedback.mediumImpact();
+      _triggerHaptic(HapticFeedback.mediumImpact);
       SoundManager.instance.playIdiom();
       _scrollCompletedIdiomsToEnd();
     } else {
-      HapticFeedback.lightImpact();
+      _triggerHaptic(HapticFeedback.lightImpact);
       if (isCorrect) {
         SoundManager.instance.playCorrect();
       } else {
@@ -757,7 +765,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       // 跳过已尝试的方向
       if (placement.direction == preferredDirection) continue;
 
-      for (int next = k + 1; next < placement.idiom.text.length; next++) {
+      for (int next = 0; next < placement.idiom.text.length; next++) {
+        if (next == k) continue;
         final (nr, nc) = placement.cellAt(next);
         final cell = _grid.cellAt(nr, nc);
         if (cell.state == CellState.filled &&
@@ -851,7 +860,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       }
     }
     if (allDone) {
-      HapticFeedback.heavyImpact();
+      _triggerHaptic(HapticFeedback.heavyImpact);
       SoundManager.instance.playComplete();
       _onLevelComplete();
     }
@@ -910,6 +919,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       totalFills: _totalFills,
       levelJson: encodeLevel(widget.level),
     );
+    if (_isDaily) ref.invalidate(dailyDoneProvider);
     if (!noReward && failedBefore) {
       await db.setSetting(_dailyNoRewardKey(), 'false');
     }
@@ -1788,7 +1798,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       _focusCol = col;
       _currentDirection = _getDirectionForCell(row, col);
     });
-    HapticFeedback.selectionClick();
+    _triggerHaptic(HapticFeedback.selectionClick);
   }
 
   /// 由手势坐标换算网格格子（网格居中布局，需扣除偏移）
@@ -2388,10 +2398,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     });
 
     if (idiomCompleted) {
-      HapticFeedback.mediumImpact();
+      _triggerHaptic(HapticFeedback.mediumImpact);
       SoundManager.instance.playIdiom();
     } else {
-      HapticFeedback.lightImpact();
+      _triggerHaptic(HapticFeedback.lightImpact);
       SoundManager.instance.playFill();
     }
     _moveToNextEmptyCell();

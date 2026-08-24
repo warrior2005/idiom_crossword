@@ -1,12 +1,15 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/audio/music_manager.dart';
 import 'package:idiom_crossword/src/audio/sound_manager.dart';
+import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
+import 'package:idiom_crossword/src/state/daily_challenge.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 import 'package:idiom_crossword/src/state/player_state.dart';
@@ -91,6 +94,40 @@ void main() {
     await container.read(showPinyinProvider.notifier).setEnabled(true);
     await tester.pump();
     expect(gridPainter().showPinyin, isTrue);
+  });
+
+  testWidgets('关闭触感反馈后填字不触发震动', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.setSetting(hapticEnabledKey, 'false');
+    final hapticCalls = <MethodCall>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'HapticFeedback.vibrate') hapticCalls.add(call);
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('蛇'));
+    await tester.pump();
+
+    expect(hapticCalls, isEmpty);
+    await tester.pump(const Duration(milliseconds: 300));
   });
 
   testWidgets('完成新成语后滚动到列表最右侧', (tester) async {
@@ -212,6 +249,87 @@ void main() {
         tester.widget<CustomPaint>(gridFinder).painter! as GridPainter;
     expect((painter.focusRow, painter.focusCol), (4, 3));
     await tester.pump(const Duration(milliseconds: 300));
+  });
+
+  testWidgets('成语末字交叉到另一成语第三字时先移到其第二字', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: GameScreen(level: _buildEndToThirdCrossingLevel()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final gridFinder = find.byWidgetPredicate(
+      (widget) => widget is CustomPaint && widget.painter is GridPainter,
+    );
+    final gridRect = tester.getRect(gridFinder);
+    final cellSize = gridRect.width / 4;
+    await tester.tapAt(
+      Offset(gridRect.left + cellSize * 1.5, gridRect.top + cellSize * 2.5),
+    );
+    await tester.pump();
+    for (final char in ['蛇', '添', '足']) {
+      await tester.tap(find.text(char));
+      await tester.pump();
+    }
+
+    final painter =
+        tester.widget<CustomPaint>(gridFinder).painter! as GridPainter;
+    expect((painter.focusRow, painter.focusCol), (2, 4));
+    await tester.pump(const Duration(milliseconds: 300));
+  });
+
+  testWidgets('每日挑战通关后刷新完成状态', (tester) async {
+    final db = _DelayedHistoryDatabase();
+    addTearDown(db.close);
+    for (final id in AchievementId.values) {
+      await db.unlockAchievement(id.name);
+    }
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    final subscription = container.listen(
+      dailyDoneProvider,
+      (_, _) {},
+      fireImmediately: true,
+    );
+    addTearDown(subscription.close);
+    expect(await container.read(dailyDoneProvider.future), isFalse);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: GameScreen(level: _buildLevel(levelId: dailyLevelNumber())),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    for (final char in ['蛇', '添', '足']) {
+      await tester.tap(find.text(char));
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    await _pumpUntil(
+      tester,
+      () => find.text('每日挑战 · 完成').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    await _pumpUntil(
+      tester,
+      () => container.read(dailyDoneProvider).value == true,
+      const Duration(seconds: 2),
+    );
+
+    expect(container.read(dailyDoneProvider).value, isTrue);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 800));
   });
 
   testWidgets('填满空格后过关，经验与通关记录写入数据库', (tester) async {
@@ -926,6 +1044,54 @@ engine.CrosswordLevel _buildDirectionInferenceLevel() {
   );
 }
 
+engine.CrosswordLevel _buildEndToThirdCrossingLevel() {
+  final grid = engine.CrosswordGrid(rows: 6, cols: 6);
+  const horizontal = engine.Idiom(
+    text: '画蛇添足',
+    pinyin: 'hua she tian zu',
+    meaning: '比喻做了多余的事',
+    difficulty: 1,
+  );
+  const vertical = engine.Idiom(
+    text: '手舞足蹈',
+    pinyin: 'shou wu zu dao',
+    meaning: '形容高兴到了极点',
+    difficulty: 1,
+  );
+  final placements = [
+    const engine.Placement(
+      idiom: horizontal,
+      startRow: 3,
+      startCol: 1,
+      direction: engine.Direction.horizontal,
+    ),
+    const engine.Placement(
+      idiom: vertical,
+      startRow: 1,
+      startCol: 4,
+      direction: engine.Direction.vertical,
+    ),
+  ];
+  for (final placement in placements) {
+    for (var k = 0; k < placement.idiom.text.length; k++) {
+      final (row, col) = placement.cellAt(k);
+      final cell = grid.cellAt(row, col);
+      if (cell.state == engine.CellState.filled) cell.isIntersection = true;
+      cell.state = engine.CellState.filled;
+      cell.character = placement.idiom.text[k];
+    }
+  }
+  grid.cellAt(3, 1).isGiven = true;
+  grid.cellAt(1, 4).isGiven = true;
+  return engine.CrosswordLevel(
+    levelId: 1,
+    grid: grid,
+    placements: placements,
+    givenCharacters: const {'画', '手'},
+    title: '第 1 关',
+  );
+}
+
 engine.CrosswordLevel _buildReversibleLevel({int levelId = 1}) {
   final grid = engine.CrosswordGrid(rows: 5, cols: 5);
   const idiom = engine.Idiom(
@@ -1001,4 +1167,32 @@ engine.CrosswordLevel _buildCrossingLevel() {
     givenCharacters: const {'画', '肠'},
     title: '第 1 关',
   );
+}
+
+class _DelayedHistoryDatabase extends AppDatabase {
+  _DelayedHistoryDatabase() : super(NativeDatabase.memory());
+
+  @override
+  Future<void> addLevelHistory({
+    required int levelNumber,
+    required int xpGained,
+    required List<int> idiomsUsed,
+    int? timeSpentMs,
+    int hintsUsed = 0,
+    int errorsMade = 0,
+    int? totalFills,
+    String? levelJson,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    await super.addLevelHistory(
+      levelNumber: levelNumber,
+      xpGained: xpGained,
+      idiomsUsed: idiomsUsed,
+      timeSpentMs: timeSpentMs,
+      hintsUsed: hintsUsed,
+      errorsMade: errorsMade,
+      totalFills: totalFills,
+      levelJson: levelJson,
+    );
+  }
 }
