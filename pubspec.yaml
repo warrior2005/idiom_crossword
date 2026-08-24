@@ -66,6 +66,7 @@ flutter:
     - assets/data/idiom_crossword.db
     - assets/audio/
     - assets/images/
+    - assets/images/achievements/
 
   fonts:
     - family: Noto Serif SC

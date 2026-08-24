@@ -528,11 +528,11 @@ void main() {
       const Duration(seconds: 5),
     );
 
-    expect(find.text('暂不评分'), findsOneWidget);
-    expect(find.text('去评分'), findsOneWidget);
+    expect(find.text('暂不评价'), findsOneWidget);
+    expect(find.text('去评价'), findsOneWidget);
     expect(reviewPlatform.requestCount, 0);
 
-    await tester.tap(find.text('去评分'));
+    await tester.tap(find.text('去评价'));
     await _pumpUntil(
       tester,
       () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,

@@ -13,6 +13,7 @@ import 'achievements_screen.dart';
 import 'stats_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/app_card.dart';
+import '../widgets/achievement_badge.dart';
 import '../widgets/animated_title_text.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/section_title.dart';
@@ -26,6 +27,10 @@ class MineScreen extends ConsumerWidget {
 
   Future<void> _pickAvatar(BuildContext context, WidgetRef ref) async {
     final current = ref.read(playerProvider);
+    final unlocked = ref.read(achievementsProvider).value ?? {};
+    final unlockedDefs = achievementDefs
+        .where((definition) => unlocked.contains(definition.id))
+        .toList();
     final hasCustom =
         current.customAvatarPath != null &&
         current.customAvatarPath!.isNotEmpty;
@@ -36,35 +41,69 @@ class MineScreen extends ConsumerWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
       builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(
-                Icons.photo_library_outlined,
-                color: AppColors.accent,
-              ),
-              title: const Text('从相册选择'),
-              onTap: () => Navigator.pop(sheetContext, 'pick'),
-            ),
-            if (hasCustom)
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.8,
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final definition in unlockedDefs)
+                ListTile(
+                  key: ValueKey(
+                    'achievement-avatar-option-${definition.id.name}',
+                  ),
+                  leading: AchievementBadge(
+                    assetPath: definition.assetPath,
+                    unlocked: true,
+                    size: 40,
+                  ),
+                  title: Text(definition.title),
+                  onTap: () => Navigator.pop(
+                    sheetContext,
+                    'achievement:${definition.id.name}',
+                  ),
+                ),
               ListTile(
-                leading: const Icon(Icons.restart_alt, color: AppColors.accent),
-                title: const Text('取消自定义头像'),
-                onTap: () => Navigator.pop(sheetContext, 'clear'),
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                  color: AppColors.accent,
+                ),
+                title: const Text('从相册选择'),
+                onTap: () => Navigator.pop(sheetContext, 'pick'),
               ),
-            ListTile(
-              leading: const Icon(Icons.close, color: AppColors.muted),
-              title: const Text('关闭'),
-              onTap: () => Navigator.pop(sheetContext),
-            ),
-          ],
+              if (hasCustom)
+                ListTile(
+                  leading: const Icon(
+                    Icons.restart_alt,
+                    color: AppColors.accent,
+                  ),
+                  title: const Text('取消自定义头像'),
+                  onTap: () => Navigator.pop(sheetContext, 'clear'),
+                ),
+              ListTile(
+                leading: const Icon(Icons.close, color: AppColors.muted),
+                title: const Text('关闭'),
+                onTap: () => Navigator.pop(sheetContext),
+              ),
+            ],
+          ),
         ),
       ),
     );
     if (!context.mounted) return;
     if (action == 'clear') {
       await ref.read(playerProvider.notifier).clearCustomAvatar();
+      return;
+    }
+    if (action != null && action.startsWith('achievement:')) {
+      final idName = action.substring('achievement:'.length);
+      final definition = unlockedDefs.firstWhere(
+        (item) => item.id.name == idName,
+      );
+      await ref
+          .read(playerProvider.notifier)
+          .setCustomAvatar(definition.assetPath);
       return;
     }
     if (action != 'pick') return;

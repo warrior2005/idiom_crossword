@@ -4,8 +4,8 @@ import '../../data/achievement_manager.dart';
 import '../../data/database.dart';
 import '../../state/database_provider.dart';
 import '../../state/game_center_service.dart';
+import '../widgets/achievement_badge.dart';
 import '../widgets/app_card.dart';
-import '../widgets/app_seal.dart';
 import '../widgets/sub_page_header.dart';
 import '../widgets/xp_track.dart';
 import '../theme/app_colors.dart';
@@ -173,12 +173,14 @@ class _AchRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
-          AppSeal(
-            unlocked ? '通' : '?',
-            size: 46,
-            fontSize: 15,
-            style: unlocked ? AppSealStyle.solid : AppSealStyle.gray,
-            vertical: false,
+          AchievementBadge(
+            key: ValueKey(
+              unlocked
+                  ? 'achievement-image-${def.id.name}'
+                  : 'achievement-locked-${def.id.name}',
+            ),
+            assetPath: def.assetPath,
+            unlocked: unlocked,
           ),
           const SizedBox(width: 14),
           Expanded(

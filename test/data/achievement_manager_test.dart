@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/achievement_manager.dart';
 
@@ -67,5 +68,13 @@ void main() {
       achievementDefs.map((item) => item.gameCenterId).toSet().length,
       achievementDefs.length,
     );
+  });
+
+  testWidgets('24 个成就都有对应图片资源', (tester) async {
+    expect(achievementDefs, hasLength(24));
+    for (final definition in achievementDefs) {
+      final image = await rootBundle.load(definition.assetPath);
+      expect(image.lengthInBytes, greaterThan(0), reason: definition.title);
+    }
   });
 }

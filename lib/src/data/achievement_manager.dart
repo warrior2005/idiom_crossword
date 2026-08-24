@@ -48,6 +48,8 @@ class AchievementDef {
     required this.category,
     required this.points,
   });
+
+  String get assetPath => 'assets/images/achievements/$title.png';
 }
 
 const _gameCenterPrefix = 'com.sunnywarrior.idiomcrossword.achievement';

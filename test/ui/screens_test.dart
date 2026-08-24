@@ -188,7 +188,10 @@ void main() {
     await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
     await tester.pumpAndSettle();
     expect(find.text('1'), findsOneWidget);
-    expect(find.text('通'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('achievement-image-firstLevel')),
+      findsOneWidget,
+    );
     expect(find.text('已获 10 积分'), findsOneWidget);
   });
 
@@ -223,7 +226,7 @@ void main() {
     expect(find.text('已获 10 积分'), findsNWidgets(2));
   });
 
-  testWidgets('成就页：印章与分组渲染', (tester) async {
+  testWidgets('成就页：圆形成就图片与分组渲染', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
 
@@ -231,7 +234,26 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('已解锁'), findsOneWidget);
     expect(find.text('初露锋芒'), findsOneWidget);
-    expect(find.byType(AppSeal), findsWidgets);
+    expect(
+      find.byKey(const ValueKey('achievement-locked-firstLevel')),
+      findsOneWidget,
+    );
+
+    await db.unlockAchievement(AchievementId.firstLevel.name);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(_wrap(db, const AchievementsScreen()));
+    await tester.pumpAndSettle();
+
+    final image = tester.widget<Image>(
+      find.descendant(
+        of: find.byKey(const ValueKey('achievement-image-firstLevel')),
+        matching: find.byType(Image),
+      ),
+    );
+    expect(
+      (image.image as AssetImage).assetName,
+      'assets/images/achievements/初露锋芒.png',
+    );
   });
 
   testWidgets('排行榜页：自绘双榜并在非 iOS 环境展示本机成绩', (tester) async {
@@ -1277,6 +1299,61 @@ void main() {
     expect(find.text('从相册选择'), findsOneWidget);
     expect(find.text('取消自定义头像'), findsOneWidget);
 
+    await tester.tap(find.text('取消自定义头像'));
+    await tester.pumpAndSettle();
+    expect(container.read(playerProvider).customAvatarPath, '');
+    expect(await db.getSetting(kCustomAvatarPathKey), '');
+  });
+
+  testWidgets('我的页：可选择已解锁成就作为头像并取消', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 0,
+      hintCards: 0,
+      reviveCards: 0,
+    );
+    await db.unlockAchievement(AchievementId.firstLevel.name);
+
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: MineScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(UserAvatar));
+    await tester.pumpAndSettle();
+    expect(find.text('初露锋芒'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('初露锋芒')).dy,
+      lessThan(tester.getTopLeft(find.text('从相册选择')).dy),
+    );
+
+    await tester.tap(find.text('初露锋芒'));
+    await tester.pumpAndSettle();
+    const achievementAvatar = 'assets/images/achievements/初露锋芒.png';
+    expect(container.read(playerProvider).customAvatarPath, achievementAvatar);
+    expect(await db.getSetting(kCustomAvatarPathKey), achievementAvatar);
+    final avatarImage = tester.widget<Image>(
+      find.descendant(
+        of: find.byType(UserAvatar),
+        matching: find.byType(Image),
+      ),
+    );
+    expect((avatarImage.image as AssetImage).assetName, achievementAvatar);
+
+    await tester.tap(find.byType(UserAvatar));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('取消自定义头像'));
     await tester.pumpAndSettle();
     expect(container.read(playerProvider).customAvatarPath, '');

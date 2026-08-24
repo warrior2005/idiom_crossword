@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 
-/// 圆形用户头像：默认科举印章或自定义相册图片
+/// 圆形用户头像：默认科举印章、成就图片或自定义相册图片
 class UserAvatar extends StatelessWidget {
   final String seal;
   final String? customAvatarPath;
@@ -41,14 +41,23 @@ class UserAvatar extends StatelessWidget {
             : null,
       ),
       child: hasCustom
-          ? ClipOval(
-              child: Image.file(
-                File(customAvatarPath!),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => _seal(),
-              ),
-            )
+          ? ClipOval(child: _customAvatar(customAvatarPath!))
           : _seal(),
+    );
+  }
+
+  Widget _customAvatar(String path) {
+    if (path.startsWith('assets/')) {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _seal(),
+      );
+    }
+    return Image.file(
+      File(path),
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => _seal(),
     );
   }
 
