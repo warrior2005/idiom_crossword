@@ -20,6 +20,7 @@ class CollectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final collectionAsync = ref.watch(collectionProvider);
     final favoritesAsync = ref.watch(favoritesProvider);
+    final favoriteIds = ref.watch(favoriteIdsProvider).value ?? const <int>{};
 
     return DefaultTabController(
       length: 2,
@@ -69,6 +70,9 @@ class CollectionScreen extends ConsumerWidget {
                       emptyTitle: '还没有收录任何成语',
                       emptySub: '通关后自动收录',
                       weekLabel: '本周新增',
+                      favoriteIds: favoriteIds,
+                      onFavoriteToggle: (item, isFavorite) =>
+                          _toggleFavorite(context, ref, item, isFavorite),
                     ),
                   ],
                 ),
@@ -133,6 +137,29 @@ class CollectionScreen extends ConsumerWidget {
     ref.invalidate(favoriteIdsProvider);
     ref.invalidate(favoritesProvider);
   }
+
+  Future<void> _toggleFavorite(
+    BuildContext context,
+    WidgetRef ref,
+    CollectionItem item,
+    bool isFavorite,
+  ) async {
+    final db = ref.read(databaseProvider);
+    if (isFavorite) {
+      await db.removeFromFavorites(item.id);
+    } else {
+      await db.addToFavorites(item.id);
+    }
+    ref.invalidate(favoriteIdsProvider);
+    ref.invalidate(favoritesProvider);
+    if (!context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(content: Text(isFavorite ? '取消收藏' : '已收藏')),
+    );
+  }
 }
 
 class _CollectionList extends StatefulWidget {
@@ -141,6 +168,8 @@ class _CollectionList extends StatefulWidget {
   final String emptySub;
   final String weekLabel;
   final ValueChanged<CollectionItem>? onDelete;
+  final Set<int> favoriteIds;
+  final void Function(CollectionItem item, bool isFavorite)? onFavoriteToggle;
 
   const _CollectionList({
     required this.itemsAsync,
@@ -148,6 +177,8 @@ class _CollectionList extends StatefulWidget {
     required this.emptySub,
     required this.weekLabel,
     this.onDelete,
+    this.favoriteIds = const {},
+    this.onFavoriteToggle,
   });
 
   @override
@@ -234,6 +265,15 @@ class _CollectionListState extends State<_CollectionList> {
                           return _ColCard(
                             key: ValueKey(item.id),
                             item: item,
+                            isFavorite: widget.onFavoriteToggle == null
+                                ? null
+                                : widget.favoriteIds.contains(item.id),
+                            onFavoriteToggle: widget.onFavoriteToggle == null
+                                ? null
+                                : () => widget.onFavoriteToggle!(
+                                    item,
+                                    widget.favoriteIds.contains(item.id),
+                                  ),
                             onDelete: widget.onDelete == null
                                 ? null
                                 : () => widget.onDelete!(item),
@@ -287,8 +327,16 @@ class _SearchField extends StatelessWidget {
 class _ColCard extends StatelessWidget {
   final CollectionItem item;
   final VoidCallback? onDelete;
+  final bool? isFavorite;
+  final VoidCallback? onFavoriteToggle;
 
-  const _ColCard({super.key, required this.item, this.onDelete});
+  const _ColCard({
+    super.key,
+    required this.item,
+    this.onDelete,
+    this.isFavorite,
+    this.onFavoriteToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -334,6 +382,32 @@ class _ColCard extends StatelessWidget {
                               vertical: 6,
                             ),
                             child: BadgeSoft('删除'),
+                          ),
+                        ),
+                      ),
+                    if (onFavoriteToggle != null)
+                      OutlinedButton(
+                        onPressed: onFavoriteToggle,
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 32),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          foregroundColor: isFavorite!
+                              ? AppColors.accentDeep
+                              : AppColors.muted,
+                          side: BorderSide(
+                            color: isFavorite!
+                                ? AppColors.accentDeep
+                                : AppColors.border,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          isFavorite! ? '已收藏' : '收藏',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),

@@ -145,6 +145,46 @@ void main() {
     expect(await db.getFavoriteIds(), isEmpty);
   });
 
+  testWidgets('收藏页：全部成语可以收藏和取消收藏', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    final id = await db.findIdiomIdByWord('画蛇添足');
+    await db.addToCollection(id!);
+
+    await tester.pumpWidget(_wrap(db, const CollectionScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('全部'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(OutlinedButton, '收藏'), findsOneWidget);
+    await tester.tap(find.widgetWithText(OutlinedButton, '收藏'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(OutlinedButton, '已收藏'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(SnackBar), matching: find.text('已收藏')),
+      findsOneWidget,
+    );
+    expect(await db.getFavoriteIds(), [id]);
+
+    ScaffoldMessenger.of(
+      tester.element(find.byType(CollectionScreen)),
+    ).clearSnackBars();
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(OutlinedButton, '已收藏'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: find.byType(SnackBar), matching: find.text('取消收藏')),
+      findsOneWidget,
+    );
+    expect(find.widgetWithText(OutlinedButton, '收藏'), findsOneWidget);
+    expect(await db.getFavoriteIds(), isEmpty);
+
+    ScaffoldMessenger.of(
+      tester.element(find.byType(CollectionScreen)),
+    ).clearSnackBars();
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('本关成语：可以收藏和取消收藏', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
