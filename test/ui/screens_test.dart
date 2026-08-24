@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
+import 'package:idiom_crossword/src/notifications/daily_reminder_platform.dart';
+import 'package:idiom_crossword/src/state/daily_reminder.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_state_codec.dart';
 import 'package:idiom_crossword/src/state/player_state.dart';
@@ -368,6 +370,73 @@ void main() {
     expect(await db.getSetting(hapticEnabledKey), 'false');
   });
 
+  testWidgets('设置页：首次完成每日挑战前禁用提醒并显示默认时间', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+
+    await tester.pumpWidget(_wrap(db, const SettingsScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('完成首次每日挑战后开启'), findsOneWidget);
+    expect(find.text('提醒时间'), findsOneWidget);
+    expect(find.text('12:00'), findsOneWidget);
+    final reminderSwitch = tester.widget<Switch>(find.byType(Switch).last);
+    expect(reminderSwitch.value, isFalse);
+    expect(reminderSwitch.onChanged, isNull);
+  });
+
+  testWidgets('设置页：权限被拒后开启提醒会跳转系统设置', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.setSetting(dailyReminderEligibleKey, 'true');
+    await db.setSetting(dailyReminderPromptedKey, 'true');
+    final platform = _SettingsReminderPlatform();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          dailyReminderPlatformProvider.overrideWithValue(platform),
+        ],
+        child: const MaterialApp(home: SettingsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(Switch).last);
+    await tester.pumpAndSettle();
+    expect(find.text('通知权限已关闭，请前往 iOS 系统设置允许通知。'), findsOneWidget);
+
+    await tester.tap(find.text('前往系统设置'));
+    await tester.pumpAndSettle();
+    expect(platform.openSettingsCount, 1);
+    expect(platform.requestCount, 0);
+  });
+
+  testWidgets('设置页：完成每日挑战后可以打开提醒时间选择器', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await db.setSetting(dailyReminderEligibleKey, 'true');
+    final platform = _SettingsReminderPlatform(
+      authorization: NotificationAuthorization.authorized,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          dailyReminderPlatformProvider.overrideWithValue(platform),
+        ],
+        child: const MaterialApp(home: SettingsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('提醒时间'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TimePickerDialog), findsOneWidget);
+  });
+
   testWidgets('设置页：版本跟随应用信息并可查看协议与隐私', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
@@ -376,6 +445,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('v0.1.0'), findsOneWidget);
 
+    await tester.scrollUntilVisible(
+      find.text('用户协议与隐私'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -80));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('用户协议与隐私'));
     await tester.pumpAndSettle();
     expect(find.text('用户协议'), findsOneWidget);
@@ -1206,4 +1282,39 @@ void main() {
     expect(container.read(playerProvider).customAvatarPath, '');
     expect(await db.getSetting(kCustomAvatarPathKey), '');
   });
+}
+
+class _SettingsReminderPlatform implements DailyReminderPlatform {
+  final NotificationAuthorization authorization;
+  int requestCount = 0;
+  int openSettingsCount = 0;
+
+  _SettingsReminderPlatform({
+    this.authorization = NotificationAuthorization.denied,
+  });
+
+  @override
+  Future<void> cancelDailyReminder() async {}
+
+  @override
+  Future<NotificationAuthorization> getAuthorizationStatus() async =>
+      authorization;
+
+  @override
+  Future<bool> openNotificationSettings() async {
+    openSettingsCount++;
+    return true;
+  }
+
+  @override
+  Future<NotificationAuthorization> requestAuthorization() async {
+    requestCount++;
+    return NotificationAuthorization.denied;
+  }
+
+  @override
+  Future<void> scheduleDailyReminder({
+    required int hour,
+    required int minute,
+  }) async {}
 }

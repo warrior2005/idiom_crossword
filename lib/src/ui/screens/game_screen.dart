@@ -12,6 +12,7 @@ import '../../engine/grid_engine.dart';
 import '../../engine/distractor_engine.dart';
 import '../../state/database_provider.dart';
 import '../../state/daily_challenge.dart';
+import '../../state/daily_reminder.dart';
 import '../../state/player_state.dart';
 import '../../state/level_generation.dart';
 import '../../state/level_state_codec.dart';
@@ -966,6 +967,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
     await db.clearLevelState(widget.level.levelId);
     _levelFinished = true;
+    if (_isDaily) await _promptDailyReminderIfNeeded();
+    if (!mounted) return;
     // Game Center 网络调用不能阻塞本地通关结算。
     unawaited(
       LeaderboardService.submitScores(db, ref.read(playerProvider).totalXp),
@@ -975,6 +978,61 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       if (!mounted) return;
       _showSettlement(result, newDefs, timeSpentMs);
     });
+  }
+
+  Future<void> _promptDailyReminderIfNeeded() async {
+    await ref.read(dailyReminderProvider.future);
+    final notifier = ref.read(dailyReminderProvider.notifier);
+    if (!await notifier.unlockAndMarkPrompted() || !mounted) return;
+    final requestPermission = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => ThemeDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '开启每日挑战提醒',
+              style: displayStyle(size: 20, weight: FontWeight.w900),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '允许通知后，我们会默认在每天 12:00 提醒你。你可以随时在“我的 → 设置”中修改时间或关闭提醒。',
+              style: bodyStyle(size: 13.5, color: AppColors.muted),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: '暂不开启',
+                    small: true,
+                    ghost: true,
+                    onTap: () => Navigator.of(dialogContext).pop(false),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: PrimaryButton(
+                    label: '继续',
+                    small: true,
+                    onTap: () => Navigator.of(dialogContext).pop(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    if (requestPermission == true) {
+      try {
+        await notifier.requestPermissionAndEnable();
+      } catch (_) {
+        // 通知授权或调度失败不应阻断每日挑战结算。
+      }
+    }
   }
 
   /// 胜利结算前有 40% 概率询问是否观看插页式激励广告。

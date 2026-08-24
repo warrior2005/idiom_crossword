@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../audio/music_manager.dart';
 import '../../audio/sound_manager.dart';
+import '../../state/daily_reminder.dart';
 import '../../state/database_provider.dart';
 import '../app_page_route.dart';
 import '../widgets/sub_page_header.dart';
@@ -15,7 +16,6 @@ const String musicEnabledKey = 'music_enabled';
 const String tutorialShownKey = 'tutorial_shown';
 const String hapticEnabledKey = 'haptic_enabled';
 const String showPinyinKey = 'show_pinyin';
-const String dailyReminderKey = 'daily_reminder';
 
 /// 音效开关（持久化到 settings 表）
 final soundEnabledProvider = AsyncNotifierProvider<SoundSettingNotifier, bool>(
@@ -109,9 +109,6 @@ class PrefSettingNotifier extends AsyncNotifier<bool> {
 final showPinyinProvider = AsyncNotifierProvider<PrefSettingNotifier, bool>(
   () => PrefSettingNotifier(showPinyinKey),
 );
-final dailyReminderProvider = AsyncNotifierProvider<PrefSettingNotifier, bool>(
-  () => PrefSettingNotifier(dailyReminderKey),
-);
 
 final appVersionProvider = FutureProvider<String>((ref) async {
   final info = await PackageInfo.fromPlatform();
@@ -141,7 +138,13 @@ class SettingsScreen extends ConsumerWidget {
                   _Group(
                     children: const [_MusicRow(), _SoundRow(), _HapticRow()],
                   ),
-                  _Group(children: const [_PinyinRow(), _ReminderRow()]),
+                  _Group(
+                    children: const [
+                      _PinyinRow(),
+                      _ReminderRow(),
+                      _ReminderTimeRow(),
+                    ],
+                  ),
                   _Group(
                     children: [
                       _ValueRow(
@@ -252,13 +255,121 @@ class _ReminderRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final enabled = ref.watch(dailyReminderProvider).value ?? true;
+    final reminder = ref.watch(dailyReminderProvider).value;
+    final eligible = reminder?.eligible ?? false;
     return _SwitchRow(
       title: '每日提醒',
-      sub: '每日挑战开始时通知',
-      value: enabled,
-      onChanged: (v) => ref.read(dailyReminderProvider.notifier).setEnabled(v),
+      sub: eligible ? '每天 ${reminder!.formattedTime} 提醒' : '完成首次每日挑战后开启',
+      value: reminder?.enabled ?? false,
+      onChanged: eligible
+          ? (enabled) => _setEnabled(context, ref, enabled)
+          : null,
     );
+  }
+
+  Future<void> _setEnabled(
+    BuildContext context,
+    WidgetRef ref,
+    bool enabled,
+  ) async {
+    final notifier = ref.read(dailyReminderProvider.notifier);
+    if (!enabled) {
+      await notifier.disable();
+      return;
+    }
+    DailyReminderEnableResult result;
+    try {
+      result = await notifier.enableFromSettings();
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('提醒设置失败，请稍后重试')));
+      }
+      return;
+    }
+    if (!context.mounted) return;
+    if (result == DailyReminderEnableResult.needsSystemSettings) {
+      final open = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('开启每日提醒'),
+          content: const Text('通知权限已关闭，请前往 iOS 系统设置允许通知。'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('前往系统设置'),
+            ),
+          ],
+        ),
+      );
+      if (open == true) await notifier.openSystemSettings();
+    } else if (result == DailyReminderEnableResult.unavailable) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('当前设备不支持每日通知')));
+    }
+  }
+}
+
+class _ReminderTimeRow extends ConsumerWidget {
+  const _ReminderTimeRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final reminder = ref.watch(dailyReminderProvider).value;
+    final eligible = reminder?.eligible ?? false;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: eligible && reminder != null
+          ? () => _selectTime(context, ref, reminder)
+          : null,
+      child: _Row(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '提醒时间',
+              style: bodyStyle(
+                size: 14.5,
+                weight: FontWeight.w600,
+                color: eligible ? AppColors.fg : AppColors.faint,
+              ),
+            ),
+            Text(
+              reminder?.formattedTime ?? '12:00',
+              style: bodyStyle(
+                size: 13,
+                color: eligible ? AppColors.muted : AppColors.faint,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectTime(
+    BuildContext context,
+    WidgetRef ref,
+    DailyReminderState reminder,
+  ) async {
+    final selected = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: reminder.hour, minute: reminder.minute),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+    );
+    if (selected == null) return;
+    await ref
+        .read(dailyReminderProvider.notifier)
+        .setTime(hour: selected.hour, minute: selected.minute);
   }
 }
 
@@ -266,7 +377,7 @@ class _SwitchRow extends StatelessWidget {
   final String title;
   final String sub;
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool>? onChanged;
   const _SwitchRow({
     required this.title,
     required this.sub,

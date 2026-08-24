@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/data/database.dart';
 import 'src/state/database_provider.dart';
+import 'src/state/daily_reminder.dart';
 import 'src/state/player_state.dart';
 import 'src/state/game_center_service.dart';
 import 'src/state/leaderboard_service.dart';
@@ -102,11 +103,15 @@ class _CloudSaveBootstrap extends ConsumerStatefulWidget {
 
 class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
   CloudSaveCoordinator? _coordinator;
+  late final AppLifecycleListener _lifecycleListener;
   var _ready = false;
 
   @override
   void initState() {
     super.initState();
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () => unawaited(_syncDailyReminderAuthorization()),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
   }
 
@@ -118,6 +123,8 @@ class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
     if (outcome.canBackUp) {
       _coordinator = CloudSaveCoordinator(widget.db)..start();
     }
+    ref.invalidate(dailyReminderProvider);
+    unawaited(ref.read(dailyReminderProvider.future));
 
     // 云恢复完成后再同步成就与排行榜，避免提交全新空档的数据。
     unawaited(_syncAchievementsAndRewards());
@@ -135,8 +142,14 @@ class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
     await ref.read(playerProvider.notifier).claimUnlockedAchievementRewards();
   }
 
+  Future<void> _syncDailyReminderAuthorization() async {
+    await ref.read(dailyReminderProvider.future);
+    await ref.read(dailyReminderProvider.notifier).syncAuthorization();
+  }
+
   @override
   void dispose() {
+    _lifecycleListener.dispose();
     _coordinator?.dispose();
     super.dispose();
   }

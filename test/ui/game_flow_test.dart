@@ -9,6 +9,7 @@ import 'package:idiom_crossword/src/audio/sound_manager.dart';
 import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
+import 'package:idiom_crossword/src/notifications/daily_reminder_platform.dart';
 import 'package:idiom_crossword/src/state/daily_challenge.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
@@ -328,6 +329,53 @@ void main() {
     );
 
     expect(container.read(dailyDoneProvider).value, isTrue);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 800));
+  });
+
+  testWidgets('首次完成每日挑战后才请求通知权限并默认12点提醒', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final platform = _GameReminderPlatform();
+    final container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        dailyReminderPlatformProvider.overrideWithValue(platform),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: GameScreen(level: _buildLevel(levelId: dailyLevelNumber())),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(platform.requestCount, 0);
+
+    for (final char in ['蛇', '添', '足']) {
+      await tester.tap(find.text(char));
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    await _pumpUntil(
+      tester,
+      () => find.text('开启每日挑战提醒').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    expect(platform.requestCount, 0);
+    expect(find.textContaining('“我的 → 设置”'), findsOneWidget);
+
+    await tester.tap(find.text('继续'));
+    await _pumpUntil(
+      tester,
+      () => find.text('每日挑战 · 完成').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    expect(platform.requestCount, 1);
+    expect(platform.scheduledTimes, [(12, 0)]);
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 800));
   });
@@ -1194,5 +1242,36 @@ class _DelayedHistoryDatabase extends AppDatabase {
       totalFills: totalFills,
       levelJson: levelJson,
     );
+  }
+}
+
+class _GameReminderPlatform implements DailyReminderPlatform {
+  var authorization = NotificationAuthorization.notDetermined;
+  int requestCount = 0;
+  final List<(int, int)> scheduledTimes = [];
+
+  @override
+  Future<void> cancelDailyReminder() async {}
+
+  @override
+  Future<NotificationAuthorization> getAuthorizationStatus() async =>
+      authorization;
+
+  @override
+  Future<bool> openNotificationSettings() async => true;
+
+  @override
+  Future<NotificationAuthorization> requestAuthorization() async {
+    requestCount++;
+    authorization = NotificationAuthorization.authorized;
+    return authorization;
+  }
+
+  @override
+  Future<void> scheduleDailyReminder({
+    required int hour,
+    required int minute,
+  }) async {
+    scheduledTimes.add((hour, minute));
   }
 }
