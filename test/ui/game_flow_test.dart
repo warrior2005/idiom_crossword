@@ -10,6 +10,7 @@ import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
 import 'package:idiom_crossword/src/notifications/daily_reminder_platform.dart';
+import 'package:idiom_crossword/src/reviews/app_review.dart';
 import 'package:idiom_crossword/src/state/daily_challenge.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
@@ -477,6 +478,71 @@ void main() {
     expect(replay!.placements.single.idiom.text, '画蛇添足');
     expect(replay.grid.rows, 5);
     expect(replay.grid.cols, 5);
+  });
+
+  testWidgets('累计第 10 次通关时请求系统评分并记录状态', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    for (var level = 1; level < 10; level++) {
+      await db.addLevelHistory(
+        levelNumber: level,
+        xpGained: 0,
+        idiomsUsed: const [],
+        hintsUsed: 1,
+        errorsMade: 1,
+      );
+    }
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 9,
+      hintCards: 0,
+      reviveCards: 0,
+    );
+    await db.unlockAchievement(AchievementId.firstLevel.name);
+    final reviewPlatform = _GameReviewPlatform();
+    final container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        appReviewPlatformProvider.overrideWithValue(reviewPlatform),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: GameScreen(level: _buildLevel(levelId: 10))),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (final char in ['蛇', '添', '足']) {
+      await tester.tap(find.text(char));
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    await _pumpUntil(
+      tester,
+      () => find.text('喜欢《成语接龙》吗？').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+
+    expect(find.text('暂不评分'), findsOneWidget);
+    expect(find.text('去评分'), findsOneWidget);
+    expect(reviewPlatform.requestCount, 0);
+
+    await tester.tap(find.text('去评分'));
+    await _pumpUntil(
+      tester,
+      () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+
+    expect(reviewPlatform.requestCount, 1);
+    expect(await db.getSetting(appReviewRequestedKey), 'true');
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 800));
   });
 
   testWidgets('一字提示揭示答案后通关，提示次数落库', (tester) async {
@@ -1273,5 +1339,14 @@ class _GameReminderPlatform implements DailyReminderPlatform {
     required int minute,
   }) async {
     scheduledTimes.add((hour, minute));
+  }
+}
+
+class _GameReviewPlatform implements AppReviewPlatform {
+  int requestCount = 0;
+
+  @override
+  Future<void> requestReview() async {
+    requestCount++;
   }
 }

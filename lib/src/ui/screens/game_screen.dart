@@ -21,6 +21,7 @@ import '../../state/level_progress_providers.dart';
 import '../../state/leaderboard_service.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
+import '../../reviews/app_review.dart';
 import '../../audio/music_manager.dart';
 import '../../audio/audio_route_observer.dart';
 import '../../audio/sound_manager.dart';
@@ -974,10 +975,77 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       LeaderboardService.submitScores(db, ref.read(playerProvider).totalXp),
     );
 
+    await _promptForReviewIfNeeded();
+    if (!mounted) return;
+
     await _maybeShowRewardedInterstitial(() {
       if (!mounted) return;
       _showSettlement(result, newDefs, timeSpentMs);
     });
+  }
+
+  Future<void> _promptForReviewIfNeeded() async {
+    final manager = AppReviewPromptManager(ref.read(databaseProvider));
+    if (!await manager.shouldPrompt(
+          completedLevels: ref.read(playerProvider).completedLevels,
+        ) ||
+        !mounted) {
+      return;
+    }
+
+    final accepted = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => ThemeDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '喜欢《成语接龙》吗？',
+              style: displayStyle(size: 20, weight: FontWeight.w900),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '您的评价对我们至关重要，会帮助我们把游戏做得更好。',
+              style: bodyStyle(size: 13.5, color: AppColors.muted),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: '暂不评价',
+                    small: true,
+                    ghost: true,
+                    onTap: () => Navigator.of(dialogContext).pop(false),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: PrimaryButton(
+                    label: '去评价',
+                    small: true,
+                    onTap: () => Navigator.of(dialogContext).pop(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (accepted == true) {
+      await manager.markReviewRequested();
+      try {
+        await ref.read(appReviewPlatformProvider).requestReview();
+      } catch (_) {
+        // 系统评分服务不可用时不应阻断通关结算。
+      }
+    } else {
+      await manager.markDeclined();
+    }
   }
 
   Future<void> _promptDailyReminderIfNeeded() async {
@@ -998,7 +1066,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
             ),
             const SizedBox(height: 10),
             Text(
-              '允许通知后，我们会默认在每天 12:00 提醒你。你可以随时在“我的 → 设置”中修改时间或关闭提醒。',
+              '允许通知后，会默认在每天中午 12:00 提醒您。您可以随时在“我的 → 设置”中修改时间或关闭提醒。',
               style: bodyStyle(size: 13.5, color: AppColors.muted),
             ),
             const SizedBox(height: 20),
