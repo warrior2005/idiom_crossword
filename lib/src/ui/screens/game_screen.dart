@@ -74,7 +74,8 @@ class GameScreen extends ConsumerStatefulWidget {
   ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
+class _GameScreenState extends ConsumerState<GameScreen>
+    with RouteAware, WidgetsBindingObserver {
   static const int _initialLives = 3;
   static const int _dailyTimeLimitSeconds = 180;
   static const double _rewardedInterstitialAdChance = 0.4;
@@ -90,6 +91,8 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   bool _failed = false;
   bool _revived = false;
   bool _reviveActionInProgress = false;
+  bool _appIsActive = true;
+  bool _routeIsVisible = true;
   Future<void> Function()? _terminalDialog;
   bool _terminalDialogVisible = false;
 
@@ -147,6 +150,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _appIsActive =
+        WidgetsBinding.instance.lifecycleState == null ||
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
     MusicManager.instance.enterGame(this);
     _grid = widget.level.grid;
     _pinyinByCell = pinyinByCell(widget.level);
@@ -174,12 +181,26 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
   @override
   void didPopNext() {
+    _routeIsVisible = true;
+    _syncDailyTimer();
     MusicManager.instance.revealGame(this);
   }
 
   @override
   void didPushNext() {
+    _routeIsVisible = false;
+    _syncDailyTimer();
+    unawaited(_saveState());
     MusicManager.instance.coverGame(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final isActive = state == AppLifecycleState.resumed;
+    if (_appIsActive == isActive) return;
+    _appIsActive = isActive;
+    _syncDailyTimer();
+    if (!isActive) unawaited(_saveState());
   }
 
   /// 从数据库读取本关成语的倒装对（仅保留 ABCD ↔ CDAB 这种半句交换）
@@ -440,6 +461,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     audioRouteObserver.unsubscribe(this);
     _subscribedRoute = null;
     MusicManager.instance.exitGame(this);
@@ -1370,9 +1392,13 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
   }
 
   void _startDailyTimer() {
-    _dailyTimer?.cancel();
+    if (_dailyTimer?.isActive == true) return;
     _dailyTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted || _failed || _levelFinished) return;
+      if (!mounted || !_shouldRunDailyTimer) {
+        timer.cancel();
+        _dailyTimer = null;
+        return;
+      }
       setState(() {
         if (_remainingSeconds > 0) _remainingSeconds--;
       });
@@ -1380,6 +1406,24 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
         unawaited(_failLevel(timeUp: true));
       }
     });
+  }
+
+  bool get _shouldRunDailyTimer =>
+      _usesDailyTimer &&
+      _appIsActive &&
+      _routeIsVisible &&
+      !_restoring &&
+      !_failed &&
+      !_levelFinished &&
+      _remainingSeconds > 0;
+
+  void _syncDailyTimer() {
+    if (_shouldRunDailyTimer) {
+      _startDailyTimer();
+    } else {
+      _dailyTimer?.cancel();
+      _dailyTimer = null;
+    }
   }
 
   Future<void> _configureDailyTimer() async {
@@ -1391,10 +1435,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
           'true';
     } catch (_) {}
     if (!mounted) return;
-    if (failedBefore) {
+    if (failedBefore && !_revived) {
       setState(() => _dailyRetryWithoutTimer = true);
     } else {
-      _startDailyTimer();
+      _syncDailyTimer();
     }
   }
 
@@ -1493,8 +1537,21 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       return;
     }
     var rewarded = false;
+    var adClosed = false;
+    var reviveConsumed = false;
+    var resumeStarted = false;
+    void resumeIfReady() {
+      if (!adClosed || !reviveConsumed || resumeStarted || !mounted) return;
+      resumeStarted = true;
+      unawaited(_resumeAfterRevive());
+    }
+
     final shown = adManager.showRewardedAd(
-      onAdClosed: () => _reviveActionInProgress = false,
+      onAdClosed: () {
+        adClosed = true;
+        if (!rewarded) _reviveActionInProgress = false;
+        resumeIfReady();
+      },
       onRewardEarned: (_, _) {
         if (rewarded) return;
         rewarded = true;
@@ -1503,8 +1560,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
             DailyReviveMethod.ad,
           );
           if (!mounted) return;
-          _reviveActionInProgress = false;
-          if (consumed) _resumeAfterRevive();
+          reviveConsumed = consumed;
+          if (!consumed) _reviveActionInProgress = false;
+          resumeIfReady();
         }());
       },
     );
@@ -1552,7 +1610,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
         final consumed = await notifier.consumeDailyRevive(
           DailyReviveMethod.share,
         );
-        if (mounted && consumed) _resumeAfterRevive();
+        if (mounted && consumed) await _resumeAfterRevive();
       } else if (result.status == ShareResultStatus.unavailable && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1584,11 +1642,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
     }
     await ref.read(playerProvider.notifier).useReviveCard();
     if (!mounted) return;
-    _resumeAfterRevive();
+    await _resumeAfterRevive();
   }
 
-  void _resumeAfterRevive() {
+  Future<void> _resumeAfterRevive() async {
     if (!mounted) return;
+    _reviveActionInProgress = false;
     _clearTerminalDialog();
     Navigator.of(context).pop(); // 关闭失败弹框
     setState(() {
@@ -1598,8 +1657,15 @@ class _GameScreenState extends ConsumerState<GameScreen> with RouteAware {
       _revived = true;
       _clearWrongAnswers();
     });
-    if (_usesDailyTimer) _startDailyTimer();
-    _saveState();
+    _syncDailyTimer();
+    await _saveState();
+    if (_isDaily) {
+      try {
+        await ref
+            .read(databaseProvider)
+            .setSetting(_dailyNoRewardKey(), 'false');
+      } catch (_) {}
+    }
   }
 
   Future<void> _replayLevel() async {

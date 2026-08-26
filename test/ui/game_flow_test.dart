@@ -999,6 +999,104 @@ void main() {
     expect(find.byIcon(Icons.timer_outlined), findsNothing);
   });
 
+  testWidgets('每日挑战复活倒计时等待游戏页恢复前台后才开始', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 0,
+      hintCards: 5,
+      reviveCards: 1,
+    );
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+    addTearDown(
+      () => tester.binding.handleAppLifecycleStateChanged(
+        AppLifecycleState.resumed,
+      ),
+    );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: GameScreen(level: _buildLevel(levelId: dailyLevelNumber())),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await _failCurrentLevel(tester);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.tap(find.text('使用复活卡(1)'));
+    await tester.pump();
+    expect(find.text('03:00'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 15));
+    expect(find.text('03:00'), findsOneWidget);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('02:59'), findsOneWidget);
+  });
+
+  testWidgets('每日挑战复活后退出再进入仍恢复正常计时和奖励流程', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 0,
+      completedLevels: 0,
+      hintCards: 5,
+      reviveCards: 1,
+    );
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+    final level = _buildLevel(levelId: dailyLevelNumber());
+
+    Widget game() => UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(home: GameScreen(level: level)),
+    );
+
+    await tester.pumpWidget(game());
+    await tester.pumpAndSettle();
+    await _failCurrentLevel(tester);
+    await tester.tap(find.text('使用复活卡(1)'));
+    await tester.pump();
+    await _pumpUntil(
+      tester,
+      () => find.text('03:00').evaluate().isNotEmpty,
+      const Duration(seconds: 2),
+    );
+    expect(await db.getLevelState(level.levelId), isNotNull);
+    expect(await db.getSetting('daily_no_reward_${level.levelId}'), 'false');
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    await tester.pumpWidget(game());
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.timer_outlined), findsOneWidget);
+    for (final ch in ['蛇', '添', '足']) {
+      await tester.tap(find.text(ch));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await _pumpUntil(
+      tester,
+      () => find.text('每日挑战 · 完成').evaluate().isNotEmpty,
+      const Duration(seconds: 5),
+    );
+    expect((await db.getLevelHistory()).single.xpGained, greaterThan(0));
+  });
+
   testWidgets('noReward 关卡通关不获得经验', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -1042,6 +1140,36 @@ Future<void> _pumpUntil(
     await tester.pump(const Duration(milliseconds: 50));
     if (condition()) return;
   }
+}
+
+Future<void> _failCurrentLevel(WidgetTester tester) async {
+  final wrongChar = find.byWidgetPredicate(
+    (widget) =>
+        widget is Text &&
+        widget.data != null &&
+        widget.data!.length == 1 &&
+        !'蛇添足'.contains(widget.data!),
+  );
+  final gridRect = tester.getRect(
+    find.byWidgetPredicate(
+      (widget) => widget is CustomPaint && widget.painter is GridPainter,
+    ),
+  );
+  final snakeCell = Offset(
+    gridRect.left + gridRect.width * 3 / 8,
+    gridRect.center.dy,
+  );
+
+  for (var error = 0; error < 4; error++) {
+    await tester.tap(wrongChar.at(error));
+    await tester.pump();
+    if (error < 3) {
+      await tester.tapAt(snakeCell);
+      await tester.pump();
+    }
+  }
+  await tester.pumpAndSettle();
+  expect(find.text('挑战失败'), findsOneWidget);
 }
 
 engine.CrosswordLevel _buildLevel({int levelId = 1}) {
