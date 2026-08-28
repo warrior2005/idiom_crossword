@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="成语接龙是一款以交叉推理为核心的 iPhone 成语填字游戏。">
+  <meta name="theme-color" content="#f3ede1">
+  <title>成语接龙｜交叉推理，智慧填字</title>
+  <style>
+    :root {
+      --paper: #f3ede1;
+      --paper-deep: #eae0cc;
+      --surface: #fbf7ee;
+      --surface-2: #efe7d4;
+      --ink: #2b2922;
+      --muted: #746c5c;
+      --line: #d9cdb2;
+      --cinnabar: #b33b27;
+      --cinnabar-deep: #8f2c1b;
+      --gold: #a47b1b;
+      --green: #4e6e45;
+      --serif: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      --shadow: 0 24px 70px rgba(64, 46, 19, .14);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 7%, rgba(179, 59, 39, .07), transparent 27rem),
+        linear-gradient(90deg, rgba(116, 108, 92, .025) 1px, transparent 1px),
+        linear-gradient(var(--paper), #f7f2e8);
+      background-size: auto, 28px 28px, auto;
+      font-family: var(--sans);
+      line-height: 1.75;
+    }
+
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 3px solid rgba(179, 59, 39, .35); outline-offset: 4px; }
+
+    .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(243, 237, 225, .88);
+      border-bottom: 1px solid rgba(201, 187, 154, .65);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: #fff8ef;
+      background: var(--cinnabar);
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 2px rgba(255, 248, 239, .3), 0 5px 14px rgba(143, 44, 27, .2);
+      font: 700 24px/1 var(--serif);
+    }
+    .brand-name { font: 700 18px/1.2 var(--serif); }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { color: var(--muted); font-size: 14px; text-decoration: none; }
+    .nav-links a:hover { color: var(--cinnabar); }
+
+    .hero {
+      min-height: 720px;
+      display: grid;
+      grid-template-columns: 1.03fr .97fr;
+      align-items: center;
+      gap: 72px;
+      padding-block: 88px 100px;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--cinnabar);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .24em;
+    }
+
+    h1, h2, h3 { font-family: var(--serif); }
+    h1 {
+      max-width: 650px;
+      margin: 0;
+      font-size: clamp(48px, 7vw, 82px);
+      line-height: 1.12;
+      letter-spacing: .02em;
+    }
+    h1 span { display: block; color: var(--cinnabar); }
+    .lead {
+      max-width: 610px;
+      margin: 28px 0 0;
+      color: var(--muted);
+      font-size: clamp(17px, 2vw, 20px);
+    }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+    .button {
+      min-height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+      border: 1px solid var(--cinnabar);
+      border-radius: 14px;
+      color: #fff8ef;
+      background: var(--cinnabar);
+      box-shadow: 0 8px 0 var(--cinnabar-deep), 0 16px 28px rgba(179, 59, 39, .18);
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .button.secondary {
+      color: var(--cinnabar);
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .stats { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 44px; }
+    .stat strong { display: block; font: 700 24px/1.2 var(--serif); }
+    .stat span { color: var(--muted); font-size: 12px; }
+
+    .phone-wrap { position: relative; display: grid; place-items: center; }
+    .phone-wrap::before {
+      content: "";
+      position: absolute;
+      width: 88%;
+      aspect-ratio: 1;
+      border: 1px solid rgba(164, 123, 27, .2);
+      border-radius: 50%;
+      box-shadow: 0 0 0 34px rgba(164, 123, 27, .04), 0 0 0 68px rgba(164, 123, 27, .025);
+    }
+    .phone {
+      position: relative;
+      width: min(360px, 88vw);
+      padding: 12px;
+      border: 1px solid #bcae8e;
+      border-radius: 48px;
+      background: #25241f;
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, .18);
+      transform: rotate(2deg);
+    }
+    .screen {
+      min-height: 650px;
+      padding: 28px 20px 24px;
+      overflow: hidden;
+      border-radius: 37px;
+      background:
+        radial-gradient(circle at 90% 5%, rgba(179, 59, 39, .1), transparent 13rem),
+        var(--paper);
+    }
+    .phone-top { display: flex; align-items: center; justify-content: space-between; }
+    .phone-top small { color: var(--muted); font-weight: 600; }
+    .seal {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--cinnabar);
+      border-radius: 9px;
+      color: var(--cinnabar);
+      font: 700 17px/1 var(--serif);
+    }
+    .screen h2 { margin: 30px 0 4px; font-size: 25px; }
+    .screen-sub { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .board {
+      width: 100%;
+      aspect-ratio: 1;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(7, 1fr);
+      gap: 4px;
+      margin-top: 24px;
+    }
+    .cell {
+      display: grid;
+      place-items: center;
+      border: 1px solid #c8b993;
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 3px 7px rgba(68, 50, 22, .07);
+      font: 700 clamp(17px, 4vw, 24px)/1 var(--serif);
+    }
+    .cell.cross { color: #fff8ef; border-color: var(--cinnabar); background: var(--cinnabar); }
+    .cell.blank { color: transparent; background: rgba(251, 247, 238, .56); }
+
+    .choices { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 18px; }
+    .choice {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      font: 700 19px/1 var(--serif);
+    }
+    .phone-note { margin: 20px 0 0; color: var(--green); font-size: 12px; font-weight: 700; text-align: center; }
+
+    .section { padding-block: 104px; }
+    .section.soft { border-block: 1px solid var(--line); background: rgba(234, 224, 204, .42); }
+    .section-head { max-width: 700px; margin-bottom: 48px; }
+    .section-head h2 { margin: 0; font-size: clamp(34px, 5vw, 52px); line-height: 1.25; }
+    .section-head p:last-child { margin: 18px 0 0; color: var(--muted); font-size: 17px; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feature {
+      min-height: 220px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(251, 247, 238, .8);
+      box-shadow: 0 8px 30px rgba(68, 50, 22, .05);
+    }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 26px;
+      border-radius: 13px;
+      color: var(--cinnabar);
+      background: #f4e3d8;
+      font: 700 20px/1 var(--serif);
+    }
+    .feature h3 { margin: 0; font-size: 21px; }
+    .feature p { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+
+    .journey { display: grid; grid-template-columns: repeat(3, 1fr); gap: 46px; counter-reset: journey; }
+    .journey article { position: relative; counter-increment: journey; }
+    .journey article::before {
+      content: "0" counter(journey);
+      display: block;
+      margin-bottom: 18px;
+      color: var(--cinnabar);
+      font: 700 14px/1 var(--serif);
+      letter-spacing: .14em;
+    }
+    .journey article:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 7px;
+      left: 44px;
+      right: -24px;
+      height: 1px;
+      background: var(--line);
+    }
+    .journey h3 { margin: 0; font-size: 24px; }
+    .journey p { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+
+    .daily {
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 60px;
+      align-items: center;
+      padding: 54px;
+      border: 1px solid rgba(164, 123, 27, .34);
+      border-radius: 30px;
+      background: linear-gradient(135deg, #f0e3b8, #fbf7ee 48%, #efe7d4);
+      box-shadow: var(--shadow);
+    }
+    .daily-word {
+      display: grid;
+      grid-template-columns: repeat(2, 72px);
+      gap: 10px;
+      justify-content: center;
+    }
+    .daily-word span {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      border: 1px solid #bca46b;
+      border-radius: 16px;
+      background: rgba(251, 247, 238, .8);
+      font: 700 38px/1 var(--serif);
+    }
+    .daily-copy h2 { margin: 0; font-size: clamp(32px, 4vw, 48px); }
+    .daily-copy p { margin: 18px 0 0; color: var(--muted); }
+    .tag { display: inline-block; margin-bottom: 16px; color: #755810; font-size: 12px; font-weight: 700; letter-spacing: .2em; }
+
+    .information { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .info-card { padding: 34px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
+    .info-card h2 { margin: 0 0 12px; font-size: 27px; }
+    .info-card > p { color: var(--muted); font-size: 14px; }
+    details { border-top: 1px solid var(--line); }
+    details:last-child { border-bottom: 1px solid var(--line); }
+    summary { padding: 15px 0; cursor: pointer; font-weight: 700; }
+    details p, details ul { margin: 0 0 18px; color: var(--muted); font-size: 13px; }
+    details ul { padding-left: 20px; }
+
+    footer { padding-block: 34px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; }
+    .footer-inner a { text-decoration: none; }
+
+    @media (max-width: 850px) {
+      .hero { grid-template-columns: minmax(0, 1fr); gap: 70px; padding-top: 68px; text-align: center; }
+      .hero > * { min-width: 0; }
+      .lead { margin-inline: auto; }
+      .hero-actions, .stats { justify-content: center; }
+      .phone { transform: none; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .daily { grid-template-columns: 1fr; text-align: center; }
+      .information { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 580px) {
+      .wrap { width: min(100% - 28px, 1120px); }
+      .nav-inner { min-height: 62px; }
+      .nav-links a:not(:last-child) { display: none; }
+      .hero { min-height: auto; padding-block: 58px 80px; }
+      h1 { font-size: 48px; }
+      .stats { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .stat strong { font-size: 21px; }
+      .stat span { display: block; line-height: 1.45; }
+      .section { padding-block: 76px; }
+      .feature-grid, .journey { grid-template-columns: 1fr; }
+      .journey { gap: 32px; }
+      .journey article:not(:last-child)::after { display: none; }
+      .daily { padding: 38px 22px; gap: 36px; }
+      .daily-word { grid-template-columns: repeat(2, 60px); }
+      .daily-word span { font-size: 32px; }
+      .info-card { padding: 26px 22px; }
+      .footer-inner { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="主导航">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true">成</span>
+        <span class="brand-name">成语接龙</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">游戏特色</a>
+        <a href="privacy.html">隐私</a>
+        <a href="#support">支持</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="wrap hero">
+      <div>
+        <p class="eyebrow">iPHONE · 中文益智游戏</p>
+        <h1>一字相交，<span>妙解成章。</span></h1>
+        <p class="lead">在横纵交错的字格里，让每一个答案同时满足两条成语线索。看似零散的汉字，终会在推理中严丝合缝。</p>
+        <div class="hero-actions">
+          <a class="button" href="https://apps.apple.com/app/id6801137712" target="_blank" rel="noopener noreferrer">在 App Store 下载</a>
+          <a class="button secondary" href="privacy.html">查看隐私政策</a>
+        </div>
+        <div class="stats" aria-label="游戏内容概览">
+          <div class="stat"><strong>约30,000</strong><span>条四字成语</span></div>
+          <div class="stat"><strong>10,000+</strong><span>关持续挑战</span></div>
+          <div class="stat"><strong>24</strong><span>项 Game Center 成就</span></div>
+        </div>
+      </div>
+
+      <div class="phone-wrap" aria-label="成语交叉填字玩法示意图">
+        <div class="phone">
+          <div class="screen">
+            <div class="phone-top"><small>第 1 关</small><span class="seal">解</span></div>
+            <h2>纵横成趣</h2>
+            <p class="screen-sub">选择字盘中的汉字，补全所有成语</p>
+            <div class="board" aria-hidden="true">
+              <span class="cell blank" style="grid-area:1/1">画</span>
+              <span class="cell" style="grid-area:1/2">蛇</span>
+              <span class="cell blank" style="grid-area:1/3">添</span>
+              <span class="cell cross" style="grid-area:1/4">足</span>
+              <span class="cell blank" style="grid-area:2/4">智</span>
+              <span class="cell" style="grid-area:3/4">多</span>
+              <span class="cell cross" style="grid-area:4/4">谋</span>
+              <span class="cell blank" style="grid-area:4/5">事</span>
+              <span class="cell" style="grid-area:4/6">在</span>
+              <span class="cell cross" style="grid-area:4/7">人</span>
+              <span class="cell blank" style="grid-area:5/7">山</span>
+              <span class="cell" style="grid-area:6/7">人</span>
+              <span class="cell blank" style="grid-area:7/7">海</span>
+            </div>
+            <div class="choices" aria-hidden="true">
+              <span class="choice">画</span><span class="choice">智</span><span class="choice">山</span><span class="choice">事</span><span class="choice">添</span>
+            </div>
+            <p class="phone-note">一个交叉字，解开两条线索</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section soft" id="features">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="eyebrow">游戏特色</p>
+          <h2>每一关，都是一场汉字推理。</h2>
+          <p>从熟悉的成语出发，顺着交叉点层层求解。难度渐进，既有轻松片刻，也有值得反复琢磨的挑战。</p>
+        </header>
+        <div class="feature-grid">
+          <article class="feature"><span class="feature-icon">横</span><h3>交叉推理</h3><p>同一个汉字连接横纵两条成语，多重约束让答案从猜测变成推理。</p></article>
+          <article class="feature"><span class="feature-icon">万</span><h3>持续挑战</h3><p>超过一万关内容与分级题库，让常见成语和冷门典故循序登场。</p></article>
+          <article class="feature"><span class="feature-icon">辨</span><h3>形音干扰</h3><p>候选字结合形近与音近设计，考验真正的词义理解与汉字辨识。</p></article>
+          <article class="feature"><span class="feature-icon">日</span><h3>每日一试</h3><p>每天一道限时挑战，在相同题目中刷新自己的完成速度。</p></article>
+          <article class="feature"><span class="feature-icon">藏</span><h3>通关收藏</h3><p>完成的成语自动收录，释义、出处与例句可随时回看。</p></article>
+          <article class="feature"><span class="feature-icon">榜</span><h3>仕途与成就</h3><p>从童生一路进阶，在 Game Center 排行榜与成就中记录成长。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="eyebrow">边玩边学</p>
+          <h2>答案落定，知识留下。</h2>
+        </header>
+        <div class="journey">
+          <article><h3>观察字格</h3><p>从已知字与交叉位置判断成语结构，找到最有把握的突破口。</p></article>
+          <article><h3>逐字求解</h3><p>在候选字盘中排除形近、音近干扰，让每一次落子都有依据。</p></article>
+          <article><h3>收入收藏</h3><p>通关后回看释义、出处与例句，把一时的顿悟沉淀成长期积累。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap daily">
+        <div class="daily-word" aria-hidden="true"><span>日</span><span>积</span><span>月</span><span>累</span></div>
+        <div class="daily-copy">
+          <span class="tag">每日挑战</span>
+          <h2>每天一局，让积累看得见。</h2>
+          <p>挑战会随日期刷新。利用有限时间完成交叉字格，在持续练习中拓宽自己的成语储备。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section soft" aria-label="隐私与支持">
+      <div class="wrap information">
+        <article class="info-card" id="privacy">
+          <p class="eyebrow">PRIVACY</p>
+          <h2>隐私政策</h2>
+          <p>生效日期：2026 年 8 月 28 日。应用不会要求您提供姓名、手机号或身份证件等真实身份信息。</p>
+          <details><summary>数据、头像与存档</summary><p>游戏进度默认保存在设备本地。启用 iCloud 后，关卡、经验、收藏、成就、设置及商城资产会保存到您的 iCloud 账户，用于恢复游戏存档。只有当您主动选择自定义头像时，应用才会读取所选照片并将副本保存在本机；自定义头像图片不会进入游戏的 iCloud 存档。</p></details>
+          <details><summary>Game Center</summary><p>使用排行榜或成就功能时，Apple Game Center 会处理展示功能所需的昵称、排名、成绩及成就状态。</p></details>
+          <details><summary>广告服务</summary><p>应用使用 Google 广告服务。广告供应商可能依据您的授权状态处理设备标识符、IP 地址、广告互动、诊断信息及大致位置，用于广告投放、频次控制、反欺诈和效果衡量。拒绝 iOS 跟踪授权不会阻止您使用游戏。</p></details>
+          <details><summary>儿童隐私与政策更新</summary><p>本应用不以儿童为主要目标用户，也不会主动收集儿童的真实身份信息。功能、广告供应商或法律要求变化时，我们可能更新本政策。</p></details>
+        </article>
+
+        <article class="info-card" id="support">
+          <p class="eyebrow">SUPPORT</p>
+          <h2>使用支持</h2>
+          <p>遇到问题时，可先尝试以下常见解决方式；如仍需帮助，请发送邮件至 <a href="mailto:warriorsise@gmail.com">warriorsise@gmail.com</a> 联系开发者。</p>
+          <details open><summary>进度没有恢复</summary><p>请确认设备已登录原有 Apple ID，开启 iCloud Drive，并为“成语接龙”启用 iCloud 权限，然后重新启动应用。</p></details>
+          <details><summary>排行榜或成就不可用</summary><p>请在 iOS 设置中确认已登录 Game Center，并检查当前网络连接。</p></details>
+          <details><summary>声音或每日提醒异常</summary><p>请检查游戏内声音设置、设备音量，以及 iOS 设置中的通知权限。</p></details>
+          <details><summary>删除与管理数据</summary><p>删除应用会移除设备本地数据；iCloud 中的游戏存档需要在 iOS 的 iCloud 存储设置中另行管理。</p></details>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <span>© 2026 成语接龙</span>
+      <span><a href="privacy.html">隐私政策</a> · <a href="#support">使用支持</a> · <a href="mailto:warriorsise@gmail.com">联系开发者</a></span>
+    </div>
+  </footer>
+</body>
+</html>
