@@ -9,46 +9,69 @@ import '../data/database.dart';
 import '../data/player_save_repository.dart';
 import 'game_center_service.dart';
 
-enum CloudRestoreOutcome {
-  existingLocalSave,
-  restored,
-  noCloudSave,
-  unavailable,
-}
+enum CloudSaveDownloadStatus { available, noCloudSave, unavailable }
 
-extension CloudRestoreOutcomeState on CloudRestoreOutcome {
-  bool get canBackUp => this != CloudRestoreOutcome.unavailable;
+class CloudSaveDownloadResult {
+  final CloudSaveDownloadStatus status;
+  final String? data;
+
+  const CloudSaveDownloadResult._(this.status, [this.data]);
+
+  const CloudSaveDownloadResult.available(String data)
+    : this._(CloudSaveDownloadStatus.available, data);
+
+  const CloudSaveDownloadResult.noCloudSave()
+    : this._(CloudSaveDownloadStatus.noCloudSave);
+
+  const CloudSaveDownloadResult.unavailable()
+    : this._(CloudSaveDownloadStatus.unavailable);
 }
 
 /// GameKit Saved Games 云存档。定位为卸载恢复，不处理多设备实时合并。
 class CloudSaveService {
   static const String saveName = 'player_snapshot_v1';
+  static const restoreNetworkTimeout = Duration(seconds: 30);
   static String? _lastFingerprint;
   static Future<void>? _backupFuture;
 
-  static Future<CloudRestoreOutcome> restoreIfNeeded(AppDatabase db) async {
-    if (!GameCenterService.isSupported) {
-      return CloudRestoreOutcome.unavailable;
-    }
-    if (!await PlayerSaveRepository.isLocalSaveEmpty(db)) {
-      return CloudRestoreOutcome.existingLocalSave;
-    }
-    if (!await GameCenterService.ensureSignedIn()) {
-      return CloudRestoreOutcome.unavailable;
-    }
-    try {
-      final saves = await SaveGame.getSavedGames(ignoreImages: true);
-      if (saves == null || !saves.any((save) => save.name == saveName)) {
-        return CloudRestoreOutcome.noCloudSave;
+  /// 只下载云档，不写数据库。调用方可安全丢弃超时后迟到的结果。
+  static Future<CloudSaveDownloadResult> downloadCloudSave({
+    Duration timeout = restoreNetworkTimeout,
+  }) async {
+    final stopwatch = Stopwatch()..start();
+    Duration remaining() {
+      final value = timeout - stopwatch.elapsed;
+      if (value <= Duration.zero) {
+        throw TimeoutException('Cloud save restore timed out');
       }
-      final data = await SaveGame.loadGame(name: saveName);
-      if (data == null || data.isEmpty) return CloudRestoreOutcome.unavailable;
-      await PlayerSaveRepository.importJson(db, data);
-      return CloudRestoreOutcome.restored;
-    } catch (_) {
-      // 读取或解析失败时绝不以本地空档覆盖云端旧存档。
-      return CloudRestoreOutcome.unavailable;
+      return value;
     }
+
+    try {
+      if (!GameCenterService.isSupported) {
+        return const CloudSaveDownloadResult.unavailable();
+      }
+      if (!await GameCenterService.ensureSignedIn(timeout: remaining())) {
+        return const CloudSaveDownloadResult.unavailable();
+      }
+      final saves = await SaveGame.getSavedGames(
+        ignoreImages: true,
+      ).timeout(remaining());
+      if (saves == null || !saves.any((save) => save.name == saveName)) {
+        return const CloudSaveDownloadResult.noCloudSave();
+      }
+      final data = await SaveGame.loadGame(name: saveName).timeout(remaining());
+      if (data == null || data.isEmpty) {
+        return const CloudSaveDownloadResult.unavailable();
+      }
+      return CloudSaveDownloadResult.available(data);
+    } catch (_) {
+      return const CloudSaveDownloadResult.unavailable();
+    }
+  }
+
+  static Future<void> importCloudSave(AppDatabase db, String data) {
+    return PlayerSaveRepository.importJson(db, data);
   }
 
   static Future<void> backUpIfChanged(AppDatabase db) {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/data/database.dart';
+import 'src/data/player_save_repository.dart';
 import 'src/state/database_provider.dart';
 import 'src/state/daily_reminder.dart';
 import 'src/state/player_state.dart';
@@ -17,6 +18,7 @@ import 'src/audio/audio_route_observer.dart';
 import 'src/audio/sound_manager.dart';
 import 'src/ui/screens/settings_screen.dart';
 import 'src/ui/theme/app_text.dart';
+import 'src/ui/widgets/first_launch_dialog.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,29 +42,47 @@ Future<void> main() async {
   final db = container.read(databaseProvider);
   var isSoundEnabled = true;
   var isMusicEnabled = true;
+  var needsSaveChoice = false;
   try {
-    final (_, soundEnabled, musicEnabled) = await (
+    final (_, soundEnabled, musicEnabled, localSaveEmpty) = await (
       container.read(playerProvider.notifier).loadFromDatabase(db),
       db.getSetting(soundEnabledKey),
       db.getSetting(musicEnabledKey),
+      PlayerSaveRepository.isLocalSaveEmpty(db),
     ).wait;
     isSoundEnabled = soundEnabled != 'false';
     isMusicEnabled = musicEnabled != 'false';
+    needsSaveChoice = localSaveEmpty;
   } catch (_) {
     // 数据库不可用时以默认进度启动，进入游戏时会给出错误提示
   }
-  await MusicManager.instance.init(
-    musicEnabled: isMusicEnabled,
-    soundEnabled: isSoundEnabled,
-  );
-  await SoundManager.instance.init(enabled: isSoundEnabled);
-
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: IdiomCrosswordApp(home: _CloudSaveBootstrap(db: db)),
+      child: IdiomCrosswordApp(
+        home: CloudSaveBootstrap(db: db, needsSaveChoice: needsSaveChoice),
+      ),
     ),
   );
+
+  // 音频插件无响应时不能挡住首屏渲染。
+  unawaited(
+    _initializeAudio(
+      musicEnabled: isMusicEnabled,
+      soundEnabled: isSoundEnabled,
+    ),
+  );
+}
+
+Future<void> _initializeAudio({
+  required bool musicEnabled,
+  required bool soundEnabled,
+}) async {
+  await MusicManager.instance.init(
+    musicEnabled: musicEnabled,
+    soundEnabled: soundEnabled,
+  );
+  await SoundManager.instance.init(enabled: soundEnabled);
 }
 
 class IdiomCrosswordApp extends StatelessWidget {
@@ -91,42 +111,103 @@ class IdiomCrosswordApp extends StatelessWidget {
   }
 }
 
-class _CloudSaveBootstrap extends ConsumerStatefulWidget {
+class CloudSaveBootstrap extends ConsumerStatefulWidget {
   final AppDatabase db;
+  final bool needsSaveChoice;
+  final CloudSaveDownloader? downloadCloudSave;
+  final CloudSaveImporter? importCloudSave;
+  final NewGameStarter? startNewGame;
+  final Duration restoreTimeout;
 
-  const _CloudSaveBootstrap({required this.db});
+  const CloudSaveBootstrap({
+    super.key,
+    required this.db,
+    required this.needsSaveChoice,
+    this.downloadCloudSave,
+    this.importCloudSave,
+    this.startNewGame,
+    this.restoreTimeout = const Duration(seconds: 30),
+  });
 
   @override
-  ConsumerState<_CloudSaveBootstrap> createState() =>
-      _CloudSaveBootstrapState();
+  ConsumerState<CloudSaveBootstrap> createState() => _CloudSaveBootstrapState();
 }
 
-class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
+class _CloudSaveBootstrapState extends ConsumerState<CloudSaveBootstrap> {
   CloudSaveCoordinator? _coordinator;
   late final AppLifecycleListener _lifecycleListener;
-  var _ready = false;
+  late bool _waitingForSaveChoice;
+  var _servicesStarted = false;
 
   @override
   void initState() {
     super.initState();
+    _waitingForSaveChoice = widget.needsSaveChoice;
     _lifecycleListener = AppLifecycleListener(
-      onResume: () => unawaited(_syncDailyReminderAuthorization()),
+      onResume: () {
+        if (!_waitingForSaveChoice) {
+          unawaited(_syncDailyReminderAuthorization());
+        }
+      },
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_waitingForSaveChoice) {
+        unawaited(_showFirstLaunchDialog());
+      } else {
+        _startOnlineServices();
+      }
+    });
   }
 
-  Future<void> _initialize() async {
-    final outcome = await CloudSaveService.restoreIfNeeded(widget.db);
-    if (outcome == CloudRestoreOutcome.restored) {
-      await ref.read(playerProvider.notifier).loadFromDatabase(widget.db);
+  Future<void> _showFirstLaunchDialog() async {
+    final choice = await showDialog<FirstLaunchChoice>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => FirstLaunchDialog(
+        downloadCloudSave: _downloadCloudSave,
+        importCloudSave: _importCloudSave,
+        startNewGame: _startNewGame,
+        restoreTimeout: widget.restoreTimeout,
+      ),
+    );
+    if (!mounted || choice == null) return;
+
+    setState(() => _waitingForSaveChoice = false);
+    _startOnlineServices();
+  }
+
+  Future<CloudSaveDownloadResult> _downloadCloudSave() {
+    final download = widget.downloadCloudSave;
+    if (download != null) return download();
+    return CloudSaveService.downloadCloudSave(timeout: widget.restoreTimeout);
+  }
+
+  Future<void> _importCloudSave(String data) async {
+    final import = widget.importCloudSave;
+    if (import != null) {
+      await import(data);
+    } else {
+      await CloudSaveService.importCloudSave(widget.db, data);
     }
-    if (outcome.canBackUp) {
-      _coordinator = CloudSaveCoordinator(widget.db)..start();
+    await ref.read(playerProvider.notifier).loadFromDatabase(widget.db);
+  }
+
+  Future<void> _startNewGame() async {
+    final start = widget.startNewGame;
+    if (start != null) {
+      await start();
+      return;
     }
+    await ref.read(playerProvider.notifier).initializeNewGame();
+  }
+
+  void _startOnlineServices() {
+    if (_servicesStarted) return;
+    _servicesStarted = true;
+    _coordinator = CloudSaveCoordinator(widget.db)..start();
     ref.invalidate(dailyReminderProvider);
     unawaited(ref.read(dailyReminderProvider.future));
 
-    // 云恢复完成后再同步成就与排行榜，避免提交全新空档的数据。
     unawaited(_syncAchievementsAndRewards());
     unawaited(
       LeaderboardService.submitScores(
@@ -134,7 +215,6 @@ class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
         ref.read(playerProvider).totalXp,
       ),
     );
-    if (mounted) setState(() => _ready = true);
   }
 
   Future<void> _syncAchievementsAndRewards() async {
@@ -156,10 +236,6 @@ class _CloudSaveBootstrapState extends ConsumerState<_CloudSaveBootstrap> {
 
   @override
   Widget build(BuildContext context) {
-    if (_ready) return const RootScreen();
-    return const Scaffold(
-      backgroundColor: Color(0xFFF3EDE1),
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return RootScreen(claimDailyLoginReward: !_waitingForSaveChoice);
   }
 }

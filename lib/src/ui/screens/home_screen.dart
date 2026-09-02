@@ -13,10 +13,8 @@ import 'game_screen.dart';
 import 'mine_screen.dart';
 import 'daily_review_screen.dart';
 import 'leaderboard_screen.dart';
-import 'settings_screen.dart';
 import '../widgets/app_card.dart';
 import '../widgets/animated_title_text.dart';
-import '../widgets/app_seal.dart';
 import '../widgets/app_icons.dart';
 import '../widgets/badge_soft.dart';
 import '../widgets/primary_button.dart';
@@ -305,65 +303,6 @@ class HomeScreen extends ConsumerWidget {
         return;
       }
 
-      // 首局展示一次新手引导
-      final firstGame =
-          player.completedLevels == 0 &&
-          await db.getSetting(tutorialShownKey) != 'true';
-      if (firstGame) {
-        await db.setSetting(tutorialShownKey, 'true');
-        if (!context.mounted) return;
-        await showDialog<void>(
-          context: context,
-          builder: (ctx) => Dialog(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: AppColors.border),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x66140A00),
-                    blurRadius: 60,
-                    offset: Offset(0, 24),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const AppSeal('学', size: 64, fontSize: 24),
-                  const SizedBox(height: 16),
-                  Text(
-                    '欢迎来到成语接龙',
-                    style: displayStyle(size: 24, weight: FontWeight.w900),
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    '1. 点击下方候选字，填入选中空格\n'
-                    '2. 一个字可能同时属于横、纵两个成语\n'
-                    '3. 交叉点同时满足两条线索才是正确解\n\n'
-                    '填满所有空格即可过关！',
-                    textAlign: TextAlign.center,
-                    style: bodyStyle(size: 13, color: AppColors.fg),
-                  ),
-                  const SizedBox(height: 22),
-                  SizedBox(
-                    width: double.infinity,
-                    child: PrimaryButton(
-                      label: '开始',
-                      small: true,
-                      onTap: () => Navigator.of(ctx).pop(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
       if (!context.mounted) return;
       Navigator.push(
         context,

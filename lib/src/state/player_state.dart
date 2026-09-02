@@ -396,6 +396,11 @@ class PlayerNotifier extends Notifier<PlayerState> {
     return _persistState(db, state);
   }
 
+  /// 首次选择新游戏时立即建立本地存档，避免下次启动再次询问。
+  Future<void> initializeNewGame() {
+    return _persist(ref.read(databaseProvider));
+  }
+
   Future<void> _persistState(AppDatabase db, PlayerState playerState) {
     return db.updatePlayerProgress(
       level: playerState.level,

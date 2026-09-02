@@ -14,7 +14,9 @@ import 'shop_screen.dart';
 import 'mine_screen.dart';
 
 class RootScreen extends ConsumerStatefulWidget {
-  const RootScreen({super.key});
+  final bool claimDailyLoginReward;
+
+  const RootScreen({super.key, this.claimDailyLoginReward = true});
 
   @override
   ConsumerState<RootScreen> createState() => _RootScreenState();
@@ -22,10 +24,25 @@ class RootScreen extends ConsumerStatefulWidget {
 
 class _RootScreenState extends ConsumerState<RootScreen> {
   int _index = 0;
+  var _dailyLoginScheduled = false;
 
   @override
   void initState() {
     super.initState();
+    if (widget.claimDailyLoginReward) _scheduleDailyLoginReward();
+  }
+
+  @override
+  void didUpdateWidget(covariant RootScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.claimDailyLoginReward && widget.claimDailyLoginReward) {
+      _scheduleDailyLoginReward();
+    }
+  }
+
+  void _scheduleDailyLoginReward() {
+    if (_dailyLoginScheduled) return;
+    _dailyLoginScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showDailyLoginReward();
     });

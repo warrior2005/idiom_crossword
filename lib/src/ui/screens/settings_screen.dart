@@ -13,7 +13,6 @@ import 'legal_screen.dart';
 
 const String soundEnabledKey = 'sound_enabled';
 const String musicEnabledKey = 'music_enabled';
-const String tutorialShownKey = 'tutorial_shown';
 const String hapticEnabledKey = 'haptic_enabled';
 const String showPinyinKey = 'show_pinyin';
 

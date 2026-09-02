@@ -9,16 +9,21 @@ import '../data/database.dart';
 
 /// Game Center 登录与成就同步。非 iOS 和服务不可用时保留本地进度。
 class GameCenterService {
+  static const _signInTimeout = Duration(seconds: 8);
   static Future<bool>? _signInFuture;
   static Future<void>? _syncFuture;
 
   static bool get isSupported => !kIsWeb && Platform.isIOS;
 
-  static Future<bool> ensureSignedIn() async {
+  static Future<bool> ensureSignedIn({
+    Duration timeout = _signInTimeout,
+  }) async {
     if (!isSupported) return false;
     final pending = _signInFuture ??= _signIn();
-    final signedIn = await pending;
-    if (!signedIn) _signInFuture = null;
+    final signedIn = await pending.timeout(timeout, onTimeout: () => false);
+    if (!signedIn && identical(_signInFuture, pending)) {
+      _signInFuture = null;
+    }
     return signedIn;
   }
 
