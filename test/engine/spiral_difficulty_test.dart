@@ -110,12 +110,8 @@ void main() {
     playerLevel: 4,
   );
   assert(
-    mainC100 == 8 &&
-        tailC100 >= 0 &&
-        tailC100 <= 1 &&
-        previewC100 >= 0 &&
-        previewC100 <= 1,
-    'Lv.5 前 should have 8 main, 0-1 tail, 0-1 preview',
+    mainC100 == 8 && tailC100 == 0 && previewC100 >= 0 && previewC100 <= 1,
+    'Lv.5 前且长尾区不可用时 should have 8 main, 0 tail, 0-1 preview',
   );
   print('  level 100: main=$mainC100, tail=$tailC100, preview=$previewC100');
 
@@ -124,20 +120,16 @@ void main() {
     playerLevel: 8,
   );
   assert(
-    mainC500 == 8 &&
-        tailC500 >= 0 &&
-        tailC500 <= 1 &&
-        previewC500 >= 1 &&
-        previewC500 <= 2,
-    'Lv.5-9 should have 8 main, 0-1 tail, 1-2 preview',
+    mainC500 == 8 && tailC500 == 0 && previewC500 >= 1 && previewC500 <= 2,
+    'Lv.5-9 且长尾区不可用时 should have 8 main, 0 tail, 1-2 preview',
   );
   print('  level 500: main=$mainC500, tail=$tailC500, preview=$previewC500');
 
   final (mainC1000, tailC1000, previewC1000) =
       SpiralDifficulty.selectIdiomCounts(1000, playerLevel: 12);
   assert(
-    mainC1000 == 7 && tailC1000 >= 1 && tailC1000 <= 2 && previewC1000 == 3,
-    'Lv.10-19 should have 7 main, 1-2 tail, 3 preview',
+    mainC1000 == 7 && tailC1000 == 0 && previewC1000 == 3,
+    'Lv.10-19 且长尾区不可用时 should have 7 main, 0 tail, 3 preview',
   );
   print(
     '  level 1000: main=$mainC1000, tail=$tailC1000, preview=$previewC1000',

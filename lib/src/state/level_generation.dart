@@ -51,8 +51,8 @@ DateTime _chinaCalendarDate(DateTime? now) =>
 
 /// 按关卡编号生成一关（首页/关卡选择共用）
 ///
-/// 难度区间在螺旋基准上放宽 ±2，先取 300 条候选成语再交给
-/// IntegratedGenerator 生成，失败返回 null。
+/// 难度区间在螺旋基准上放宽 ±2，按关卡规模取 300/600 条候选成语再交给
+/// IntegratedGenerator 生成；非固定种子首次失败时会重新抽取一次候选池。
 Future<engine.CrosswordLevel?> generateLevel(
   AppDatabase db,
   int levelNumber, {
@@ -71,72 +71,89 @@ Future<engine.CrosswordLevel?> generateLevel(
       seed == null && levelNumber > 0 && levelNumber < dailyLevelOffset
       ? await db.getRecentlyUsedMainIdiomIds(recentLevelExclusionCount)
       : const <int>{};
+  final generationTries = seed == null ? 2 : 1;
 
   if (globalRange && targetSize == null) {
-    return _generateGlobalLevel(
-      db,
-      levelNumber,
-      maxAttempts: maxAttempts,
-      seed: seed,
-      title: title,
-      excludedIds: excludedIds,
-    );
+    for (
+      var generationTry = 0;
+      generationTry < generationTries;
+      generationTry++
+    ) {
+      final level = await _generateGlobalLevel(
+        db,
+        levelNumber,
+        maxAttempts: maxAttempts,
+        seed: seed,
+        title: title,
+        excludedIds: excludedIds,
+      );
+      if (level != null) return level;
+    }
+    return null;
   }
 
   final needsLargeCandidatePool = targetSize != null
       ? targetSize >= 10
-      : levelNumber > 5 && playerLevel >= 10;
+      : levelNumber > 5;
   final candidateLimit = needsLargeCandidatePool ? 600 : 300;
-  final dbIdioms = await db.findIdiomsByDifficulty(
-    minD,
-    maxD,
-    candidateLimit,
-    randomOrder: seed == null,
-  );
-  if (dbIdioms.length < 5) return null;
-
-  final engineIdioms = dbIdioms
-      .where((i) => !excludedIds.contains(i.id))
-      .map(
-        (i) => engine.Idiom(
-          text: i.word,
-          pinyin: i.pinyin,
-          meaning: i.explanation,
-          difficulty: i.difficulty,
-          source: i.derivation ?? '',
-        ),
-      )
-      .toList();
-
-  final graph = CrossingGraph(idioms: engineIdioms);
-  final generator = IntegratedGenerator(
-    graph: graph,
-    random: seed == null ? null : Random(seed),
-  );
-  if (targetSize != null) {
-    final level = generator.generate(
-      targetSize: targetSize,
-      minDifficulty: minD,
-      maxDifficulty: maxD,
-      maxAttempts: maxAttempts,
-      levelNumber: levelNumber,
+  for (
+    var generationTry = 0;
+    generationTry < generationTries;
+    generationTry++
+  ) {
+    final dbIdioms = await db.findIdiomsByDifficulty(
+      minD,
+      maxD,
+      candidateLimit,
+      randomOrder: seed == null,
     );
-    return level == null || title == null
-        ? level
-        : engine.CrosswordLevel(
-            levelId: level.levelId,
-            grid: level.grid,
-            placements: level.placements,
-            givenCharacters: level.givenCharacters,
-            title: title,
-            storyHint: level.storyHint,
-          );
+    final engineIdioms = dbIdioms
+        .where((i) => !excludedIds.contains(i.id))
+        .map(
+          (i) => engine.Idiom(
+            text: i.word,
+            pinyin: i.pinyin,
+            meaning: i.explanation,
+            difficulty: i.difficulty,
+            source: i.derivation ?? '',
+          ),
+        )
+        .toList();
+    if (engineIdioms.length < 5) continue;
+
+    final graph = CrossingGraph(idioms: engineIdioms);
+    final generator = IntegratedGenerator(
+      graph: graph,
+      random: seed == null ? null : Random(seed),
+    );
+    if (targetSize != null) {
+      final level = generator.generate(
+        targetSize: targetSize,
+        minDifficulty: minD,
+        maxDifficulty: maxD,
+        maxAttempts: maxAttempts,
+        levelNumber: levelNumber,
+      );
+      if (level == null) continue;
+      return title == null
+          ? level
+          : engine.CrosswordLevel(
+              levelId: level.levelId,
+              grid: level.grid,
+              placements: level.placements,
+              givenCharacters: level.givenCharacters,
+              title: title,
+              storyHint: level.storyHint,
+            );
+    }
+    final level = generator.generateSpiral(
+      levelNumber: levelNumber,
+      playerLevel: playerLevel,
+      maxAttempts: maxAttempts,
+    );
+    if (level != null) return level;
   }
-  return generator.generateSpiral(
-    levelNumber: levelNumber,
-    playerLevel: playerLevel,
-    maxAttempts: maxAttempts,
-  );
+  return null;
 }
 
 /// Lv.20 后：按“波浪中心 + 三区混排”从各难度区取词生成

@@ -165,6 +165,35 @@ void main() {
     });
   }
 
+  test('不可用的长尾和预览区不计入成语数量', () {
+    for (var seed = 0; seed < 50; seed++) {
+      final (_, earlyTail, _) = SpiralDifficulty.selectIdiomCounts(
+        8,
+        playerLevel: 1,
+        random: Random(seed),
+      );
+      expect(earlyTail, 0, reason: '第 8 关没有长尾难度区');
+
+      final (_, _, latePreview) = SpiralDifficulty.selectIdiomCounts(
+        10000,
+        playerLevel: 12,
+        random: Random(seed),
+      );
+      expect(latePreview, 0, reason: '第 10000 关没有预览难度区');
+    }
+  });
+
+  test('第 8 关最多生成 9 条成语', () {
+    for (var seed = 0; seed < 20; seed++) {
+      final level = IntegratedGenerator(
+        graph: graph,
+        random: Random(seed),
+      ).generateSpiral(levelNumber: 8, playerLevel: 1, maxAttempts: 30);
+      expect(level, isNotNull);
+      expect(level!.idioms.length, lessThanOrEqualTo(9));
+    }
+  });
+
   test('同一种子生成结果确定（每日挑战）', () {
     const seed = 20454;
     final gen1 = IntegratedGenerator(

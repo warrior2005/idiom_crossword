@@ -90,7 +90,7 @@ class SpiralDifficulty {
   ///
   /// [levelNumber] 关卡编号
   /// [playerLevel] 玩家科举等级
-  /// 返回：(主体数量, 长尾数量, 预览数量)
+  /// 返回：(主体数量, 长尾数量, 预览数量)；不可用的难度区数量为 0。
   static (int mainCount, int tailCount, int previewCount) selectIdiomCounts(
     int levelNumber, {
     required int playerLevel,
@@ -107,15 +107,26 @@ class SpiralDifficulty {
       };
     }
     final level = playerLevel.clamp(1, 19);
+    final ranges = calculate(levelNumber);
+    final hasTail = ranges.tailMin > 0;
+    final hasPreview = ranges.previewMin > 0;
     if (level < 5) {
       // 6 关起、Lv.5 前：8 + 0-1 + 0-1
-      return (8, normalIntInRange(rng, 0, 1), normalIntInRange(rng, 0, 1));
+      return (
+        8,
+        hasTail ? normalIntInRange(rng, 0, 1) : 0,
+        hasPreview ? normalIntInRange(rng, 0, 1) : 0,
+      );
     }
     if (level < 10) {
       // Lv.5 起、Lv.10 前：8 + 0-1 + 1-2
-      return (8, normalIntInRange(rng, 0, 1), normalIntInRange(rng, 1, 2));
+      return (
+        8,
+        hasTail ? normalIntInRange(rng, 0, 1) : 0,
+        hasPreview ? normalIntInRange(rng, 1, 2) : 0,
+      );
     }
     // Lv.10 起、Lv.20 前：7 + 1-2 + 3
-    return (7, normalIntInRange(rng, 1, 2), 3);
+    return (7, hasTail ? normalIntInRange(rng, 1, 2) : 0, hasPreview ? 3 : 0);
   }
 }
