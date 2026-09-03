@@ -13,6 +13,7 @@ import 'package:idiom_crossword/src/state/level_state_codec.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/root_screen.dart';
+import 'package:idiom_crossword/src/ui/widgets/primary_button.dart';
 
 void main() {
   testWidgets('App renders smoke test', (WidgetTester tester) async {
@@ -144,6 +145,12 @@ void main() {
 
     expect(find.text('连接超时，请检查网络后重试。'), findsOneWidget);
     expect(find.text('恢复云存档'), findsOneWidget);
+    expect(
+      tester
+          .widget<PrimaryButton>(find.widgetWithText(PrimaryButton, '恢复云存档'))
+          .onTap,
+      isNotNull,
+    );
 
     firstAttempt.complete(
       const CloudSaveDownloadResult.available('late-cloud-save'),
@@ -157,6 +164,43 @@ void main() {
     expect(attempts, 2);
     expect(imports, 1);
     expect(find.text('欢迎来到成语接龙'), findsNothing);
+  });
+
+  testWidgets('Game Center 不可用时提示系统设置且可重试', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    var attempts = 0;
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: CloudSaveBootstrap(
+            db: db,
+            needsSaveChoice: true,
+            downloadCloudSave: () async {
+              attempts++;
+              return const CloudSaveDownloadResult.gameCenterUnavailable();
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text('恢复云存档'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('“设置”中登录 Game Center'), findsOneWidget);
+    expect(
+      tester
+          .widget<PrimaryButton>(find.widgetWithText(PrimaryButton, '恢复云存档'))
+          .onTap,
+      isNotNull,
+    );
+
+    await tester.tap(find.text('恢复云存档'));
+    await tester.pumpAndSettle();
+    expect(attempts, 2);
   });
 
   testWidgets('进入第一关时不再重复显示玩法说明', (tester) async {

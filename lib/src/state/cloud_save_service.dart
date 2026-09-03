@@ -9,7 +9,13 @@ import '../data/database.dart';
 import '../data/player_save_repository.dart';
 import 'game_center_service.dart';
 
-enum CloudSaveDownloadStatus { available, noCloudSave, unavailable }
+enum CloudSaveDownloadStatus {
+  available,
+  noCloudSave,
+  gameCenterUnavailable,
+  timedOut,
+  unavailable,
+}
 
 class CloudSaveDownloadResult {
   final CloudSaveDownloadStatus status;
@@ -22,6 +28,12 @@ class CloudSaveDownloadResult {
 
   const CloudSaveDownloadResult.noCloudSave()
     : this._(CloudSaveDownloadStatus.noCloudSave);
+
+  const CloudSaveDownloadResult.gameCenterUnavailable()
+    : this._(CloudSaveDownloadStatus.gameCenterUnavailable);
+
+  const CloudSaveDownloadResult.timedOut()
+    : this._(CloudSaveDownloadStatus.timedOut);
 
   const CloudSaveDownloadResult.unavailable()
     : this._(CloudSaveDownloadStatus.unavailable);
@@ -49,10 +61,15 @@ class CloudSaveService {
 
     try {
       if (!GameCenterService.isSupported) {
-        return const CloudSaveDownloadResult.unavailable();
+        return const CloudSaveDownloadResult.gameCenterUnavailable();
       }
-      if (!await GameCenterService.ensureSignedIn(timeout: remaining())) {
-        return const CloudSaveDownloadResult.unavailable();
+      final signInBudget = remaining();
+      final signInTimeout =
+          signInBudget.compareTo(GameCenterService.signInTimeout) > 0
+          ? GameCenterService.signInTimeout
+          : signInBudget;
+      if (!await GameCenterService.ensureSignedIn(timeout: signInTimeout)) {
+        return const CloudSaveDownloadResult.gameCenterUnavailable();
       }
       final saves = await SaveGame.getSavedGames(
         ignoreImages: true,
@@ -65,7 +82,11 @@ class CloudSaveService {
         return const CloudSaveDownloadResult.unavailable();
       }
       return CloudSaveDownloadResult.available(data);
-    } catch (_) {
+    } on TimeoutException catch (error) {
+      debugPrint('Cloud save restore timed out: $error');
+      return const CloudSaveDownloadResult.timedOut();
+    } catch (error, stackTrace) {
+      debugPrint('Cloud save restore failed: $error\n$stackTrace');
       return const CloudSaveDownloadResult.unavailable();
     }
   }

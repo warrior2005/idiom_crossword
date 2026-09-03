@@ -62,7 +62,12 @@ class _FirstLaunchDialogState extends ConsumerState<FirstLaunchDialog> {
     });
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted || attempt != _attempt) return;
-      setState(() => _remainingSeconds = _secondsUntil(deadline));
+      final remainingSeconds = _secondsUntil(deadline);
+      if (remainingSeconds == 0) {
+        _finishAttempt(attempt, '连接超时，请检查网络后重试。', invalidate: true);
+        return;
+      }
+      setState(() => _remainingSeconds = remainingSeconds);
     });
 
     try {
@@ -80,8 +85,22 @@ class _FirstLaunchDialogState extends ConsumerState<FirstLaunchDialog> {
         case CloudSaveDownloadStatus.noCloudSave:
           _finishAttempt(attempt, '没有找到可恢复的云存档，你可以重试或开始新游戏。');
           return;
+        case CloudSaveDownloadStatus.gameCenterUnavailable:
+          _finishAttempt(
+            attempt,
+            '无法登录 Game Center。请先在“设置”中登录 Game Center，'
+            '再返回重试。',
+          );
+          return;
+        case CloudSaveDownloadStatus.timedOut:
+          _finishAttempt(attempt, '云存档连接超时，请检查网络后重试。');
+          return;
         case CloudSaveDownloadStatus.unavailable:
-          _finishAttempt(attempt, '无法连接 Game Center，请检查网络和登录状态后重试。');
+          _finishAttempt(
+            attempt,
+            'iCloud 云存档暂不可用。请确认已登录 iCloud '
+            '并开启 iCloud 云盘后重试。',
+          );
           return;
       }
     } on TimeoutException {
@@ -108,8 +127,9 @@ class _FirstLaunchDialogState extends ConsumerState<FirstLaunchDialog> {
     }
   }
 
-  void _finishAttempt(int attempt, String error) {
+  void _finishAttempt(int attempt, String error, {bool invalidate = false}) {
     if (!mounted || attempt != _attempt) return;
+    if (invalidate) _attempt++;
     _countdownTimer?.cancel();
     _countdownTimer = null;
     setState(() {

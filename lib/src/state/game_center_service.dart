@@ -9,29 +9,44 @@ import '../data/database.dart';
 
 /// Game Center 登录与成就同步。非 iOS 和服务不可用时保留本地进度。
 class GameCenterService {
-  static const _signInTimeout = Duration(seconds: 8);
+  static const signInTimeout = Duration(seconds: 8);
   static Future<bool>? _signInFuture;
   static Future<void>? _syncFuture;
 
   static bool get isSupported => !kIsWeb && Platform.isIOS;
 
-  static Future<bool> ensureSignedIn({
-    Duration timeout = _signInTimeout,
-  }) async {
+  static Future<bool> ensureSignedIn({Duration timeout = signInTimeout}) async {
     if (!isSupported) return false;
-    final pending = _signInFuture ??= _signIn();
-    final signedIn = await pending.timeout(timeout, onTimeout: () => false);
-    if (!signedIn && identical(_signInFuture, pending)) {
-      _signInFuture = null;
+    final existing = _signInFuture;
+    final Future<bool> pending;
+    if (existing != null) {
+      pending = existing;
+    } else {
+      pending = _signIn();
+      _signInFuture = pending;
+      unawaited(
+        pending.then((signedIn) {
+          if (!signedIn && identical(_signInFuture, pending)) {
+            _signInFuture = null;
+          }
+        }),
+      );
     }
-    return signedIn;
+    return pending.timeout(
+      timeout,
+      onTimeout: () {
+        debugPrint('Game Center sign-in timed out after $timeout.');
+        return false;
+      },
+    );
   }
 
   static Future<bool> _signIn() async {
     try {
       await GameAuth.signIn();
       return await GameAuth.isSignedIn;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      debugPrint('Game Center sign-in failed: $error\n$stackTrace');
       return false;
     }
   }
