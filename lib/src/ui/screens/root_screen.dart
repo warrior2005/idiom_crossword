@@ -15,8 +15,17 @@ import 'mine_screen.dart';
 
 class RootScreen extends ConsumerStatefulWidget {
   final bool claimDailyLoginReward;
+  final bool claimVersionUpdateReward;
+  final String? currentAppVersion;
+  final bool rewardUntrackedVersion;
 
-  const RootScreen({super.key, this.claimDailyLoginReward = true});
+  const RootScreen({
+    super.key,
+    this.claimDailyLoginReward = true,
+    this.claimVersionUpdateReward = false,
+    this.currentAppVersion,
+    this.rewardUntrackedVersion = false,
+  });
 
   @override
   ConsumerState<RootScreen> createState() => _RootScreenState();
@@ -24,28 +33,100 @@ class RootScreen extends ConsumerStatefulWidget {
 
 class _RootScreenState extends ConsumerState<RootScreen> {
   int _index = 0;
-  var _dailyLoginScheduled = false;
+  var _loginRewardsScheduled = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.claimDailyLoginReward) _scheduleDailyLoginReward();
+    if (widget.claimDailyLoginReward || widget.claimVersionUpdateReward) {
+      _scheduleLoginRewards();
+    }
   }
 
   @override
   void didUpdateWidget(covariant RootScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!oldWidget.claimDailyLoginReward && widget.claimDailyLoginReward) {
-      _scheduleDailyLoginReward();
+    if ((!oldWidget.claimDailyLoginReward && widget.claimDailyLoginReward) ||
+        (!oldWidget.claimVersionUpdateReward &&
+            widget.claimVersionUpdateReward)) {
+      _scheduleLoginRewards();
     }
   }
 
-  void _scheduleDailyLoginReward() {
-    if (_dailyLoginScheduled) return;
-    _dailyLoginScheduled = true;
+  void _scheduleLoginRewards() {
+    if (_loginRewardsScheduled) return;
+    _loginRewardsScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showDailyLoginReward();
+      _showLoginRewards();
     });
+  }
+
+  Future<void> _showLoginRewards() async {
+    final currentVersion = widget.currentAppVersion;
+    if (widget.claimVersionUpdateReward && currentVersion != null) {
+      try {
+        final claimed = await ref
+            .read(playerProvider.notifier)
+            .claimVersionUpdateReward(
+              currentVersion,
+              rewardUntrackedVersion: widget.rewardUntrackedVersion,
+            );
+        if (claimed && mounted) await _showVersionUpdateReward();
+      } catch (_) {
+        // 版本奖励失败不应阻断每日登录奖励。
+      }
+    }
+    if (widget.claimDailyLoginReward) await _showDailyLoginReward();
+  }
+
+  Future<void> _showVersionUpdateReward() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => ThemeDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AppSeal('新', size: 64, fontSize: 26),
+            const SizedBox(height: 16),
+            Text(
+              '版本更新奖励',
+              style: displayStyle(size: 24, weight: FontWeight.w900),
+            ),
+            const SizedBox(height: 6),
+            Text('感谢体验新版本', style: bodyStyle(size: 13, color: AppColors.muted)),
+            const SizedBox(height: 18),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.accentPale,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.accentSoft),
+              ),
+              child: Text(
+                '获得 $kVersionUpdatePointsReward 积分',
+                textAlign: TextAlign.center,
+                style: bodyStyle(
+                  size: 15,
+                  color: AppColors.accentDeep,
+                  weight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(height: 22),
+            SizedBox(
+              width: double.infinity,
+              child: PrimaryButton(
+                label: '确定',
+                small: true,
+                onTap: () => Navigator.of(dialogContext).pop(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _showDailyLoginReward() async {

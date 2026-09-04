@@ -243,6 +243,56 @@ void main() {
     expect((await db.getPlayerProgress())!.points, 20);
   });
 
+  test('新安装只记录当前版本，后续每个新版本奖励 100 积分且只发一次', () async {
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.initializeNewGame();
+
+    expect(
+      await notifier.claimVersionUpdateReward(
+        '1.0.1+2',
+        rewardUntrackedVersion: false,
+      ),
+      isFalse,
+    );
+    expect(container.read(playerProvider).points, 0);
+    expect(await db.getSetting(kLastSeenAppVersionKey), '1.0.1+2');
+
+    expect(
+      await notifier.claimVersionUpdateReward(
+        '1.0.2+3',
+        rewardUntrackedVersion: false,
+      ),
+      isTrue,
+    );
+    expect(container.read(playerProvider).points, 100);
+    expect((await db.getPlayerProgress())!.points, 100);
+
+    expect(
+      await notifier.claimVersionUpdateReward(
+        '1.0.2+3',
+        rewardUntrackedVersion: false,
+      ),
+      isFalse,
+    );
+    expect(container.read(playerProvider).points, 100);
+  });
+
+  test('老存档首次启用版本奖励时发放首笔 100 积分', () async {
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.initializeNewGame();
+
+    expect(
+      await notifier.claimVersionUpdateReward(
+        '1.0.2+3',
+        rewardUntrackedVersion: true,
+      ),
+      isTrue,
+    );
+    expect(container.read(playerProvider).points, 100);
+    expect((await db.getPlayerProgress())!.points, 100);
+    expect(await db.getSetting(kLastSeenAppVersionKey), '1.0.2+3');
+  });
+
   test('每日登录奖励按七日周期发放并在第8天循环', () async {
     final notifier = container.read(playerProvider.notifier);
     const expectedRewards = [

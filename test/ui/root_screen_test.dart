@@ -9,6 +9,45 @@ import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 import 'package:drift/native.dart';
 
 void main() {
+  testWidgets('新版本首次登录展示更新奖励且不重复发放', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    addTearDown(db.close);
+    await container.read(playerProvider.notifier).initializeNewGame();
+    await db.setSetting(kLastSeenAppVersionKey, '1.0.1+2');
+
+    Widget app(Key key) => UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        home: RootScreen(
+          key: key,
+          claimDailyLoginReward: false,
+          claimVersionUpdateReward: true,
+          currentAppVersion: '1.0.2+3',
+          rewardUntrackedVersion: true,
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(app(const ValueKey('first-launch')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('版本更新奖励'), findsOneWidget);
+    expect(find.text('获得 100 积分'), findsOneWidget);
+    expect(container.read(playerProvider).points, 100);
+
+    await tester.tap(find.text('确定'));
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(app(const ValueKey('second-launch')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('版本更新奖励'), findsNothing);
+    expect(container.read(playerProvider).points, 100);
+  });
+
   testWidgets('当天首次打开发放奖励并展示明日预告', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     final container = ProviderContainer(

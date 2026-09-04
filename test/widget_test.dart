@@ -10,6 +10,7 @@ import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/cloud_save_service.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_state_codec.dart';
+import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/root_screen.dart';
@@ -61,6 +62,7 @@ void main() {
           home: CloudSaveBootstrap(
             db: db,
             needsSaveChoice: true,
+            currentAppVersion: '1.0.2+3',
             downloadCloudSave: () async =>
                 const CloudSaveDownloadResult.unavailable(),
           ),
@@ -73,8 +75,11 @@ void main() {
 
     expect(find.byType(RootScreen), findsOneWidget);
     expect(find.text('欢迎来到成语接龙'), findsNothing);
+    expect(find.text('版本更新奖励'), findsNothing);
     expect(find.text('每日登录奖励'), findsOneWidget);
     expect(await db.getPlayerProgress(), isNotNull);
+    expect((await db.getPlayerProgress())!.points, 0);
+    expect(await db.getSetting(kLastSeenAppVersionKey), '1.0.2+3');
   });
 
   testWidgets('云存档恢复成功后导入并进入首页', (tester) async {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'src/data/database.dart';
 import 'src/data/player_save_repository.dart';
 import 'src/state/database_provider.dart';
@@ -43,6 +44,7 @@ Future<void> main() async {
   var isSoundEnabled = true;
   var isMusicEnabled = true;
   var needsSaveChoice = false;
+  String? currentAppVersion;
   try {
     final (_, soundEnabled, musicEnabled, localSaveEmpty) = await (
       container.read(playerProvider.notifier).loadFromDatabase(db),
@@ -56,11 +58,21 @@ Future<void> main() async {
   } catch (_) {
     // 数据库不可用时以默认进度启动，进入游戏时会给出错误提示
   }
+  try {
+    final info = await PackageInfo.fromPlatform();
+    currentAppVersion = '${info.version}+${info.buildNumber}';
+  } catch (_) {
+    // 版本信息不可用时跳过本次更新奖励检查。
+  }
   runApp(
     UncontrolledProviderScope(
       container: container,
       child: IdiomCrosswordApp(
-        home: CloudSaveBootstrap(db: db, needsSaveChoice: needsSaveChoice),
+        home: CloudSaveBootstrap(
+          db: db,
+          needsSaveChoice: needsSaveChoice,
+          currentAppVersion: currentAppVersion,
+        ),
       ),
     ),
   );
@@ -114,6 +126,7 @@ class IdiomCrosswordApp extends StatelessWidget {
 class CloudSaveBootstrap extends ConsumerStatefulWidget {
   final AppDatabase db;
   final bool needsSaveChoice;
+  final String? currentAppVersion;
   final CloudSaveDownloader? downloadCloudSave;
   final CloudSaveImporter? importCloudSave;
   final NewGameStarter? startNewGame;
@@ -123,6 +136,7 @@ class CloudSaveBootstrap extends ConsumerStatefulWidget {
     super.key,
     required this.db,
     required this.needsSaveChoice,
+    this.currentAppVersion,
     this.downloadCloudSave,
     this.importCloudSave,
     this.startNewGame,
@@ -236,6 +250,11 @@ class _CloudSaveBootstrapState extends ConsumerState<CloudSaveBootstrap> {
 
   @override
   Widget build(BuildContext context) {
-    return RootScreen(claimDailyLoginReward: !_waitingForSaveChoice);
+    return RootScreen(
+      claimDailyLoginReward: !_waitingForSaveChoice,
+      claimVersionUpdateReward: !_waitingForSaveChoice,
+      currentAppVersion: widget.currentAppVersion,
+      rewardUntrackedVersion: !widget.needsSaveChoice,
+    );
   }
 }

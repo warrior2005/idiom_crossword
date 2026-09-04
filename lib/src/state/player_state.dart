@@ -44,6 +44,8 @@ const int kGiftBoxPoints = 40;
 
 const String kDailyLoginLastDateKey = 'daily_login_last_date';
 const String kDailyLoginStreakKey = 'daily_login_streak';
+const int kVersionUpdatePointsReward = 100;
+const String kLastSeenAppVersionKey = 'last_seen_app_version';
 const String _achievementRewardKeyPrefix = 'achievement_reward_claimed_';
 
 class DailyLoginReward {
@@ -412,6 +414,39 @@ class PlayerNotifier extends Notifier<PlayerState> {
       bestCorrectStreak: playerState.bestCorrectStreak,
       points: playerState.points,
     );
+  }
+
+  /// 每个新版本首次启动时发放一次更新奖励。
+  ///
+  /// 新安装首次只记录版本；旧存档首次启用该功能时可补发奖励。
+  Future<bool> claimVersionUpdateReward(
+    String currentVersion, {
+    required bool rewardUntrackedVersion,
+  }) async {
+    if (currentVersion.isEmpty) return false;
+    final db = ref.read(databaseProvider);
+    PlayerState? rewardedState;
+
+    await db.transaction(() async {
+      final lastSeenVersion = await db.getSetting(kLastSeenAppVersionKey);
+      if (lastSeenVersion == currentVersion) return;
+      if (lastSeenVersion == null && !rewardUntrackedVersion) {
+        await db.setSetting(kLastSeenAppVersionKey, currentVersion);
+        return;
+      }
+
+      final savedPoints =
+          (await db.getPlayerProgress())?.points ?? state.points;
+      rewardedState = state.copyWith(
+        points: savedPoints + kVersionUpdatePointsReward,
+      );
+      await _persistState(db, rewardedState!);
+      await db.setSetting(kLastSeenAppVersionKey, currentVersion);
+    });
+
+    if (rewardedState == null) return false;
+    state = rewardedState!;
+    return true;
   }
 
   /// 发放当日首次登录奖励；当天已领取时返回 null。
