@@ -149,6 +149,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
 
   Future<void> _startLevel(int levelNumber) async {
     showLevelLoadingDialog(context);
+    var loadingOpen = true;
     try {
       final db = ref.read(databaseProvider);
       final level = await loadOrGenerateLevel(
@@ -159,6 +160,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       );
       if (!mounted) return;
       Navigator.pop(context);
+      loadingOpen = false;
       if (level == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -180,7 +182,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       ref.invalidate(levelWordsProvider);
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context);
+        if (loadingOpen) Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('错误: $e'),
@@ -213,6 +215,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
 
     if (!mounted) return;
     showLevelLoadingDialog(context);
+    var loadingOpen = true;
     try {
       final spiral = SpiralDifficulty.calculate(
         ref.read(playerProvider).completedLevels + 1,
@@ -229,6 +232,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       );
       if (!mounted) return;
       Navigator.pop(context);
+      loadingOpen = false;
       if (level == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -245,7 +249,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       ref.invalidate(dailyDoneProvider);
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context);
+        if (loadingOpen) Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('错误: $e'),

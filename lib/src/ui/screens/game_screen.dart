@@ -1935,6 +1935,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   /// 直接进入下一关
   Future<void> _startNextLevel() async {
     showLevelLoadingDialog(context);
+    var loadingOpen = true;
     try {
       final db = ref.read(databaseProvider);
       final level = await loadOrGenerateLevel(
@@ -1945,6 +1946,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       );
       if (!mounted) return;
       Navigator.pop(context); // 关闭加载框
+      loadingOpen = false;
       if (level == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1960,7 +1962,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       );
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context);
+        if (loadingOpen) Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('错误: $e'),

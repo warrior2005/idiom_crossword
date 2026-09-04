@@ -278,6 +278,7 @@ class HomeScreen extends ConsumerWidget {
 
   void _startGame(BuildContext context, WidgetRef ref) async {
     showLevelLoadingDialog(context);
+    var loadingOpen = true;
 
     try {
       final db = ref.read(databaseProvider);
@@ -292,6 +293,7 @@ class HomeScreen extends ConsumerWidget {
 
       if (!context.mounted) return;
       Navigator.pop(context);
+      loadingOpen = false;
 
       if (level == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -310,7 +312,7 @@ class HomeScreen extends ConsumerWidget {
       );
     } catch (e) {
       if (context.mounted) {
-        Navigator.pop(context);
+        if (loadingOpen) Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('错误: $e'),
@@ -374,6 +376,7 @@ class HomeScreen extends ConsumerWidget {
 
     if (!context.mounted) return;
     showLevelLoadingDialog(context);
+    var loadingOpen = true;
     try {
       // 难度跟随当前关卡，并整体上移一档（+2/+6）保持"略难"
       final spiral = SpiralDifficulty.calculate(
@@ -391,6 +394,7 @@ class HomeScreen extends ConsumerWidget {
       );
       if (!context.mounted) return;
       Navigator.pop(context);
+      loadingOpen = false;
       if (level == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -406,7 +410,7 @@ class HomeScreen extends ConsumerWidget {
       );
     } catch (e) {
       if (context.mounted) {
-        Navigator.pop(context);
+        if (loadingOpen) Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('错误: $e'),

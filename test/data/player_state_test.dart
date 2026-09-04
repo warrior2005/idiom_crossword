@@ -134,14 +134,26 @@ void main() {
       level: 1,
       totalXp: 50,
       completedLevels: 3, // 旧数据把每日挑战也算进去了
-      hintCards: 0,
-      reviveCards: 0,
+      hintCards: 4,
+      reviveCards: 2,
+      currentCorrectStreak: 3,
+      bestCorrectStreak: 8,
+      points: 345,
     );
 
     await container.read(playerProvider.notifier).loadFromDatabase(db);
 
-    expect(container.read(playerProvider).completedLevels, 2);
-    expect((await db.getPlayerProgress())!.completedLevels, 2);
+    final state = container.read(playerProvider);
+    expect(state.completedLevels, 2);
+    expect(state.points, 345);
+
+    final progress = (await db.getPlayerProgress())!;
+    expect(progress.completedLevels, 2);
+    expect(progress.hintCards, 4);
+    expect(progress.reviveCards, 2);
+    expect(progress.currentCorrectStreak, 3);
+    expect(progress.bestCorrectStreak, 8);
+    expect(progress.points, 345);
   });
 
   test('连续答对跨关卡累计，答错归零并保留最佳', () async {
@@ -459,6 +471,20 @@ void main() {
     expect(quota.shareRemaining, 10);
   });
 
+  test('并发消耗复活额度不会丢失次数', () async {
+    final notifier = container.read(playerProvider.notifier);
+    final now = DateTime(2026, 8, 23, 9);
+
+    final consumed = await Future.wait([
+      notifier.consumeDailyRevive(DailyReviveMethod.ad, now: now),
+      notifier.consumeDailyRevive(DailyReviveMethod.ad, now: now),
+    ]);
+
+    expect(consumed, [isTrue, isTrue]);
+    final quota = await notifier.dailyReviveQuota(now: now);
+    expect(quota.adRemaining, 8);
+  });
+
   test('横幅广告积分按分钟累计，每日上限120', () async {
     final notifier = container.read(playerProvider.notifier);
     for (var i = 0; i < 121; i++) {
@@ -472,6 +498,20 @@ void main() {
     final granted = await notifier.addBannerPoints(1);
     expect(granted, 0);
     expect(container.read(playerProvider).points, kMaxBannerPointsPerDay);
+  });
+
+  test('并发累计横幅广告积分不会丢失每日计数', () async {
+    final notifier = container.read(playerProvider.notifier);
+
+    final granted = await Future.wait([
+      notifier.addBannerPoints(1),
+      notifier.addBannerPoints(1),
+    ]);
+
+    expect(granted, [1, 1]);
+    expect(container.read(playerProvider).points, 2);
+    expect((await db.getPlayerProgress())!.points, 2);
+    expect(await db.getSetting(kBannerPointsCountKey), '2');
   });
 
   test('设置网格皮肤并持久化', () async {

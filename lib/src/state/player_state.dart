@@ -247,6 +247,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
         reviveCards: progress.reviveCards,
         currentCorrectStreak: progress.currentCorrectStreak,
         bestCorrectStreak: progress.bestCorrectStreak,
+        points: progress.points,
       );
     }
     var owned = await db.getOwnedDecorationIds();
@@ -557,20 +558,29 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final db = ref.read(databaseProvider);
     final now = DateTime.now();
     final today = _dateKey(now);
-    final savedDate = await db.getSetting(kBannerPointsDateKey);
-    if (savedDate != today) {
-      final granted = min(amount, kMaxBannerPointsPerDay);
+    var granted = 0;
+    int? persistedPoints;
+
+    await db.transaction(() async {
+      final savedDate = await db.getSetting(kBannerPointsDateKey);
+      final used = savedDate == today
+          ? int.tryParse(await db.getSetting(kBannerPointsCountKey) ?? '0') ?? 0
+          : 0;
+      if (used >= kMaxBannerPointsPerDay) return;
+
+      granted = min(amount, kMaxBannerPointsPerDay - used);
+      final savedPoints =
+          (await db.getPlayerProgress())?.points ?? state.points;
+      final nextState = state.copyWith(points: savedPoints + granted);
+      await _persistState(db, nextState);
       await db.setSetting(kBannerPointsDateKey, today);
-      await db.setSetting(kBannerPointsCountKey, '$granted');
-      if (granted > 0) await addPoints(granted);
-      return granted;
+      await db.setSetting(kBannerPointsCountKey, '${used + granted}');
+      persistedPoints = nextState.points;
+    });
+
+    if (persistedPoints case final points?) {
+      state = state.copyWith(points: points);
     }
-    final used =
-        int.tryParse(await db.getSetting(kBannerPointsCountKey) ?? '0') ?? 0;
-    if (used >= kMaxBannerPointsPerDay) return 0;
-    final granted = min(amount, kMaxBannerPointsPerDay - used);
-    await db.setSetting(kBannerPointsCountKey, '${used + granted}');
-    if (granted > 0) await addPoints(granted);
     return granted;
   }
 
@@ -693,25 +703,40 @@ class PlayerNotifier extends Notifier<PlayerState> {
     DateTime? now,
   }) async {
     final current = now ?? DateTime.now();
-    final quota = await dailyReviveQuota(now: current);
-    if ((method == DailyReviveMethod.ad && quota.adRemaining <= 0) ||
-        (method == DailyReviveMethod.share && quota.shareRemaining <= 0)) {
-      return false;
-    }
-
-    final adUsed =
-        kDailyReviveLimit -
-        quota.adRemaining +
-        (method == DailyReviveMethod.ad ? 1 : 0);
-    final shareUsed =
-        kDailyReviveLimit -
-        quota.shareRemaining +
-        (method == DailyReviveMethod.share ? 1 : 0);
     final db = ref.read(databaseProvider);
-    await db.setSetting(kDailyReviveDateKey, _dateKey(current));
-    await db.setSetting(kDailyAdReviveCountKey, '$adUsed');
-    await db.setSetting(kDailyShareReviveCountKey, '$shareUsed');
-    return true;
+    final today = _dateKey(current);
+    var consumed = false;
+
+    await db.transaction(() async {
+      final savedDate = await db.getSetting(kDailyReviveDateKey);
+      var adUsed = savedDate == today
+          ? (int.tryParse(await db.getSetting(kDailyAdReviveCountKey) ?? '0') ??
+                    0)
+                .clamp(0, kDailyReviveLimit)
+          : 0;
+      var shareUsed = savedDate == today
+          ? (int.tryParse(
+                      await db.getSetting(kDailyShareReviveCountKey) ?? '0',
+                    ) ??
+                    0)
+                .clamp(0, kDailyReviveLimit)
+          : 0;
+
+      if (method == DailyReviveMethod.ad) {
+        if (adUsed >= kDailyReviveLimit) return;
+        adUsed++;
+      } else {
+        if (shareUsed >= kDailyReviveLimit) return;
+        shareUsed++;
+      }
+
+      await db.setSetting(kDailyReviveDateKey, today);
+      await db.setSetting(kDailyAdReviveCountKey, '$adUsed');
+      await db.setSetting(kDailyShareReviveCountKey, '$shareUsed');
+      consumed = true;
+    });
+
+    return consumed;
   }
 
   /// 'grid_skin_bamboo' -> ('grid_skin', 'bamboo')

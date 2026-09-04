@@ -78,6 +78,8 @@ class _FirstLaunchDialogState extends ConsumerState<FirstLaunchDialog> {
 
       switch (result.status) {
         case CloudSaveDownloadStatus.available:
+          _countdownTimer?.cancel();
+          _countdownTimer = null;
           await widget.importCloudSave(result.data!);
           if (!mounted || attempt != _attempt) return;
           Navigator.of(context).pop(FirstLaunchChoice.restored);

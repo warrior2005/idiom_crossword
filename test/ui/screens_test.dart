@@ -69,6 +69,18 @@ Widget _wrap(AppDatabase db, Widget child) {
   );
 }
 
+class _CompletionLookupErrorDatabase extends AppDatabase {
+  _CompletionLookupErrorDatabase() : super(NativeDatabase.memory());
+
+  @override
+  Future<bool> isLevelCompleted(int levelNumber) {
+    if (levelNumber == 1) {
+      return Future.error(StateError('completion lookup failed'));
+    }
+    return super.isLevelCompleted(levelNumber);
+  }
+}
+
 void main() {
   PackageInfo.setMockInitialValues(
     appName: '成语接龙',
@@ -977,6 +989,45 @@ void main() {
     await tester.tap(find.text('1'));
     await tester.pumpAndSettle();
     expect(find.text('关卡生成失败，请重试'), findsOneWidget);
+  });
+
+  testWidgets('关卡载入后的查询失败不会误退选关页', (tester) async {
+    final db = _CompletionLookupErrorDatabase();
+    addTearDown(db.close);
+    await db.saveLevelState(
+      levelNumber: 1,
+      levelJson:
+          '{"levelId":1,"title":"第 1 关","rows":1,"cols":4,'
+          '"cells":[[1,"画",0,1],[1,"蛇",0,0],[1,"添",0,0],[1,"足",0,0]],'
+          '"placements":[["画蛇添足","hua she tian zu","释义",1,"",0,0,0]],'
+          '"storyHint":null}',
+      stateJson: '{}',
+    );
+
+    await tester.pumpWidget(
+      _wrap(
+        db,
+        Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const LevelSelectScreen(),
+                ),
+              ),
+              child: const Text('打开选关'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('打开选关'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('level-node-1')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('选择关卡'), findsOneWidget);
+    expect(find.textContaining('completion lookup failed'), findsOneWidget);
   });
 
   testWidgets('关卡页：每日挑战已完成时不显示置顶卡', (tester) async {

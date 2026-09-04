@@ -171,6 +171,56 @@ void main() {
     expect(find.text('欢迎来到成语接龙'), findsNothing);
   });
 
+  testWidgets('云存档下载完成后导入期间不会被网络超时中断', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    final importFinished = Completer<void>();
+    var importStarted = false;
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: CloudSaveBootstrap(
+            db: db,
+            needsSaveChoice: true,
+            restoreTimeout: const Duration(milliseconds: 100),
+            downloadCloudSave: () async =>
+                const CloudSaveDownloadResult.available('cloud-save'),
+            importCloudSave: (_) async {
+              importStarted = true;
+              await importFinished.future;
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text('恢复云存档'));
+    await tester.pump();
+
+    expect(importStarted, isTrue);
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 1100)),
+    );
+    await tester.pump();
+
+    expect(find.text('连接超时，请检查网络后重试。'), findsNothing);
+    expect(
+      tester
+          .widget<PrimaryButton>(
+            find.widgetWithText(PrimaryButton, '正在恢复（1 秒）'),
+          )
+          .onTap,
+      isNull,
+    );
+
+    importFinished.complete();
+    await tester.pumpAndSettle();
+    expect(find.byType(RootScreen), findsOneWidget);
+    expect(find.text('欢迎来到成语接龙'), findsNothing);
+  });
+
   testWidgets('Game Center 不可用时提示系统设置且可重试', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     var attempts = 0;

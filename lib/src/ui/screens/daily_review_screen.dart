@@ -304,6 +304,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
     final isReplay = await db.isLevelCompleted(levelNumber);
     if (!mounted) return;
     showLevelLoadingDialog(context);
+    var loadingOpen = true;
     try {
       final spiral = SpiralDifficulty.calculate(
         ref.read(playerProvider).completedLevels + 1,
@@ -320,6 +321,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
       );
       if (!mounted) return;
       Navigator.pop(context);
+      loadingOpen = false;
       if (level == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -338,7 +340,7 @@ class _DailyReviewScreenState extends ConsumerState<DailyReviewScreen> {
       ref.invalidate(dailyDoneProvider);
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context);
+        if (loadingOpen) Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('错误: $e'),
