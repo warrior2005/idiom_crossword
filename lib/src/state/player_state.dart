@@ -41,6 +41,9 @@ const String kActiveBackgroundKey = 'active_background';
 const int kHintCardPoints = 10;
 const int kReviveCardPoints = 15;
 const int kGiftBoxPoints = 40;
+const int kLevelCompletionPointsReward = 5;
+const String kLevelCompletionRewardInitializedKey =
+    'level_completion_reward_initialized';
 
 const String kDailyLoginLastDateKey = 'daily_login_last_date';
 const String kDailyLoginStreakKey = 'daily_login_streak';
@@ -304,6 +307,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       customAvatarPath: customAvatarPath,
       activeTitleEffect: await db.getActiveDecorationId('title_effect'),
     );
+    await _claimLegacyLevelCompletionRewards(db);
   }
 
   Future<ExperienceResult> completeLevel(
@@ -328,6 +332,9 @@ class PlayerNotifier extends Notifier<PlayerState> {
       completedLevels: isDaily
           ? state.completedLevels
           : state.completedLevels + 1,
+      points: isDaily
+          ? state.points
+          : state.points + kLevelCompletionPointsReward,
       functionalItems: _applyReward(state.functionalItems, reward),
       ownedDecorations: _applyDecorationReward(state.ownedDecorations, reward),
     );
@@ -400,8 +407,37 @@ class PlayerNotifier extends Notifier<PlayerState> {
   }
 
   /// 首次选择新游戏时立即建立本地存档，避免下次启动再次询问。
-  Future<void> initializeNewGame() {
-    return _persist(ref.read(databaseProvider));
+  Future<void> initializeNewGame() async {
+    final db = ref.read(databaseProvider);
+    await db.transaction(() async {
+      await _persist(db);
+      await db.setSetting(kLevelCompletionRewardInitializedKey, 'true');
+    });
+  }
+
+  Future<void> _claimLegacyLevelCompletionRewards(AppDatabase db) async {
+    int? compensatedPoints;
+    await db.transaction(() async {
+      if (await db.getSetting(kLevelCompletionRewardInitializedKey) == 'true') {
+        return;
+      }
+
+      final compensation = state.completedLevels * kLevelCompletionPointsReward;
+      if (compensation > 0) {
+        final savedPoints =
+            (await db.getPlayerProgress())?.points ?? state.points;
+        final compensatedState = state.copyWith(
+          points: savedPoints + compensation,
+        );
+        await _persistState(db, compensatedState);
+        compensatedPoints = compensatedState.points;
+      }
+      await db.setSetting(kLevelCompletionRewardInitializedKey, 'true');
+    });
+
+    if (compensatedPoints case final points?) {
+      state = state.copyWith(points: points);
+    }
   }
 
   Future<void> _persistState(AppDatabase db, PlayerState playerState) {

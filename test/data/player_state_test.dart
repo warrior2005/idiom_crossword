@@ -36,6 +36,7 @@ void main() {
     final state = container.read(playerProvider);
     expect(state.totalXp, 20);
     expect(state.completedLevels, 1);
+    expect(state.points, 5);
     expect(state.xpProgress, closeTo(0.2, 0.001)); // 20/100
     expect(state.xpRemaining, 80); // 升 2 级还差 80 经验
 
@@ -43,6 +44,7 @@ void main() {
     expect(progress, isNotNull);
     expect(progress!.totalXp, 20);
     expect(progress.completedLevels, 1);
+    expect(progress.points, 5);
   });
 
   test('新账号初始库存为 5 提示卡 + 2 复活卡', () {
@@ -108,10 +110,13 @@ void main() {
     await notifier.completeLevel(dailyLevelNumber(), [20, 30, 40]);
     expect(container.read(playerProvider).completedLevels, 0);
     expect(container.read(playerProvider).totalXp, 300);
+    expect(container.read(playerProvider).points, 0);
 
     await notifier.completeLevel(1, [5, 5, 5, 5, 5]);
     expect(container.read(playerProvider).completedLevels, 1);
+    expect(container.read(playerProvider).points, 5);
     expect((await db.getPlayerProgress())!.completedLevels, 1);
+    expect((await db.getPlayerProgress())!.points, 5);
   });
 
   test('载入旧进度时按主线历史修正已获关卡数', () async {
@@ -140,6 +145,7 @@ void main() {
       bestCorrectStreak: 8,
       points: 345,
     );
+    await db.setSetting(kLevelCompletionRewardInitializedKey, 'true');
 
     await container.read(playerProvider.notifier).loadFromDatabase(db);
 
@@ -154,6 +160,63 @@ void main() {
     expect(progress.currentCorrectStreak, 3);
     expect(progress.bestCorrectStreak, 8);
     expect(progress.points, 345);
+  });
+
+  test('老存档按已有主线通关数补发积分且只发一次', () async {
+    await db.addLevelHistory(
+      levelNumber: 1,
+      xpGained: 10,
+      idiomsUsed: const [],
+    );
+    await db.addLevelHistory(
+      levelNumber: 2,
+      xpGained: 20,
+      idiomsUsed: const [],
+    );
+    await db.addLevelHistory(
+      levelNumber: dailyLevelNumber(),
+      xpGained: 30,
+      idiomsUsed: const [],
+    );
+    await db.updatePlayerProgress(
+      level: 1,
+      totalXp: 60,
+      completedLevels: 2,
+      hintCards: 5,
+      reviveCards: 2,
+      points: 40,
+    );
+
+    await container.read(playerProvider.notifier).loadFromDatabase(db);
+
+    expect(container.read(playerProvider).points, 50);
+    expect((await db.getPlayerProgress())!.points, 50);
+    expect(await db.getSetting(kLevelCompletionRewardInitializedKey), 'true');
+
+    final restarted = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(restarted.dispose);
+    await restarted.read(playerProvider.notifier).loadFromDatabase(db);
+    expect(restarted.read(playerProvider).points, 50);
+    expect((await db.getPlayerProgress())!.points, 50);
+  });
+
+  test('新游戏建立补偿基线，首关奖励不会在重启后重复补发', () async {
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.initializeNewGame();
+    expect(await db.getSetting(kLevelCompletionRewardInitializedKey), 'true');
+
+    await notifier.completeLevel(1, [5, 5, 5, 5, 5]);
+    expect(container.read(playerProvider).points, 5);
+
+    final restarted = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(restarted.dispose);
+    await restarted.read(playerProvider.notifier).loadFromDatabase(db);
+    expect(restarted.read(playerProvider).points, 5);
+    expect((await db.getPlayerProgress())!.points, 5);
   });
 
   test('连续答对跨关卡累计，答错归零并保留最佳', () async {

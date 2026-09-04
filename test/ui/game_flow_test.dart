@@ -463,11 +463,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
 
-    // 教学关经验 +20，通关记录已落库
+    // 教学关经验 +20，首关奖励 5 积分 + 首次通关成就 10 积分
     final progress = await db.getPlayerProgress();
     expect(progress, isNotNull);
     expect(progress!.totalXp, 20);
     expect(progress.completedLevels, 1);
+    expect(progress.points, 15);
     expect(await db.getCompletedLevelNumbers(), {1});
 
     // 冻结定义：再次进入同一关得到同一题
@@ -1126,6 +1127,7 @@ void main() {
     final history = await db.getLevelHistory();
     expect(history.single.xpGained, 0);
     expect((await db.getPlayerProgress())?.totalXp ?? 0, 0);
+    expect((await db.getPlayerProgress())?.points ?? 0, 0);
   });
 }
 

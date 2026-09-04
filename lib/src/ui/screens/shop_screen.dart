@@ -167,6 +167,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _guideLine(
+                        '主线关卡首次通关',
+                        '每关 +$kLevelCompletionPointsReward 积分；重玩和每日挑战不重复奖励。',
+                      ),
+                      _guideLine(
                         '激励广告',
                         '观看完成 +3 积分；每天最多 100 次，前 10 次冷却 1 分钟，之后每次冷却 2 分钟。',
                       ),

@@ -933,6 +933,7 @@ void main() {
     expect(richTextContaining('插页式激励广告'), findsOneWidget);
     expect(richTextContaining('未完成不奖励'), findsOneWidget);
     expect(richTextContaining('横幅广告'), findsOneWidget);
+    expect(richTextContaining('主线关卡首次通关：每关 +5 积分'), findsOneWidget);
   });
 
   testWidgets('首页：每日挑战在数据库无成语时提示生成失败', (tester) async {
