@@ -98,6 +98,41 @@ void main() {
     expect(gridPainter().showPinyin, isTrue);
   });
 
+  testWidgets('填错时不展示正确答案的拼音', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.setSetting(showPinyinKey, 'true');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final wrongChar = find.byWidgetPredicate(
+      (widget) =>
+          widget is Text &&
+          widget.data != null &&
+          widget.data!.length == 1 &&
+          !'蛇添足'.contains(widget.data!),
+    );
+    await tester.tap(wrongChar.first);
+    await tester.pump();
+
+    final painter = tester
+        .widgetList<CustomPaint>(find.byType(CustomPaint))
+        .map((widget) => widget.painter)
+        .whereType<GridPainter>()
+        .single;
+    expect(painter.playerAnswers[(1, 2)], isNot('蛇'));
+    expect(painter.pinyinAt(1, 2), isNull);
+    expect(painter.pinyinAt(1, 1), 'hua');
+
+    await tester.pump(const Duration(milliseconds: 300));
+  });
+
   testWidgets('关闭触感反馈后填字不触发震动', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);

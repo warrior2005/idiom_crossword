@@ -2780,6 +2780,17 @@ class GridPainter extends CustomPainter {
     required this.offset,
   });
 
+  String? pinyinAt(int row, int col) {
+    final cell = grid.cellAt(row, col);
+    final displayChar = cell.isGiven
+        ? cell.character
+        : (playerAnswers[(row, col)] ?? '');
+    if (!showPinyin || displayChar.isEmpty || displayChar != cell.character) {
+      return null;
+    }
+    return pinyinByCell[(row, col)];
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     canvas.translate(offset.dx, offset.dy);
@@ -2894,9 +2905,7 @@ class GridPainter extends CustomPainter {
           textDirection: TextDirection.ltr,
         );
         characterPainter.layout();
-        final pinyin = showPinyin && displayChar.isNotEmpty
-            ? pinyinByCell[(r, c)]
-            : null;
+        final pinyin = pinyinAt(r, c);
         final pinyinPainter = pinyin == null
             ? null
             : (TextPainter(
