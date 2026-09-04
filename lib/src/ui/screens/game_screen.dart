@@ -173,9 +173,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
     if (route is PageRoute<dynamic> && route != _subscribedRoute) {
-      if (_subscribedRoute != null) audioRouteObserver.unsubscribe(this);
+      if (_subscribedRoute != null) appRouteObserver.unsubscribe(this);
       _subscribedRoute = route;
-      audioRouteObserver.subscribe(this, route);
+      appRouteObserver.subscribe(this, route);
     }
   }
 
@@ -462,7 +462,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    audioRouteObserver.unsubscribe(this);
+    appRouteObserver.unsubscribe(this);
     _subscribedRoute = null;
     MusicManager.instance.exitGame(this);
     _dailyTimer?.cancel();

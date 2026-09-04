@@ -8,4 +8,30 @@ void main() {
     expect(bannerAdRetryDelay(2), const Duration(minutes: 1));
     expect(bannerAdRetryDelay(10), const Duration(minutes: 1));
   });
+
+  test('横幅广告被新页面遮挡时不累计积分', () {
+    expect(
+      canAccrueBannerPoints(
+        active: true,
+        canShowAds: true,
+        isBannerLoaded: true,
+        appForeground: true,
+        routeVisible: false,
+      ),
+      isFalse,
+    );
+  });
+
+  test('横幅广告只在当前页面前台可见时累计积分', () {
+    expect(
+      canAccrueBannerPoints(
+        active: true,
+        canShowAds: true,
+        isBannerLoaded: true,
+        appForeground: true,
+        routeVisible: true,
+      ),
+      isTrue,
+    );
+  });
 }

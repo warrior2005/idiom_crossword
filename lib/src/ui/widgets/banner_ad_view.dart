@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../../audio/audio_route_observer.dart';
 import '../../state/player_state.dart';
 import '../../utils/ad_manager.dart';
 
@@ -12,6 +13,15 @@ Duration bannerAdRetryDelay(int retryAttempt) => switch (retryAttempt) {
   1 => const Duration(seconds: 30),
   _ => const Duration(minutes: 1),
 };
+
+@visibleForTesting
+bool canAccrueBannerPoints({
+  required bool active,
+  required bool canShowAds,
+  required bool isBannerLoaded,
+  required bool appForeground,
+  required bool routeVisible,
+}) => active && canShowAds && isBannerLoaded && appForeground && routeVisible;
 
 /// 页面底部横幅广告
 ///
@@ -28,11 +38,13 @@ class BannerAdView extends ConsumerStatefulWidget {
 }
 
 class _BannerAdViewState extends ConsumerState<BannerAdView>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, RouteAware {
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
   bool _canShowAds = false;
   bool _appForeground = true;
+  bool _routeVisible = true;
+  PageRoute<dynamic>? _subscribedRoute;
   Timer? _accrualTimer;
   Timer? _bannerAdRetryTimer;
   int _bannerAdRetryAttempt = 0;
@@ -46,7 +58,31 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute<dynamic> && route != _subscribedRoute) {
+      if (_subscribedRoute != null) appRouteObserver.unsubscribe(this);
+      _subscribedRoute = route;
+      appRouteObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void didPushNext() {
+    _routeVisible = false;
+    _syncAccrual();
+  }
+
+  @override
+  void didPopNext() {
+    _routeVisible = true;
+    _syncAccrual();
+  }
+
+  @override
   void dispose() {
+    appRouteObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     _accrualTimer?.cancel();
     _bannerAdRetryTimer?.cancel();
@@ -71,21 +107,31 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   void _syncAccrual() {
     _accrualTimer?.cancel();
     _accrualTimer = null;
-    if (!widget.active ||
-        !_canShowAds ||
-        !_isBannerLoaded ||
-        !_appForeground) {
+    if (!canAccrueBannerPoints(
+      active: widget.active,
+      canShowAds: _canShowAds,
+      isBannerLoaded: _isBannerLoaded,
+      appForeground: _appForeground,
+      routeVisible: _routeVisible,
+    )) {
       _accruedSeconds = 0;
       return;
     }
     _accrualTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted || !widget.active || !_appForeground) return;
+      if (!mounted ||
+          !canAccrueBannerPoints(
+            active: widget.active,
+            canShowAds: _canShowAds,
+            isBannerLoaded: _isBannerLoaded,
+            appForeground: _appForeground,
+            routeVisible: _routeVisible,
+          )) {
+        return;
+      }
       _accruedSeconds++;
       if (_accruedSeconds >= 60) {
         _accruedSeconds -= 60;
-        unawaited(
-          ref.read(playerProvider.notifier).addBannerPoints(1),
-        );
+        unawaited(ref.read(playerProvider.notifier).addBannerPoints(1));
       }
     });
   }

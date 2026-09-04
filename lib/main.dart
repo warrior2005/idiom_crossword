@@ -95,7 +95,7 @@ class IdiomCrosswordApp extends StatelessWidget {
     return MaterialApp(
       title: '成语接龙',
       debugShowCheckedModeBanner: false,
-      navigatorObservers: [audioRouteObserver],
+      navigatorObservers: [appRouteObserver],
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFB33B27),
