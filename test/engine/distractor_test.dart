@@ -130,6 +130,20 @@ void main() {
 
       expect(randomCharsFor(100).intersection(randomCharsFor(101)), isEmpty);
     });
+
+    test('排除干扰字时仍保留同字的正式答案', () {
+      final candidates = DistractorEngine(random: Random(37))
+          .generateCandidateBoard(
+            correctAnswers: const ['力'],
+            rows: 1,
+            countPerRow: 8,
+            excludeDistractorChars: const {'力', '气'},
+          )
+          .single;
+
+      expect(candidates.where((char) => char == '力'), hasLength(1));
+      expect(candidates, isNot(contains('气')));
+    });
   });
 
   test('generate 仍优先返回经典形近字', () {

@@ -271,6 +271,7 @@ class DistractorEngine {
     int countPerRow = 8,
     int? randomRotationKey,
     Map<String, List<String>> databaseRelatedCandidates = const {},
+    Set<String> excludeDistractorChars = const {},
   }) {
     // 计算总干扰字数 = 格子总数 - 正确答案数
     final totalSlots = rows * countPerRow;
@@ -288,9 +289,16 @@ class DistractorEngine {
     for (final answer in answers) {
       final candidates =
           [
-              ...?databaseRelatedCandidates[answer]?.take(16),
-              ..._findRelated(answer),
-            ].where((char) => !answerSet.contains(char)).toSet().toList()
+                ...?databaseRelatedCandidates[answer]?.take(16),
+                ..._findRelated(answer),
+              ]
+              .where(
+                (char) =>
+                    !answerSet.contains(char) &&
+                    !excludeDistractorChars.contains(char),
+              )
+              .toSet()
+              .toList()
             ..shuffle(_random);
       relatedByAnswer[answer] = candidates;
       allRelatedChars.addAll(candidates);
@@ -321,6 +329,7 @@ class DistractorEngine {
         .where(
           (char) =>
               !answerSet.contains(char) &&
+              !excludeDistractorChars.contains(char) &&
               !relatedDistractors.contains(char) &&
               !allRelatedChars.contains(char),
         )

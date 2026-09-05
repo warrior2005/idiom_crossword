@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../data/database.dart';
+import '../engine/candidate_ambiguity.dart';
 import '../engine/crossing_graph.dart';
 import '../engine/grid_engine.dart' as engine;
 import '../engine/integrated_generator.dart';
@@ -87,7 +88,7 @@ Future<engine.CrosswordLevel?> generateLevel(
         title: title,
         excludedIds: excludedIds,
       );
-      if (level != null) return level;
+      if (level != null) return _addDisambiguatingGivens(db, level);
     }
     return null;
   }
@@ -135,7 +136,7 @@ Future<engine.CrosswordLevel?> generateLevel(
         levelNumber: levelNumber,
       );
       if (level == null) continue;
-      return title == null
+      final titledLevel = title == null
           ? level
           : engine.CrosswordLevel(
               levelId: level.levelId,
@@ -145,15 +146,38 @@ Future<engine.CrosswordLevel?> generateLevel(
               title: title,
               storyHint: level.storyHint,
             );
+      return _addDisambiguatingGivens(db, titledLevel);
     }
     final level = generator.generateSpiral(
       levelNumber: levelNumber,
       playerLevel: playerLevel,
       maxAttempts: maxAttempts,
     );
-    if (level != null) return level;
+    if (level != null) return _addDisambiguatingGivens(db, level);
   }
   return null;
+}
+
+Future<engine.CrosswordLevel> _addDisambiguatingGivens(
+  AppDatabase db,
+  engine.CrosswordLevel level,
+) async {
+  try {
+    final words = await db.findIdiomWordsMatchingPatterns(
+      candidatePatternsForLevel(level),
+    );
+    final allowedAlternatives = await db.findReversibleWordsFor(
+      level.idioms.map((idiom) => idiom.text),
+    );
+    return addDisambiguatingGivens(
+      level: level,
+      dictionaryWords: words,
+      allowedAlternatives: allowedAlternatives,
+    );
+  } catch (_) {
+    // 歧义检查不可用时保留原关卡，不能降低已有生成成功率。
+    return level;
+  }
 }
 
 /// Lv.20 后：按“波浪中心 + 三区混排”从各难度区取词生成
@@ -255,7 +279,7 @@ Future<engine.CrosswordLevel?> loadOrGenerateLevel(
   final frozen = await db.getLevelDefinition(levelNumber);
   if (frozen != null) {
     final restored = decodeLevel(frozen);
-    if (restored != null) return restored;
+    if (restored != null) return _addDisambiguatingGivens(db, restored);
   }
   // 3) 否则新生成
   return generateLevel(

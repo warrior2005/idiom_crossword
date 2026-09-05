@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../app_page_route.dart';
 import '../../engine/grid_engine.dart';
+import '../../engine/candidate_ambiguity.dart';
 import '../../engine/distractor_engine.dart';
 import '../../state/database_provider.dart';
 import '../../state/daily_challenge.dart';
@@ -249,22 +250,49 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
     final correctAnswers = correctCells.values.toList();
     Map<String, List<String>> databaseCandidates = {};
+    List<String> dictionaryWords = const [];
+    Map<String, Set<String>> allowedAlternatives = const {};
+    final db = ref.read(databaseProvider);
     try {
-      databaseCandidates = await ref
-          .read(databaseProvider)
-          .findSimilarCharsFor(correctAnswers);
+      databaseCandidates = await db.findSimilarCharsFor(correctAnswers);
     } catch (_) {
       // 相关字数据不可用时仍可使用内置候选表生成关卡。
     }
+    try {
+      dictionaryWords = await db.findIdiomWordsMatchingPatterns(
+        candidatePatternsForLevel(widget.level),
+      );
+      allowedAlternatives = await db.findReversibleWordsFor(
+        widget.level.idioms.map((idiom) => idiom.text),
+      );
+    } catch (_) {
+      // 成语查询失败时不阻塞候选盘构建。
+    }
     if (!mounted) return;
 
-    _candidateBoard = _distractorEngine.generateCandidateBoard(
-      correctAnswers: correctAnswers,
-      rows: 4,
-      countPerRow: 10,
-      randomRotationKey: widget.level.levelId,
-      databaseRelatedCandidates: databaseCandidates,
-    );
+    final excludedDistractors = <String>{};
+    while (true) {
+      _candidateBoard = _distractorEngine.generateCandidateBoard(
+        correctAnswers: correctAnswers,
+        rows: 4,
+        countPerRow: 10,
+        randomRotationKey: widget.level.levelId,
+        databaseRelatedCandidates: databaseCandidates,
+        excludeDistractorChars: excludedDistractors,
+      );
+      final ambiguities = findCandidateAmbiguities(
+        level: widget.level,
+        dictionaryWords: dictionaryWords,
+        availableChars: _candidateBoard.expand((row) => row),
+        allowedAlternatives: allowedAlternatives,
+      );
+      final newlyExcluded = distractorCharsToExclude(
+        ambiguities,
+        correctAnswers.toSet(),
+      )..removeAll(excludedDistractors);
+      if (ambiguities.isEmpty || newlyExcluded.isEmpty) break;
+      excludedDistractors.addAll(newlyExcluded);
+    }
   }
 
   /// 找到第一个空白格作为初始焦点

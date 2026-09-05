@@ -422,6 +422,40 @@ class AppDatabase extends _$AppDatabase {
     )..where((t) => t.id.equals(otherId))).getSingleOrNull();
   }
 
+  /// 批量读取指定成语登记的倒装形式。
+  Future<Map<String, Set<String>>> findReversibleWordsFor(
+    Iterable<String> words,
+  ) async {
+    final targets = words.toSet().toList();
+    if (targets.isEmpty) return const {};
+    final placeholders = List.filled(targets.length, '?').join(',');
+    final variables = [for (final word in targets) Variable(word)];
+    final rows = await customSelect(
+      '''
+      SELECT a.word AS source_word, b.word AS alternative_word
+      FROM idiom_reversible_pair p
+      JOIN idioms a ON a.id = p.idiom_id_a
+      JOIN idioms b ON b.id = p.idiom_id_b
+      WHERE a.word IN ($placeholders)
+      UNION ALL
+      SELECT b.word AS source_word, a.word AS alternative_word
+      FROM idiom_reversible_pair p
+      JOIN idioms a ON a.id = p.idiom_id_a
+      JOIN idioms b ON b.id = p.idiom_id_b
+      WHERE b.word IN ($placeholders)
+      ''',
+      variables: [...variables, ...variables],
+      readsFrom: {idioms, idiomReversiblePair},
+    ).get();
+    final result = <String, Set<String>>{};
+    for (final row in rows) {
+      result
+          .putIfAbsent(row.read<String>('source_word'), () => <String>{})
+          .add(row.read<String>('alternative_word'));
+    }
+    return result;
+  }
+
   /// 找形近/音近字
   Future<List<String>> findSimilarChars(String char, String type) {
     return (select(charSimilar)
@@ -447,6 +481,24 @@ class AppDatabase extends _$AppDatabase {
       result.putIfAbsent(row.char, () => []).add(row.similar);
     }
     return result;
+  }
+
+  /// 查询至少匹配一个位置模式的成语，`_` 表示任意单字。
+  Future<List<String>> findIdiomWordsMatchingPatterns(
+    Iterable<String> patterns,
+  ) async {
+    final uniquePatterns = patterns.toSet().toList();
+    if (uniquePatterns.isEmpty) return const [];
+    final where = List.filled(
+      uniquePatterns.length,
+      'word LIKE ?',
+    ).join(' OR ');
+    final rows = await customSelect(
+      'SELECT word FROM idioms WHERE $where',
+      variables: [for (final pattern in uniquePatterns) Variable(pattern)],
+      readsFrom: {idioms},
+    ).get();
+    return rows.map((row) => row.read<String>('word')).toList();
   }
 
   // ============================================================

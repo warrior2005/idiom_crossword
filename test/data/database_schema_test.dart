@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
+import 'package:idiom_crossword/src/engine/candidate_ambiguity.dart';
 import 'package:idiom_crossword/src/state/level_state_codec.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
 import 'package:idiom_crossword/src/state/level_generation.dart';
@@ -49,6 +50,12 @@ void main() {
     expect(byWord!.explanation, isNotEmpty);
     expect(byWord.derivation, isNotNull);
     expect(byWord.example, isNotNull);
+
+    final matching = await db.findIdiomWordsMatchingPatterns(const ['有___']);
+    expect(matching, contains('有气无力'));
+
+    final reversibleWords = await db.findReversibleWordsFor(const ['阿狗阿猫']);
+    expect(reversibleWords['阿狗阿猫'], contains('阿猫阿狗'));
 
     // 自定义关卡：固定难度区间 + 目标数量 + 标题
     final custom = await generateLevel(
@@ -478,6 +485,39 @@ void main() {
       expect(level.hasAmbiguousAdjacency, isFalse);
 
       expect(level.multiCrossingPlacementCount, greaterThanOrEqualTo(6));
+      for (final placement in level.placements) {
+        expect(
+          placement.cells.any(
+            (position) => !level.grid.cellAt(position.$1, position.$2).isGiven,
+          ),
+          isTrue,
+          reason: '${placement.idiom.text} 不能被区分提示直接完成',
+        );
+      }
+      final correctCells = <(int, int), String>{};
+      for (final placement in level.placements) {
+        for (var k = 0; k < placement.idiom.text.length; k++) {
+          final position = placement.cellAt(k);
+          if (!level.grid.cellAt(position.$1, position.$2).isGiven) {
+            correctCells[position] = placement.idiom.text[k];
+          }
+        }
+      }
+      final dictionaryWords = await db.findIdiomWordsMatchingPatterns(
+        candidatePatternsForLevel(level),
+      );
+      final allowedAlternatives = await db.findReversibleWordsFor(
+        level.idioms.map((idiom) => idiom.text),
+      );
+      expect(
+        findCandidateAmbiguities(
+          level: level,
+          dictionaryWords: dictionaryWords,
+          availableChars: correctCells.values,
+          allowedAlternatives: allowedAlternatives,
+        ),
+        isEmpty,
+      );
     }
   });
 
