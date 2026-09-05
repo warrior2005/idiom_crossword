@@ -136,6 +136,12 @@ void main() {
     await tester.pumpWidget(_wrap(db, const CollectionScreen()));
     await tester.pumpAndSettle();
     expect(find.text('画蛇添足'), findsOneWidget);
+    expect(
+      (tester.getCenter(find.text('HUA SHE TIAN ZU')).dy -
+              tester.getCenter(find.text('删除')).dy)
+          .abs(),
+      lessThan(1),
+    );
 
     await tester.tap(find.text('删除'));
     await tester.pumpAndSettle();
@@ -169,6 +175,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(OutlinedButton, '收藏'), findsOneWidget);
+    expect(
+      (tester.getCenter(find.text('HUA SHE TIAN ZU')).dy -
+              tester.getCenter(find.widgetWithText(OutlinedButton, '收藏')).dy)
+          .abs(),
+      lessThan(1),
+    );
     await tester.tap(find.widgetWithText(OutlinedButton, '收藏'));
     await tester.pumpAndSettle();
     expect(find.widgetWithText(OutlinedButton, '已收藏'), findsOneWidget);

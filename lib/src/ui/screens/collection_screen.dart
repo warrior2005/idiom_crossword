@@ -342,7 +342,7 @@ class _ColCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -390,8 +390,9 @@ class _ColCard extends StatelessWidget {
                       OutlinedButton(
                         onPressed: onFavoriteToggle,
                         style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(0, 32),
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          minimumSize: const Size(0, 36),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           foregroundColor: isFavorite!
                               ? AppColors.accentDeep
                               : AppColors.muted,
