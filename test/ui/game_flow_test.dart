@@ -225,6 +225,54 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
   });
 
+  testWidgets('清空保留已完成成语并清除所有未完成成语的已填字', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildCrossingLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (final char in ['蛇', '添', '足', '蝎']) {
+      await tester.tap(find.text(char));
+      await tester.pump();
+    }
+    final wrongChar = find.byWidgetPredicate(
+      (widget) =>
+          widget is Text &&
+          widget.data != null &&
+          widget.data!.length == 1 &&
+          !'画蛇添足蝎心肠'.contains(widget.data!),
+    );
+    await tester.tap(wrongChar.first);
+    await tester.pump();
+
+    GridPainter painter() => tester
+        .widgetList<CustomPaint>(find.byType(CustomPaint))
+        .map((widget) => widget.painter)
+        .whereType<GridPainter>()
+        .single;
+    expect(painter().playerAnswers[(1, 2)], '蛇');
+    expect(painter().playerAnswers[(1, 3)], '添');
+    expect(painter().playerAnswers[(1, 4)], '足');
+    expect(painter().playerAnswers[(2, 2)], '蝎');
+    expect(painter().playerAnswers[(3, 2)], isNotNull);
+
+    await tester.tap(find.text('清空'));
+    await tester.pump();
+
+    expect(painter().playerAnswers[(1, 2)], '蛇');
+    expect(painter().playerAnswers[(1, 3)], '添');
+    expect(painter().playerAnswers[(1, 4)], '足');
+    expect(painter().playerAnswers[(2, 2)], isNull);
+    expect(painter().playerAnswers[(3, 2)], isNull);
+    await tester.pump(const Duration(milliseconds: 300));
+  });
+
   testWidgets('GameScreen 声音按钮同时控制音乐和音效', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);

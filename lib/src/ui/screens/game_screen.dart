@@ -2528,7 +2528,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
             sub: '剩 $hintCount',
             onTap: canSingleHint ? _showHint : null,
           ),
-          _ToolbarButton(icon: 'clear', label: '清空', onTap: _clearCell),
+          _ToolbarButton(
+            icon: 'clear',
+            label: '清空',
+            onTap: _clearIncompleteAnswers,
+          ),
         ],
       ),
     );
@@ -2642,6 +2646,28 @@ class _GameScreenState extends ConsumerState<GameScreen>
       if (candSlot != null) {
         _usedCandidateSlots.remove(candSlot);
       }
+    });
+    _saveState();
+  }
+
+  void _clearIncompleteAnswers() {
+    final cellsToClear = _playerAnswers.keys
+        .where((cell) => !_completedCells.contains(cell))
+        .toSet();
+    if (cellsToClear.isEmpty) return;
+
+    setState(() {
+      for (final cell in cellsToClear) {
+        _playerAnswers.remove(cell);
+        _errorCells.remove(cell);
+        final candidateSlot = _cellToCandidateSlot.remove(cell);
+        if (candidateSlot != null) {
+          _usedCandidateSlots.remove(candidateSlot);
+        }
+      }
+      _fillHistory.removeWhere(
+        (entry) => cellsToClear.contains((entry.row, entry.col)),
+      );
     });
     _saveState();
   }
