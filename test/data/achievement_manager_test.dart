@@ -55,6 +55,15 @@ void main() {
     expect(_eval(totalXp: 1000000), contains(AchievementId.xp1000000));
   });
 
+  test('收集成就描述使用收集措辞', () {
+    expect(
+      achievementDefs
+          .where((item) => item.category == AchievementCategory.collection)
+          .map((item) => item.description),
+      ['收集 50 个成语', '收集 200 个成语', '收集 1000 个成语'],
+    );
+  });
+
   test('连击成就按 10、30、100 解锁', () {
     expect(
       AchievementManager.evaluateStreak(alreadyUnlocked: const {}, streak: 100),

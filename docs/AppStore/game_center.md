@@ -44,9 +44,9 @@ GameKit Saved Games 使用 iCloud Documents 保存用户存档。Apple Developer
 | 千锤百炼 | `com.sunnywarrior.idiomcrossword.achievement.level_1000`   | 累计通关 1000 关   |  50 | 累计通关 1000 关     | 千关历练 千锤百炼   |
 | 炉火纯青 | `com.sunnywarrior.idiomcrossword.achievement.level_5000`   | 累计通关 5000 关   |  80 | 累计通关 5000 关     | 五千关过 炉火纯青   |
 | 登峰造极 | `com.sunnywarrior.idiomcrossword.achievement.level_10000`  | 累计通关 10000 关  | 100 | 累计通关 10000 关    | 万关功成 登峰造极   |
-| 集腋成裘 | `com.sunnywarrior.idiomcrossword.achievement.collect_50`   | 收藏 50 个成语     |  20 | 收藏 50 个成语       | 点滴积累 集腋成裘   |
-| 博闻强识 | `com.sunnywarrior.idiomcrossword.achievement.collect_200`  | 收藏 200 个成语    |  40 | 收藏 200 个成语      | 两百成语 博闻强识   |
-| 汗牛充栋 | `com.sunnywarrior.idiomcrossword.achievement.collect_1000` | 收藏 1000 个成语   |  80 | 收藏 1000 个成语     | 千条入藏 汗牛充栋   |
+| 集腋成裘 | `com.sunnywarrior.idiomcrossword.achievement.collect_50`   | 收集 50 个成语     |  20 | 收集 50 个成语       | 点滴积累 集腋成裘   |
+| 博闻强识 | `com.sunnywarrior.idiomcrossword.achievement.collect_200`  | 收集 200 个成语    |  40 | 收集 200 个成语      | 两百成语 博闻强识   |
+| 汗牛充栋 | `com.sunnywarrior.idiomcrossword.achievement.collect_1000` | 收集 1000 个成语   |  80 | 收集 1000 个成语     | 千条入藏 汗牛充栋   |
 | 一气呵成 | `com.sunnywarrior.idiomcrossword.achievement.streak_10`    | 连续答对 10 个字    |  20 | 连续答对 10 个字      | 十字连中 一气呵成   |
 | 势如破竹 | `com.sunnywarrior.idiomcrossword.achievement.streak_30`    | 连续答对 30 个字    |  40 | 连续答对 30 个字      | 三十连中 势如破竹   |
 | 百发百中 | `com.sunnywarrior.idiomcrossword.achievement.streak_100`   | 连续答对 100 个字   |  80 | 连续答对 100 个字     | 百字连中 百发百中   |
