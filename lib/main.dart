@@ -12,6 +12,7 @@ import 'src/state/player_state.dart';
 import 'src/state/game_center_service.dart';
 import 'src/state/leaderboard_service.dart';
 import 'src/state/cloud_save_service.dart';
+import 'src/state/collection_provider.dart';
 import 'src/utils/ad_manager.dart';
 import 'src/ui/screens/root_screen.dart';
 import 'src/audio/music_manager.dart';
@@ -204,6 +205,9 @@ class _CloudSaveBootstrapState extends ConsumerState<CloudSaveBootstrap> {
       await CloudSaveService.importCloudSave(widget.db, data);
     }
     await ref.read(playerProvider.notifier).loadFromDatabase(widget.db);
+    ref.invalidate(collectionProvider);
+    ref.invalidate(favoritesProvider);
+    ref.invalidate(favoriteIdsProvider);
   }
 
   Future<void> _startNewGame() async {

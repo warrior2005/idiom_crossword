@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -109,6 +110,59 @@ void main() {
     expect(find.byType(RootScreen), findsOneWidget);
     expect(find.text('欢迎来到成语接龙'), findsNothing);
     expect(find.text('每日登录奖励'), findsOneWidget);
+  });
+
+  testWidgets('云存档恢复后收藏页立即显示导入的成语', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db
+        .into(db.idioms)
+        .insert(
+          IdiomsCompanion(
+            id: const Value(1),
+            word: const Value('画蛇添足'),
+            pinyin: const Value('hua she tian zu'),
+            pinyinAbbr: const Value('hstz'),
+            explanation: const Value('比喻做了多余的事'),
+            firstChar: const Value('画'),
+            lastChar: const Value('足'),
+            difficulty: const Value(5),
+          ),
+        );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: CloudSaveBootstrap(
+            db: db,
+            needsSaveChoice: true,
+            downloadCloudSave: () async =>
+                const CloudSaveDownloadResult.available('cloud-save'),
+            importCloudSave: (_) async {
+              await db.addToCollection(1);
+              await db.addToFavorites(1);
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('恢复云存档'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('确定'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('收藏'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('画蛇添足'), findsOneWidget);
+    expect(find.text('共 1 则'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(Tab, '全部'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('画蛇添足'), findsOneWidget);
+    expect(find.text('共 1 则'), findsOneWidget);
   });
 
   testWidgets('恢复超时后可重试且迟到结果不会导入', (tester) async {
