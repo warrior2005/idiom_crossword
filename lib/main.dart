@@ -19,6 +19,7 @@ import 'src/audio/music_manager.dart';
 import 'src/audio/audio_route_observer.dart';
 import 'src/audio/sound_manager.dart';
 import 'src/ui/screens/settings_screen.dart';
+import 'src/ui/theme/app_colors.dart';
 import 'src/ui/theme/app_text.dart';
 import 'src/ui/widgets/first_launch_dialog.dart';
 
@@ -119,6 +120,41 @@ class IdiomCrosswordApp extends StatelessWidget {
         fontFamily: kSans,
         fontFamilyFallback: const ['PingFang SC', 'Songti SC'],
       ),
+      builder: (context, child) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            const maxContentWidth = 680.0;
+            final contentWidth = constraints.maxWidth > maxContentWidth
+                ? maxContentWidth
+                : constraints.maxWidth;
+            final hasSideMargins = constraints.maxWidth > maxContentWidth;
+
+            return ColoredBox(
+              color: hasSideMargins ? AppColors.bgDeep : AppColors.bg,
+              child: Center(
+                child: SizedBox(
+                  key: const ValueKey('app-content-frame'),
+                  width: contentWidth,
+                  height: constraints.maxHeight,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      boxShadow: hasSideMargins
+                          ? const [
+                              BoxShadow(
+                                color: Color(0x24000000),
+                                blurRadius: 28,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: child!,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
       home: home ?? const RootScreen(),
     );
   }

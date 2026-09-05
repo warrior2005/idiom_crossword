@@ -1072,6 +1072,26 @@ void main() {
     expect(rect.width, closeTo(rect.height, 0.1));
   });
 
+  testWidgets('关卡页：平板宽度使用六列，手机宽度保持四列', (tester) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.binding.setSurfaceSize(const Size(412, 900));
+    await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
+    await tester.pumpAndSettle();
+
+    SliverGridDelegateWithFixedCrossAxisCount delegate() =>
+        tester.widget<GridView>(find.byType(GridView)).gridDelegate
+            as SliverGridDelegateWithFixedCrossAxisCount;
+    expect(delegate().crossAxisCount, 4);
+
+    await tester.binding.setSurfaceSize(const Size(680, 1024));
+    await tester.pump();
+
+    expect(delegate().crossAxisCount, 6);
+  });
+
   testWidgets('关卡页：旧通关记录也能显示成语小字', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);

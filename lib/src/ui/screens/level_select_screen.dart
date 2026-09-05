@@ -105,32 +105,38 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
                             itemCount: totalPages,
                             itemBuilder: (context, pageIndex) {
                               final start = pageIndex * _pageSize + 1;
-                              return GridView.builder(
-                                clipBehavior: Clip.none,
-                                padding: const EdgeInsets.fromLTRB(
-                                  28,
-                                  12,
-                                  28,
-                                  12,
-                                ),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4,
-                                      mainAxisSpacing: 16,
-                                      crossAxisSpacing: 16,
-                                      childAspectRatio: 1,
+                              return LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final columnCount =
+                                      constraints.maxWidth >= 600 ? 6 : 4;
+                                  return GridView.builder(
+                                    clipBehavior: Clip.none,
+                                    padding: const EdgeInsets.fromLTRB(
+                                      28,
+                                      12,
+                                      28,
+                                      12,
                                     ),
-                                itemCount: _pageSize,
-                                itemBuilder: (context, index) {
-                                  final level = start + index;
-                                  return _LevelNode(
-                                    levelNumber: level,
-                                    word: levelWords[level],
-                                    isCompleted: completed.contains(level),
-                                    isNext: level == nextLevel,
-                                    onTap: level > nextLevel
-                                        ? null
-                                        : () => _startLevel(level),
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: columnCount,
+                                          mainAxisSpacing: 16,
+                                          crossAxisSpacing: 16,
+                                          childAspectRatio: 1,
+                                        ),
+                                    itemCount: _pageSize,
+                                    itemBuilder: (context, index) {
+                                      final level = start + index;
+                                      return _LevelNode(
+                                        levelNumber: level,
+                                        word: levelWords[level],
+                                        isCompleted: completed.contains(level),
+                                        isNext: level == nextLevel,
+                                        onTap: level > nextLevel
+                                            ? null
+                                            : () => _startLevel(level),
+                                      );
+                                    },
                                   );
                                 },
                               );

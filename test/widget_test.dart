@@ -16,8 +16,52 @@ import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/home_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/root_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/primary_button.dart';
+import 'package:idiom_crossword/src/ui/widgets/theme_dialog.dart';
 
 void main() {
+  testWidgets('iPad 内容居中限宽，iPhone 保持全宽', (tester) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    await tester.pumpWidget(
+      const ProviderScope(child: IdiomCrosswordApp(home: Scaffold())),
+    );
+
+    expect(
+      tester.getSize(find.byKey(const ValueKey('app-content-frame'))).width,
+      390,
+    );
+
+    await tester.binding.setSurfaceSize(const Size(1024, 1366));
+    await tester.pump();
+
+    expect(
+      tester.getSize(find.byKey(const ValueKey('app-content-frame'))).width,
+      680,
+    );
+  });
+
+  testWidgets('通用弹窗在 iPad 限宽，iPhone 保持原宽度', (tester) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    const dialog = MaterialApp(
+      home: ThemeDialog(child: SizedBox(width: double.infinity, height: 100)),
+    );
+
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    await tester.pumpWidget(dialog);
+    expect(
+      tester.getSize(find.byKey(const ValueKey('theme-dialog-content'))).width,
+      310,
+    );
+
+    await tester.binding.setSurfaceSize(const Size(1024, 1366));
+    await tester.pump();
+    expect(
+      tester.getSize(find.byKey(const ValueKey('theme-dialog-content'))).width,
+      440,
+    );
+  });
+
   testWidgets('App renders smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: IdiomCrosswordApp()));
     expect(find.text('成语接龙'), findsOneWidget);
