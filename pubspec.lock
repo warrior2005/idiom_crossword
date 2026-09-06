@@ -281,6 +281,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.1.12"
+  dirichlet_ads:
+    dependency: "direct main"
+    description:
+      path: "packages/dirichlet_ads"
+      relative: true
+    source: path
+    version: "0.1.0"
   drift:
     dependency: "direct main"
     description:

@@ -1,0 +1,144 @@
+PODS:
+  - Ads-CN/BUAdSDK (7.5.0.7)
+  - app_tracking_transparency (0.0.1):
+    - Flutter
+  - audio_session (0.0.1):
+    - Flutter
+  - audioplayers_darwin (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - dirichlet_ads (0.1.0):
+    - DirichletMediationAdapterDRA (= 5.2.1.5)
+    - DirichletMediationSDK (= 5.2.1.5)
+    - Flutter
+  - DirichletAdSDK (5.2.1.5):
+    - DirichletCoreSDK (= 5.2.1.5)
+  - DirichletCoreSDK (5.2.1.5)
+  - DirichletMediationAdapterCSJ (5.2.1.5):
+    - DirichletMediationAdapterCSJ/Core (= 5.2.1.5)
+  - DirichletMediationAdapterCSJ/Core (5.2.1.5):
+    - Ads-CN/BUAdSDK (= 7.5.0.7)
+    - DirichletMediationSDK (= 5.2.1.5)
+  - DirichletMediationAdapterDRA (5.2.1.5):
+    - DirichletAdSDK (= 5.2.1.5)
+    - DirichletMediationSDK (= 5.2.1.5)
+  - DirichletMediationSDK (5.2.1.5):
+    - DirichletAdSDK (= 5.2.1.5)
+    - DirichletCoreSDK (= 5.2.1.5)
+  - Flutter (1.0.0)
+  - games_services (5.0.1):
+    - Flutter
+    - FlutterMacOS
+  - Google-Mobile-Ads-SDK (13.7.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - google_mobile_ads (9.1.0):
+    - Flutter
+    - Google-Mobile-Ads-SDK (~> 13.7)
+    - webview_flutter_wkwebview
+  - GoogleUserMessagingPlatform (3.1.0)
+  - image_picker_ios (0.0.1):
+    - Flutter
+  - in_app_review (2.0.0):
+    - Flutter
+  - Mute (0.6.1)
+  - package_info_plus (0.4.5):
+    - Flutter
+  - share_plus (0.0.1):
+    - Flutter
+  - sound_mode_advanced (4.0.0):
+    - Flutter
+    - Mute (~> 0.6.0)
+  - url_launcher_ios (0.0.1):
+    - Flutter
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
+  - audio_session (from `.symlinks/plugins/audio_session/ios`)
+  - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/darwin`)
+  - dirichlet_ads (from `.symlinks/plugins/dirichlet_ads/ios`)
+  - DirichletMediationAdapterCSJ (= 5.2.1.5)
+  - Flutter (from `Flutter`)
+  - games_services (from `.symlinks/plugins/games_services/darwin`)
+  - Google-Mobile-Ads-SDK (= 13.7.0)
+  - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - share_plus (from `.symlinks/plugins/share_plus/ios`)
+  - sound_mode_advanced (from `.symlinks/plugins/sound_mode_advanced/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
+
+SPEC REPOS:
+  trunk:
+    - Ads-CN
+    - DirichletAdSDK
+    - DirichletCoreSDK
+    - DirichletMediationAdapterCSJ
+    - DirichletMediationAdapterDRA
+    - DirichletMediationSDK
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
+    - Mute
+
+EXTERNAL SOURCES:
+  app_tracking_transparency:
+    :path: ".symlinks/plugins/app_tracking_transparency/ios"
+  audio_session:
+    :path: ".symlinks/plugins/audio_session/ios"
+  audioplayers_darwin:
+    :path: ".symlinks/plugins/audioplayers_darwin/darwin"
+  dirichlet_ads:
+    :path: ".symlinks/plugins/dirichlet_ads/ios"
+  Flutter:
+    :path: Flutter
+  games_services:
+    :path: ".symlinks/plugins/games_services/darwin"
+  google_mobile_ads:
+    :path: ".symlinks/plugins/google_mobile_ads/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
+  in_app_review:
+    :path: ".symlinks/plugins/in_app_review/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
+  share_plus:
+    :path: ".symlinks/plugins/share_plus/ios"
+  sound_mode_advanced:
+    :path: ".symlinks/plugins/sound_mode_advanced/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
+
+SPEC CHECKSUMS:
+  Ads-CN: 75ea134785f9e3bd7af10fbe4049d3fe8837b373
+  app_tracking_transparency: e169b653478da7bb15a6c61209015378ca73e375
+  audio_session: 19e9480dbdd4e5f6c4543826b2e8b0e4ab6145fe
+  audioplayers_darwin: f15e209a3e856d1a7edcf98dc029f484fead2242
+  dirichlet_ads: cd850e1d3f365c526c1df9ff79d98a5ff13bdd81
+  DirichletAdSDK: ca4e059841ecdc3321a2f93c3fcb17dcbaf0c73e
+  DirichletCoreSDK: abb3c696cdcdcb0539f1a8e379e7346dbf949a6e
+  DirichletMediationAdapterCSJ: fef3adb3e733e1bc56b07664fb0f51adf3f412c2
+  DirichletMediationAdapterDRA: ec037c76aaf7655e028484d80a201263d8ec06a5
+  DirichletMediationSDK: 789de017c45d75b9f36d5dcc4db6195f8563519d
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
+  games_services: 76bef7d2e685bb605e2d16a18b255462ea1aaeb2
+  Google-Mobile-Ads-SDK: dd0ded6717d122c6a32c69dc4afcace7d276e4e4
+  google_mobile_ads: 8c61669fb8e2ba987b0b7116b5265ba647cdca0c
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
+  image_picker_ios: 4f2f91b01abdb52842a8e277617df877e40f905b
+  in_app_review: 436034b18594851a7328d7f1c2ed5ec235b79cfc
+  Mute: 20135a96076f140cc82bfc8b810e2d6150d8ec7e
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
+  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
+  sound_mode_advanced: fb8f979b67235702d775febe777084954907477a
+  url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
+  webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
+
+PODFILE CHECKSUM: ded31a3886d1366edd48fbe4f6b3275f89d17ed4
+
+COCOAPODS: 1.16.2

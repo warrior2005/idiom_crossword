@@ -6,6 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../audio/audio_route_observer.dart';
 import '../../state/player_state.dart';
 import '../../utils/ad_manager.dart';
+import 'dirichlet_banner_view.dart';
 
 @visibleForTesting
 Duration bannerAdRetryDelay(int retryAttempt) => switch (retryAttempt) {
@@ -41,6 +42,9 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
     with WidgetsBindingObserver, RouteAware {
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
+  bool _dirichletFailed = false;
+  bool _dirichletClosed = false;
+  int _dirichletViewGeneration = 0;
   bool _canShowAds = false;
   bool _appForeground = true;
   bool _routeVisible = true;
@@ -54,6 +58,9 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    AdManager().isDirichletFullScreenShowing.addListener(_fullScreenChanged);
+    AdManager().adPrivacyChanged.addListener(_reloadForPrivacy);
+    AdManager().adsRemovedNotifier.addListener(_reloadForPrivacy);
     _loadBannerAd();
   }
 
@@ -71,18 +78,23 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   @override
   void didPushNext() {
     _routeVisible = false;
+    _refreshDirichletVisibility();
     _syncAccrual();
   }
 
   @override
   void didPopNext() {
     _routeVisible = true;
+    _refreshDirichletVisibility();
     _syncAccrual();
   }
 
   @override
   void dispose() {
     appRouteObserver.unsubscribe(this);
+    AdManager().isDirichletFullScreenShowing.removeListener(_fullScreenChanged);
+    AdManager().adPrivacyChanged.removeListener(_reloadForPrivacy);
+    AdManager().adsRemovedNotifier.removeListener(_reloadForPrivacy);
     WidgetsBinding.instance.removeObserver(this);
     _accrualTimer?.cancel();
     _bannerAdRetryTimer?.cancel();
@@ -94,13 +106,45 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   @override
   void didUpdateWidget(BannerAdView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.active != widget.active) _syncAccrual();
+    if (oldWidget.active != widget.active) {
+      _refreshDirichletVisibility();
+      _syncAccrual();
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _appForeground = state == AppLifecycleState.resumed;
+    _refreshDirichletVisibility();
     _syncAccrual();
+  }
+
+  void _fullScreenChanged() {
+    _refreshDirichletVisibility();
+    _syncAccrual();
+  }
+
+  void _reloadForPrivacy() {
+    _bannerAdRetryTimer?.cancel();
+    _bannerAdRetryTimer = null;
+    _bannerAd?.dispose();
+    _bannerAd = null;
+    setState(() {
+      _canShowAds = false;
+      _isBannerLoaded = false;
+      _dirichletClosed = false;
+    });
+    _syncAccrual();
+    unawaited(_loadBannerAd());
+  }
+
+  void _refreshDirichletVisibility() {
+    if (!AdManager().usesDirichlet) return;
+    // The native view is removed while hidden; don't count stale impressions.
+    setState(() {
+      _isBannerLoaded = false;
+      _dirichletViewGeneration++;
+    });
   }
 
   /// 横幅可见时每累计 60 秒发放 1 积分（受每日上限约束）
@@ -141,9 +185,18 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
     try {
       _canShowAds = await AdManager().canRequestAds();
     } catch (_) {
+      if (mounted) _scheduleBannerAdRetry();
       return;
     }
-    if (!mounted || !_canShowAds) return;
+    if (!mounted) return;
+    if (!_canShowAds) {
+      _scheduleBannerAdRetry();
+      return;
+    }
+    if (AdManager().usesDirichlet) {
+      setState(() => _dirichletFailed = false);
+      return;
+    }
     final ad = AdManager().createBannerAd(
       onAdLoaded: (ad) {
         if (mounted) {
@@ -169,7 +222,7 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   }
 
   void _scheduleBannerAdRetry() {
-    if (_bannerAdRetryTimer != null) return;
+    if (!AdManager().shouldRetryAds || _bannerAdRetryTimer != null) return;
     final retryDelay = bannerAdRetryDelay(_bannerAdRetryAttempt);
     _bannerAdRetryAttempt++;
     _bannerAdRetryTimer = Timer(retryDelay, () {
@@ -180,6 +233,52 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
 
   @override
   Widget build(BuildContext context) {
+    if (AdManager().usesDirichlet) {
+      if (!_canShowAds ||
+          !widget.active ||
+          !_appForeground ||
+          !_routeVisible ||
+          _dirichletFailed ||
+          _dirichletClosed ||
+          AdManager().isDirichletFullScreenShowing.value) {
+        return const SizedBox.shrink();
+      }
+      return Container(
+        width: double.infinity,
+        color: const Color(0xFFF0E9DC),
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: SafeArea(
+          child: Center(
+            child: DirichletBannerView(
+              key: ValueKey(_dirichletViewGeneration),
+              onShown: () {
+                if (!mounted) return;
+                _bannerAdRetryAttempt = 0;
+                setState(() => _isBannerLoaded = true);
+                _syncAccrual();
+              },
+              onFailed: () {
+                if (!mounted) return;
+                setState(() {
+                  _isBannerLoaded = false;
+                  _dirichletFailed = true;
+                });
+                _syncAccrual();
+                _scheduleBannerAdRetry();
+              },
+              onClosed: () {
+                if (!mounted) return;
+                setState(() {
+                  _isBannerLoaded = false;
+                  _dirichletClosed = true;
+                });
+                _syncAccrual();
+              },
+            ),
+          ),
+        ),
+      );
+    }
     final ad = _bannerAd;
     if (!_canShowAds || !_isBannerLoaded || ad == null) {
       return const SizedBox(height: 0);

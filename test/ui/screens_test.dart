@@ -547,7 +547,7 @@ void main() {
     await tester.tap(find.text('隐私政策'));
     await tester.pumpAndSettle();
     expect(find.text('二、广告服务'), findsOneWidget);
-    expect(find.textContaining('Google 广告服务'), findsOneWidget);
+    expect(find.textContaining('Google AdMob'), findsOneWidget);
   });
 
   testWidgets('商城购买提示卡后库存增加并扣减积分', (tester) async {

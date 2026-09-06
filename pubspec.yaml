@@ -32,6 +32,8 @@ dependencies:
   flutter_svg: ^2.3.0
 
   # 广告
+  dirichlet_ads:
+    path: packages/dirichlet_ads
   google_mobile_ads: ^9.0.0
   app_tracking_transparency: ^2.0.7
 
@@ -60,9 +62,14 @@ flutter_launcher_icons:
   image_path: "idiom_icon.png"
 
 flutter:
+  config:
+    # Dirichlet's official iOS SDK is distributed through CocoaPods.
+    enable-swift-package-manager: false
+
   uses-material-design: true
 
   assets:
+    - privacy.html
     - assets/data/idiom_crossword.db
     - assets/audio/
     - assets/images/

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/ad_manager.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../widgets/sub_page_header.dart';
@@ -35,6 +36,21 @@ class LegalScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              if (AdManager().usesDirichlet)
+                TextButton(
+                  onPressed: () async {
+                    try {
+                      await AdManager().changeDirichletConsent();
+                    } catch (_) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('暂时无法修改广告授权，请稍后重试')),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('修改国内广告隐私授权'),
+                ),
               Expanded(
                 child: TabBarView(
                   children: [
@@ -62,7 +78,7 @@ class _LegalDocument extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
       children: [
         Text(
-          '生效日期：2026年8月21日',
+          '生效日期：2026年9月6日',
           style: bodyStyle(size: 12, color: AppColors.muted),
         ),
         const SizedBox(height: 14),
@@ -72,7 +88,10 @@ class _LegalDocument extends StatelessWidget {
             style: displayStyle(size: 16, weight: FontWeight.w700),
           ),
           const SizedBox(height: 7),
-          Text(section.body, style: bodyStyle(size: 13.5, color: AppColors.fg)),
+          SelectableText(
+            section.body,
+            style: bodyStyle(size: 13.5, color: AppColors.fg),
+          ),
           const SizedBox(height: 18),
         ],
       ],
@@ -121,12 +140,12 @@ const _privacySections = <({String title, String body})>[
   (
     title: '二、广告服务',
     body:
-        '本应用已接入 Google 广告服务，用于展示横幅广告和激励广告。Google 可能依据您的授权状态处理设备标识符、IP 地址、广告互动、诊断信息及大致位置等数据，用于广告投放、频次控制、反欺诈和效果衡量。iOS 会在需要时显示系统跟踪授权提示；拒绝跟踪不会阻止您使用游戏，但广告可能与您的兴趣无关。',
+        '本应用按 iOS 系统地区选择广告平台：中国大陆（CN）使用 Dirichlet 聚合，其他地区（包括港澳台）使用 Google AdMob。系统地区可由用户修改，不代表 GPS 或 IP 实际位置；修改后重启应用生效。Google 广告用于横幅、激励视频和插屏激励广告。Google 可能依据您的授权状态处理设备标识符、IP 地址、广告互动、诊断信息及大致位置等数据，用于广告投放、频次控制、反欺诈和效果衡量。iOS 会在需要时显示系统跟踪授权提示；拒绝跟踪不会阻止您使用游戏，但广告可能与您的兴趣无关。',
   ),
   (
-    title: '三、其他广告供应商',
+    title: '三、Dirichlet 聚合广告',
     body:
-        '我们计划接入包括穿山甲广告在内的其他广告供应商。正式启用前，我们会根据实际接入情况更新本政策，并说明相关供应商、处理的数据和用途；未经披露的供应商不会据此条款自动获得您的数据。',
+        '国内横幅和激励视频使用 Dirichlet 聚合 SDK（TapADN，上海艾得蒽数字科技有限公司及其关联方），并接入穿山甲（北京巨量引擎网络技术有限公司）适配器，由聚合平台按广告位配置选择广告来源。SDK 在您同意后自行采集设备基础信息、IDFV、IP 地址、网络状态、广告互动和诊断信息，用于广告投放、监测归因、反作弊和统计分析。IDFA 仅在 iOS 跟踪授权后访问；本应用不向广告 SDK 提供精确位置。拒绝国内广告授权不影响基本游戏功能，可通过本页“修改国内广告隐私授权”重新选择。第三方保存期限、权利行使和联系方式见各自完整隐私政策：Dirichlet https://ssp.dirichlet.cn/docs/agreement/；穿山甲 https://www.csjplatform.com/privacy/partner。',
   ),
   (
     title: '四、Game Center',
@@ -141,7 +160,7 @@ const _privacySections = <({String title, String body})>[
   (
     title: '六、数据安全与保留',
     body:
-        '本地数据随应用保留；云端和第三方服务中的数据按照 Apple、Google 及未来实际接入供应商的规则保留。我们会采取合理措施保护应用内数据，但互联网传输和第三方服务无法保证绝对安全。',
+        '本地数据随应用保留；云端和第三方服务中的数据按照 Apple、Google、Dirichlet 及其已接入广告网络的规则保留。我们会采取合理措施保护应用内数据，但互联网传输和第三方服务无法保证绝对安全。',
   ),
   (
     title: '七、儿童隐私',

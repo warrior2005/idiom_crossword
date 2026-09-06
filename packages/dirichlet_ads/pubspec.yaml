@@ -1,0 +1,15 @@
+name: dirichlet_ads
+description: iOS bridge for the idiom crossword Dirichlet mediation ads.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ^3.10.0
+  flutter: '>=3.38.1'
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  plugin:
+    platforms:
+      ios:
+        pluginClass: DirichletAdsPlugin

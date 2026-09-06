@@ -6,13 +6,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:logger/logger.dart';
+import 'package:dirichlet_ads/dirichlet_ads.dart';
+import 'ad_region.dart';
 
 /// 广告管理类
 class AdManager with WidgetsBindingObserver {
   static final AdManager _instance = AdManager._internal();
   factory AdManager() => _instance;
 
-  AdManager._internal();
+  AdManager._internal() {
+    _dirichlet.rewardReady.addListener(() {
+      if (usesDirichlet) {
+        isRewardedAdReadyNotifier.value = _dirichlet.rewardReady.value;
+      }
+    });
+  }
+
+  final DirichletAds _dirichlet = DirichletAds();
+  bool usesDirichlet = false;
+  bool _adsRemoved = false;
+  final ValueNotifier<int> adPrivacyChanged = ValueNotifier(0);
+  final ValueNotifier<bool> isDirichletFullScreenShowing = ValueNotifier(false);
 
   /// 广告 SDK 仅支持 Android / iOS（Web 与桌面直接跳过）
   static bool get isSupportedPlatform =>
@@ -56,21 +70,33 @@ class AdManager with WidgetsBindingObserver {
   Timer? _rewardedAdRetryTimer;
   int _rewardedAdRetryAttempt = 0;
 
-  bool get isRewardedInterstitialAdReady =>
-      _rewardedInterstitialAd != null && _isRewardedInterstitialAdLoaded;
+  bool get shouldRetryAds =>
+      !_adsRemoved && !(_isInitialized && _canRequestAdsCached == false);
+
+  bool get isRewardedInterstitialAdReady => usesDirichlet
+      ? _dirichlet.rewardReady.value
+      : _rewardedInterstitialAd != null && _isRewardedInterstitialAdLoaded;
 
   Future<void> initialize() async {
-    if (_isInitialized) {
+    if (_adsRemoved || _isInitialized) {
       return;
     }
-    if (_initializationFuture != null) {
-      return _initializationFuture;
-    }
-    _initializationFuture = _initialize();
+    final active = _initializationFuture;
+    if (active != null) return active;
+    final initialization = _initialize().catchError((
+      Object error,
+      StackTrace stackTrace,
+    ) {
+      _logger.e('广告初始化失败', error: error, stackTrace: stackTrace);
+      _canRequestAdsCached = false;
+    });
+    _initializationFuture = initialization;
     try {
-      await _initializationFuture;
+      await initialization;
     } finally {
-      _initializationFuture = null;
+      if (identical(_initializationFuture, initialization)) {
+        _initializationFuture = null;
+      }
     }
   }
 
@@ -81,7 +107,30 @@ class AdManager with WidgetsBindingObserver {
       _isInitialized = true;
       return;
     }
+    WidgetsBinding.instance.removeObserver(this);
     WidgetsBinding.instance.addObserver(this);
+    if (Platform.isIOS) {
+      // NSLocale.currentLocale reflects Settings > General > Language & Region.
+      // A bridge failure must not accidentally initialize Google in mainland China.
+      final region = await _dirichlet.systemRegion();
+      if (region == null || region.isEmpty) {
+        throw StateError('无法读取 iOS 系统地区');
+      }
+      usesDirichlet = usesDirichletForRegion(region);
+      _logger.i(
+        '广告分流: systemRegion=$region, provider=${usesDirichlet ? "Dirichlet" : "AdMob"}',
+      );
+      if (usesDirichlet) {
+        await WidgetsBinding.instance.endOfFrame;
+        final accepted = await _dirichlet.requestConsent();
+        _canRequestAdsCached = accepted && await _dirichlet.initialize();
+        _isInitialized = !accepted || _canRequestAdsCached!;
+        if (_canRequestAdsCached! && !_adsRemoved) {
+          unawaited(loadRewardedAd());
+        }
+        return;
+      }
+    }
     if (Platform.isIOS) {
       // ios 平台使用不同的广告单位ID
       _bannerAdUnitId = 'ca-app-pub-5534836333837678/2782055476';
@@ -144,8 +193,10 @@ class AdManager with WidgetsBindingObserver {
   }
 
   Future<bool> canRequestAds() async {
-    if (!isSupportedPlatform) return false;
+    if (!isSupportedPlatform || _adsRemoved) return false;
     await initialize();
+    if (_adsRemoved) return false;
+    if (usesDirichlet) return _canRequestAdsCached == true;
     if (_canRequestAdsCached != null) {
       return _canRequestAdsCached!;
     }
@@ -157,6 +208,12 @@ class AdManager with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
+    if (usesDirichlet &&
+        state == AppLifecycleState.resumed &&
+        _canRequestAdsCached == true &&
+        !_adsRemoved) {
+      unawaited(loadRewardedAd());
+    }
     if (state == AppLifecycleState.detached) {
       _logger.i('检测到detached，开始释放所有广告资源...');
       disposeAllAds();
@@ -294,6 +351,7 @@ class AdManager with WidgetsBindingObserver {
   }
 
   void handleAdsRemoved() {
+    _adsRemoved = true;
     _canRequestAdsCached = false;
     disposeAllAds();
     adsRemovedNotifier.value++;
@@ -335,6 +393,15 @@ class AdManager with WidgetsBindingObserver {
         return false;
       }
 
+      if (usesDirichlet) {
+        final loaded = await _dirichlet.loadRewarded();
+        if (loaded) {
+          _rewardedAdRetryAttempt = 0;
+        } else {
+          _scheduleRewardedAdRetry();
+        }
+        return loaded;
+      }
       final completer = Completer<bool>();
       RewardedAd.load(
         adUnitId: _rewardedAdUnitId,
@@ -401,7 +468,7 @@ class AdManager with WidgetsBindingObserver {
   }
 
   void _scheduleRewardedAdRetry() {
-    if (_rewardedAdRetryTimer != null) {
+    if (!shouldRetryAds || _rewardedAdRetryTimer != null) {
       return;
     }
     final retryDelay = switch (_rewardedAdRetryAttempt) {
@@ -421,6 +488,23 @@ class AdManager with WidgetsBindingObserver {
     required Function(String, int) onRewardEarned,
     VoidCallback? onAdClosed,
   }) {
+    if (usesDirichlet) {
+      if (_adsRemoved || _canRequestAdsCached != true) return false;
+      final shown = _dirichlet.showRewarded(
+        onRewardEarned: onRewardEarned,
+        onAdClosed: () {
+          isDirichletFullScreenShowing.value = false;
+          onAdClosed?.call();
+          unawaited(loadRewardedAd());
+        },
+      );
+      if (shown) {
+        isDirichletFullScreenShowing.value = true;
+      } else {
+        unawaited(loadRewardedAd());
+      }
+      return shown;
+    }
     if (_rewardedAd != null && _isRewardedAdLoaded) {
       final ad = _rewardedAd!;
       _rewardedAd = null;
@@ -444,6 +528,7 @@ class AdManager with WidgetsBindingObserver {
 
   // 销毁激励视频广告
   void disposeRewardedAd() {
+    if (usesDirichlet) unawaited(_dirichlet.disposeAds());
     _rewardedAdRetryTimer?.cancel();
     _rewardedAdRetryTimer = null;
     _rewardedAdRetryAttempt = 0;
@@ -456,6 +541,11 @@ class AdManager with WidgetsBindingObserver {
 
   /// 预加载插页式激励广告。
   Future<void> loadRewardedInterstitialAd() async {
+    await initialize();
+    if (usesDirichlet) {
+      await loadRewardedAd();
+      return;
+    }
     if (isRewardedInterstitialAdReady || _isRewardedInterstitialAdLoading) {
       return;
     }
@@ -494,6 +584,12 @@ class AdManager with WidgetsBindingObserver {
     required void Function(String type, int amount) onRewardEarned,
     VoidCallback? onAdClosed,
   }) {
+    if (usesDirichlet) {
+      return showRewardedAd(
+        onRewardEarned: onRewardEarned,
+        onAdClosed: onAdClosed,
+      );
+    }
     if (_rewardedInterstitialAd != null && _isRewardedInterstitialAdLoaded) {
       final ad = _rewardedInterstitialAd!;
       _rewardedInterstitialAd = null;
@@ -559,6 +655,18 @@ class AdManager with WidgetsBindingObserver {
     _rewardedInterstitialAd = null;
     _isRewardedInterstitialAdLoaded = false;
     _isRewardedInterstitialAdLoading = false;
+  }
+
+  /// Revisit native consent from the existing legal screen.
+  Future<void> changeDirichletConsent() async {
+    if (!usesDirichlet || _adsRemoved) return;
+    final accepted = await _dirichlet.requestConsent(force: true);
+    _canRequestAdsCached = false;
+    disposeAllAds();
+    _canRequestAdsCached = accepted && await _dirichlet.initialize();
+    _isInitialized = !accepted || _canRequestAdsCached!;
+    adPrivacyChanged.value++;
+    if (_canRequestAdsCached!) unawaited(loadRewardedAd());
   }
 
   // 销毁所有广告
