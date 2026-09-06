@@ -23,7 +23,10 @@ ios/.symlinks/
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
 *.xcworkspace
+!ios/Runner.xcworkspace/
+!ios/Runner.xcworkspace/**
 *.xcuserdata
+*.xcuserstate
 
 # Android
 android/.gradle/

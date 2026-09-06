@@ -1,0 +1,33 @@
+{
+  "originHash" : "e0fe406fcf02aa1933c6a765f4dbce6755a167f805bd831f4d783c9165cb2aeb",
+  "pins" : [
+    {
+      "identity" : "mute",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/akramhussein/Mute.git",
+      "state" : {
+        "revision" : "f99f26150c1b4806fb9720642d03159b87fddf40",
+        "version" : "0.6.1"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-mobile-ads",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads",
+      "state" : {
+        "revision" : "54efe6d39a7b41b84c1041f21c704a7e6a493d7a",
+        "version" : "13.9.0"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-user-messaging-platform",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git",
+      "state" : {
+        "revision" : "13b248eaa73b7826f0efb1bcf455e251d65ecb1b",
+        "version" : "3.1.0"
+      }
+    }
+  ],
+  "version" : 3
+}
