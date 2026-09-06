@@ -13,6 +13,6 @@ Pod::Spec.new do |s|
   s.dependency 'Flutter'
   s.dependency 'DirichletMediationSDK', '5.2.1.5'
   s.dependency 'DirichletMediationAdapterDRA', '5.2.1.5'
-  s.frameworks = 'AppTrackingTransparency', 'SafariServices', 'WebKit'
+  s.frameworks = 'AdSupport', 'AppTrackingTransparency', 'SafariServices', 'WebKit'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
 end

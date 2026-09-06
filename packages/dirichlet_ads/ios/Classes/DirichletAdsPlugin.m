@@ -1,4 +1,5 @@
 #import "DirichletAdsPlugin.h"
+#import <AdSupport/AdSupport.h>
 #import <AppTrackingTransparency/AppTrackingTransparency.h>
 #import <DirichletMediationSDK/DirichletMediationSDK.h>
 #import <SafariServices/SafariServices.h>
@@ -194,11 +195,67 @@ static BOOL DRCanLoad(void) {
 @property(nonatomic, copy) FlutterResult consentResult;
 @property(nonatomic) BOOL rewarded;
 @property(nonatomic) BOOL rewardDidShow;
+@property(nonatomic) BOOL didPresentDebugIDFA;
 @property(nonatomic) NSUInteger generation;
 @property(nonatomic, strong) DRBannerFactory *bannerFactory;
 @end
 
 @implementation DirichletAdsPlugin
+
+#if DEBUG
+- (void)presentDebugIDFAForStatus:(ATTrackingManagerAuthorizationStatus)status {
+  if (self.didPresentDebugIDFA) return;
+
+  UIViewController *presenter = DRPresenter();
+  if (!presenter || [presenter isKindOfClass:UIAlertController.class]) return;
+  self.didPresentDebugIDFA = YES;
+
+  NSString *statusText;
+  switch (status) {
+    case ATTrackingManagerAuthorizationStatusAuthorized:
+      statusText = @"已授权";
+      break;
+    case ATTrackingManagerAuthorizationStatusDenied:
+      statusText = @"系统当前不允许跟踪";
+      break;
+    case ATTrackingManagerAuthorizationStatusRestricted:
+      statusText = @"受限制";
+      break;
+    default:
+      statusText = @"尚未选择";
+      break;
+  }
+
+  NSString *idfa = status == ATTrackingManagerAuthorizationStatusAuthorized
+      ? ASIdentifierManager.sharedManager.advertisingIdentifier.UUIDString
+      : @"00000000-0000-0000-0000-000000000000";
+  
+  NSLog(@"[Dirichlet] ATT 状态: %@", statusText);
+  NSLog(@"[Dirichlet] IDFA: %@", idfa);
+
+  BOOL available = ![idfa isEqualToString:@"00000000-0000-0000-0000-000000000000"];
+  NSString *message = available
+      ? [NSString stringWithFormat:@"ATT 状态：%@\n\nIDFA：\n%@\n\n请复制后填写到 Dirichlet 后台测试工具。", statusText, idfa]
+      : [NSString stringWithFormat:@"ATT 状态：%@\n\n请前往“设置 → 隐私与安全性 → 跟踪”检查“允许 App 请求跟踪”和本应用开关，然后重新启动。本按钮仅打开应用设置页。系统不允许跟踪不代表您曾手动拒绝，也不影响已同意隐私政策后的广告请求。", statusText];
+
+  UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Dirichlet 测试 IDFA"
+      message:message preferredStyle:UIAlertControllerStyleAlert];
+  if (available) {
+    [alert addAction:[UIAlertAction actionWithTitle:@"复制 IDFA" style:UIAlertActionStyleDefault
+        handler:^(UIAlertAction *action) {
+          UIPasteboard.generalPasteboard.string = idfa;
+        }]];
+  } else {
+    [alert addAction:[UIAlertAction actionWithTitle:@"打开系统设置" style:UIAlertActionStyleDefault
+        handler:^(UIAlertAction *action) {
+          NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+          if (url) [UIApplication.sharedApplication openURL:url options:@{} completionHandler:nil];
+        }]];
+  }
+  [alert addAction:[UIAlertAction actionWithTitle:@"关闭" style:UIAlertActionStyleCancel handler:nil]];
+  [presenter presentViewController:alert animated:YES completion:nil];
+}
+#endif
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar> *)registrar {
   DirichletAdsPlugin *instance = [[DirichletAdsPlugin alloc] init];
   instance.privacyAssetPath = [NSBundle.mainBundle pathForResource:
@@ -216,6 +273,9 @@ static BOOL DRCanLoad(void) {
 - (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
   if ([call.method isEqualToString:@"systemRegion"]) {
     result([NSLocale.currentLocale objectForKey:NSLocaleCountryCode]);
+  } else if ([call.method isEqualToString:@"acceptAppPrivacy"]) {
+    [NSUserDefaults.standardUserDefaults setBool:YES forKey:DRConsentKey];
+    result(nil);
   } else if ([call.method isEqualToString:@"requestConsent"]) {
     if (self.consentResult) { result(DRError(@"consent_in_progress")); return; }
     if (![call.arguments[@"force"] boolValue] &&
@@ -294,12 +354,21 @@ static BOOL DRCanLoad(void) {
   if (![NSUserDefaults.standardUserDefaults boolForKey:DRConsentKey] || !DRPresenter()) {
     result(@NO); return;
   }
-  if ([DirichletMediation isInitialized]) { result(@YES); return; }
+  if ([DirichletMediation isInitialized]) {
+#if DEBUG
+    [self presentDebugIDFAForStatus:ATTrackingManager.trackingAuthorizationStatus];
+#endif
+    result(@YES);
+    return;
+  }
   void (^start)(ATTrackingManagerAuthorizationStatus) = ^(ATTrackingManagerAuthorizationStatus status) {
     dispatch_async(dispatch_get_main_queue(), ^{
       if (!DRPresenter() || ![NSUserDefaults.standardUserDefaults boolForKey:DRConsentKey]) {
         result(@NO); return;
       }
+#if DEBUG
+      [self presentDebugIDFAForStatus:status];
+#endif
       DRMSDKConfig *config = [DRMSDKConfig configWithMediaId:@"1107498"
           mediaKey:@"Ad1sg8Sb5mOdlxGAvLXtmlv321zwn5glEr3Tq9Z8t8AUneoeyOlHdszDuihS9x8x"];
       config.mediaName = @"成语接龙";

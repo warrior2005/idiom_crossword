@@ -13,7 +13,6 @@ import 'src/state/game_center_service.dart';
 import 'src/state/leaderboard_service.dart';
 import 'src/state/cloud_save_service.dart';
 import 'src/state/collection_provider.dart';
-import 'src/utils/ad_manager.dart';
 import 'src/ui/screens/root_screen.dart';
 import 'src/audio/music_manager.dart';
 import 'src/audio/audio_route_observer.dart';
@@ -22,6 +21,7 @@ import 'src/ui/screens/settings_screen.dart';
 import 'src/ui/theme/app_colors.dart';
 import 'src/ui/theme/app_text.dart';
 import 'src/ui/widgets/first_launch_dialog.dart';
+import 'src/ui/widgets/privacy_bootstrap.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,9 +36,6 @@ Future<void> main() async {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-
-  // 初始化广告 SDK（横幅/插页式激励/激励广告在各自页面加载）
-  unawaited(AdManager().initialize());
 
   // 先加载已保存的玩家进度，避免启动后闪回默认值
   final container = ProviderContainer();
@@ -70,10 +67,13 @@ Future<void> main() async {
     UncontrolledProviderScope(
       container: container,
       child: IdiomCrosswordApp(
-        home: CloudSaveBootstrap(
+        home: PrivacyBootstrap(
           db: db,
-          needsSaveChoice: needsSaveChoice,
-          currentAppVersion: currentAppVersion,
+          child: CloudSaveBootstrap(
+            db: db,
+            needsSaveChoice: needsSaveChoice,
+            currentAppVersion: currentAppVersion,
+          ),
         ),
       ),
     ),

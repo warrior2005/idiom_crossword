@@ -5,10 +5,21 @@ import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../widgets/sub_page_header.dart';
 
+// Change only when the corresponding document content changes, not on app releases.
+const userAgreementVersion = '20260906';
+const privacyPolicyVersion = '20260906';
+const appPrivacyConsentKey =
+    'app_privacy_consent_${userAgreementVersion}_$privacyPolicyVersion';
+
 class LegalScreen extends StatelessWidget {
   final int initialIndex;
+  final bool allowConsentChanges;
 
-  const LegalScreen({super.key, this.initialIndex = 0});
+  const LegalScreen({
+    super.key,
+    this.initialIndex = 0,
+    this.allowConsentChanges = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +47,7 @@ class LegalScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              if (AdManager().usesDirichlet)
+              if (allowConsentChanges && AdManager().usesDirichlet)
                 TextButton(
                   onPressed: () async {
                     try {

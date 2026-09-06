@@ -39,11 +39,17 @@ flutter build ios --release --no-codesign
 
 ## 隐私初始化
 
-国内不会调用 Google UMP 或初始化 MobileAds。先展示国内广告隐私选择，应用完整政策 `privacy.html` 随包提供，可离线阅读；同意后才请求 ATT 和启动 Dirichlet，拒绝后保留基本游戏功能。可在“设置 → 用户协议与隐私 → 修改国内广告隐私授权”重新选择。
+首次启动展示应用风格的“个人信息保护指引”，包含简版说明和应用内完整《用户协议》《隐私政策》链接。按产品要求只提供“同意”按钮，未同意时停留，不主动退出应用；该设计与官方要求提供同意及拒绝按钮的说明存在差异。同意并保存后才进入存档选择和广告初始化；首次同意同步原生广告隐私状态，避免重复出现国内广告说明。阅读文档不视为同意，返回后仍需明确选择。
+
+同意状态由 `legal_screen.dart` 的 `userAgreementVersion` 与 `privacyPolicyVersion` 共同标识，仅在对应协议正文变化时更新，不关联应用版本号。旧 `app_privacy_consent_20260906` 记录仅对同版本协议迁移，普通升级或弹框样式变更不重复弹出；任一协议版本改变后重新确认。
+
+国内不会调用 Google UMP 或初始化 MobileAds。同意应用协议后才请求 ATT 和启动 Dirichlet；拒绝 ATT 仅禁用 IDFA 访问，不阻止广告初始化。设置页“修改国内广告隐私授权”仍可独立撤销广告授权。
 
 仅在 ATT 已授权时允许 IDFA；不申请或提供精确定位。更新了应用内政策和仓库中的 `privacy.html`；公开网站仍需发布该文件的新版本。
 
 ## 联调与上线
+
+Debug 真机包在国内广告隐私同意和 ATT 流程结束后，会在每次冷启动时弹出“Dirichlet 测试 IDFA”。ATT 已授权时可直接复制 IDFA；未授权时可跳转系统设置。该诊断弹框由 `#if DEBUG` 限定，不会进入 Profile 或 Release 包，完成后台测试设备配置后可删除。
 
 1. 真机系统地区设为中国大陆，重启，确认日志 `provider=Dirichlet`，分别验证同意/拒绝、拒绝 ATT 和允许 ATT。
 2. 在 Dirichlet 后台确认媒体对应当前 iOS Bundle ID `com.sunnywarrior.idiomCrossword`，广告位类型及聚合网络配置正确；通过后台“流量管理 → 测试工具”配置测试设备。
