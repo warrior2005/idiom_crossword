@@ -2034,19 +2034,43 @@ class _GameScreenState extends ConsumerState<GameScreen>
     if (await db.isLevelCompleted(widget.level.levelId) || !mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('换一道题'),
-        content: const Text('将清空本题填写，换成同一关的新题。已获得的奖励和通关进度会保留。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('继续本题'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('换题'),
-          ),
-        ],
+      builder: (ctx) => ThemeDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '换一道题',
+              style: displayStyle(size: 20, weight: FontWeight.w900),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '将清空本题填写，换成同一关的新题。',
+              style: bodyStyle(size: 13.5, color: AppColors.muted),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: '取消',
+                    small: true,
+                    ghost: true,
+                    onTap: () => Navigator.pop(ctx, false),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: PrimaryButton(
+                    label: '确认',
+                    small: true,
+                    onTap: () => Navigator.pop(ctx, true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
     if (confirmed != true || !mounted) return;
@@ -2670,8 +2694,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _ToolbarButton(icon: 'undo', label: '撤销', onTap: _undo),
-          if (!_isDaily)
-            _ToolbarButton(icon: 'undo', label: '换题', onTap: _replaceMainline),
           _ToolbarButton(
             icon: 'hint',
             label: '提示',

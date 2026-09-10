@@ -93,7 +93,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('旧题主动换题保持关卡号，不发奖励并清空旧作答', (tester) async {
+  testWidgets('失败后换题保持关卡号，不发奖励并清空旧作答', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     for (final word in ['十全十美', '五光十色']) {
@@ -118,12 +118,15 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('蛇'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('换题'));
+    expect(find.text('换题'), findsNothing);
+    await _failCurrentLevel(tester);
+    await tester.tap(find.text('换一道题'));
     await tester.pumpAndSettle();
     expect(find.text('换一道题'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, '换题'));
+    expect(find.byKey(const ValueKey('theme-dialog-content')), findsOneWidget);
+    expect(find.text('将清空本题填写，换成同一关的新题。'), findsOneWidget);
+    expect(find.widgetWithText(PrimaryButton, '取消'), findsOneWidget);
+    await tester.tap(find.widgetWithText(PrimaryButton, '确认'));
     await _pumpUntil(
       tester,
       () =>
