@@ -161,7 +161,6 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
       final level = await loadOrGenerateLevel(
         db,
         levelNumber,
-        globalRange: ref.read(playerProvider).level >= 20,
         playerLevel: ref.read(playerProvider).level,
       );
       if (!mounted) return;

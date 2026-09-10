@@ -1,3 +1,4 @@
+import 'package:idiom_crossword/src/state/level_state_codec.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,137 @@ import 'package:idiom_crossword/src/utils/ad_manager.dart';
 
 /// 完整通关流程端到端测试：候选字填字 → 过关对话框 → 经验/记录落库
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() {
+    // 不复用上一个 widget 测试 FakeAsync zone 中的资源 Future。
+    rootBundle.evict('assets/data/mainline_content.json');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    for (final channel in [
+      'xyz.luan/audioplayers.global',
+      'xyz.luan/audioplayers.global/events',
+    ]) {
+      messenger.setMockMethodCallHandler(
+        MethodChannel(channel),
+        (_) async => null,
+      );
+    }
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('xyz.luan/audioplayers'),
+      (call) async {
+        if (call.method == 'create') {
+          final id = (call.arguments as Map)['playerId'];
+          messenger.setMockMethodCallHandler(
+            MethodChannel('xyz.luan/audioplayers/events/$id'),
+            (_) async => null,
+          );
+        }
+        return null;
+      },
+    );
+  });
+
+  testWidgets('新候选盘填写后断点恢复，数量与已用槽位保持一致', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final old = _buildLevel();
+    final level = engine.CrosswordLevel(
+      levelId: 1,
+      grid: old.grid,
+      placements: old.placements,
+      givenCharacters: old.givenCharacters,
+      title: old.title,
+      support: 3,
+      strategyVersion: 1,
+      contentVersion: 1,
+      instanceId: 'resume_test',
+    );
+    Widget game() => ProviderScope(
+      overrides: [databaseProvider.overrideWithValue(db)],
+      child: MaterialApp(home: GameScreen(level: level)),
+    );
+    await tester.pumpWidget(game());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('蛇'));
+    await tester.pumpAndSettle();
+    final saved = await db.getLevelState(1);
+    expect(saved, isNotNull);
+    final state = decodeGameState(saved!.stateJson)!;
+    expect(state.candidateBoard.expand((r) => r).length, 5);
+    expect(state.usedCandidateSlots.length, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(game());
+    await tester.pumpAndSettle();
+    final restored = decodeGameState((await db.getLevelState(1))!.stateJson)!;
+    expect(restored.candidateBoard, state.candidateBoard);
+    expect(restored.usedCandidateSlots, state.usedCandidateSlots);
+    expect(restored.answers, state.answers);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('旧题主动换题保持关卡号，不发奖励并清空旧作答', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    for (final word in ['十全十美', '五光十色']) {
+      await db
+          .into(db.idioms)
+          .insert(
+            IdiomsCompanion.insert(
+              word: word,
+              pinyin: 'a b c d',
+              pinyinAbbr: 'abcd',
+              explanation: '测试释义',
+              firstChar: word[0],
+              lastChar: word[3],
+              difficulty: 1,
+            ),
+          );
+    }
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('蛇'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('换题'));
+    await tester.pumpAndSettle();
+    expect(find.text('换一道题'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, '换题'));
+    await _pumpUntil(
+      tester,
+      () =>
+          find.byType(GameScreen).evaluate().isNotEmpty &&
+          tester
+                  .widget<GameScreen>(find.byType(GameScreen).last)
+                  .level
+                  .strategyVersion ==
+              1,
+      const Duration(seconds: 5),
+    );
+    for (var attempt = 0; attempt < 40; attempt++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+      if (find.byType(CircularProgressIndicator).evaluate().isEmpty) break;
+    }
+    await tester.pumpAndSettle();
+    final level = tester.widget<GameScreen>(find.byType(GameScreen)).level;
+    expect(level.levelId, 1);
+    expect(level.strategyVersion, 1);
+    expect(await db.isLevelCompleted(1), isFalse);
+    expect(await db.getLevelHistory(), isEmpty);
+    final saved = await db.getLevelState(1);
+    if (saved != null) {
+      expect(decodeGameState(saved.stateJson)!.answers, isEmpty);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
   test('网格单元尺寸尽量撑满可用区域', () {
     // 空间富余时不再被 48px 上限限制：360/6 = 60
     expect(

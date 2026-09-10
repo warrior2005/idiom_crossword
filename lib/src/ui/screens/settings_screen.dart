@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../audio/music_manager.dart';
+import '../../data/mainline_learning.dart';
 import '../../audio/sound_manager.dart';
 import '../../state/daily_reminder.dart';
 import '../../state/database_provider.dart';
@@ -114,6 +115,67 @@ final appVersionProvider = FutureProvider<String>((ref) async {
   return info.version;
 });
 
+final mainlinePreferenceProvider =
+    AsyncNotifierProvider<MainlinePreferenceNotifier, int>(
+      MainlinePreferenceNotifier.new,
+    );
+
+class MainlinePreferenceNotifier extends AsyncNotifier<int> {
+  @override
+  Future<int> build() async =>
+      (int.tryParse(
+                await ref
+                        .read(databaseProvider)
+                        .getSetting('mainline_ability') ??
+                    '',
+              ) ??
+              0)
+          .clamp(0, 2);
+
+  Future<void> choose(int value) async {
+    await MainlineLearning.setPreference(ref.read(databaseProvider), value);
+    state = AsyncData(value);
+  }
+}
+
+class _MainlinePreferenceRow extends ConsumerWidget {
+  const _MainlinePreferenceRow();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final value = ref.watch(mainlinePreferenceProvider).value ?? 0;
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text('主线挑战', style: bodyStyle(size: 15))),
+              DropdownButton<int>(
+                value: value,
+                items: const [
+                  DropdownMenuItem(value: 0, child: Text('轻松入门')),
+                  DropdownMenuItem(value: 1, child: Text('日常挑战')),
+                  DropdownMenuItem(value: 2, child: Text('成语高手')),
+                ],
+                onChanged: (next) {
+                  if (next != null) {
+                    ref.read(mainlinePreferenceProvider.notifier).choose(next);
+                  }
+                },
+              ),
+            ],
+          ),
+          Text(
+            '从下一道新题生效，并根据近期表现小幅调整。',
+            style: bodyStyle(size: 11.5, color: AppColors.muted),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// 设置界面
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -134,6 +196,7 @@ class SettingsScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                 children: [
+                  _Group(children: const [_MainlinePreferenceRow()]),
                   _Group(
                     children: const [_MusicRow(), _SoundRow(), _HapticRow()],
                   ),

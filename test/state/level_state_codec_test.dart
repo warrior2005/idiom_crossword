@@ -16,12 +16,14 @@ void main() {
       errorsMade: 0,
       correctStreak: 0,
       totalFills: 7,
+      activeTimeMs: 1234,
       wrongIdiomWords: const {'画蛇添足'},
       reviveUsesThisLevel: 2,
     );
     final decoded = decodeGameState(encodeGameState(s));
+    expect(decoded!.activeTimeMs, 1234);
     expect(decoded, isNotNull);
-    expect(decoded!.totalFills, 7);
+    expect(decoded.totalFills, 7);
     expect(decoded.wrongIdiomWords, {'画蛇添足'});
     expect(decoded.remainingSeconds, 180);
     expect(decoded.reviveUsesThisLevel, 2);

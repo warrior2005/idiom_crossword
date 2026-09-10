@@ -184,6 +184,10 @@ class CrosswordLevel {
   final Set<String> givenCharacters; // 初始给出的字（提示）
   final String title;
   final String? storyHint; // 隐藏成语的典故提示
+  final int contentVersion;
+  final int support; // 0 为旧题/共享题；1—3 为主线提示支持
+  final int strategyVersion;
+  final String? instanceId;
 
   const CrosswordLevel({
     required this.levelId,
@@ -192,6 +196,10 @@ class CrosswordLevel {
     required this.givenCharacters,
     required this.title,
     this.storyHint,
+    this.contentVersion = 0,
+    this.support = 0,
+    this.strategyVersion = 0,
+    this.instanceId,
   });
 
   /// 本关涉及的所有成语

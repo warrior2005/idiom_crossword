@@ -58,6 +58,14 @@ def build_db(scores, meta, extra):
     """构建与 Drift v2 Schema 对齐的 SQLite 数据库"""
     db_path = os.path.join(ASSET_DATA_DIR, 'idiom_crossword.db')
 
+    # 发布内容必须保持 ID，不受拼音修正或排序变化影响。
+    with open(os.path.join(SOURCE_DATA_DIR, 'idiom_ids.json'), encoding='utf-8') as f:
+        stable_ids = json.load(f)
+    if set(scores) - set(stable_ids):
+        raise ValueError('新增成语必须先分配稳定 ID')
+    if len(set(stable_ids.values())) != len(stable_ids):
+        raise ValueError('成语 ID 重复')
+
     # 删除旧文件及可能的 WAL 残留
     for suffix in ('', '-wal', '-shm'):
         path = db_path + suffix
@@ -247,7 +255,7 @@ def build_db(scores, meta, extra):
         derivation = raw.get('derivation', '')
         example = raw.get('example', '')
 
-        idiom_id += 1
+        idiom_id = stable_ids[word]
         word_to_id[word] = idiom_id
         idiom_inserts.append((
             idiom_id,
@@ -334,7 +342,7 @@ def build_db(scores, meta, extra):
         if os.path.exists(path):
             os.remove(path)
 
-    verify(db_path, idiom_id)
+    verify(db_path, len(scores))
 
 
 def _flush(conn, idiom_inserts, index_inserts, idiom_id, total):

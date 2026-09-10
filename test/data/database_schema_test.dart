@@ -30,6 +30,7 @@ Future<AppDatabase> _memoryDb() async {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('prebuilt DB matches drift v2 schema end to end', () async {
     // 在临时副本上验证，避免污染仓库内的资产数据库
     final tmpDir = await Directory.systemTemp.createTemp('idiom_db_test');
@@ -432,7 +433,7 @@ void main() {
     expect(progress.bestCorrectStreak, 12);
   });
 
-  test('Lv20 后三区混排仍可生成关卡', () async {
+  test('Lv20 主线使用准入策略，不再自动切换高难词池', () async {
     final tmpDir = await Directory.systemTemp.createTemp('idiom_global_db');
     final tmpDb = File('${tmpDir.path}/test.db');
     await File('assets/data/idiom_crossword.db').copy(tmpDb.path);
@@ -449,8 +450,10 @@ void main() {
         maxAttempts: 80,
       );
     }
-    expect(level, isNotNull, reason: 'Lv20 后的全局难度关卡应能生成');
+    expect(level, isNotNull, reason: '高等级主线应使用准入策略生成');
     expect(level!.levelId, 20001);
+    expect(level.strategyVersion, 1);
+    expect(level.idioms.length, lessThanOrEqualTo(6));
     expect(
       level.idioms.every((i) => i.difficulty >= 1 && i.difficulty <= 50),
       isTrue,

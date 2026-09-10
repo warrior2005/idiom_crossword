@@ -269,12 +269,17 @@ class DistractorEngine {
     required List<String> correctAnswers,
     int rows = 3,
     int countPerRow = 8,
+    int? totalCount,
+    Set<String>? allowedDistractorChars,
     int? randomRotationKey,
     Map<String, List<String>> databaseRelatedCandidates = const {},
     Set<String> excludeDistractorChars = const {},
   }) {
     // 计算总干扰字数 = 格子总数 - 正确答案数
-    final totalSlots = rows * countPerRow;
+    final totalSlots = totalCount ?? rows * countPerRow;
+    if (countPerRow <= 0 || totalSlots < correctAnswers.length) {
+      throw ArgumentError('候选盘必须容纳所有答案');
+    }
     final correctCount = correctAnswers.length;
     if (correctCount == 0) return [];
     final distractorCount = totalSlots - correctCount;
@@ -295,7 +300,9 @@ class DistractorEngine {
               .where(
                 (char) =>
                     !answerSet.contains(char) &&
-                    !excludeDistractorChars.contains(char),
+                    !excludeDistractorChars.contains(char) &&
+                    (allowedDistractorChars == null ||
+                        allowedDistractorChars.contains(char)),
               )
               .toSet()
               .toList()
@@ -331,7 +338,9 @@ class DistractorEngine {
               !answerSet.contains(char) &&
               !excludeDistractorChars.contains(char) &&
               !relatedDistractors.contains(char) &&
-              !allRelatedChars.contains(char),
+              !allRelatedChars.contains(char) &&
+              (allowedDistractorChars == null ||
+                  allowedDistractorChars.contains(char)),
         )
         .toList();
     final randomCandidates = <String>[];
@@ -370,7 +379,7 @@ class DistractorEngine {
 
     // 分到各行
     final board = <List<String>>[];
-    for (int r = 0; r < rows; r++) {
+    for (int r = 0; r < (totalSlots / countPerRow).ceil(); r++) {
       final start = r * countPerRow;
       board.add(
         allCandidates.sublist(

@@ -17,6 +17,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
+import 'mainline_content.dart';
+
 part 'database.g.dart';
 
 /// 当前数据库 schema 版本（预构建数据库会在首次打开时迁移到此版本）
@@ -979,6 +981,14 @@ LazyDatabase _openConnection() {
         final data = await rootBundle.load('assets/data/idiom_crossword.db');
         await file.writeAsBytes(data.buffer.asUint8List());
       }
+    }
+
+    final content = await MainlineContent.load();
+    final contentConnection = sqlite3.open(file.path);
+    try {
+      content.applyCorrections(contentConnection);
+    } finally {
+      contentConnection.close();
     }
 
     try {

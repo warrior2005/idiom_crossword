@@ -46,6 +46,10 @@ String encodeLevel(CrosswordLevel level) {
     'cells': cells,
     'placements': placements,
     'storyHint': level.storyHint,
+    'contentVersion': level.contentVersion,
+    'support': level.support,
+    'strategyVersion': level.strategyVersion,
+    'instanceId': level.instanceId,
   });
 }
 
@@ -100,6 +104,10 @@ CrosswordLevel? decodeLevel(String source) {
       givenCharacters: given,
       title: data['title'] as String,
       storyHint: data['storyHint'] as String?,
+      contentVersion: data['contentVersion'] as int? ?? 0,
+      support: data['support'] as int? ?? 0,
+      strategyVersion: data['strategyVersion'] as int? ?? 0,
+      instanceId: data['instanceId'] as String?,
     );
   } catch (_) {
     return null;
@@ -114,6 +122,7 @@ class SavedGameState {
   final Map<(int, int), (int, int)> cellToCandidateSlot;
   final List<List<String>> candidateBoard;
   final int hintUsesThisLevel;
+  final int activeTimeMs;
   final int errorsMade;
   final int correctStreak;
   final int totalFills;
@@ -133,6 +142,7 @@ class SavedGameState {
     required this.cellToCandidateSlot,
     required this.candidateBoard,
     required this.hintUsesThisLevel,
+    this.activeTimeMs = 0,
     required this.errorsMade,
     required this.correctStreak,
     required this.totalFills,
@@ -162,6 +172,7 @@ String encodeGameState(SavedGameState state) {
         .toList(),
     'board': state.candidateBoard,
     'hints': state.hintUsesThisLevel,
+    'activeTimeMs': state.activeTimeMs,
     'errors': state.errorsMade,
     'streak': state.correctStreak,
     'fills': state.totalFills,
@@ -224,6 +235,7 @@ SavedGameState? decodeGameState(String source) {
       cellToCandidateSlot: slots,
       candidateBoard: board,
       hintUsesThisLevel: data['hints'] as int,
+      activeTimeMs: data['activeTimeMs'] as int? ?? 0,
       errorsMade: data['errors'] as int,
       correctStreak: data['streak'] as int,
       totalFills: data['fills'] as int? ?? 0,

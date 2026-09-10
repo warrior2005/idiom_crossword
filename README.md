@@ -5,11 +5,13 @@
 
 产品设计与进度见 [PRD.md](PRD.md) 与 [PLANS.md](PLANS.md)。
 
-后续难度与关卡体验开发见 [改造方案（2026-09-09，待实施）](docs/specs/2026-09-09-difficulty-and-level-experience-redesign.md)，包含词库准入、前期适配、后期主线边界及老用户迁移。
+难度与关卡体验首版实现见 [改造方案（2026-09-09）](docs/specs/2026-09-09-difficulty-and-level-experience-redesign.md)，包含词库准入、前期适配、后期主线边界及老用户迁移。
 
 ## 功能
 
-- 无限关卡：10,000+ 关无限生成，Lv.20 前螺旋难度递增（主体 + 长尾 + 预览混排），Lv.20 后「波浪中心 + 三区混排」，29,502 条成语按 1-50 难度均匀分布
+- 主线关卡：前20关限定入门词池，后续在基础／拓展准入词池内持续生成；生僻程度不随关数或科举等级无限上升，题面按偏好与近期表现调整
+- 可变候选盘：按待填格数、词数和提示支持计算候选字数量；支持旧题主动换题和原样恢复存档
+- 练习记录：区分辅助完成与独立作答，优先复习到期词；设置中可选轻松入门／日常挑战／成语高手
 - 一字提示：每次消耗提示卡（商城/等级奖励获得）
 - 成长系统：科举仕途 21 级（童生 → 位极人臣 → Lv.∞ 真龙天子），指数经验曲线，等级奖励（提示卡/复活卡/装饰）
 - 生命值与失败：主线生命值 3，填错扣 1；每日挑战额外 2 分钟限时；失败可复活/重玩
@@ -51,13 +53,18 @@ flutter test
 ```bash
 python3 scripts/build_database.py
 python3 scripts/verify_db.py
+python3 scripts/check_idiom_data.py
 ```
+
+成语 ID 固定在 `data/idiom_ids.json`；新增词需先分配新 ID，不得重新编号。主线准入及拼音内容版本在 `assets/data/mainline_content.json`，初始清单待目标玩家校准。
 
 生成音效 / 关卡样本报告：
 
 ```bash
 python3 scripts/generate_audio.py
 dart run tool/level_samples_report.dart
+flutter test tool/mainline_samples_test.dart
+flutter test tool/mainline_preview_test.dart
 ```
 
 iOS 构建验证：

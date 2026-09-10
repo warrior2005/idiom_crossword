@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import '../data/database.dart';
+import '../data/mainline_content.dart';
+import '../data/mainline_learning.dart';
+import '../engine/mainline_policy.dart';
 import '../engine/candidate_ambiguity.dart';
 import '../engine/crossing_graph.dart';
 import '../engine/grid_engine.dart' as engine;
@@ -65,6 +68,18 @@ Future<engine.CrosswordLevel?> generateLevel(
   bool globalRange = false,
   int playerLevel = 1,
 }) async {
+  if (levelNumber > 0 &&
+      levelNumber < dailyLevelOffset &&
+      targetSize == null &&
+      difficultyRange == null) {
+    return _generateMainline(
+      db,
+      levelNumber,
+      maxAttempts: maxAttempts,
+      seed: seed,
+      title: title,
+    );
+  }
   final (minD, maxD) = globalRange
       ? (1, 50)
       : difficultyRange ?? _spiralRange(levelNumber);
@@ -154,6 +169,89 @@ Future<engine.CrosswordLevel?> generateLevel(
       maxAttempts: maxAttempts,
     );
     if (level != null) return _addDisambiguatingGivens(db, level);
+  }
+  return null;
+}
+
+/// 主线仅从准入清单选词；尝试失败时缩小规模，绝不扩大词汇边界。
+Future<engine.CrosswordLevel?> _generateMainline(
+  AppDatabase db,
+  int number, {
+  int maxAttempts = 50,
+  int? seed,
+  String? title,
+}) async {
+  final content = await MainlineContent.load();
+  final foundation = number <= 20 ? content.intro : content.foundation;
+  final ability = await MainlineLearning.ability(db);
+  final due = await MainlineLearning.dueWords(db);
+  final policy = MainlinePolicy.forLevel(number, ability: ability.clamp(-1, 2));
+  final excluded = seed == null
+      ? await db.getRecentlyUsedMainIdiomIds(recentLevelExclusionCount)
+      : <int>{};
+  final rows = await db.findIdiomsByWords([
+    ...foundation,
+    if (policy.expansionLimit > 0) ...content.expansion,
+  ]);
+  final eligible = rows.where((r) => !excluded.contains(r.id)).toList()
+    ..sort((a, b) => a.id.compareTo(b.id));
+  final graph = CrossingGraph(
+    idioms: eligible
+        .map(
+          (r) => engine.Idiom(
+            text: r.word,
+            pinyin: r.pinyin,
+            meaning: r.explanation,
+            difficulty: r.difficulty,
+            source: r.derivation ?? '',
+          ),
+        )
+        .toList(),
+  );
+  final generator = IntegratedGenerator(
+    graph: graph,
+    random: seed == null ? null : Random(seed),
+  );
+  for (var size = policy.size; size >= 2; size--) {
+    final generated = generator.generate(
+      targetSize: size,
+      minDifficulty: 1,
+      maxDifficulty: 50,
+      levelNumber: number,
+      preferredSeeds: due,
+      maxAttempts: maxAttempts,
+      accept: (level) {
+        if (!hasMainlineRoute(level, foundation, policy.expansionLimit)) {
+          return false;
+        }
+        addMainlineGivens(level, foundation, policy.support);
+        return level.placements.every(
+          (p) => p.cells.any((c) => !level.grid.cellAt(c.$1, c.$2).isGiven),
+        );
+      },
+    );
+    if (generated == null) continue;
+    final level = await _addDisambiguatingGivens(
+      db,
+      engine.CrosswordLevel(
+        levelId: number,
+        grid: generated.grid,
+        placements: generated.placements,
+        givenCharacters: generated.givenCharacters,
+        title: title ?? '第 $number 关',
+        contentVersion: content.version,
+        strategyVersion: 1,
+        instanceId: seed == null
+            ? '${number}_${DateTime.now().microsecondsSinceEpoch}'
+            : '${number}_seed_$seed',
+        support: policy.support,
+      ),
+    );
+    if (level.placements.every(
+      (p) => p.cells.any((c) => !level.grid.cellAt(c.$1, c.$2).isGiven),
+    )) {
+      return level;
+    }
   }
   return null;
 }

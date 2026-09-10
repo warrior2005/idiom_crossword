@@ -404,6 +404,24 @@ void main() {
     expect(find.text('最长连胜 · 连续答对'), findsOneWidget);
   });
 
+  testWidgets('主线偏好持久化，默认轻松入门', (tester) async {
+    final db = await _memoryDb();
+    addTearDown(db.close);
+    await tester.pumpWidget(_wrap(db, const SettingsScreen()));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<DropdownButton<int>>(find.byType(DropdownButton<int>))
+          .value,
+      0,
+    );
+    await tester.tap(find.byType(DropdownButton<int>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('成语高手').last);
+    await tester.pumpAndSettle();
+    expect(await db.getSetting('mainline_ability'), '2');
+  });
+
   testWidgets('设置页：音效开关持久化', (tester) async {
     SoundManager.instance.setEnabled(true);
     final db = await _memoryDb();
@@ -518,6 +536,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('提醒时间'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('提醒时间'));
     await tester.pumpAndSettle();
     expect(find.byType(TimePickerDialog), findsOneWidget);
@@ -529,6 +549,12 @@ void main() {
 
     await tester.pumpWidget(_wrap(db, const SettingsScreen()));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('当前版本'),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('v0.1.0'), findsOneWidget);
 
     await tester.scrollUntilVisible(
@@ -538,6 +564,7 @@ void main() {
     );
     await tester.drag(find.byType(ListView), const Offset(0, -80));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('用户协议与隐私'));
     await tester.tap(find.text('用户协议与隐私'));
     await tester.pumpAndSettle();
     expect(find.text('用户协议'), findsOneWidget);

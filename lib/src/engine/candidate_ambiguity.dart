@@ -70,6 +70,10 @@ CrosswordLevel addDisambiguatingGivens({
     },
     title: level.title,
     storyHint: level.storyHint,
+    contentVersion: level.contentVersion,
+    support: level.support,
+    strategyVersion: level.strategyVersion,
+    instanceId: level.instanceId,
   );
 
   while (true) {

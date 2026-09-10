@@ -20,6 +20,9 @@ import '../../state/level_state_codec.dart';
 import '../../state/collection_provider.dart';
 import '../../state/level_progress_providers.dart';
 import '../../state/leaderboard_service.dart';
+import '../../data/mainline_learning.dart';
+import '../../data/mainline_content.dart';
+import '../../engine/mainline_policy.dart';
 import '../../data/growth_manager.dart';
 import '../../data/achievement_manager.dart';
 import '../../reviews/app_review.dart';
@@ -136,6 +139,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   // 断点续玩
   bool _restoring = true;
+  final Stopwatch _activeClock = Stopwatch();
+  int _restoredActiveMs = 0;
   bool _levelFinished = false; // 通关/放弃后不再写存档
 
   // 填入正确字时的闪烁反馈
@@ -183,6 +188,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void didPopNext() {
     _routeIsVisible = true;
+    if (_appIsActive && !_failed && !_levelFinished) _activeClock.start();
     _syncDailyTimer();
     MusicManager.instance.revealGame(this);
   }
@@ -190,6 +196,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void didPushNext() {
     _routeIsVisible = false;
+    _activeClock.stop();
     _syncDailyTimer();
     unawaited(_saveState());
     MusicManager.instance.coverGame(this);
@@ -200,6 +207,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final isActive = state == AppLifecycleState.resumed;
     if (_appIsActive == isActive) return;
     _appIsActive = isActive;
+    if (isActive && _routeIsVisible && !_failed && !_levelFinished) {
+      _activeClock.start();
+    } else {
+      _activeClock.stop();
+    }
     _syncDailyTimer();
     if (!isActive) unawaited(_saveState());
   }
@@ -234,6 +246,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
     await _loadReversiblePairs();
     await _restoreSavedState();
     await _configureDailyTimer();
+    if (_appIsActive && _routeIsVisible) _activeClock.start();
+    await _recordLearning('active');
   }
 
   /// 构建候选字盘
@@ -270,14 +284,31 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
     if (!mounted) return;
 
+    Set<String>? allowedDistractors;
+    if (widget.level.support > 0) {
+      final content = await MainlineContent.load();
+      allowedDistractors =
+          (widget.level.levelId <= 20 ? content.intro : content.foundation)
+              .expand((word) => word.split(''))
+              .toSet();
+      if (!mounted) return;
+    }
     final excludedDistractors = <String>{};
     while (true) {
       _candidateBoard = _distractorEngine.generateCandidateBoard(
         correctAnswers: correctAnswers,
         rows: 4,
         countPerRow: 10,
+        totalCount: widget.level.support == 0
+            ? null
+            : MainlinePolicy.candidateCount(
+                correctAnswers.length,
+                widget.level.placements.length,
+                widget.level.support,
+              ),
         randomRotationKey: widget.level.levelId,
         databaseRelatedCandidates: databaseCandidates,
+        allowedDistractorChars: allowedDistractors,
         excludeDistractorChars: excludedDistractors,
       );
       final ambiguities = findCandidateAmbiguities(
@@ -334,6 +365,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         _fillHistory.addAll(state.fillHistory);
         _cellToCandidateSlot.addAll(state.cellToCandidateSlot);
         _hintUsesThisLevel = state.hintUsesThisLevel;
+        _restoredActiveMs = state.activeTimeMs;
         _errorsMade = state.errorsMade;
         _correctStreak = state.correctStreak;
         _totalFills = state.totalFills;
@@ -422,6 +454,24 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
   }
 
+  Future<void> _recordLearning(String status) async {
+    if (!mounted) return;
+    try {
+      await MainlineLearning.record(
+        ref.read(databaseProvider),
+        widget.level,
+        status: status,
+        hints: _hintUsesThisLevel,
+        errors: _errorsMade,
+        completed: _completedIdiomList.map((i) => i.word),
+        wrong: _wrongIdiomWords,
+        activeTimeMs: _restoredActiveMs + _activeClock.elapsedMilliseconds,
+      );
+    } catch (error) {
+      debugPrint('练习记录保存失败：$error');
+    }
+  }
+
   /// 把当前进度写入存档（断点续玩）
   Future<void> _saveState() async {
     if (_levelFinished || _failed || widget.level.levelId <= 0) return;
@@ -440,6 +490,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 .map((r) => List<String>.from(r))
                 .toList(),
             hintUsesThisLevel: _hintUsesThisLevel,
+            activeTimeMs: _restoredActiveMs + _activeClock.elapsedMilliseconds,
             errorsMade: _errorsMade,
             correctStreak: _correctStreak,
             totalFills: _totalFills,
@@ -452,6 +503,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
             direction: _currentDirection,
           ),
         ),
+      );
+      await _recordLearning(
+        _appIsActive && _routeIsVisible ? 'active' : 'paused',
       );
       ref.invalidate(nextMainLevelResumableProvider);
     } catch (_) {
@@ -489,6 +543,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   @override
   void dispose() {
+    _activeClock.stop();
     WidgetsBinding.instance.removeObserver(this);
     appRouteObserver.unsubscribe(this);
     _subscribedRoute = null;
@@ -920,6 +975,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   /// 处理关卡完成，计算经验值并更新玩家状态
   void _onLevelComplete() async {
+    _activeClock.stop();
     final db = ref.read(databaseProvider);
 
     // 重玩已通关的关卡不重复发放奖励
@@ -971,6 +1027,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       totalFills: _totalFills,
       levelJson: encodeLevel(widget.level),
     );
+    await _recordLearning('complete');
     if (_isDaily) ref.invalidate(dailyDoneProvider);
     if (!noReward && failedBefore) {
       await db.setSetting(_dailyNoRewardKey(), 'false');
@@ -1473,6 +1530,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Future<void> _failLevel({bool timeUp = false}) async {
     if (_failed || _levelFinished) return;
     _failed = true;
+    _activeClock.stop();
+    await _recordLearning('failed');
     _dailyTimer?.cancel();
     // 失败后清掉旧存档，避免返回主页再进入时恢复为失败前的低生命值
     try {
@@ -1526,6 +1585,15 @@ class _GameScreenState extends ConsumerState<GameScreen>
         ),
       ],
       inlineActions: [
+        if (!_isDaily)
+          WinCardAction(
+            label: '换一道题',
+            ghost: true,
+            onTap: () {
+              Navigator.of(context).pop();
+              _replaceMainline();
+            },
+          ),
         WinCardAction(
           label: _isDaily ? '重玩本关（无经验）' : '重玩本关',
           ghost: true,
@@ -1960,6 +2028,59 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
+  Future<void> _replaceMainline() async {
+    if (_isDaily || _levelFinished) return;
+    final db = ref.read(databaseProvider);
+    if (await db.isLevelCompleted(widget.level.levelId) || !mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('换一道题'),
+        content: const Text('将清空本题填写，换成同一关的新题。已获得的奖励和通关进度会保留。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('继续本题'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('换题'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    showLevelLoadingDialog(context);
+    var loadingOpen = true;
+    try {
+      final level = await generateLevel(db, widget.level.levelId);
+      if (!mounted) return;
+      Navigator.pop(context);
+      loadingOpen = false;
+      if (level == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('暂时无法生成新题，请稍后重试')));
+        return;
+      }
+      await _recordLearning('replaced');
+      _levelFinished = true;
+      await db.clearLevelState(widget.level.levelId);
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        AppPageRoute<void>(builder: (_) => GameScreen(level: level)),
+      );
+    } catch (_) {
+      if (mounted) {
+        if (loadingOpen) Navigator.pop(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('换题失败，请稍后重试')));
+      }
+    }
+  }
+
   /// 直接进入下一关
   Future<void> _startNextLevel() async {
     showLevelLoadingDialog(context);
@@ -1969,7 +2090,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
       final level = await loadOrGenerateLevel(
         db,
         widget.level.levelId + 1,
-        globalRange: ref.read(playerProvider).level >= 20,
         playerLevel: ref.read(playerProvider).level,
       );
       if (!mounted) return;
@@ -2550,6 +2670,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _ToolbarButton(icon: 'undo', label: '撤销', onTap: _undo),
+          if (!_isDaily)
+            _ToolbarButton(icon: 'undo', label: '换题', onTap: _replaceMainline),
           _ToolbarButton(
             icon: 'hint',
             label: '提示',
@@ -2561,7 +2683,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
             label: '清空',
             onTap: _clearIncompleteAnswers,
           ),
-        ],
+        ].map((button) => Expanded(child: button)).toList(),
       ),
     );
   }

@@ -287,7 +287,6 @@ class HomeScreen extends ConsumerWidget {
       final level = await loadOrGenerateLevel(
         db,
         nextLevel,
-        globalRange: player.level >= 20,
         playerLevel: player.level,
       );
 

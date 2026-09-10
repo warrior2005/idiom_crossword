@@ -58,6 +58,8 @@ class IntegratedGenerator {
     int? levelNumber,
     SpiralDifficultyResult? spiralResult,
     Set<int>? candidatePool,
+    bool Function(CrosswordLevel)? accept,
+    Set<String> preferredSeeds = const {},
   }) {
     // 如果提供了 spiralResult，使用螺旋难度范围
     if (spiralResult != null) {
@@ -82,10 +84,16 @@ class IntegratedGenerator {
     CrosswordLevel? bestLevel;
     var validLevelCount = 0;
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
-      final result = _tryGenerate(candidates, targetSize, levelNumber);
+      final result = _tryGenerate(
+        candidates,
+        targetSize,
+        levelNumber,
+        preferredSeeds,
+      );
       if (result != null &&
           !result.hasInterchangeableAnswers &&
-          !result.hasAmbiguousAdjacency) {
+          !result.hasAmbiguousAdjacency &&
+          (accept == null || accept(result))) {
         if (targetSize < 10) return result;
         validLevelCount++;
         if (bestLevel == null || _compareLevels(result, bestLevel) < 0) {
@@ -121,13 +129,17 @@ class IntegratedGenerator {
     Set<int> candidates,
     int targetSize,
     int? levelNumber,
+    Set<String> preferredSeeds,
   ) {
     final occupied = <(int, int), int>{}; // 已占用的格子
     final placed = <int, _PlacedNode>{}; // 已放置的节点
 
     // 1. 选种子（随机）
     final seedList = candidates.toList()..shuffle(_random);
-    final seed = seedList.first;
+    final preferred = seedList.where(
+      (i) => preferredSeeds.contains(graph.idioms[i].text),
+    );
+    final seed = preferred.isEmpty ? seedList.first : preferred.first;
 
     placed[seed] = _PlacedNode(
       idiomIdx: seed,
