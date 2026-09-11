@@ -18,11 +18,12 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
 import 'mainline_content.dart';
+import 'four_tier_content.dart';
 
 part 'database.g.dart';
 
 /// 当前数据库 schema 版本（预构建数据库会在首次打开时迁移到此版本）
-const int currentSchemaVersion = 11;
+const int currentSchemaVersion = 12;
 
 /// 随包相关字数据的最低关系数，用于为旧安装补齐空数据表。
 const int minimumBundledCharSimilarCount = 90000;
@@ -43,6 +44,11 @@ class Idioms extends Table {
   TextColumn get firstChar => text()();
   TextColumn get lastChar => text()();
   IntColumn get difficulty => integer()(); // 游戏难度 1-50（等量均匀分布）
+  IntColumn get difficultyTier => integer().withDefault(const Constant(4))();
+  TextColumn get difficultySource =>
+      text().withDefault(const Constant('inferred'))();
+  IntColumn get difficultyVersion => integer().withDefault(const Constant(0))();
+  BoolColumn get isReviewed => boolean().withDefault(const Constant(false))();
   BoolColumn get reversible => boolean().withDefault(const Constant(false))();
 
   // 难度元数据
@@ -346,6 +352,21 @@ class AppDatabase extends _$AppDatabase {
         if (from < 11) {
           await m.createTable(favorites);
         }
+        if (from < 12) {
+          for (final column in [
+            idioms.difficultyTier,
+            idioms.difficultySource,
+            idioms.difficultyVersion,
+            idioms.isReviewed,
+          ]) {
+            if (!await _columnExists('idioms', column.$name)) {
+              await m.addColumn(idioms, column);
+            }
+          }
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS idx_idiom_tier ON idioms(difficulty_tier)',
+          );
+        }
       },
     );
   }
@@ -393,10 +414,12 @@ class AppDatabase extends _$AppDatabase {
     int max,
     int limit, {
     bool randomOrder = true,
+    bool legacyOnly = false,
   }) {
     final query = select(idioms)
       ..where((t) => t.difficulty.isBetweenValues(min, max))
       ..limit(limit);
+    if (legacyOnly) query.where((t) => t.id.isSmallerOrEqualValue(29502));
     if (randomOrder) {
       query.orderBy([(_) => OrderingTerm.random()]);
     } else {
@@ -487,8 +510,9 @@ class AppDatabase extends _$AppDatabase {
 
   /// 查询至少匹配一个位置模式的成语，`_` 表示任意单字。
   Future<List<String>> findIdiomWordsMatchingPatterns(
-    Iterable<String> patterns,
-  ) async {
+    Iterable<String> patterns, {
+    bool legacyOnly = false,
+  }) async {
     final uniquePatterns = patterns.toSet().toList();
     if (uniquePatterns.isEmpty) return const [];
     final where = List.filled(
@@ -496,7 +520,7 @@ class AppDatabase extends _$AppDatabase {
       'word LIKE ?',
     ).join(' OR ');
     final rows = await customSelect(
-      'SELECT word FROM idioms WHERE $where',
+      'SELECT word FROM idioms WHERE ($where)${legacyOnly ? ' AND id <= 29502' : ''}',
       variables: [for (final pattern in uniquePatterns) Variable(pattern)],
       readsFrom: {idioms},
     ).get();
@@ -984,9 +1008,11 @@ LazyDatabase _openConnection() {
     }
 
     final content = await MainlineContent.load();
+    final tiers = await FourTierContent.load();
     final contentConnection = sqlite3.open(file.path);
     try {
       content.applyCorrections(contentConnection);
+      tiers.apply(contentConnection);
     } finally {
       contentConnection.close();
     }
@@ -1020,7 +1046,12 @@ Future<void> _refreshCharSimilarData(
                 .select('SELECT COUNT(*) AS count FROM char_similar')
                 .single['count']
             as int;
-    if (count >= minimumBundledCharSimilarCount) return;
+    final missing = connection.select('''
+      SELECT DISTINCT char FROM idiom_char_index c
+      WHERE (SELECT COUNT(*) FROM char_similar s WHERE s.char=c.char) < 8
+      LIMIT 1
+    ''');
+    if (count >= minimumBundledCharSimilarCount && missing.isEmpty) return;
 
     final data = await rootBundle.load('assets/data/idiom_crossword.db');
     await seedFile.writeAsBytes(data.buffer.asUint8List(), flush: true);

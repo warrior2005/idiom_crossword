@@ -72,6 +72,7 @@ flutter:
     - privacy.html
     - assets/data/idiom_crossword.db
     - assets/data/mainline_content.json
+    - assets/data/four_tier_content.json
     - assets/audio/
     - assets/images/
     - assets/images/achievements/

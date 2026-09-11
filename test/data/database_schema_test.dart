@@ -452,7 +452,7 @@ void main() {
     }
     expect(level, isNotNull, reason: '高等级主线应使用准入策略生成');
     expect(level!.levelId, 20001);
-    expect(level.strategyVersion, 1);
+    expect(level.strategyVersion, 2);
     expect(level.idioms.length, lessThanOrEqualTo(6));
     expect(
       level.idioms.every((i) => i.difficulty >= 1 && i.difficulty <= 50),

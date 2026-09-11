@@ -35,8 +35,11 @@ void main() {
       summary.read<int>('relation_count'),
       greaterThanOrEqualTo(minimumBundledCharSimilarCount),
     );
-    expect(summary.read<int>('corpus_char_count'), 4846);
-    expect(summary.read<int>('chars_with_eight'), 4846);
+    expect(summary.read<int>('corpus_char_count'), 4858);
+    expect(
+      summary.read<int>('chars_with_eight'),
+      summary.read<int>('corpus_char_count'),
+    );
 
     final candidates = await database.findSimilarCharsFor(const ['人', '天']);
     expect(candidates['人'], containsAll(const ['入', '八']));

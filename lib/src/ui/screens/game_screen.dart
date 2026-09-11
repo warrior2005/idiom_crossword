@@ -252,6 +252,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   /// 构建候选字盘
   Future<void> _buildCandidateBoard() async {
+    if (widget.level.initialCandidates != null) {
+      _candidateBoard = widget.level.initialCandidates!
+          .map((r) => r.toList())
+          .toList();
+      return;
+    }
     // 按格子收集正确答案，交叉格只计一次，避免候选字数量超过实际需填字数
     final correctCells = <(int, int), String>{};
     for (final placement in widget.level.placements) {
@@ -2412,7 +2418,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           final gridWidth = usedCols * actualCellSize;
           final gridHeight = usedRows * actualCellSize;
 
-          return GestureDetector(
+          final board = GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapDown: (details) {
               final cell = _cellFromOffset(
@@ -2451,6 +2457,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
               ),
             ),
           );
+          // 小屏大棋盘允许手动缩放；只改变视图，不改变冻结题目或候选盘。
+          return actualCellSize < 30
+              ? InteractiveViewer(minScale: 1, maxScale: 3, child: board)
+              : board;
         },
       ),
     );

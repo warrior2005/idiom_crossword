@@ -1,6 +1,8 @@
 // flutter test tool/mainline_preview_test.dart
 // 输出 build/mainline-previews/ 下的真实字体界面截图，供人工检查。
 import 'dart:io';
+import 'dart:convert';
+import 'package:idiom_crossword/src/data/mainline_learning.dart';
 import 'dart:ui' as ui;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -63,9 +65,21 @@ void main() {
       await db.close();
       await dir.delete(recursive: true);
     });
-    for (final (number, ability) in [(1, 0), (51, 2)]) {
+    for (final (number, ability, size) in [
+      (1, 0, const Size(390, 844)),
+      (51, 30, const Size(390, 844)),
+      (52, 30, const Size(375, 667)),
+    ]) {
+      tester.view.physicalSize = size;
       final level = await tester.runAsync(() async {
-        await db.setSetting('mainline_ability', '$ability');
+        await db.setSetting(
+          MainlineLearning.key,
+          jsonEncode({
+            'sessions': [],
+            'words': {},
+            'adaptive': {'step': ability},
+          }),
+        );
         return generateLevel(db, number, seed: 17);
       });
       expect(level, isNotNull);
@@ -101,6 +115,37 @@ void main() {
         await output.writeAsBytes(bytes!.buffer.asUint8List());
         image.dispose();
       });
+      if (number == 52) {
+        expect(find.byType(InteractiveViewer), findsOneWidget);
+        final center = tester.getCenter(find.byType(InteractiveViewer));
+        final a = await tester.startGesture(
+          center - const Offset(20, 0),
+          pointer: 1,
+        );
+        final b = await tester.startGesture(
+          center + const Offset(20, 0),
+          pointer: 2,
+        );
+        await a.moveTo(center - const Offset(50, 0));
+        await b.moveTo(center + const Offset(50, 0));
+        await tester.pump();
+        await a.moveTo(center - const Offset(90, 0));
+        await b.moveTo(center + const Offset(90, 0));
+        await tester.pump();
+        final transforms = tester.widgetList<Transform>(
+          find.descendant(
+            of: find.byType(InteractiveViewer),
+            matching: find.byType(Transform),
+          ),
+        );
+        expect(
+          transforms.any((w) => w.transform.getMaxScaleOnAxis() > 1.5),
+          isTrue,
+        );
+        await a.up();
+        await b.up();
+        expect(tester.takeException(), isNull);
+      }
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();
     }

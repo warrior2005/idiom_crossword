@@ -188,6 +188,8 @@ class CrosswordLevel {
   final int support; // 0 为旧题/共享题；1—3 为主线提示支持
   final int strategyVersion;
   final String? instanceId;
+  final Map<String, dynamic> strategy;
+  final List<List<String>>? initialCandidates;
 
   const CrosswordLevel({
     required this.levelId,
@@ -200,6 +202,8 @@ class CrosswordLevel {
     this.support = 0,
     this.strategyVersion = 0,
     this.instanceId,
+    this.strategy = const {},
+    this.initialCandidates,
   });
 
   /// 本关涉及的所有成语

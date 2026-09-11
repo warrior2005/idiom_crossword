@@ -74,6 +74,8 @@ CrosswordLevel addDisambiguatingGivens({
     support: level.support,
     strategyVersion: level.strategyVersion,
     instanceId: level.instanceId,
+    strategy: level.strategy,
+    initialCandidates: level.initialCandidates,
   );
 
   while (true) {

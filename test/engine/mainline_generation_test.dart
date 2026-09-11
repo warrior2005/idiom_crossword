@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
-import 'package:idiom_crossword/src/data/mainline_content.dart';
-import 'package:idiom_crossword/src/engine/mainline_policy.dart';
+import 'dart:convert';
+import 'package:drift/drift.dart' show Value;
+import 'package:idiom_crossword/src/data/mainline_learning.dart';
+import 'package:idiom_crossword/src/engine/adaptive_policy.dart';
 import 'package:idiom_crossword/src/engine/distractor_engine.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 import 'package:idiom_crossword/src/state/level_state_codec.dart';
@@ -20,55 +22,101 @@ void main() {
       await db.close();
       await dir.delete(recursive: true);
     });
-    final content = await MainlineContent.load();
-    for (final number in [1, 5, 6, 20, 21, 50, 51, 200, 201, 6000, 10001]) {
-      for (final seed in [1, 17, 42]) {
-        final level = await generateLevel(
-          db,
-          number,
-          seed: seed,
-          playerLevel: 21,
-          globalRange: true,
-        );
-        expect(level, isNotNull, reason: 'level $number seed $seed');
-        final policy = MainlinePolicy.forLevel(number);
+    for (final step in [0, 15, 30]) {
+      await db.setSetting(
+        MainlineLearning.key,
+        jsonEncode({
+          'sessions': [],
+          'words': {},
+          'adaptive': {'step': step},
+        }),
+      );
+      for (final number in [1, 10, 11, 200, 6000]) {
+        final level = await generateLevel(db, number, seed: 17);
+        expect(level, isNotNull, reason: 'number $number step $step');
+        final policy = AdaptivePolicy(number, step);
+        expect(level!.idioms.length, policy.size);
+        if (number > 10) expect(level.idioms.length, inInclusiveRange(6, 12));
         expect(
-          level!.idioms.every(
-            (i) =>
-                content.foundation.contains(i.text) ||
-                content.expansion.contains(i.text),
-          ),
-          isTrue,
+          level.fillableCells,
+          inInclusiveRange(policy.answerTarget - 2, policy.answerTarget),
         );
         expect(
-          hasMainlineRoute(level, content.foundation, policy.expansionLimit),
-          isTrue,
+          level.initialCandidates!.expand((r) => r).length,
+          policy.candidateCount(level.fillableCells),
         );
-        expect(level.fillableCells, greaterThan(0));
-        if (number <= 20) {
-          expect(
-            level.idioms.every((i) => content.intro.contains(i.text)),
-            isTrue,
-          );
-        }
         expect(
-          level.placements.every(
-            (p) => p.cells.any((c) => !level.grid.cellAt(c.$1, c.$2).isGiven),
-          ),
-          isTrue,
+          level.initialCandidates!.expand((r) => r).length -
+              level.fillableCells,
+          greaterThanOrEqualTo(4),
         );
-        expect(level.placements.length, lessThanOrEqualTo(policy.size));
-        expect(level.support, policy.support);
-        expect(decodeLevel(encodeLevel(level))!.support, level.support);
         expect(
-          decodeLevel(encodeLevel(level))!.contentVersion,
-          content.version,
+          decodeLevel(encodeLevel(level))!.initialCandidates,
+          level.initialCandidates,
         );
+        expect(decodeLevel(encodeLevel(level))!.strategy, level.strategy);
+        final tiers = Map<String, int>.from(level.strategy['wordTiers'] as Map);
+        expect(policy.accepts(level.idioms, tiers), isTrue);
+        expect(level.strategyVersion, 2);
+        if (step == 30 && number > 10) expect(tiers.values, contains(4));
       }
     }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
+  test('每日冻结旧词集合；历史题面不随新增字典重做消歧', () async {
+    final dir = await Directory.systemTemp.createTemp('daily_cohort_');
+    final file = await File(
+      'assets/data/idiom_crossword.db',
+    ).copy('${dir.path}/test.db');
+    final db = AppDatabase(NativeDatabase(file));
+    addTearDown(() async {
+      await db.close();
+      await dir.delete(recursive: true);
+    });
+    final all = await db.findIdiomWordsMatchingPatterns(['漫天风雪']);
+    final legacy = await db.findIdiomWordsMatchingPatterns([
+      '漫天风雪',
+    ], legacyOnly: true);
+    expect(all, ['漫天风雪']);
+    expect(legacy, isEmpty);
+    Future<String> daily() async => encodeLevel(
+      (await generateLevel(
+        db,
+        dailyLevelOffset + 20454,
+        seed: 20454,
+        targetSize: 12,
+        difficultyRange: (1, 50),
+      ))!,
+    );
+    final expanded = await daily();
+    await db.customStatement(
+      'DELETE FROM idiom_char_index WHERE idiom_id > 29502',
+    );
+    await db.customStatement('DELETE FROM idioms WHERE id > 29502');
+    expect(await daily(), expanded);
+    final generated = (await generateLevel(db, 11, seed: 17))!;
+    final encoded = encodeLevel(generated);
+    await db.addLevelHistory(
+      levelNumber: 11,
+      xpGained: 0,
+      idiomsUsed: [],
+      levelJson: encoded,
+    );
+    await db.setSetting(
+      MainlineLearning.key,
+      jsonEncode({
+        'sessions': [],
+        'words': {},
+        'adaptive': {'step': 30},
+      }),
+    );
+    expect(encodeLevel((await loadOrGenerateLevel(db, 11))!), encoded);
+    final future = jsonDecode(encoded) as Map<String, dynamic>;
+    future['strategyVersion'] = 99;
+    expect(decodeLevel(jsonEncode(future)), isNull);
   });
 
-  test('稀疏准入池仍能生成两词题', () async {
+  test('稀疏词库不能回退为不足六词的普通关卡', () async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     for (final word in ['十全十美', '五光十色']) {
@@ -83,12 +131,17 @@ void main() {
               firstChar: word[0],
               lastChar: word[3],
               difficulty: 1,
+              difficultyTier: const Value(1),
+              isReviewed: Value(word == '十全十美'),
             ),
           );
     }
-    for (final seed in [1, 17, 42]) {
-      expect(await generateLevel(db, 1, seed: seed), isNotNull);
-    }
+    final calibration = await generateLevel(db, 1, seed: 17);
+    expect(
+      calibration!.idioms.map((i) => i.text),
+      containsAll(['十全十美', '五光十色']),
+    );
+    expect(await generateLevel(db, 11, seed: 17), isNull);
   });
 
   test('可变候选盘保留重复答案及不完整末行，不硬补到40字', () {
@@ -119,7 +172,7 @@ void main() {
         .expand((r) => r);
     expect(filtered, isNot(contains('穑')));
     expect(filtered, isNot(contains('?')));
-    expect(MainlinePolicy.candidateCount(4, 2, 3), 6);
-    expect(MainlinePolicy.candidateCount(4, 2, 1), greaterThan(6));
+    expect(AdaptivePolicy(1, 0).candidateCount(4), 8);
+    expect(AdaptivePolicy(11, 30).candidateCount(20), 36);
   });
 }

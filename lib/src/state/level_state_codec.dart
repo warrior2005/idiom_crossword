@@ -50,6 +50,8 @@ String encodeLevel(CrosswordLevel level) {
     'support': level.support,
     'strategyVersion': level.strategyVersion,
     'instanceId': level.instanceId,
+    'strategy': level.strategy,
+    'initialCandidates': level.initialCandidates,
   });
 }
 
@@ -57,6 +59,10 @@ String encodeLevel(CrosswordLevel level) {
 CrosswordLevel? decodeLevel(String source) {
   try {
     final data = jsonDecode(source) as Map<String, dynamic>;
+    if ((data['strategyVersion'] as int? ?? 0) > 2 ||
+        (data['contentVersion'] as int? ?? 0) > 2) {
+      return null;
+    }
     final rows = data['rows'] as int;
     final cols = data['cols'] as int;
     final grid = CrosswordGrid(rows: rows, cols: cols);
@@ -108,6 +114,10 @@ CrosswordLevel? decodeLevel(String source) {
       support: data['support'] as int? ?? 0,
       strategyVersion: data['strategyVersion'] as int? ?? 0,
       instanceId: data['instanceId'] as String?,
+      strategy: Map<String, dynamic>.from(data['strategy'] as Map? ?? {}),
+      initialCandidates: (data['initialCandidates'] as List?)
+          ?.map((r) => List<String>.from(r as List))
+          .toList(),
     );
   } catch (_) {
     return null;

@@ -331,6 +331,11 @@ def build_db(scores, meta, extra):
     # ============================================================
     conn.execute('PRAGMA user_version = 7')
     conn.commit()
+    # 与旧安装共用四档内容规范；稳定ID及审核来源保持一致。
+    from build_four_tier_content import apply_content
+    with open(os.path.join(PROJECT_DIR, 'assets', 'data', 'four_tier_content.json'), encoding='utf-8') as file:
+        apply_content(conn, json.load(file))
+    conn.commit()
     conn.close()
 
     # 切回 DELETE 日志模式，避免打包时带上 -wal/-shm 残留

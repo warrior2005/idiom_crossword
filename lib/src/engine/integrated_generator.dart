@@ -60,6 +60,7 @@ class IntegratedGenerator {
     Set<int>? candidatePool,
     bool Function(CrosswordLevel)? accept,
     Set<String> preferredSeeds = const {},
+    bool Function(Iterable<Idiom>)? canSelect,
   }) {
     // 如果提供了 spiralResult，使用螺旋难度范围
     if (spiralResult != null) {
@@ -89,6 +90,7 @@ class IntegratedGenerator {
         targetSize,
         levelNumber,
         preferredSeeds,
+        canSelect,
       );
       if (result != null &&
           !result.hasInterchangeableAnswers &&
@@ -130,6 +132,7 @@ class IntegratedGenerator {
     int targetSize,
     int? levelNumber,
     Set<String> preferredSeeds,
+    bool Function(Iterable<Idiom>)? canSelect,
   ) {
     final occupied = <(int, int), int>{}; // 已占用的格子
     final placed = <int, _PlacedNode>{}; // 已放置的节点
@@ -176,6 +179,13 @@ class IntegratedGenerator {
         // 跳过倒装对：如果这个成语的倒装形式已经在本关中，跳过
         final neighborText = graph.idioms[neighbor].text;
         if (reversedForms.contains(neighborText)) continue;
+        if (canSelect != null &&
+            !canSelect([
+              ...placed.keys.map((i) => graph.idioms[i]),
+              graph.idioms[neighbor],
+            ])) {
+          continue;
+        }
         final success = _tryPlaceNeighbor(
           node: neighbor,
           neighborOf: current,
@@ -212,6 +222,13 @@ class IntegratedGenerator {
             // 跳过倒装对
             final nText = graph.idioms[n].text;
             if (reversedForms.contains(nText)) continue;
+            if (canSelect != null &&
+                !canSelect([
+                  ...placed.keys.map((i) => graph.idioms[i]),
+                  graph.idioms[n],
+                ])) {
+              continue;
+            }
             if (_tryPlaceNeighbor(
               node: n,
               neighborOf: pid,

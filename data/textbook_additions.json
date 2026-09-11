@@ -1,0 +1,890 @@
+{
+  "大雪纷飞": {
+    "pinyin": "da xue fen fei",
+    "explanation": "雪花大量而纷乱地飘落。"
+  },
+  "遮遮掩掩": {
+    "pinyin": "zhe zhe yan yan",
+    "explanation": "掩饰或隐瞒，不肯坦率说明。"
+  },
+  "奔流不息": {
+    "pinyin": "ben liu bu xi",
+    "explanation": "水流不停地奔腾流动。"
+  },
+  "见善则迁": {
+    "pinyin": "jian shan ze qian",
+    "explanation": "见到好的品行就学习改进。"
+  },
+  "兵来将挡": {
+    "pinyin": "bing lai jiang dang",
+    "explanation": "遇到来犯的敌人或困难，采取相应办法应对。"
+  },
+  "眼见为实": {
+    "pinyin": "yan jian wei shi",
+    "explanation": "亲眼看到的才认为真实可靠。"
+  },
+  "耳听为虚": {
+    "pinyin": "er ting wei xu",
+    "explanation": "只凭听说的事情未必可靠。"
+  },
+  "近墨者黑": {
+    "pinyin": "jin mo zhe hei",
+    "explanation": "接近不良的人或环境，容易受到坏的影响。"
+  },
+  "近朱者赤": {
+    "pinyin": "jin zhu zhe chi",
+    "explanation": "接近优秀的人或良好环境，容易受到好的影响。"
+  },
+  "但愿如此": {
+    "pinyin": "dan yuan ru ci",
+    "explanation": "希望事情确实像所说或所想的那样。"
+  },
+  "惩恶扬善": {
+    "pinyin": "cheng e yang shan",
+    "explanation": "惩治恶行，表彰和弘扬善行。"
+  },
+  "各显神通": {
+    "pinyin": "ge xian shen tong",
+    "explanation": "各自施展本领。"
+  },
+  "差之毫厘": {
+    "pinyin": "cha zhi hao li",
+    "explanation": "开始只有极小的差别，常用来提醒细微差错可能造成重大后果。"
+  },
+  "志存高远": {
+    "pinyin": "zhi cun gao yuan",
+    "explanation": "志向远大，追求长远而高尚的目标。"
+  },
+  "秉公执法": {
+    "pinyin": "bing gong zhi fa",
+    "explanation": "按照公正的原则执行法律。"
+  },
+  "人烟稀少": {
+    "pinyin": "ren yan xi shao",
+    "explanation": "居住的人家很少。"
+  },
+  "膀大腰圆": {
+    "pinyin": "bang da yao yuan",
+    "explanation": "肩膀宽大、腰身粗壮，形容体格强壮。"
+  },
+  "嫦娥奔月": {
+    "pinyin": "chang e ben yue",
+    "explanation": "嫦娥飞往月宫的神话故事。"
+  },
+  "鲲鹏展翅": {
+    "pinyin": "kun peng zhan chi",
+    "explanation": "鲲鹏展开翅膀，比喻施展远大抱负。"
+  },
+  "趁其不备": {
+    "pinyin": "chen qi bu bei",
+    "explanation": "利用对方没有防备的时机。"
+  },
+  "老老少少": {
+    "pinyin": "lao lao shao shao",
+    "explanation": "老人和孩子，泛指各种年龄的人。"
+  },
+  "自胜者强": {
+    "pinyin": "zi sheng zhe qiang",
+    "explanation": "能够克服自身弱点的人才是真正的强者。"
+  },
+  "人影绰绰": {
+    "pinyin": "ren ying chuo chuo",
+    "explanation": "人的身影隐约晃动，看不清楚。"
+  },
+  "整整齐齐": {
+    "pinyin": "zheng zheng qi qi",
+    "explanation": "排列有序，规整一致。"
+  },
+  "一泻汪洋": {
+    "pinyin": "yi xie wang yang",
+    "explanation": "水流奔涌而下，汇入广阔水域；形容气势奔放宏大。"
+  },
+  "干将发硎": {
+    "pinyin": "gan jiang fa xing",
+    "explanation": "宝剑刚在磨刀石上磨出锋刃，比喻新生力量锋芒初露。"
+  },
+  "有作其芒": {
+    "pinyin": "you zuo qi mang",
+    "explanation": "显露出耀眼的光芒，形容锋芒焕发。"
+  },
+  "潜龙腾渊": {
+    "pinyin": "qian long teng yuan",
+    "explanation": "潜伏的龙从深渊腾起，比喻力量蓬勃兴起。"
+  },
+  "矞矞皇皇": {
+    "pinyin": "yu yu huang huang",
+    "explanation": "形容光彩美盛、气象宏伟。"
+  },
+  "鹰隼试翼": {
+    "pinyin": "ying sun shi yi",
+    "explanation": "鹰隼试着展翅飞翔，比喻初展身手。"
+  },
+  "端端正正": {
+    "pinyin": "duan duan zheng zheng",
+    "explanation": "位置、形状或态度端正，没有歪斜。"
+  },
+  "舐犊之情": {
+    "pinyin": "shi du zhi qing",
+    "explanation": "比喻父母对子女的慈爱之情。"
+  },
+  "戒奢以俭": {
+    "pinyin": "jie she yi jian",
+    "explanation": "戒除奢侈，以节俭自律。"
+  },
+  "学如不及": {
+    "pinyin": "xue ru bu ji",
+    "explanation": "学习时像追赶不上那样努力。"
+  },
+  "犹恐失之": {
+    "pinyin": "you kong shi zhi",
+    "explanation": "仍然担心失去已经得到的东西，常形容学习不敢懈怠。"
+  },
+  "终夜不寝": {
+    "pinyin": "zhong ye bu qin",
+    "explanation": "整夜没有睡觉。"
+  },
+  "官迫民反": {
+    "pinyin": "guan po min fan",
+    "explanation": "官府的压迫使百姓起来反抗。"
+  },
+  "统而言之": {
+    "pinyin": "tong er yan zhi",
+    "explanation": "总起来说。"
+  },
+  "田忌赛马": {
+    "pinyin": "tian ji sai ma",
+    "explanation": "田忌通过调整马匹出场次序取胜的故事，说明策略和统筹的重要。"
+  },
+  "山高月小": {
+    "pinyin": "shan gao yue xiao",
+    "explanation": "山势高耸，月亮显得小，描写山间夜景。"
+  },
+  "一饮而尽": {
+    "pinyin": "yi yin er jin",
+    "explanation": "把杯中的饮品一下子喝完。"
+  },
+  "日精月华": {
+    "pinyin": "ri jing yue hua",
+    "explanation": "太阳和月亮的精华。"
+  },
+  "乜乜些些": {
+    "pinyin": "nie nie xie xie",
+    "explanation": "形容眼睛眯斜的样子。"
+  },
+  "云腾致雨": {
+    "pinyin": "yun teng zhi yu",
+    "explanation": "云气升腾，形成降雨。"
+  },
+  "威名远扬": {
+    "pinyin": "wei ming yuan yang",
+    "explanation": "使人敬畏的名声传到很远的地方。"
+  },
+  "移步换景": {
+    "pinyin": "yi bu huan jing",
+    "explanation": "随着观察位置移动，所见景物随之变化的观察或描写方法。"
+  },
+  "左膀右臂": {
+    "pinyin": "zuo bang you bi",
+    "explanation": "比喻得力的助手。"
+  },
+  "片刻不离": {
+    "pinyin": "pian ke bu li",
+    "explanation": "很短的时间也不离开。"
+  },
+  "一碧千里": {
+    "pinyin": "yi bi qian li",
+    "explanation": "一片碧绿，延伸得十分辽阔。"
+  },
+  "婉言谢绝": {
+    "pinyin": "wan yan xie jue",
+    "explanation": "用委婉的话拒绝。"
+  },
+  "鸣钟击磬": {
+    "pinyin": "ming zhong ji qing",
+    "explanation": "敲响钟和磬，形容礼乐齐鸣的场面。"
+  },
+  "无边无涯": {
+    "pinyin": "wu bian wu ya",
+    "explanation": "没有边际，形容非常辽阔。"
+  },
+  "朝花夕拾": {
+    "pinyin": "zhao hua xi shi",
+    "explanation": "早晨的花到晚上拾取，比喻回忆往事；也是鲁迅散文集的名称。"
+  },
+  "无暇顾及": {
+    "pinyin": "wu xia gu ji",
+    "explanation": "没有空闲时间照顾或考虑到。"
+  },
+  "春风拂面": {
+    "pinyin": "chun feng fu mian",
+    "explanation": "春风轻轻吹过脸颊，形容温暖舒适的感受。"
+  },
+  "骄阳似火": {
+    "pinyin": "jiao yang shi huo",
+    "explanation": "强烈的太阳像火一样灼热。"
+  },
+  "桃李满门": {
+    "pinyin": "tao li man men",
+    "explanation": "比喻学生很多。"
+  },
+  "秋风萧瑟": {
+    "pinyin": "qiu feng xiao se",
+    "explanation": "秋风吹动草木，发出瑟瑟声，也形容秋景凄凉。"
+  },
+  "人迹罕至": {
+    "pinyin": "ren ji han zhi",
+    "explanation": "很少有人到达。"
+  },
+  "潜龙勿用": {
+    "pinyin": "qian long wu yong",
+    "explanation": "龙潜伏时不宜有所作为，比喻时机未到，应当蓄养力量。"
+  },
+  "历久弥新": {
+    "pinyin": "li jiu mi xin",
+    "explanation": "经历很长时间，反而更加鲜活或更有价值。"
+  },
+  "年与时驰": {
+    "pinyin": "nian yu shi chi",
+    "explanation": "年华随着时间飞快流逝。"
+  },
+  "层次分明": {
+    "pinyin": "ceng ci fen ming",
+    "explanation": "事物的结构或表达条理清楚。"
+  },
+  "兀兀穷年": {
+    "pinyin": "wu wu qiong nian",
+    "explanation": "一年到头辛苦劳作或用心钻研。"
+  },
+  "心会神凝": {
+    "pinyin": "xin hui shen ning",
+    "explanation": "精神集中，深入领会。"
+  },
+  "群蚁排衙": {
+    "pinyin": "qun yi pai ya",
+    "explanation": "形容排列密集而整齐，教材中用来形容细密的字迹。"
+  },
+  "气度不凡": {
+    "pinyin": "qi du bu fan",
+    "explanation": "人的气质和风度不同寻常。"
+  },
+  "神秘莫测": {
+    "pinyin": "shen mi mo ce",
+    "explanation": "神秘得无法揣测。"
+  },
+  "士别三日": {
+    "pinyin": "shi bie san ri",
+    "explanation": "与人分别一段时间后，对方可能已有长进，应重新认识。"
+  },
+  "无欲则刚": {
+    "pinyin": "wu yu ze gang",
+    "explanation": "没有私欲，才能刚正坚定。"
+  },
+  "有容乃大": {
+    "pinyin": "you rong nai da",
+    "explanation": "能够包容，才能达到宽广的境界。"
+  },
+  "风吹雨淋": {
+    "pinyin": "feng chui yu lin",
+    "explanation": "遭受风吹和雨水淋湿，形容在外经受风雨。"
+  },
+  "如临其境": {
+    "pinyin": "ru lin qi jing",
+    "explanation": "仿佛亲自来到那个环境之中。"
+  },
+  "憨态可掬": {
+    "pinyin": "han tai ke ju",
+    "explanation": "天真质朴的神态十分可爱。"
+  },
+  "月华如水": {
+    "pinyin": "yue hua ru shui",
+    "explanation": "月光柔和清澈，好像流水一样。"
+  },
+  "由己及人": {
+    "pinyin": "you ji ji ren",
+    "explanation": "从自己推及别人，设身处地理解他人。"
+  },
+  "围追堵截": {
+    "pinyin": "wei zhui du jie",
+    "explanation": "从各方面包围、追赶、拦堵和截击。"
+  },
+  "尊老爱幼": {
+    "pinyin": "zun lao ai you",
+    "explanation": "尊敬老人，爱护儿童。"
+  },
+  "志不可满": {
+    "pinyin": "zhi bu ke man",
+    "explanation": "志向和追求不能因自满而停滞。"
+  },
+  "重重叠叠": {
+    "pinyin": "chong chong die die",
+    "explanation": "一层又一层地堆叠。"
+  },
+  "漫天风雪": {
+    "pinyin": "man tian feng xue",
+    "explanation": "风雪遍布天空，形容风雪很大。"
+  },
+  "心有灵犀": {
+    "pinyin": "xin you ling xi",
+    "explanation": "比喻彼此心意相通。"
+  },
+  "死于安乐": {
+    "pinyin": "si yu an le",
+    "explanation": "安逸享乐可能使人或国家衰亡。"
+  },
+  "逆流而上": {
+    "pinyin": "ni liu er shang",
+    "explanation": "迎着水流方向前进，也比喻克服困难前进。"
+  },
+  "顺流而下": {
+    "pinyin": "shun liu er xia",
+    "explanation": "沿着水流的方向向下游前进。"
+  },
+  "回清倒影": {
+    "pinyin": "hui qing dao ying",
+    "explanation": "清波回旋，映出景物的倒影。"
+  },
+  "清荣峻茂": {
+    "pinyin": "qing rong jun mao",
+    "explanation": "水清、树荣、山高、草盛，形容山水草木的美景。"
+  },
+  "空谷传响": {
+    "pinyin": "kong gu chuan xiang",
+    "explanation": "空旷的山谷中传来回声。"
+  },
+  "奇山异水": {
+    "pinyin": "qi shan yi shui",
+    "explanation": "奇特秀丽的山水。"
+  },
+  "坦荡如砥": {
+    "pinyin": "tan dang ru di",
+    "explanation": "平坦得像磨刀石一样，形容十分平坦。"
+  },
+  "旁逸斜出": {
+    "pinyin": "pang yi xie chu",
+    "explanation": "枝条从树干旁边斜伸出来。"
+  },
+  "潜滋暗长": {
+    "pinyin": "qian zi an zhang",
+    "explanation": "暗中不知不觉地滋生发展。"
+  },
+  "纵横决荡": {
+    "pinyin": "zong heng jue dang",
+    "explanation": "纵横驰骋，冲击涤荡，形容力量奔放。"
+  },
+  "文采斐然": {
+    "pinyin": "wen cai fei ran",
+    "explanation": "文章或言辞富有文采。"
+  },
+  "娓娓道来": {
+    "pinyin": "wei wei dao lai",
+    "explanation": "连续不断而生动地讲述。"
+  },
+  "恹恹欲睡": {
+    "pinyin": "yan yan yu shui",
+    "explanation": "精神不振，困倦想睡。"
+  },
+  "长虹饮涧": {
+    "pinyin": "chang hong yin jian",
+    "explanation": "像长虹横跨山涧吸水，常用来形容桥梁的姿态。"
+  },
+  "字字千钧": {
+    "pinyin": "zi zi qian jun",
+    "explanation": "每个字都很有分量和力量。"
+  },
+  "舳舻相接": {
+    "pinyin": "zhu lu xiang jie",
+    "explanation": "船只首尾相连，形容船只很多。"
+  },
+  "生于忧患": {
+    "pinyin": "sheng yu you huan",
+    "explanation": "忧患和磨炼能使人奋发、生存发展。"
+  },
+  "固不可彻": {
+    "pinyin": "gu bu ke che",
+    "explanation": "顽固得无法通达事理。"
+  },
+  "寒暑易节": {
+    "pinyin": "han shu yi jie",
+    "explanation": "寒冷和炎热的季节交替。"
+  },
+  "辨而不华": {
+    "pinyin": "bian er bu hua",
+    "explanation": "善于辨析而不浮华。"
+  },
+  "蓄势待发": {
+    "pinyin": "xu shi dai fa",
+    "explanation": "积蓄力量，等待行动的时机。"
+  },
+  "固不待言": {
+    "pinyin": "gu bu dai yan",
+    "explanation": "本来就不必多说。"
+  },
+  "阡陌交通": {
+    "pinyin": "qian mo jiao tong",
+    "explanation": "田间小路交错相通。"
+  },
+  "矫首昂视": {
+    "pinyin": "jiao shou ang shi",
+    "explanation": "抬起头向上看。"
+  },
+  "袒胸露乳": {
+    "pinyin": "tan xiong lu ru",
+    "explanation": "敞开衣服，露出胸部。"
+  },
+  "理至易明": {
+    "pinyin": "li zhi yi ming",
+    "explanation": "道理极其明白，容易理解。"
+  },
+  "敬事而信": {
+    "pinyin": "jing shi er xin",
+    "explanation": "认真对待事务，讲求信用。"
+  },
+  "人生在世": {
+    "pinyin": "ren sheng zai shi",
+    "explanation": "人活在世上。"
+  },
+  "推推搡搡": {
+    "pinyin": "tui tui sang sang",
+    "explanation": "粗鲁地推来推去。"
+  },
+  "柔中有刚": {
+    "pinyin": "rou zhong you gang",
+    "explanation": "柔和之中含有坚强的力量。"
+  },
+  "不测之险": {
+    "pinyin": "bu ce zhi xian",
+    "explanation": "难以预料的危险。"
+  },
+  "夜凉如水": {
+    "pinyin": "ye liang ru shui",
+    "explanation": "夜间凉意像水一样沁人。"
+  },
+  "胜利在望": {
+    "pinyin": "sheng li zai wang",
+    "explanation": "胜利已近在眼前。"
+  },
+  "和和美美": {
+    "pinyin": "he he mei mei",
+    "explanation": "和睦而美满。"
+  },
+  "克明俊德": {
+    "pinyin": "ke ming jun de",
+    "explanation": "能够彰明崇高的德行。"
+  },
+  "以和为贵": {
+    "pinyin": "yi he wei gui",
+    "explanation": "把和谐相处看作重要原则。"
+  },
+  "各美其美": {
+    "pinyin": "ge mei qi mei",
+    "explanation": "各自欣赏和珍视自身文化的美好。"
+  },
+  "袅袅不绝": {
+    "pinyin": "niao niao bu jue",
+    "explanation": "声音等绵延不断。"
+  },
+  "秦皇汉武": {
+    "pinyin": "qin huang han wu",
+    "explanation": "秦始皇和汉武帝的合称。"
+  },
+  "饶有兴味": {
+    "pinyin": "rao you xing wei",
+    "explanation": "很有趣味或兴趣很浓。"
+  },
+  "实实在在": {
+    "pinyin": "shi shi zai zai",
+    "explanation": "真实、切实，不虚假。"
+  },
+  "铮铮作响": {
+    "pinyin": "zheng zheng zuo xiang",
+    "explanation": "发出响亮清脆的金属声。"
+  },
+  "宠辱偕忘": {
+    "pinyin": "chong ru xie wang",
+    "explanation": "荣耀和屈辱都不放在心上。"
+  },
+  "樯倾楫摧": {
+    "pinyin": "qiang qing ji cui",
+    "explanation": "桅杆倒下，船桨折断，形容风浪猛烈或船只受损。"
+  },
+  "波澜不惊": {
+    "pinyin": "bo lan bu jing",
+    "explanation": "水面平静，没有大的波浪；也比喻心情平静。"
+  },
+  "满目萧然": {
+    "pinyin": "man mu xiao ran",
+    "explanation": "眼前一片萧条冷落。"
+  },
+  "虎啸猿啼": {
+    "pinyin": "hu xiao yuan ti",
+    "explanation": "老虎吼叫，猿猴啼鸣。"
+  },
+  "郁郁青青": {
+    "pinyin": "yu yu qing qing",
+    "explanation": "草木青翠茂盛。"
+  },
+  "风霜高洁": {
+    "pinyin": "feng shuang gao jie",
+    "explanation": "天气清爽，霜色洁白，描写秋日景象。"
+  },
+  "求神拜佛": {
+    "pinyin": "qiu shen bai fo",
+    "explanation": "向神佛祈求庇佑。"
+  },
+  "善解人意": {
+    "pinyin": "shan jie ren yi",
+    "explanation": "善于体谅别人的心意。"
+  },
+  "春蚕自缚": {
+    "pinyin": "chun can zi fu",
+    "explanation": "春蚕吐丝把自己裹住，比喻自己使自己受到束缚。"
+  },
+  "不谙世事": {
+    "pinyin": "bu an shi shi",
+    "explanation": "不熟悉人情世故。"
+  },
+  "国弊民穷": {
+    "pinyin": "guo bi min qiong",
+    "explanation": "国家衰弱，百姓贫困。"
+  },
+  "男扮女装": {
+    "pinyin": "nan ban nv zhuang",
+    "explanation": "男子装扮成女子。"
+  },
+  "云山雾罩": {
+    "pinyin": "yun shan wu zhao",
+    "explanation": "云雾笼罩，也形容言语含糊、使人不明所以。"
+  },
+  "免冠徒跣": {
+    "pinyin": "mian guan tu xian",
+    "explanation": "摘下帽子，赤着脚。"
+  },
+  "天下缟素": {
+    "pinyin": "tian xia gao su",
+    "explanation": "天下人都穿白色丧服，形容举国哀悼。"
+  },
+  "彗星袭月": {
+    "pinyin": "hui xing xi yue",
+    "explanation": "彗星的光芒接近或掩映月亮，古人视为特殊天象。"
+  },
+  "口体之奉": {
+    "pinyin": "kou ti zhi feng",
+    "explanation": "供给口腹和身体的饮食衣物。"
+  },
+  "负箧曳屣": {
+    "pinyin": "fu qie ye xi",
+    "explanation": "背着书箱，拖着鞋子，形容求学奔走的艰辛。"
+  },
+  "烛幽索隐": {
+    "pinyin": "zhu you suo yin",
+    "explanation": "照见幽暗，探寻隐微，比喻探究深奥之处。"
+  },
+  "针砭时弊": {
+    "pinyin": "zhen bian shi bi",
+    "explanation": "指出并批评当时社会的弊病。"
+  },
+  "天高地远": {
+    "pinyin": "tian gao di yuan",
+    "explanation": "天地辽阔，距离遥远。"
+  },
+  "收放自如": {
+    "pinyin": "shou fang zi ru",
+    "explanation": "收束和展开都能自由掌握。"
+  },
+  "长空万里": {
+    "pinyin": "chang kong wan li",
+    "explanation": "辽阔无边的天空。"
+  },
+  "文采藻饰": {
+    "pinyin": "wen cai zao shi",
+    "explanation": "修饰言辞，使之富于文采。"
+  },
+  "揭竿为旗": {
+    "pinyin": "jie gan wei qi",
+    "explanation": "举起竹竿作旗帜，指发动起义。"
+  },
+  "斩木为兵": {
+    "pinyin": "zhan mu wei bing",
+    "explanation": "砍削树木作为武器。"
+  },
+  "深入不毛": {
+    "pinyin": "shen ru bu mao",
+    "explanation": "深入不生草木的荒凉地区。"
+  },
+  "寻寻觅觅": {
+    "pinyin": "xun xun mi mi",
+    "explanation": "不断寻找。"
+  },
+  "百舸争流": {
+    "pinyin": "bai ge zheng liu",
+    "explanation": "许多船竞相航行，比喻众人奋力争先。"
+  },
+  "书生意气": {
+    "pinyin": "shu sheng yi qi",
+    "explanation": "读书人的志气、热情和抱负。"
+  },
+  "弯弯曲曲": {
+    "pinyin": "wan wan qu qu",
+    "explanation": "曲折不直。"
+  },
+  "锐意进取": {
+    "pinyin": "rui yi jin qu",
+    "explanation": "意志坚决地追求进步。"
+  },
+  "山不厌高": {
+    "pinyin": "shan bu yan gao",
+    "explanation": "山不以高大为满足，常比喻胸怀广阔、不断追求。"
+  },
+  "海不厌深": {
+    "pinyin": "hai bu yan shen",
+    "explanation": "海不以深广为满足，常比喻包容广博、求贤不止。"
+  },
+  "鼓瑟吹笙": {
+    "pinyin": "gu se chui sheng",
+    "explanation": "弹瑟吹笙，奏乐相和。"
+  },
+  "恬然自安": {
+    "pinyin": "tian ran zi an",
+    "explanation": "心情安静，自觉安适。"
+  },
+  "封狼居胥": {
+    "pinyin": "feng lang ju xu",
+    "explanation": "在狼居胥山举行祭天仪式，后用来指建立显赫战功。"
+  },
+  "冷冷清清": {
+    "pinyin": "leng leng qing qing",
+    "explanation": "冷落寂静，没有热闹气氛。"
+  },
+  "点点滴滴": {
+    "pinyin": "dian dian di di",
+    "explanation": "零星细小的部分或积累。"
+  },
+  "有理有据": {
+    "pinyin": "you li you ju",
+    "explanation": "有道理，也有依据。"
+  },
+  "含糊不清": {
+    "pinyin": "han hu bu qing",
+    "explanation": "表达或事物模糊，不清楚明确。"
+  },
+  "善假于物": {
+    "pinyin": "shan jia yu wu",
+    "explanation": "善于借助外物或外部条件。"
+  },
+  "木直中绳": {
+    "pinyin": "mu zhi zhong sheng",
+    "explanation": "木材笔直，合乎墨线标准。"
+  },
+  "恰恰相反": {
+    "pinyin": "qia qia xiang fan",
+    "explanation": "正好与所说或所想的相反。"
+  },
+  "旌旗蔽空": {
+    "pinyin": "jing qi bi kong",
+    "explanation": "旗帜多得遮蔽天空，形容军容盛大。"
+  },
+  "舳舻千里": {
+    "pinyin": "zhu lu qian li",
+    "explanation": "船只首尾相连，绵延很远。"
+  },
+  "洗盏更酌": {
+    "pinyin": "xi zhan geng zhuo",
+    "explanation": "洗净酒杯，重新斟酒。"
+  },
+  "柔情似水": {
+    "pinyin": "rou qing shi shui",
+    "explanation": "柔和深长的情意像流水一样。"
+  },
+  "千乘之国": {
+    "pinyin": "qian sheng zhi guo",
+    "explanation": "拥有千辆兵车的诸侯国。"
+  },
+  "为国以礼": {
+    "pinyin": "wei guo yi li",
+    "explanation": "用礼的原则治理国家。"
+  },
+  "保民而王": {
+    "pinyin": "bao min er wang",
+    "explanation": "保护百姓而成就王业。"
+  },
+  "技经肯綮": {
+    "pinyin": "ji jing ken qing",
+    "explanation": "筋脉聚结、骨肉连接的地方，出自庖丁解牛的描写。"
+  },
+  "以乱易整": {
+    "pinyin": "yi luan yi zheng",
+    "explanation": "用散乱的队伍对付整齐的队伍。"
+  },
+  "为之奈何": {
+    "pinyin": "wei zhi nai he",
+    "explanation": "对于这件事怎么办。"
+  },
+  "前合后偃": {
+    "pinyin": "qian he hou yan",
+    "explanation": "身体前倾后仰，形容站立不稳或困顿的样子。"
+  },
+  "吵吵嚷嚷": {
+    "pinyin": "chao chao rang rang",
+    "explanation": "大声争吵或喧闹。"
+  },
+  "窥斑见豹": {
+    "pinyin": "kui ban jian bao",
+    "explanation": "从局部推知整体。"
+  },
+  "居为奇货": {
+    "pinyin": "ju wei qi huo",
+    "explanation": "把某种事物当作珍奇货物囤存，等待有利时机。"
+  },
+  "天高气爽": {
+    "pinyin": "tian gao qi shuang",
+    "explanation": "天空高远，空气清爽。"
+  },
+  "玉鉴琼田": {
+    "pinyin": "yu jian qiong tian",
+    "explanation": "像玉镜和美玉田地一样，形容澄澈洁白的景色。"
+  },
+  "朝飞暮卷": {
+    "pinyin": "zhao fei mu juan",
+    "explanation": "早晨飞动，傍晚卷舒，描写云霞变幻。"
+  },
+  "互诉衷肠": {
+    "pinyin": "hu su zhong chang",
+    "explanation": "互相倾诉内心的感情。"
+  },
+  "烽烟四起": {
+    "pinyin": "feng yan si qi",
+    "explanation": "各处燃起战火，形容战乱纷起。"
+  },
+  "与子同袍": {
+    "pinyin": "yu zi tong pao",
+    "explanation": "与你同穿战袍，比喻同心协力、共同战斗。"
+  },
+  "寒风凛冽": {
+    "pinyin": "han feng lin lie",
+    "explanation": "寒风刺骨，非常冷。"
+  },
+  "仁者不忧": {
+    "pinyin": "ren zhe bu you",
+    "explanation": "有仁德的人不因私欲而忧愁。"
+  },
+  "知者不惑": {
+    "pinyin": "zhi zhe bu huo",
+    "explanation": "有智慧的人不迷惑。"
+  },
+  "非礼勿动": {
+    "pinyin": "fei li wu dong",
+    "explanation": "不符合礼的行为不要做。"
+  },
+  "非礼勿听": {
+    "pinyin": "fei li wu ting",
+    "explanation": "不符合礼的话不要听。"
+  },
+  "非礼勿视": {
+    "pinyin": "fei li wu shi",
+    "explanation": "不符合礼的事不要看。"
+  },
+  "非礼勿言": {
+    "pinyin": "fei li wu yan",
+    "explanation": "不符合礼的话不要说。"
+  },
+  "合抱之木": {
+    "pinyin": "he bao zhi mu",
+    "explanation": "粗大到需要两臂环抱的树木。"
+  },
+  "天人合一": {
+    "pinyin": "tian ren he yi",
+    "explanation": "认为人与自然相通、应协调统一的思想。"
+  },
+  "民为邦本": {
+    "pinyin": "min wei bang ben",
+    "explanation": "百姓是国家的根本。"
+  },
+  "简而言之": {
+    "pinyin": "jian er yan zhi",
+    "explanation": "简要地说。"
+  },
+  "以史为鉴": {
+    "pinyin": "yi shi wei jian",
+    "explanation": "以历史经验作为借鉴。"
+  },
+  "兼听则明": {
+    "pinyin": "jian ting ze ming",
+    "explanation": "广泛听取不同意见，才能明辨是非。"
+  },
+  "威振四海": {
+    "pinyin": "wei zhen si hai",
+    "explanation": "威势震动天下。"
+  },
+  "流血漂橹": {
+    "pinyin": "liu xue piao lu",
+    "explanation": "流出的血能浮起盾牌，夸张地形容战争伤亡惨重。"
+  },
+  "不测之渊": {
+    "pinyin": "bu ce zhi yuan",
+    "explanation": "无法测量深度的深渊。"
+  },
+  "猗顿之富": {
+    "pinyin": "yi dun zhi fu",
+    "explanation": "像猗顿那样富有，指巨大的财富。"
+  },
+  "急急忙忙": {
+    "pinyin": "ji ji mang mang",
+    "explanation": "急促匆忙的样子。"
+  },
+  "断断续续": {
+    "pinyin": "duan duan xu xu",
+    "explanation": "时而中断，时而继续。"
+  },
+  "张弛有度": {
+    "pinyin": "zhang chi you du",
+    "explanation": "紧张与放松安排得当。"
+  },
+  "孤孤单单": {
+    "pinyin": "gu gu dan dan",
+    "explanation": "独自一人，孤独无伴。"
+  },
+  "徘徊不前": {
+    "pinyin": "pai huai bu qian",
+    "explanation": "来回犹豫，不肯或不能向前。"
+  },
+  "吹胡瞪眼": {
+    "pinyin": "chui hu deng yan",
+    "explanation": "形容生气发怒的样子。"
+  },
+  "波澜起伏": {
+    "pinyin": "bo lan qi fu",
+    "explanation": "波浪时起时落，也比喻情节或局势多有变化。"
+  },
+  "至情至性": {
+    "pinyin": "zhi qing zhi xing",
+    "explanation": "感情真挚，性情率真。"
+  },
+  "俯仰一世": {
+    "pinyin": "fu yang yi shi",
+    "explanation": "一俯一仰之间度过一生，感叹人生短暂。"
+  },
+  "少长咸集": {
+    "pinyin": "shao zhang xian ji",
+    "explanation": "年少和年长的人都聚集在一起。"
+  },
+  "狂放不羁": {
+    "pinyin": "kuang fang bu ji",
+    "explanation": "性情豪放，不受拘束。"
+  },
+  "群贤毕至": {
+    "pinyin": "qun xian bi zhi",
+    "explanation": "众多贤能的人都来到。"
+  },
+  "载欣载奔": {
+    "pinyin": "zai xin zai ben",
+    "explanation": "一边欢喜，一边奔走。"
+  },
+  "前途无量": {
+    "pinyin": "qian tu wu liang",
+    "explanation": "未来的发展不可限量。"
+  },
+  "天圆地方": {
+    "pinyin": "tian yuan di fang",
+    "explanation": "古人关于天形圆、地形方的观念。"
+  }
+}

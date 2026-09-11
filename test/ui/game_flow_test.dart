@@ -108,6 +108,7 @@ void main() {
               firstChar: word[0],
               lastChar: word[3],
               difficulty: 1,
+              difficultyTier: const Value(1),
             ),
           );
     }
@@ -135,7 +136,7 @@ void main() {
                   .widget<GameScreen>(find.byType(GameScreen).last)
                   .level
                   .strategyVersion ==
-              1,
+              2,
       const Duration(seconds: 5),
     );
     for (var attempt = 0; attempt < 40; attempt++) {
@@ -148,7 +149,7 @@ void main() {
     await tester.pumpAndSettle();
     final level = tester.widget<GameScreen>(find.byType(GameScreen)).level;
     expect(level.levelId, 1);
-    expect(level.strategyVersion, 1);
+    expect(level.strategyVersion, 2);
     expect(await db.isLevelCompleted(1), isFalse);
     expect(await db.getLevelHistory(), isEmpty);
     final saved = await db.getLevelState(1);

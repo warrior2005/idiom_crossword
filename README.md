@@ -5,13 +5,13 @@
 
 产品设计与进度见 [PRD.md](PRD.md) 与 [PLANS.md](PLANS.md)。
 
-难度与关卡体验首版实现见 [改造方案（2026-09-09）](docs/specs/2026-09-09-difficulty-and-level-experience-redesign.md)，包含词库准入、前期适配、后期主线边界及老用户迁移。
+当前难度与关卡规则见[四档智能主线实现记录](docs/specs/four_tier_implementation_v2.md)，包含教材分档、平滑适配、冻结及迁移验收。
 
 ## 功能
 
-- 主线关卡：前20关限定入门词池，后续在基础／拓展准入词池内持续生成；生僻程度不随关数或科举等级无限上升，题面按偏好与近期表现调整
-- 可变候选盘：按待填格数、词数和提示支持计算候选字数量；支持旧题主动换题和原样恢复存档
-- 练习记录：区分辅助完成与独立作答，优先复习到期词；设置中可选轻松入门／日常挑战／成语高手
+- 主线关卡：全库按入门／基础／拓展／生僻四档及个人表现选词；前10关逐步校准，第11关起实际6—12词，难度缓慢调整且只影响新题
+- 可变候选盘：按待填答案份数计算比例干扰字，至少4个；题面与候选盘冻结，失败后可换题，存档原样恢复
+- 练习记录：区分辅助完成、独立作答与延迟回忆，结合各档表现及到期复习自动适配，无手动难度档位
 - 一字提示：每次消耗提示卡（商城/等级奖励获得）
 - 成长系统：科举仕途 21 级（童生 → 位极人臣 → Lv.∞ 真龙天子），指数经验曲线，等级奖励（提示卡/复活卡/装饰）
 - 生命值与失败：主线生命值 3，填错扣 1；每日挑战额外 2 分钟限时；失败可复活/重玩
@@ -26,12 +26,12 @@
 ## 技术栈
 
 - Flutter + Riverpod（状态管理）
-- Drift + SQLite（本地存储，预构建 29,502 条成语数据库）
+- Drift + SQLite（本地存储，预构建 29,724 条成语数据库）
 - audioplayers（音效）
 
 ## 目录结构
 
-- `lib/src/engine/`：交叉图、一体化生成器、螺旋难度、干扰字引擎
+- `lib/src/engine/`：交叉图、一体化生成器、智能主线策略、干扰字引擎
 - `lib/src/data/`：Drift 数据库、成长系统、成就管理
 - `lib/src/state/`：Riverpod 状态、关卡生成/存档、进度编解码
 - `lib/src/ui/`：游戏主界面、关卡选择、统计、成就、设置、商城、收藏、学习
@@ -51,12 +51,12 @@ flutter test
 构建数据库（改动数据源后）：
 
 ```bash
-python3 scripts/build_database.py
+python3 scripts/build_four_tier_content.py --apply
 python3 scripts/verify_db.py
 python3 scripts/check_idiom_data.py
 ```
 
-成语 ID 固定在 `data/idiom_ids.json`；新增词需先分配新 ID，不得重新编号。主线准入及拼音内容版本在 `assets/data/mainline_content.json`，初始清单待目标玩家校准。
+成语ID固定在`data/idiom_ids.json`，不得重新编号。统一分档在`assets/data/four_tier_content.json`；旧`mainline_content.json`只保留迁移输入和5条拼音修正。完整重建及字符关联表命令见[实现记录](docs/specs/four_tier_implementation_v2.md#4-验证结果与复现)。
 
 生成音效 / 关卡样本报告：
 

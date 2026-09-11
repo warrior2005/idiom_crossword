@@ -1,9 +1,10 @@
+import 'package:drift/drift.dart' show OrderingTerm;
 import 'dart:math';
 
 import '../data/database.dart';
-import '../data/mainline_content.dart';
+import '../engine/adaptive_policy.dart';
+import '../engine/distractor_engine.dart';
 import '../data/mainline_learning.dart';
-import '../engine/mainline_policy.dart';
 import '../engine/candidate_ambiguity.dart';
 import '../engine/crossing_graph.dart';
 import '../engine/grid_engine.dart' as engine;
@@ -122,6 +123,7 @@ Future<engine.CrosswordLevel?> generateLevel(
       maxD,
       candidateLimit,
       randomOrder: seed == null,
+      legacyOnly: levelNumber >= dailyLevelOffset,
     );
     final engineIdioms = dbIdioms
         .where((i) => !excludedIds.contains(i.id))
@@ -173,7 +175,7 @@ Future<engine.CrosswordLevel?> generateLevel(
   return null;
 }
 
-/// 主线仅从准入清单选词；尝试失败时缩小规模，绝不扩大词汇边界。
+/// 全词库按档位配额抽样；审核标记不参与过滤。实际题目和候选盘在这里冻结。
 Future<engine.CrosswordLevel?> _generateMainline(
   AppDatabase db,
   int number, {
@@ -181,77 +183,196 @@ Future<engine.CrosswordLevel?> _generateMainline(
   int? seed,
   String? title,
 }) async {
-  final content = await MainlineContent.load();
-  final foundation = number <= 20 ? content.intro : content.foundation;
-  final ability = await MainlineLearning.ability(db);
+  final step = await MainlineLearning.ability(db);
+  final policy = AdaptivePolicy(number, step);
   final due = await MainlineLearning.dueWords(db);
-  final policy = MainlinePolicy.forLevel(number, ability: ability.clamp(-1, 2));
+  final familiar = await MainlineLearning.familiarWords(db);
+  final weakTiers = await MainlineLearning.weakTiers(db);
   final excluded = seed == null
       ? await db.getRecentlyUsedMainIdiomIds(recentLevelExclusionCount)
       : <int>{};
-  final rows = await db.findIdiomsByWords([
-    ...foundation,
-    if (policy.expansionLimit > 0) ...content.expansion,
-  ]);
-  final eligible = rows.where((r) => !excluded.contains(r.id)).toList()
-    ..sort((a, b) => a.id.compareTo(b.id));
-  final graph = CrossingGraph(
-    idioms: eligible
-        .map(
-          (r) => engine.Idiom(
-            text: r.word,
-            pinyin: r.pinyin,
-            meaning: r.explanation,
-            difficulty: r.difficulty,
-            source: r.derivation ?? '',
-          ),
-        )
-        .toList(),
-  );
-  final generator = IntegratedGenerator(
-    graph: graph,
-    random: seed == null ? null : Random(seed),
-  );
-  for (var size = policy.size; size >= 2; size--) {
+  final all = await (db.select(
+    db.idioms,
+  )..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
+  final eligible = all.where((r) => !excluded.contains(r.id)).toList();
+  final tiers = {for (final row in eligible) row.word: row.difficultyTier};
+  final rng = Random(seed);
+  final knownCount = eligible.where((r) => familiar.contains(r.word)).length;
+  var noveltyBudget = knownCount >= policy.size * 3
+      ? (policy.size / 2).ceil()
+      : policy.size;
+  final observations = await MainlineLearning.read(db);
+  final previous = (observations['sessions'] as List)
+      .where(
+        (s) =>
+            s['strategy'] == 2 &&
+            ((s['number'] as int) == number - 1 ||
+                (s['number'] as int) == number),
+      )
+      .lastOrNull;
+  final previousPolicy = previous?['policy'] as Map?;
+  final previousUnfamiliar = previousPolicy?['unfamiliar'] as int?;
+  if (seed == null && previousUnfamiliar != null) {
+    noveltyBudget = noveltyBudget.clamp(
+      max(0, previousUnfamiliar - 1),
+      min(policy.size, previousUnfamiliar + 1),
+    );
+  }
+
+  for (var attempt = 0; attempt < 3; attempt++) {
+    final pool = <Idiom>[];
+    for (final quota in policy.quotas.entries) {
+      if (quota.value == 0) continue;
+      final rows = eligible.where((r) => r.difficultyTier == quota.key).toList()
+        ..shuffle(rng);
+      if (rows.length < quota.value) return null;
+      final preferred = rows
+          .where((r) => due.contains(r.word) || familiar.contains(r.word))
+          .take(100);
+      final byWord = {for (final row in preferred) row.word: row};
+      for (final row in rows.take(300 + attempt * 150)) {
+        byWord[row.word] = row;
+      }
+      pool.addAll(byWord.values);
+    }
+    final graph = CrossingGraph(
+      idioms: pool
+          .map(
+            (r) => engine.Idiom(
+              text: r.word,
+              pinyin: r.pinyin,
+              meaning: r.explanation,
+              difficulty: r.difficulty,
+              source: r.derivation ?? '',
+            ),
+          )
+          .toList(),
+    );
+    final generator = IntegratedGenerator(graph: graph, random: rng);
     final generated = generator.generate(
-      targetSize: size,
+      targetSize: policy.size,
       minDifficulty: 1,
       maxDifficulty: 50,
       levelNumber: number,
-      preferredSeeds: due,
       maxAttempts: maxAttempts,
-      accept: (level) {
-        if (!hasMainlineRoute(level, foundation, policy.expansionLimit)) {
-          return false;
-        }
-        addMainlineGivens(level, foundation, policy.support);
-        return level.placements.every(
-          (p) => p.cells.any((c) => !level.grid.cellAt(c.$1, c.$2).isGiven),
-        );
-      },
+      preferredSeeds: due.union(familiar),
+      canSelect: (words) =>
+          policy.accepts(words, tiers) &&
+          words.where((w) => !familiar.contains(w.text)).length <=
+              noveltyBudget,
+      accept: (level) =>
+          level.placements.length == policy.size &&
+          policy.accepts(level.idioms, tiers) &&
+          policy.support(level, tiers, familiar, weakTiers: weakTiers),
     );
     if (generated == null) continue;
-    final level = await _addDisambiguatingGivens(
-      db,
-      engine.CrosswordLevel(
-        levelId: number,
-        grid: generated.grid,
-        placements: generated.placements,
-        givenCharacters: generated.givenCharacters,
-        title: title ?? '第 $number 关',
-        contentVersion: content.version,
-        strategyVersion: 1,
-        instanceId: seed == null
-            ? '${number}_${DateTime.now().microsecondsSinceEpoch}'
-            : '${number}_seed_$seed',
-        support: policy.support,
-      ),
+    final dictionary = await db.findIdiomWordsMatchingPatterns(
+      candidatePatternsForLevel(generated),
     );
-    if (level.placements.every(
-      (p) => p.cells.any((c) => !level.grid.cellAt(c.$1, c.$2).isGiven),
-    )) {
-      return level;
+    final alternatives = await db.findReversibleWordsFor(
+      generated.idioms.map((i) => i.text),
+    );
+    final level = addDisambiguatingGivens(
+      level: generated,
+      dictionaryWords: dictionary,
+      allowedAlternatives: alternatives,
+    );
+    if (level.fillableCells < policy.answerTarget - 2 ||
+        !level.placements.every(
+          (p) => p.cells.any((c) => !level.grid.cellAt(c.$1, c.$2).isGiven),
+        )) {
+      continue;
     }
+    final answers = <(int, int), String>{};
+    for (final p in level.placements) {
+      for (final c in p.cells) {
+        final cell = level.grid.cellAt(c.$1, c.$2);
+        if (!cell.isGiven) answers[c] = cell.character;
+      }
+    }
+    final candidatesCount = policy.candidateCount(answers.length);
+    final unfamiliar = level.idioms
+        .where((i) => !familiar.contains(i.text))
+        .length;
+    if (seed == null &&
+        previousUnfamiliar != null &&
+        (unfamiliar - previousUnfamiliar).abs() > 2) {
+      continue;
+    }
+
+    if (seed == null && previousPolicy != null) {
+      final previousAnswers = previousPolicy['answers'] as int?;
+      final previousCandidates = previousPolicy['candidates'] as int?;
+      if (previousAnswers != null &&
+          (answers.length - previousAnswers).abs() > 3) {
+        continue;
+      }
+      if (previousCandidates != null &&
+          (candidatesCount - previousCandidates).abs() > 5) {
+        continue;
+      }
+    }
+    final related = await db.findSimilarCharsFor(answers.values);
+    final exclusions = <String>{};
+    List<List<String>>? board;
+    final distractors = DistractorEngine(random: rng);
+    for (var trial = 0; trial < 40; trial++) {
+      try {
+        final trialBoard = distractors.generateCandidateBoard(
+          correctAnswers: answers.values.toList(),
+          totalCount: candidatesCount,
+          countPerRow: 10,
+          databaseRelatedCandidates: related,
+          excludeDistractorChars: exclusions,
+        );
+        final ambiguous = findCandidateAmbiguities(
+          level: level,
+          dictionaryWords: dictionary,
+          availableChars: trialBoard.expand((r) => r),
+          allowedAlternatives: alternatives,
+        );
+        if (ambiguous.isEmpty) {
+          board = trialBoard;
+          break;
+        }
+        final added = distractorCharsToExclude(
+          ambiguous,
+          answers.values.toSet(),
+        )..removeAll(exclusions);
+        if (added.isEmpty) break;
+        exclusions.addAll(added);
+      } on StateError {
+        break;
+      }
+    }
+    if (board == null) continue;
+    return engine.CrosswordLevel(
+      levelId: number,
+      grid: level.grid,
+      placements: level.placements,
+      givenCharacters: level.givenCharacters,
+      title: title ?? '第 $number 关',
+      contentVersion: 2,
+      strategyVersion: 2,
+      support: 2,
+      instanceId: seed == null
+          ? '${number}_${DateTime.now().microsecondsSinceEpoch}'
+          : '${number}_seed_$seed',
+      initialCandidates: board,
+      strategy: {
+        'step': step,
+        'size': policy.size,
+        'answers': answers.length,
+        'candidates': candidatesCount,
+        'distractorRatio': policy.distractorRatio,
+        'quotas': {for (final e in policy.quotas.entries) '${e.key}': e.value},
+        'wordTiers': {for (final i in level.idioms) i.text: tiers[i.text]},
+        'noveltyBudget': noveltyBudget,
+        'unfamiliar': level.idioms
+            .where((i) => !familiar.contains(i.text))
+            .length,
+      },
+    );
   }
   return null;
 }
@@ -263,6 +384,7 @@ Future<engine.CrosswordLevel> _addDisambiguatingGivens(
   try {
     final words = await db.findIdiomWordsMatchingPatterns(
       candidatePatternsForLevel(level),
+      legacyOnly: level.levelId >= dailyLevelOffset,
     );
     final allowedAlternatives = await db.findReversibleWordsFor(
       level.idioms.map((idiom) => idiom.text),
@@ -377,7 +499,7 @@ Future<engine.CrosswordLevel?> loadOrGenerateLevel(
   final frozen = await db.getLevelDefinition(levelNumber);
   if (frozen != null) {
     final restored = decodeLevel(frozen);
-    if (restored != null) return _addDisambiguatingGivens(db, restored);
+    if (restored != null) return restored;
   }
   // 3) 否则新生成
   return generateLevel(

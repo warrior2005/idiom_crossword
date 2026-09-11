@@ -371,9 +371,8 @@ class DistractorEngine {
       ...randomDistractors,
     ];
     // 补齐（以防干扰字不够）
-    while (allCandidates.length < totalSlots) {
-      // 不可能进这里，但做防御
-      allCandidates.add('?');
+    if (allCandidates.length < totalSlots) {
+      throw StateError('合法干扰字不足');
     }
     allCandidates.shuffle(_random);
 

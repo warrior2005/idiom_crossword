@@ -404,22 +404,14 @@ void main() {
     expect(find.text('最长连胜 · 连续答对'), findsOneWidget);
   });
 
-  testWidgets('主线偏好持久化，默认轻松入门', (tester) async {
+  testWidgets('设置页不再展示主线难度选择', (tester) async {
     final db = await _memoryDb();
     addTearDown(db.close);
+    await db.setSetting('mainline_ability', '2');
     await tester.pumpWidget(_wrap(db, const SettingsScreen()));
     await tester.pumpAndSettle();
-    expect(
-      tester
-          .widget<DropdownButton<int>>(find.byType(DropdownButton<int>))
-          .value,
-      0,
-    );
-    await tester.tap(find.byType(DropdownButton<int>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('成语高手').last);
-    await tester.pumpAndSettle();
-    expect(await db.getSetting('mainline_ability'), '2');
+    expect(find.text('主线挑战'), findsNothing);
+    expect(find.byType(DropdownButton<int>), findsNothing);
   });
 
   testWidgets('设置页：音效开关持久化', (tester) async {

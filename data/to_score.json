@@ -177010,5 +177010,1337 @@
     "old_score": 96,
     "hint": "比喻盲目效仿以致失去自己原来的长处。",
     "pinyin": "han dan pu fu"
+  },
+  {
+    "word": "大雪纷飞",
+    "old_score": 1,
+    "pinyin": "da xue fen fei",
+    "hint": "雪花大量而纷乱地飘落。"
+  },
+  {
+    "word": "遮遮掩掩",
+    "old_score": 1,
+    "pinyin": "zhe zhe yan yan",
+    "hint": "掩饰或隐瞒，不肯坦率说明。"
+  },
+  {
+    "word": "奔流不息",
+    "old_score": 5,
+    "pinyin": "ben liu bu xi",
+    "hint": "水流不停地奔腾流动。"
+  },
+  {
+    "word": "见善则迁",
+    "old_score": 5,
+    "pinyin": "jian shan ze qian",
+    "hint": "见到好的品行就学习改进。"
+  },
+  {
+    "word": "兵来将挡",
+    "old_score": 5,
+    "pinyin": "bing lai jiang dang",
+    "hint": "遇到来犯的敌人或困难，采取相应办法应对。"
+  },
+  {
+    "word": "眼见为实",
+    "old_score": 5,
+    "pinyin": "yan jian wei shi",
+    "hint": "亲眼看到的才认为真实可靠。"
+  },
+  {
+    "word": "耳听为虚",
+    "old_score": 5,
+    "pinyin": "er ting wei xu",
+    "hint": "只凭听说的事情未必可靠。"
+  },
+  {
+    "word": "近墨者黑",
+    "old_score": 5,
+    "pinyin": "jin mo zhe hei",
+    "hint": "接近不良的人或环境，容易受到坏的影响。"
+  },
+  {
+    "word": "近朱者赤",
+    "old_score": 5,
+    "pinyin": "jin zhu zhe chi",
+    "hint": "接近优秀的人或良好环境，容易受到好的影响。"
+  },
+  {
+    "word": "但愿如此",
+    "old_score": 5,
+    "pinyin": "dan yuan ru ci",
+    "hint": "希望事情确实像所说或所想的那样。"
+  },
+  {
+    "word": "惩恶扬善",
+    "old_score": 5,
+    "pinyin": "cheng e yang shan",
+    "hint": "惩治恶行，表彰和弘扬善行。"
+  },
+  {
+    "word": "各显神通",
+    "old_score": 5,
+    "pinyin": "ge xian shen tong",
+    "hint": "各自施展本领。"
+  },
+  {
+    "word": "差之毫厘",
+    "old_score": 5,
+    "pinyin": "cha zhi hao li",
+    "hint": "开始只有极小的差别，常用来提醒细微差错可能造成重大后果。"
+  },
+  {
+    "word": "志存高远",
+    "old_score": 5,
+    "pinyin": "zhi cun gao yuan",
+    "hint": "志向远大，追求长远而高尚的目标。"
+  },
+  {
+    "word": "秉公执法",
+    "old_score": 5,
+    "pinyin": "bing gong zhi fa",
+    "hint": "按照公正的原则执行法律。"
+  },
+  {
+    "word": "人烟稀少",
+    "old_score": 5,
+    "pinyin": "ren yan xi shao",
+    "hint": "居住的人家很少。"
+  },
+  {
+    "word": "膀大腰圆",
+    "old_score": 5,
+    "pinyin": "bang da yao yuan",
+    "hint": "肩膀宽大、腰身粗壮，形容体格强壮。"
+  },
+  {
+    "word": "嫦娥奔月",
+    "old_score": 5,
+    "pinyin": "chang e ben yue",
+    "hint": "嫦娥飞往月宫的神话故事。"
+  },
+  {
+    "word": "鲲鹏展翅",
+    "old_score": 5,
+    "pinyin": "kun peng zhan chi",
+    "hint": "鲲鹏展开翅膀，比喻施展远大抱负。"
+  },
+  {
+    "word": "趁其不备",
+    "old_score": 5,
+    "pinyin": "chen qi bu bei",
+    "hint": "利用对方没有防备的时机。"
+  },
+  {
+    "word": "老老少少",
+    "old_score": 5,
+    "pinyin": "lao lao shao shao",
+    "hint": "老人和孩子，泛指各种年龄的人。"
+  },
+  {
+    "word": "自胜者强",
+    "old_score": 5,
+    "pinyin": "zi sheng zhe qiang",
+    "hint": "能够克服自身弱点的人才是真正的强者。"
+  },
+  {
+    "word": "人影绰绰",
+    "old_score": 5,
+    "pinyin": "ren ying chuo chuo",
+    "hint": "人的身影隐约晃动，看不清楚。"
+  },
+  {
+    "word": "整整齐齐",
+    "old_score": 5,
+    "pinyin": "zheng zheng qi qi",
+    "hint": "排列有序，规整一致。"
+  },
+  {
+    "word": "一泻汪洋",
+    "old_score": 5,
+    "pinyin": "yi xie wang yang",
+    "hint": "水流奔涌而下，汇入广阔水域；形容气势奔放宏大。"
+  },
+  {
+    "word": "干将发硎",
+    "old_score": 5,
+    "pinyin": "gan jiang fa xing",
+    "hint": "宝剑刚在磨刀石上磨出锋刃，比喻新生力量锋芒初露。"
+  },
+  {
+    "word": "有作其芒",
+    "old_score": 5,
+    "pinyin": "you zuo qi mang",
+    "hint": "显露出耀眼的光芒，形容锋芒焕发。"
+  },
+  {
+    "word": "潜龙腾渊",
+    "old_score": 5,
+    "pinyin": "qian long teng yuan",
+    "hint": "潜伏的龙从深渊腾起，比喻力量蓬勃兴起。"
+  },
+  {
+    "word": "矞矞皇皇",
+    "old_score": 5,
+    "pinyin": "yu yu huang huang",
+    "hint": "形容光彩美盛、气象宏伟。"
+  },
+  {
+    "word": "鹰隼试翼",
+    "old_score": 5,
+    "pinyin": "ying sun shi yi",
+    "hint": "鹰隼试着展翅飞翔，比喻初展身手。"
+  },
+  {
+    "word": "端端正正",
+    "old_score": 5,
+    "pinyin": "duan duan zheng zheng",
+    "hint": "位置、形状或态度端正，没有歪斜。"
+  },
+  {
+    "word": "舐犊之情",
+    "old_score": 5,
+    "pinyin": "shi du zhi qing",
+    "hint": "比喻父母对子女的慈爱之情。"
+  },
+  {
+    "word": "戒奢以俭",
+    "old_score": 5,
+    "pinyin": "jie she yi jian",
+    "hint": "戒除奢侈，以节俭自律。"
+  },
+  {
+    "word": "学如不及",
+    "old_score": 5,
+    "pinyin": "xue ru bu ji",
+    "hint": "学习时像追赶不上那样努力。"
+  },
+  {
+    "word": "犹恐失之",
+    "old_score": 5,
+    "pinyin": "you kong shi zhi",
+    "hint": "仍然担心失去已经得到的东西，常形容学习不敢懈怠。"
+  },
+  {
+    "word": "终夜不寝",
+    "old_score": 5,
+    "pinyin": "zhong ye bu qin",
+    "hint": "整夜没有睡觉。"
+  },
+  {
+    "word": "官迫民反",
+    "old_score": 5,
+    "pinyin": "guan po min fan",
+    "hint": "官府的压迫使百姓起来反抗。"
+  },
+  {
+    "word": "统而言之",
+    "old_score": 5,
+    "pinyin": "tong er yan zhi",
+    "hint": "总起来说。"
+  },
+  {
+    "word": "田忌赛马",
+    "old_score": 5,
+    "pinyin": "tian ji sai ma",
+    "hint": "田忌通过调整马匹出场次序取胜的故事，说明策略和统筹的重要。"
+  },
+  {
+    "word": "山高月小",
+    "old_score": 5,
+    "pinyin": "shan gao yue xiao",
+    "hint": "山势高耸，月亮显得小，描写山间夜景。"
+  },
+  {
+    "word": "一饮而尽",
+    "old_score": 5,
+    "pinyin": "yi yin er jin",
+    "hint": "把杯中的饮品一下子喝完。"
+  },
+  {
+    "word": "日精月华",
+    "old_score": 5,
+    "pinyin": "ri jing yue hua",
+    "hint": "太阳和月亮的精华。"
+  },
+  {
+    "word": "乜乜些些",
+    "old_score": 5,
+    "pinyin": "nie nie xie xie",
+    "hint": "形容眼睛眯斜的样子。"
+  },
+  {
+    "word": "云腾致雨",
+    "old_score": 5,
+    "pinyin": "yun teng zhi yu",
+    "hint": "云气升腾，形成降雨。"
+  },
+  {
+    "word": "威名远扬",
+    "old_score": 5,
+    "pinyin": "wei ming yuan yang",
+    "hint": "使人敬畏的名声传到很远的地方。"
+  },
+  {
+    "word": "移步换景",
+    "old_score": 5,
+    "pinyin": "yi bu huan jing",
+    "hint": "随着观察位置移动，所见景物随之变化的观察或描写方法。"
+  },
+  {
+    "word": "左膀右臂",
+    "old_score": 5,
+    "pinyin": "zuo bang you bi",
+    "hint": "比喻得力的助手。"
+  },
+  {
+    "word": "片刻不离",
+    "old_score": 5,
+    "pinyin": "pian ke bu li",
+    "hint": "很短的时间也不离开。"
+  },
+  {
+    "word": "一碧千里",
+    "old_score": 5,
+    "pinyin": "yi bi qian li",
+    "hint": "一片碧绿，延伸得十分辽阔。"
+  },
+  {
+    "word": "婉言谢绝",
+    "old_score": 5,
+    "pinyin": "wan yan xie jue",
+    "hint": "用委婉的话拒绝。"
+  },
+  {
+    "word": "鸣钟击磬",
+    "old_score": 5,
+    "pinyin": "ming zhong ji qing",
+    "hint": "敲响钟和磬，形容礼乐齐鸣的场面。"
+  },
+  {
+    "word": "无边无涯",
+    "old_score": 5,
+    "pinyin": "wu bian wu ya",
+    "hint": "没有边际，形容非常辽阔。"
+  },
+  {
+    "word": "朝花夕拾",
+    "old_score": 5,
+    "pinyin": "zhao hua xi shi",
+    "hint": "早晨的花到晚上拾取，比喻回忆往事；也是鲁迅散文集的名称。"
+  },
+  {
+    "word": "无暇顾及",
+    "old_score": 5,
+    "pinyin": "wu xia gu ji",
+    "hint": "没有空闲时间照顾或考虑到。"
+  },
+  {
+    "word": "春风拂面",
+    "old_score": 5,
+    "pinyin": "chun feng fu mian",
+    "hint": "春风轻轻吹过脸颊，形容温暖舒适的感受。"
+  },
+  {
+    "word": "骄阳似火",
+    "old_score": 5,
+    "pinyin": "jiao yang shi huo",
+    "hint": "强烈的太阳像火一样灼热。"
+  },
+  {
+    "word": "桃李满门",
+    "old_score": 5,
+    "pinyin": "tao li man men",
+    "hint": "比喻学生很多。"
+  },
+  {
+    "word": "秋风萧瑟",
+    "old_score": 5,
+    "pinyin": "qiu feng xiao se",
+    "hint": "秋风吹动草木，发出瑟瑟声，也形容秋景凄凉。"
+  },
+  {
+    "word": "人迹罕至",
+    "old_score": 5,
+    "pinyin": "ren ji han zhi",
+    "hint": "很少有人到达。"
+  },
+  {
+    "word": "潜龙勿用",
+    "old_score": 5,
+    "pinyin": "qian long wu yong",
+    "hint": "龙潜伏时不宜有所作为，比喻时机未到，应当蓄养力量。"
+  },
+  {
+    "word": "历久弥新",
+    "old_score": 5,
+    "pinyin": "li jiu mi xin",
+    "hint": "经历很长时间，反而更加鲜活或更有价值。"
+  },
+  {
+    "word": "年与时驰",
+    "old_score": 5,
+    "pinyin": "nian yu shi chi",
+    "hint": "年华随着时间飞快流逝。"
+  },
+  {
+    "word": "层次分明",
+    "old_score": 5,
+    "pinyin": "ceng ci fen ming",
+    "hint": "事物的结构或表达条理清楚。"
+  },
+  {
+    "word": "兀兀穷年",
+    "old_score": 5,
+    "pinyin": "wu wu qiong nian",
+    "hint": "一年到头辛苦劳作或用心钻研。"
+  },
+  {
+    "word": "心会神凝",
+    "old_score": 5,
+    "pinyin": "xin hui shen ning",
+    "hint": "精神集中，深入领会。"
+  },
+  {
+    "word": "群蚁排衙",
+    "old_score": 5,
+    "pinyin": "qun yi pai ya",
+    "hint": "形容排列密集而整齐，教材中用来形容细密的字迹。"
+  },
+  {
+    "word": "气度不凡",
+    "old_score": 5,
+    "pinyin": "qi du bu fan",
+    "hint": "人的气质和风度不同寻常。"
+  },
+  {
+    "word": "神秘莫测",
+    "old_score": 5,
+    "pinyin": "shen mi mo ce",
+    "hint": "神秘得无法揣测。"
+  },
+  {
+    "word": "士别三日",
+    "old_score": 5,
+    "pinyin": "shi bie san ri",
+    "hint": "与人分别一段时间后，对方可能已有长进，应重新认识。"
+  },
+  {
+    "word": "无欲则刚",
+    "old_score": 5,
+    "pinyin": "wu yu ze gang",
+    "hint": "没有私欲，才能刚正坚定。"
+  },
+  {
+    "word": "有容乃大",
+    "old_score": 5,
+    "pinyin": "you rong nai da",
+    "hint": "能够包容，才能达到宽广的境界。"
+  },
+  {
+    "word": "风吹雨淋",
+    "old_score": 5,
+    "pinyin": "feng chui yu lin",
+    "hint": "遭受风吹和雨水淋湿，形容在外经受风雨。"
+  },
+  {
+    "word": "如临其境",
+    "old_score": 5,
+    "pinyin": "ru lin qi jing",
+    "hint": "仿佛亲自来到那个环境之中。"
+  },
+  {
+    "word": "憨态可掬",
+    "old_score": 5,
+    "pinyin": "han tai ke ju",
+    "hint": "天真质朴的神态十分可爱。"
+  },
+  {
+    "word": "月华如水",
+    "old_score": 5,
+    "pinyin": "yue hua ru shui",
+    "hint": "月光柔和清澈，好像流水一样。"
+  },
+  {
+    "word": "由己及人",
+    "old_score": 5,
+    "pinyin": "you ji ji ren",
+    "hint": "从自己推及别人，设身处地理解他人。"
+  },
+  {
+    "word": "围追堵截",
+    "old_score": 5,
+    "pinyin": "wei zhui du jie",
+    "hint": "从各方面包围、追赶、拦堵和截击。"
+  },
+  {
+    "word": "尊老爱幼",
+    "old_score": 5,
+    "pinyin": "zun lao ai you",
+    "hint": "尊敬老人，爱护儿童。"
+  },
+  {
+    "word": "志不可满",
+    "old_score": 5,
+    "pinyin": "zhi bu ke man",
+    "hint": "志向和追求不能因自满而停滞。"
+  },
+  {
+    "word": "重重叠叠",
+    "old_score": 5,
+    "pinyin": "chong chong die die",
+    "hint": "一层又一层地堆叠。"
+  },
+  {
+    "word": "漫天风雪",
+    "old_score": 5,
+    "pinyin": "man tian feng xue",
+    "hint": "风雪遍布天空，形容风雪很大。"
+  },
+  {
+    "word": "心有灵犀",
+    "old_score": 5,
+    "pinyin": "xin you ling xi",
+    "hint": "比喻彼此心意相通。"
+  },
+  {
+    "word": "死于安乐",
+    "old_score": 5,
+    "pinyin": "si yu an le",
+    "hint": "安逸享乐可能使人或国家衰亡。"
+  },
+  {
+    "word": "逆流而上",
+    "old_score": 5,
+    "pinyin": "ni liu er shang",
+    "hint": "迎着水流方向前进，也比喻克服困难前进。"
+  },
+  {
+    "word": "顺流而下",
+    "old_score": 5,
+    "pinyin": "shun liu er xia",
+    "hint": "沿着水流的方向向下游前进。"
+  },
+  {
+    "word": "回清倒影",
+    "old_score": 5,
+    "pinyin": "hui qing dao ying",
+    "hint": "清波回旋，映出景物的倒影。"
+  },
+  {
+    "word": "清荣峻茂",
+    "old_score": 5,
+    "pinyin": "qing rong jun mao",
+    "hint": "水清、树荣、山高、草盛，形容山水草木的美景。"
+  },
+  {
+    "word": "空谷传响",
+    "old_score": 5,
+    "pinyin": "kong gu chuan xiang",
+    "hint": "空旷的山谷中传来回声。"
+  },
+  {
+    "word": "奇山异水",
+    "old_score": 5,
+    "pinyin": "qi shan yi shui",
+    "hint": "奇特秀丽的山水。"
+  },
+  {
+    "word": "坦荡如砥",
+    "old_score": 5,
+    "pinyin": "tan dang ru di",
+    "hint": "平坦得像磨刀石一样，形容十分平坦。"
+  },
+  {
+    "word": "旁逸斜出",
+    "old_score": 5,
+    "pinyin": "pang yi xie chu",
+    "hint": "枝条从树干旁边斜伸出来。"
+  },
+  {
+    "word": "潜滋暗长",
+    "old_score": 5,
+    "pinyin": "qian zi an zhang",
+    "hint": "暗中不知不觉地滋生发展。"
+  },
+  {
+    "word": "纵横决荡",
+    "old_score": 5,
+    "pinyin": "zong heng jue dang",
+    "hint": "纵横驰骋，冲击涤荡，形容力量奔放。"
+  },
+  {
+    "word": "文采斐然",
+    "old_score": 5,
+    "pinyin": "wen cai fei ran",
+    "hint": "文章或言辞富有文采。"
+  },
+  {
+    "word": "娓娓道来",
+    "old_score": 5,
+    "pinyin": "wei wei dao lai",
+    "hint": "连续不断而生动地讲述。"
+  },
+  {
+    "word": "恹恹欲睡",
+    "old_score": 5,
+    "pinyin": "yan yan yu shui",
+    "hint": "精神不振，困倦想睡。"
+  },
+  {
+    "word": "长虹饮涧",
+    "old_score": 5,
+    "pinyin": "chang hong yin jian",
+    "hint": "像长虹横跨山涧吸水，常用来形容桥梁的姿态。"
+  },
+  {
+    "word": "字字千钧",
+    "old_score": 5,
+    "pinyin": "zi zi qian jun",
+    "hint": "每个字都很有分量和力量。"
+  },
+  {
+    "word": "舳舻相接",
+    "old_score": 5,
+    "pinyin": "zhu lu xiang jie",
+    "hint": "船只首尾相连，形容船只很多。"
+  },
+  {
+    "word": "生于忧患",
+    "old_score": 5,
+    "pinyin": "sheng yu you huan",
+    "hint": "忧患和磨炼能使人奋发、生存发展。"
+  },
+  {
+    "word": "固不可彻",
+    "old_score": 5,
+    "pinyin": "gu bu ke che",
+    "hint": "顽固得无法通达事理。"
+  },
+  {
+    "word": "寒暑易节",
+    "old_score": 5,
+    "pinyin": "han shu yi jie",
+    "hint": "寒冷和炎热的季节交替。"
+  },
+  {
+    "word": "辨而不华",
+    "old_score": 5,
+    "pinyin": "bian er bu hua",
+    "hint": "善于辨析而不浮华。"
+  },
+  {
+    "word": "蓄势待发",
+    "old_score": 5,
+    "pinyin": "xu shi dai fa",
+    "hint": "积蓄力量，等待行动的时机。"
+  },
+  {
+    "word": "固不待言",
+    "old_score": 5,
+    "pinyin": "gu bu dai yan",
+    "hint": "本来就不必多说。"
+  },
+  {
+    "word": "阡陌交通",
+    "old_score": 5,
+    "pinyin": "qian mo jiao tong",
+    "hint": "田间小路交错相通。"
+  },
+  {
+    "word": "矫首昂视",
+    "old_score": 5,
+    "pinyin": "jiao shou ang shi",
+    "hint": "抬起头向上看。"
+  },
+  {
+    "word": "袒胸露乳",
+    "old_score": 5,
+    "pinyin": "tan xiong lu ru",
+    "hint": "敞开衣服，露出胸部。"
+  },
+  {
+    "word": "理至易明",
+    "old_score": 5,
+    "pinyin": "li zhi yi ming",
+    "hint": "道理极其明白，容易理解。"
+  },
+  {
+    "word": "敬事而信",
+    "old_score": 5,
+    "pinyin": "jing shi er xin",
+    "hint": "认真对待事务，讲求信用。"
+  },
+  {
+    "word": "人生在世",
+    "old_score": 5,
+    "pinyin": "ren sheng zai shi",
+    "hint": "人活在世上。"
+  },
+  {
+    "word": "推推搡搡",
+    "old_score": 5,
+    "pinyin": "tui tui sang sang",
+    "hint": "粗鲁地推来推去。"
+  },
+  {
+    "word": "柔中有刚",
+    "old_score": 5,
+    "pinyin": "rou zhong you gang",
+    "hint": "柔和之中含有坚强的力量。"
+  },
+  {
+    "word": "不测之险",
+    "old_score": 5,
+    "pinyin": "bu ce zhi xian",
+    "hint": "难以预料的危险。"
+  },
+  {
+    "word": "夜凉如水",
+    "old_score": 5,
+    "pinyin": "ye liang ru shui",
+    "hint": "夜间凉意像水一样沁人。"
+  },
+  {
+    "word": "胜利在望",
+    "old_score": 5,
+    "pinyin": "sheng li zai wang",
+    "hint": "胜利已近在眼前。"
+  },
+  {
+    "word": "和和美美",
+    "old_score": 5,
+    "pinyin": "he he mei mei",
+    "hint": "和睦而美满。"
+  },
+  {
+    "word": "克明俊德",
+    "old_score": 5,
+    "pinyin": "ke ming jun de",
+    "hint": "能够彰明崇高的德行。"
+  },
+  {
+    "word": "以和为贵",
+    "old_score": 5,
+    "pinyin": "yi he wei gui",
+    "hint": "把和谐相处看作重要原则。"
+  },
+  {
+    "word": "各美其美",
+    "old_score": 5,
+    "pinyin": "ge mei qi mei",
+    "hint": "各自欣赏和珍视自身文化的美好。"
+  },
+  {
+    "word": "袅袅不绝",
+    "old_score": 5,
+    "pinyin": "niao niao bu jue",
+    "hint": "声音等绵延不断。"
+  },
+  {
+    "word": "秦皇汉武",
+    "old_score": 5,
+    "pinyin": "qin huang han wu",
+    "hint": "秦始皇和汉武帝的合称。"
+  },
+  {
+    "word": "饶有兴味",
+    "old_score": 5,
+    "pinyin": "rao you xing wei",
+    "hint": "很有趣味或兴趣很浓。"
+  },
+  {
+    "word": "实实在在",
+    "old_score": 5,
+    "pinyin": "shi shi zai zai",
+    "hint": "真实、切实，不虚假。"
+  },
+  {
+    "word": "铮铮作响",
+    "old_score": 5,
+    "pinyin": "zheng zheng zuo xiang",
+    "hint": "发出响亮清脆的金属声。"
+  },
+  {
+    "word": "宠辱偕忘",
+    "old_score": 5,
+    "pinyin": "chong ru xie wang",
+    "hint": "荣耀和屈辱都不放在心上。"
+  },
+  {
+    "word": "樯倾楫摧",
+    "old_score": 5,
+    "pinyin": "qiang qing ji cui",
+    "hint": "桅杆倒下，船桨折断，形容风浪猛烈或船只受损。"
+  },
+  {
+    "word": "波澜不惊",
+    "old_score": 5,
+    "pinyin": "bo lan bu jing",
+    "hint": "水面平静，没有大的波浪；也比喻心情平静。"
+  },
+  {
+    "word": "满目萧然",
+    "old_score": 5,
+    "pinyin": "man mu xiao ran",
+    "hint": "眼前一片萧条冷落。"
+  },
+  {
+    "word": "虎啸猿啼",
+    "old_score": 5,
+    "pinyin": "hu xiao yuan ti",
+    "hint": "老虎吼叫，猿猴啼鸣。"
+  },
+  {
+    "word": "郁郁青青",
+    "old_score": 5,
+    "pinyin": "yu yu qing qing",
+    "hint": "草木青翠茂盛。"
+  },
+  {
+    "word": "风霜高洁",
+    "old_score": 5,
+    "pinyin": "feng shuang gao jie",
+    "hint": "天气清爽，霜色洁白，描写秋日景象。"
+  },
+  {
+    "word": "求神拜佛",
+    "old_score": 5,
+    "pinyin": "qiu shen bai fo",
+    "hint": "向神佛祈求庇佑。"
+  },
+  {
+    "word": "善解人意",
+    "old_score": 5,
+    "pinyin": "shan jie ren yi",
+    "hint": "善于体谅别人的心意。"
+  },
+  {
+    "word": "春蚕自缚",
+    "old_score": 5,
+    "pinyin": "chun can zi fu",
+    "hint": "春蚕吐丝把自己裹住，比喻自己使自己受到束缚。"
+  },
+  {
+    "word": "不谙世事",
+    "old_score": 5,
+    "pinyin": "bu an shi shi",
+    "hint": "不熟悉人情世故。"
+  },
+  {
+    "word": "国弊民穷",
+    "old_score": 5,
+    "pinyin": "guo bi min qiong",
+    "hint": "国家衰弱，百姓贫困。"
+  },
+  {
+    "word": "男扮女装",
+    "old_score": 5,
+    "pinyin": "nan ban nv zhuang",
+    "hint": "男子装扮成女子。"
+  },
+  {
+    "word": "云山雾罩",
+    "old_score": 5,
+    "pinyin": "yun shan wu zhao",
+    "hint": "云雾笼罩，也形容言语含糊、使人不明所以。"
+  },
+  {
+    "word": "免冠徒跣",
+    "old_score": 5,
+    "pinyin": "mian guan tu xian",
+    "hint": "摘下帽子，赤着脚。"
+  },
+  {
+    "word": "天下缟素",
+    "old_score": 5,
+    "pinyin": "tian xia gao su",
+    "hint": "天下人都穿白色丧服，形容举国哀悼。"
+  },
+  {
+    "word": "彗星袭月",
+    "old_score": 5,
+    "pinyin": "hui xing xi yue",
+    "hint": "彗星的光芒接近或掩映月亮，古人视为特殊天象。"
+  },
+  {
+    "word": "口体之奉",
+    "old_score": 5,
+    "pinyin": "kou ti zhi feng",
+    "hint": "供给口腹和身体的饮食衣物。"
+  },
+  {
+    "word": "负箧曳屣",
+    "old_score": 5,
+    "pinyin": "fu qie ye xi",
+    "hint": "背着书箱，拖着鞋子，形容求学奔走的艰辛。"
+  },
+  {
+    "word": "烛幽索隐",
+    "old_score": 5,
+    "pinyin": "zhu you suo yin",
+    "hint": "照见幽暗，探寻隐微，比喻探究深奥之处。"
+  },
+  {
+    "word": "针砭时弊",
+    "old_score": 5,
+    "pinyin": "zhen bian shi bi",
+    "hint": "指出并批评当时社会的弊病。"
+  },
+  {
+    "word": "天高地远",
+    "old_score": 5,
+    "pinyin": "tian gao di yuan",
+    "hint": "天地辽阔，距离遥远。"
+  },
+  {
+    "word": "收放自如",
+    "old_score": 5,
+    "pinyin": "shou fang zi ru",
+    "hint": "收束和展开都能自由掌握。"
+  },
+  {
+    "word": "长空万里",
+    "old_score": 5,
+    "pinyin": "chang kong wan li",
+    "hint": "辽阔无边的天空。"
+  },
+  {
+    "word": "文采藻饰",
+    "old_score": 5,
+    "pinyin": "wen cai zao shi",
+    "hint": "修饰言辞，使之富于文采。"
+  },
+  {
+    "word": "揭竿为旗",
+    "old_score": 5,
+    "pinyin": "jie gan wei qi",
+    "hint": "举起竹竿作旗帜，指发动起义。"
+  },
+  {
+    "word": "斩木为兵",
+    "old_score": 5,
+    "pinyin": "zhan mu wei bing",
+    "hint": "砍削树木作为武器。"
+  },
+  {
+    "word": "深入不毛",
+    "old_score": 5,
+    "pinyin": "shen ru bu mao",
+    "hint": "深入不生草木的荒凉地区。"
+  },
+  {
+    "word": "寻寻觅觅",
+    "old_score": 10,
+    "pinyin": "xun xun mi mi",
+    "hint": "不断寻找。"
+  },
+  {
+    "word": "百舸争流",
+    "old_score": 10,
+    "pinyin": "bai ge zheng liu",
+    "hint": "许多船竞相航行，比喻众人奋力争先。"
+  },
+  {
+    "word": "书生意气",
+    "old_score": 10,
+    "pinyin": "shu sheng yi qi",
+    "hint": "读书人的志气、热情和抱负。"
+  },
+  {
+    "word": "弯弯曲曲",
+    "old_score": 5,
+    "pinyin": "wan wan qu qu",
+    "hint": "曲折不直。"
+  },
+  {
+    "word": "锐意进取",
+    "old_score": 10,
+    "pinyin": "rui yi jin qu",
+    "hint": "意志坚决地追求进步。"
+  },
+  {
+    "word": "山不厌高",
+    "old_score": 10,
+    "pinyin": "shan bu yan gao",
+    "hint": "山不以高大为满足，常比喻胸怀广阔、不断追求。"
+  },
+  {
+    "word": "海不厌深",
+    "old_score": 10,
+    "pinyin": "hai bu yan shen",
+    "hint": "海不以深广为满足，常比喻包容广博、求贤不止。"
+  },
+  {
+    "word": "鼓瑟吹笙",
+    "old_score": 10,
+    "pinyin": "gu se chui sheng",
+    "hint": "弹瑟吹笙，奏乐相和。"
+  },
+  {
+    "word": "恬然自安",
+    "old_score": 10,
+    "pinyin": "tian ran zi an",
+    "hint": "心情安静，自觉安适。"
+  },
+  {
+    "word": "封狼居胥",
+    "old_score": 10,
+    "pinyin": "feng lang ju xu",
+    "hint": "在狼居胥山举行祭天仪式，后用来指建立显赫战功。"
+  },
+  {
+    "word": "冷冷清清",
+    "old_score": 10,
+    "pinyin": "leng leng qing qing",
+    "hint": "冷落寂静，没有热闹气氛。"
+  },
+  {
+    "word": "点点滴滴",
+    "old_score": 10,
+    "pinyin": "dian dian di di",
+    "hint": "零星细小的部分或积累。"
+  },
+  {
+    "word": "有理有据",
+    "old_score": 10,
+    "pinyin": "you li you ju",
+    "hint": "有道理，也有依据。"
+  },
+  {
+    "word": "含糊不清",
+    "old_score": 10,
+    "pinyin": "han hu bu qing",
+    "hint": "表达或事物模糊，不清楚明确。"
+  },
+  {
+    "word": "善假于物",
+    "old_score": 10,
+    "pinyin": "shan jia yu wu",
+    "hint": "善于借助外物或外部条件。"
+  },
+  {
+    "word": "木直中绳",
+    "old_score": 10,
+    "pinyin": "mu zhi zhong sheng",
+    "hint": "木材笔直，合乎墨线标准。"
+  },
+  {
+    "word": "恰恰相反",
+    "old_score": 10,
+    "pinyin": "qia qia xiang fan",
+    "hint": "正好与所说或所想的相反。"
+  },
+  {
+    "word": "旌旗蔽空",
+    "old_score": 10,
+    "pinyin": "jing qi bi kong",
+    "hint": "旗帜多得遮蔽天空，形容军容盛大。"
+  },
+  {
+    "word": "舳舻千里",
+    "old_score": 10,
+    "pinyin": "zhu lu qian li",
+    "hint": "船只首尾相连，绵延很远。"
+  },
+  {
+    "word": "洗盏更酌",
+    "old_score": 10,
+    "pinyin": "xi zhan geng zhuo",
+    "hint": "洗净酒杯，重新斟酒。"
+  },
+  {
+    "word": "柔情似水",
+    "old_score": 10,
+    "pinyin": "rou qing shi shui",
+    "hint": "柔和深长的情意像流水一样。"
+  },
+  {
+    "word": "千乘之国",
+    "old_score": 10,
+    "pinyin": "qian sheng zhi guo",
+    "hint": "拥有千辆兵车的诸侯国。"
+  },
+  {
+    "word": "为国以礼",
+    "old_score": 10,
+    "pinyin": "wei guo yi li",
+    "hint": "用礼的原则治理国家。"
+  },
+  {
+    "word": "保民而王",
+    "old_score": 10,
+    "pinyin": "bao min er wang",
+    "hint": "保护百姓而成就王业。"
+  },
+  {
+    "word": "技经肯綮",
+    "old_score": 10,
+    "pinyin": "ji jing ken qing",
+    "hint": "筋脉聚结、骨肉连接的地方，出自庖丁解牛的描写。"
+  },
+  {
+    "word": "以乱易整",
+    "old_score": 10,
+    "pinyin": "yi luan yi zheng",
+    "hint": "用散乱的队伍对付整齐的队伍。"
+  },
+  {
+    "word": "为之奈何",
+    "old_score": 10,
+    "pinyin": "wei zhi nai he",
+    "hint": "对于这件事怎么办。"
+  },
+  {
+    "word": "前合后偃",
+    "old_score": 10,
+    "pinyin": "qian he hou yan",
+    "hint": "身体前倾后仰，形容站立不稳或困顿的样子。"
+  },
+  {
+    "word": "吵吵嚷嚷",
+    "old_score": 10,
+    "pinyin": "chao chao rang rang",
+    "hint": "大声争吵或喧闹。"
+  },
+  {
+    "word": "窥斑见豹",
+    "old_score": 10,
+    "pinyin": "kui ban jian bao",
+    "hint": "从局部推知整体。"
+  },
+  {
+    "word": "居为奇货",
+    "old_score": 10,
+    "pinyin": "ju wei qi huo",
+    "hint": "把某种事物当作珍奇货物囤存，等待有利时机。"
+  },
+  {
+    "word": "天高气爽",
+    "old_score": 10,
+    "pinyin": "tian gao qi shuang",
+    "hint": "天空高远，空气清爽。"
+  },
+  {
+    "word": "玉鉴琼田",
+    "old_score": 10,
+    "pinyin": "yu jian qiong tian",
+    "hint": "像玉镜和美玉田地一样，形容澄澈洁白的景色。"
+  },
+  {
+    "word": "朝飞暮卷",
+    "old_score": 10,
+    "pinyin": "zhao fei mu juan",
+    "hint": "早晨飞动，傍晚卷舒，描写云霞变幻。"
+  },
+  {
+    "word": "互诉衷肠",
+    "old_score": 10,
+    "pinyin": "hu su zhong chang",
+    "hint": "互相倾诉内心的感情。"
+  },
+  {
+    "word": "烽烟四起",
+    "old_score": 10,
+    "pinyin": "feng yan si qi",
+    "hint": "各处燃起战火，形容战乱纷起。"
+  },
+  {
+    "word": "与子同袍",
+    "old_score": 10,
+    "pinyin": "yu zi tong pao",
+    "hint": "与你同穿战袍，比喻同心协力、共同战斗。"
+  },
+  {
+    "word": "寒风凛冽",
+    "old_score": 10,
+    "pinyin": "han feng lin lie",
+    "hint": "寒风刺骨，非常冷。"
+  },
+  {
+    "word": "仁者不忧",
+    "old_score": 10,
+    "pinyin": "ren zhe bu you",
+    "hint": "有仁德的人不因私欲而忧愁。"
+  },
+  {
+    "word": "知者不惑",
+    "old_score": 10,
+    "pinyin": "zhi zhe bu huo",
+    "hint": "有智慧的人不迷惑。"
+  },
+  {
+    "word": "非礼勿动",
+    "old_score": 10,
+    "pinyin": "fei li wu dong",
+    "hint": "不符合礼的行为不要做。"
+  },
+  {
+    "word": "非礼勿听",
+    "old_score": 10,
+    "pinyin": "fei li wu ting",
+    "hint": "不符合礼的话不要听。"
+  },
+  {
+    "word": "非礼勿视",
+    "old_score": 10,
+    "pinyin": "fei li wu shi",
+    "hint": "不符合礼的事不要看。"
+  },
+  {
+    "word": "非礼勿言",
+    "old_score": 10,
+    "pinyin": "fei li wu yan",
+    "hint": "不符合礼的话不要说。"
+  },
+  {
+    "word": "合抱之木",
+    "old_score": 10,
+    "pinyin": "he bao zhi mu",
+    "hint": "粗大到需要两臂环抱的树木。"
+  },
+  {
+    "word": "天人合一",
+    "old_score": 10,
+    "pinyin": "tian ren he yi",
+    "hint": "认为人与自然相通、应协调统一的思想。"
+  },
+  {
+    "word": "民为邦本",
+    "old_score": 10,
+    "pinyin": "min wei bang ben",
+    "hint": "百姓是国家的根本。"
+  },
+  {
+    "word": "简而言之",
+    "old_score": 10,
+    "pinyin": "jian er yan zhi",
+    "hint": "简要地说。"
+  },
+  {
+    "word": "以史为鉴",
+    "old_score": 10,
+    "pinyin": "yi shi wei jian",
+    "hint": "以历史经验作为借鉴。"
+  },
+  {
+    "word": "兼听则明",
+    "old_score": 10,
+    "pinyin": "jian ting ze ming",
+    "hint": "广泛听取不同意见，才能明辨是非。"
+  },
+  {
+    "word": "威振四海",
+    "old_score": 10,
+    "pinyin": "wei zhen si hai",
+    "hint": "威势震动天下。"
+  },
+  {
+    "word": "流血漂橹",
+    "old_score": 10,
+    "pinyin": "liu xue piao lu",
+    "hint": "流出的血能浮起盾牌，夸张地形容战争伤亡惨重。"
+  },
+  {
+    "word": "不测之渊",
+    "old_score": 10,
+    "pinyin": "bu ce zhi yuan",
+    "hint": "无法测量深度的深渊。"
+  },
+  {
+    "word": "猗顿之富",
+    "old_score": 10,
+    "pinyin": "yi dun zhi fu",
+    "hint": "像猗顿那样富有，指巨大的财富。"
+  },
+  {
+    "word": "急急忙忙",
+    "old_score": 1,
+    "pinyin": "ji ji mang mang",
+    "hint": "急促匆忙的样子。"
+  },
+  {
+    "word": "断断续续",
+    "old_score": 1,
+    "pinyin": "duan duan xu xu",
+    "hint": "时而中断，时而继续。"
+  },
+  {
+    "word": "张弛有度",
+    "old_score": 10,
+    "pinyin": "zhang chi you du",
+    "hint": "紧张与放松安排得当。"
+  },
+  {
+    "word": "孤孤单单",
+    "old_score": 1,
+    "pinyin": "gu gu dan dan",
+    "hint": "独自一人，孤独无伴。"
+  },
+  {
+    "word": "徘徊不前",
+    "old_score": 10,
+    "pinyin": "pai huai bu qian",
+    "hint": "来回犹豫，不肯或不能向前。"
+  },
+  {
+    "word": "吹胡瞪眼",
+    "old_score": 10,
+    "pinyin": "chui hu deng yan",
+    "hint": "形容生气发怒的样子。"
+  },
+  {
+    "word": "波澜起伏",
+    "old_score": 10,
+    "pinyin": "bo lan qi fu",
+    "hint": "波浪时起时落，也比喻情节或局势多有变化。"
+  },
+  {
+    "word": "至情至性",
+    "old_score": 10,
+    "pinyin": "zhi qing zhi xing",
+    "hint": "感情真挚，性情率真。"
+  },
+  {
+    "word": "俯仰一世",
+    "old_score": 10,
+    "pinyin": "fu yang yi shi",
+    "hint": "一俯一仰之间度过一生，感叹人生短暂。"
+  },
+  {
+    "word": "少长咸集",
+    "old_score": 10,
+    "pinyin": "shao zhang xian ji",
+    "hint": "年少和年长的人都聚集在一起。"
+  },
+  {
+    "word": "狂放不羁",
+    "old_score": 10,
+    "pinyin": "kuang fang bu ji",
+    "hint": "性情豪放，不受拘束。"
+  },
+  {
+    "word": "群贤毕至",
+    "old_score": 10,
+    "pinyin": "qun xian bi zhi",
+    "hint": "众多贤能的人都来到。"
+  },
+  {
+    "word": "载欣载奔",
+    "old_score": 10,
+    "pinyin": "zai xin zai ben",
+    "hint": "一边欢喜，一边奔走。"
+  },
+  {
+    "word": "前途无量",
+    "old_score": 5,
+    "pinyin": "qian tu wu liang",
+    "hint": "未来的发展不可限量。"
+  },
+  {
+    "word": "天圆地方",
+    "old_score": 10,
+    "pinyin": "tian yuan di fang",
+    "hint": "古人关于天形圆、地形方的观念。"
   }
 ]
