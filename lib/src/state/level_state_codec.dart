@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../engine/grid_engine.dart';
+import '../data/four_tier_content.dart';
 
 /// CrosswordLevel 与游戏进行状态（答案、候选盘、历史等）的 JSON 编解码。
 ///
@@ -60,7 +61,8 @@ CrosswordLevel? decodeLevel(String source) {
   try {
     final data = jsonDecode(source) as Map<String, dynamic>;
     if ((data['strategyVersion'] as int? ?? 0) > 2 ||
-        (data['contentVersion'] as int? ?? 0) > 2) {
+        (data['contentVersion'] as int? ?? 0) >
+            FourTierContent.currentVersion) {
       return null;
     }
     final rows = data['rows'] as int;

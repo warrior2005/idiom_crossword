@@ -66,7 +66,7 @@ void main() {
     );
     expect(
       db.select('SELECT sum(is_reviewed) AS n FROM idioms').first['n'],
-      3055,
+      3069,
     );
     expect(
       db
@@ -101,6 +101,75 @@ void main() {
       );
     }
   });
+  test('已安装内容版本2升级到3，人工改档生效且旧分、ID和冻结题不变', () async {
+    final dir = await Directory.systemTemp.createTemp('tier_v2_upgrade');
+    final file = await File(
+      'assets/data/idiom_crossword.db',
+    ).copy('${dir.path}/v2.db');
+    final db = sqlite3.open(file.path);
+    addTearDown(() {
+      db.close();
+      dir.deleteSync(recursive: true);
+    });
+    db.execute(
+      'CREATE TABLE four_tier_version (id INTEGER PRIMARY KEY, version INTEGER NOT NULL)',
+    );
+    db.execute('INSERT INTO four_tier_version VALUES (1,2)');
+    db.execute(
+      "UPDATE idioms SET difficulty_tier=1,difficulty_source='inferred',is_reviewed=0,difficulty_version=2 WHERE word='一心一计'",
+    );
+    db.execute(
+      "UPDATE idioms SET difficulty_tier=2,difficulty_source='textbook',difficulty_version=2 WHERE word='张牙舞爪'",
+    );
+    db.execute(
+      "INSERT INTO level_state_table (level_number,level_json,state_json) VALUES (11,'v2 frozen puzzle','v2 candidates')",
+    );
+    final original = db
+        .select('SELECT id,word,difficulty FROM idioms ORDER BY id')
+        .map((r) => r.values.toList())
+        .toList();
+    final content = await FourTierContent.load();
+    expect(content.version, FourTierContent.currentVersion);
+    content.apply(db);
+    expect(
+      db.select('SELECT version FROM four_tier_version').single['version'],
+      3,
+    );
+    expect(
+      db
+          .select(
+            "SELECT difficulty_tier,difficulty_source,is_reviewed FROM idioms WHERE word='一心一计'",
+          )
+          .single
+          .values
+          .toList(),
+      [4, 'manual', 1],
+    );
+    expect(
+      db
+          .select("SELECT difficulty_tier FROM idioms WHERE word='张牙舞爪'")
+          .single['difficulty_tier'],
+      1,
+    );
+    expect(
+      db
+          .select('SELECT id,word,difficulty FROM idioms ORDER BY id')
+          .map((r) => r.values.toList())
+          .toList(),
+      original,
+    );
+    content.apply(db);
+    expect(db.select('SELECT COUNT(*) AS n FROM idioms').single['n'], 29724);
+    expect(
+      db
+          .select('SELECT level_json,state_json FROM level_state_table')
+          .single
+          .values
+          .toList(),
+      ['v2 frozen puzzle', 'v2 candidates'],
+    );
+  });
+
   test('ID冲突使内容事务回滚，不提交版本', () {
     final db = sqlite3.openInMemory();
     addTearDown(db.close);

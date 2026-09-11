@@ -21,7 +21,7 @@ class FourTierContentTest(unittest.TestCase):
         content = json.loads(paths[0].read_text())
         entries = {r[1]: r for r in content['entries']}
         self.assertEqual(len(entries), 29724)
-        self.assertEqual(sum(r[4] for r in entries.values()), 3055)
+        self.assertEqual(sum(r[4] for r in entries.values()), 3069)
         self.assertEqual(len(content['additions']), 222)
         self.assertTrue(all(len(w) == 4 for w in entries))
         review_dir = ROOT / 'docs/reviews/textbook-idioms'
@@ -33,13 +33,18 @@ class FourTierContentTest(unittest.TestCase):
         self.assertEqual(entries['流水桃花'][2], 4)
         self.assertEqual(entries['蒙袂辑屦'][2], 2)
         self.assertEqual(entries['矞矞皇皇'][2], 2)
+        overrides = reviewed_rows(review_dir / '人工分档覆盖表.md')
+        names = ['入门', '基础', '拓展', '生僻']
+        for word, grade, _ in overrides:
+            self.assertEqual(entries[word][2:], [names.index(grade) + 1, 'manual', True])
+        self.assertEqual(content['version'], 3)
         evidence = json.loads(paths[1].read_text())
         self.assertEqual(len(evidence['textbook']), 2898)
         for path, digest in evidence['sourceHashes'].items():
             self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
         legacy = json.loads((ROOT / 'assets/data/mainline_content.json').read_text())
         old = {w: t for key, t in [('expansion', 3), ('foundation', 2), ('intro', 1)] for w in legacy[key]}
-        self.assertEqual(sum(entries[w][2] != t for w, t in old.items()), 165)
+        self.assertEqual(sum(entries[w][2] != t for w, t in old.items()), 134)
 
 
 if __name__ == '__main__':

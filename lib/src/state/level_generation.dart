@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show OrderingTerm;
 import 'dart:math';
 
 import '../data/database.dart';
+import '../data/four_tier_content.dart';
 import '../engine/adaptive_policy.dart';
 import '../engine/distractor_engine.dart';
 import '../data/mainline_learning.dart';
@@ -352,7 +353,7 @@ Future<engine.CrosswordLevel?> _generateMainline(
       placements: level.placements,
       givenCharacters: level.givenCharacters,
       title: title ?? '第 $number 关',
-      contentVersion: 2,
+      contentVersion: FourTierContent.currentVersion,
       strategyVersion: 2,
       support: 2,
       instanceId: seed == null

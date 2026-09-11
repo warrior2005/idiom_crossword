@@ -1,16 +1,17 @@
 {
-  "version": 2,
+  "version": 3,
   "inferenceBounds": [
     1,
     5,
     10
   ],
   "sourceHashes": {
-    "docs/reviews/textbook-idioms/有数据库ID_四字成语审核表.md": "225bab409ff8877e301407d686637c6aa80fba8d0944ed6e4a1161466aa5ff2b",
+    "docs/reviews/textbook-idioms/有数据库ID_四字成语审核表.md": "399a334919b5d53954ed9b4f045d6de0d1280cf9d3873ab4bd2564857239f08c",
     "docs/reviews/textbook-idioms/无数据库ID_四字候选审核表.md": "569a1152cbd6408ab887aa85fb5589aaf889d2ae718d1a886b185f93870e44b6",
     "assets/data/mainline_content.json": "cd9d0e10f4c517056b820fc805e4a7ffdc24688a075d006d8958b7a9cd6de8fc",
     "data/textbook_additions.json": "928b993461b3ad8ab91f8d15acd3175363b4e3351bd1f8b730f652a82acc49e0",
-    "data/scoring_progress.json": "67e81888aa206f1c0f9f317288934f10984b90477e4f6600c6edcef59f68ac54"
+    "data/scoring_progress.json": "67e81888aa206f1c0f9f317288934f10984b90477e4f6600c6edcef59f68ac54",
+    "docs/reviews/textbook-idioms/人工分档覆盖表.md": "cf1288d6e43450bdda3a764c6443e41c9b9b436e2a81177a70bac9b5d7ad5b04"
   },
   "textbook": [
     {
@@ -108,8 +109,8 @@
       "word": "春风夏雨",
       "earliestBook": "小学1年级下册",
       "references": "[小学1年级下册 · PDF第8页](</Users/serenaxxsun/my/成语/教材/2025秋小学一年级下册语文电子课本高清新教材_统编人教版.pdf>)；[初中7年级上册 · PDF第11页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": "基础",
-      "tier": 2,
+      "manualTier": "拓展",
+      "tier": 3,
       "source": "manual"
     },
     {
@@ -639,9 +640,9 @@
       "word": "穷且益坚",
       "earliestBook": "小学2年级上册",
       "references": "[小学2年级上册 · PDF第86页](</Users/serenaxxsun/my/成语/教材/2025秋小学二年级上册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 15104,
@@ -1287,18 +1288,18 @@
       "word": "张牙舞爪",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第37页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第70页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 19671,
       "word": "手忙脚乱",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学5年级下册 · PDF第100页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级下册 · PDF第130页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 19657,
@@ -1395,9 +1396,9 @@
       "word": "百发百中",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学4年级上册 · PDF第123页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 1887,
@@ -1422,9 +1423,9 @@
       "word": "争先恐后",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第58页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学6年级下册 · PDF第115页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级上册 · PDF第12页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 1865,
@@ -1485,9 +1486,9 @@
       "word": "百战百胜",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 14472,
@@ -1530,9 +1531,9 @@
       "word": "成群结队",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第77页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级上册 · PDF第121页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学5年级下册 · PDF第103页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 14353,
@@ -1764,9 +1765,9 @@
       "word": "目瞪口呆",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第113页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级上册 · PDF第122页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[高中选择性必修上册 · PDF第93页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 5817,
@@ -1791,9 +1792,9 @@
       "word": "守株待兔",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第5页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第22页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 8095,
@@ -1899,27 +1900,27 @@
       "word": "津津有味",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第68页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学5年级上册 · PDF第112页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 11341,
       "word": "井底之蛙",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 24406,
       "word": "掩耳盗铃",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 16221,
@@ -1953,9 +1954,9 @@
       "word": "画蛇添足",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 29179,
@@ -2088,9 +2089,9 @@
       "word": "风和日丽",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第83页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[高中必修上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 8286,
@@ -2142,9 +2143,9 @@
       "word": "百花齐放",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第99页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[高中选择性必修上册 · PDF第49页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 26400,
@@ -2259,9 +2260,9 @@
       "word": "人山人海",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第8页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学4年级上册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级上册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 18119,
@@ -2277,9 +2278,9 @@
       "word": "风平浪静",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第8页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级下册 · PDF第93页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级下册 · PDF第130页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 18453,
@@ -2466,9 +2467,9 @@
       "word": "欢天喜地",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第48页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[高中选择性必修上册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第69页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 11421,
@@ -2781,9 +2782,9 @@
       "word": "自由自在",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学4年级下册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级下册 · PDF第20页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 3985,
@@ -3312,9 +3313,9 @@
       "word": "车水马龙",
       "earliestBook": "小学4年级下册",
       "references": "[小学4年级下册 · PDF第19页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中8年级上册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 10041,
@@ -4617,9 +4618,9 @@
       "word": "千变万化",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级上册 · PDF第71页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修下册 · PDF第66页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 7502,
@@ -4671,9 +4672,9 @@
       "word": "乱七八糟",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第93页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中8年级上册 · PDF第93页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级上册 · PDF第106页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 7972,
@@ -5067,9 +5068,9 @@
       "word": "马马虎虎",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第11页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第128页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中8年级下册 · PDF第109页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 1861,
@@ -6435,9 +6436,9 @@
       "word": "一清二楚",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第77页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级下册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级下册 · PDF第100页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 20974,
@@ -6678,9 +6679,9 @@
       "word": "画龙点睛",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第118页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级下册 · PDF第95页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第116页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 1256,
@@ -7641,9 +7642,9 @@
       "word": "家家户户",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级下册 · PDF第113页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中必修上册 · PDF第115页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 5295,
@@ -7722,9 +7723,9 @@
       "word": "开门见山",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第32页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级上册 · PDF第78页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 24058,
@@ -7929,9 +7930,9 @@
       "word": "不知不觉",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第112页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修下册 · PDF第71页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
+      "manualTier": "基础",
       "tier": 2,
-      "source": "textbook"
+      "source": "manual"
     },
     {
       "id": 12689,
@@ -8451,9 +8452,9 @@
       "word": "大公无私",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第91页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 20451,
@@ -11241,9 +11242,9 @@
       "word": "舍己为人",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第115页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 18391,
@@ -11871,9 +11872,9 @@
       "word": "张灯结彩",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第33页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 11238,
@@ -11925,9 +11926,9 @@
       "word": "无影无踪",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第39页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中必修上册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修下册 · PDF第106页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 23394,
@@ -12744,9 +12745,9 @@
       "word": "千军万马",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第120页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级下册 · PDF第147页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 15389,
@@ -14184,9 +14185,9 @@
       "word": "一干二净",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级下册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 22018,
@@ -17397,9 +17398,9 @@
       "word": "真心实意",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第68页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22663,
@@ -17415,9 +17416,9 @@
       "word": "风起云涌",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12088,
@@ -17433,9 +17434,9 @@
       "word": "义无反顾",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第42页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25003,
@@ -17451,9 +17452,9 @@
       "word": "自给自足",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 20770,
@@ -17478,27 +17479,27 @@
       "word": "心神不定",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第48页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修上册 · PDF第123页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第124页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 17350,
       "word": "全力以赴",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第49页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第40页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 17383,
       "word": "全心全意",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第49页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第29页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 29464,
@@ -17514,9 +17515,9 @@
       "word": "二话不说",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第54页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22353,
@@ -17532,9 +17533,9 @@
       "word": "有目共睹",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第55页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1922,
@@ -17622,9 +17623,9 @@
       "word": "脚踏实地",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 12693,
@@ -17667,9 +17668,9 @@
       "word": "齐心协力",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 14669,
@@ -17901,9 +17902,9 @@
       "word": "变化无常",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第75页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 28374,
@@ -17928,9 +17929,9 @@
       "word": "一言一行",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10335,
@@ -18135,9 +18136,9 @@
       "word": "对牛弹琴",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 22195,
@@ -18162,9 +18163,9 @@
       "word": "生动活泼",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修上册 · PDF第99页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修上册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 27150,
@@ -18324,18 +18325,18 @@
       "word": "一劳永逸",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第107页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 13189,
       "word": "了如指掌",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第107页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4185,
@@ -18441,9 +18442,9 @@
       "word": "没日没夜",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第122页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第66页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 23678,
@@ -18558,9 +18559,9 @@
       "word": "杂乱无章",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21874,
@@ -18576,9 +18577,9 @@
       "word": "一言不发",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2127,
@@ -18621,9 +18622,9 @@
       "word": "闭门造车",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 27848,
@@ -18639,9 +18640,9 @@
       "word": "欺人太甚",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第139页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14665,
@@ -18675,9 +18676,9 @@
       "word": "全军覆没",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第144页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14431,
@@ -18702,9 +18703,9 @@
       "word": "投机取巧",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第147页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18376,
@@ -19161,9 +19162,9 @@
       "word": "明明白白",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第39页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第53页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第70页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 17995,
@@ -19197,9 +19198,9 @@
       "word": "皆大欢喜",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18795,
@@ -19224,9 +19225,9 @@
       "word": "当机立断",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第49页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 24558,
@@ -19287,9 +19288,9 @@
       "word": "自以为是",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第54页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第16页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 29130,
@@ -19305,9 +19306,9 @@
       "word": "高深莫测",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 15556,
@@ -19368,18 +19369,18 @@
       "word": "大同小异",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25973,
       "word": "一言难尽",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第71页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26162,
@@ -19431,9 +19432,9 @@
       "word": "千家万户",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 24290,
@@ -19485,9 +19486,9 @@
       "word": "夜郎自大",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第86页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25539,
@@ -19512,9 +19513,9 @@
       "word": "愚昧无知",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第89页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第152页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 225,
@@ -19800,9 +19801,9 @@
       "word": "杀人放火",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第116页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7411,
@@ -19899,9 +19900,9 @@
       "word": "安然无恙",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第125页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 23577,
@@ -19917,18 +19918,18 @@
       "word": "正大光明",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第125页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4128,
       "word": "大快人心",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第126页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22023,
@@ -19953,18 +19954,18 @@
       "word": "游手好闲",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第127页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10376,
       "word": "价值连城",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第128页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 5209,
@@ -20025,63 +20026,63 @@
       "word": "暴跳如雷",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第132页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18955,
       "word": "深信不疑",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第133页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21354,
       "word": "头破血流",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18906,
       "word": "深思熟虑",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18850,
       "word": "身强力壮",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 23268,
       "word": "想入非非",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21669,
       "word": "玩忽职守",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4712,
@@ -20097,9 +20098,9 @@
       "word": "闻所未闻",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1747,
@@ -20133,72 +20134,72 @@
       "word": "捕风捉影",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第139页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10799,
       "word": "焦头烂额",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第139页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 23161,
       "word": "闲言碎语",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第139页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 24216,
       "word": "雪上加霜",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第139页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18725,
       "word": "神不守舍",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第140页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18726,
       "word": "身不由己",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第140页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第16页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4785,
       "word": "低声下气",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第141页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 6237,
       "word": "匪夷所思",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第142页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 17224,
@@ -20214,27 +20215,27 @@
       "word": "鲜血淋漓",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第142页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 11076,
       "word": "津津乐道",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第143页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 3328,
       "word": "初出茅庐",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第144页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25422,
@@ -20250,9 +20251,9 @@
       "word": "落花流水",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第144页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2074,
@@ -20268,9 +20269,9 @@
       "word": "博大精深",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第146页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 17772,
@@ -20295,9 +20296,9 @@
       "word": "以偏概全",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第150页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 16589,
@@ -20358,9 +20359,9 @@
       "word": "大兴土木",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第153页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 28491,
@@ -20403,18 +20404,18 @@
       "word": "适可而止",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第153页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10699,
       "word": "骄傲自满",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第153页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 23799,
@@ -20565,9 +20566,9 @@
       "word": "防微杜渐",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第160页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1941,
@@ -20583,18 +20584,18 @@
       "word": "畅所欲言",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第161页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1457,
       "word": "兵临城下",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第164页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4704,
@@ -20610,9 +20611,9 @@
       "word": "重蹈覆辙",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第164页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 11244,
@@ -20664,27 +20665,27 @@
       "word": "当家作主",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第7页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第11页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 16161,
       "word": "七零八落",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第13页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第79页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21699,
       "word": "万马奔腾",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第13页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 17547,
@@ -20700,9 +20701,9 @@
       "word": "恨之入骨",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 15474,
@@ -20736,27 +20737,27 @@
       "word": "艰难险阻",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第16页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第42页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4509,
       "word": "刀光剑影",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7846,
       "word": "孤苦伶仃",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第67页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2144,
@@ -20799,27 +20800,27 @@
       "word": "惨无人道",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第19页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26727,
       "word": "有始有终",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第19页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 943,
       "word": "背井离乡",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第19页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第93页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 24232,
@@ -20853,9 +20854,9 @@
       "word": "水深火热",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第21页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第66页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4235,
@@ -20898,27 +20899,27 @@
       "word": "无依无靠",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第28页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第92页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 16006,
       "word": "铺天盖地",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第28页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 16229,
       "word": "欺软怕硬",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第29页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18866,
@@ -20934,9 +20935,9 @@
       "word": "不治之症",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第30页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 16027,
@@ -20952,18 +20953,18 @@
       "word": "众志成城",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第39页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第41页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21763,
       "word": "万众一心",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第39页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18606,
@@ -20979,9 +20980,9 @@
       "word": "同舟共济",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第39页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10537,
@@ -21024,9 +21025,9 @@
       "word": "高瞻远瞩",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 13342,
@@ -21051,18 +21052,18 @@
       "word": "冲锋陷阵",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第37页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第79页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4069,
       "word": "大风大浪",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第37页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7843,
@@ -21132,27 +21133,27 @@
       "word": "披荆斩棘",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第39页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 23269,
       "word": "相濡以沫",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第39页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7878,
       "word": "顾全大局",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第39页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22025,
@@ -21195,18 +21196,18 @@
       "word": "举一反三",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第43页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 17986,
       "word": "如履薄冰",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第43页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21123,
@@ -21240,9 +21241,9 @@
       "word": "荡气回肠",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第46页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7401,
@@ -21393,9 +21394,9 @@
       "word": "厚德载物",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7913,
@@ -21411,9 +21412,9 @@
       "word": "推陈出新",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第97页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 29087,
@@ -21492,9 +21493,9 @@
       "word": "自食其果",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第66页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 15126,
@@ -21510,18 +21511,18 @@
       "word": "口口声声",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第68页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19321,
       "word": "时来运转",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第68页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26356,
@@ -21546,9 +21547,9 @@
       "word": "明媒正娶",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第70页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10916,
@@ -21582,18 +21583,18 @@
       "word": "嫣然一笑",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第73页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14822,
       "word": "谋财害命",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第73页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25216,
@@ -21609,27 +21610,27 @@
       "word": "谢天谢地",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第75页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25086,
       "word": "一刀两断",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第76页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22511,
       "word": "无可救药",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第76页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 20473,
@@ -21654,18 +21655,18 @@
       "word": "听天由命",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第80页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 8539,
       "word": "好景不长",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第80页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2345,
@@ -21681,54 +21682,54 @@
       "word": "一无所知",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19701,
       "word": "手无寸铁",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 24713,
       "word": "养精蓄锐",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第82页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4147,
       "word": "大难临头",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第82页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 15217,
       "word": "年轻力壮",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第85页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26690,
       "word": "有气无力",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第85页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第82页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 15815,
@@ -21744,9 +21745,9 @@
       "word": "沉默寡言",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第91页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 20850,
@@ -21771,9 +21772,9 @@
       "word": "名正言顺",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第93页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 5724,
@@ -21852,9 +21853,9 @@
       "word": "同仇敌忾",
       "earliestBook": "高中选择性必修上册",
       "references": "[高中选择性必修上册 · PDF第108页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10667,
@@ -21933,9 +21934,9 @@
       "word": "夸夸其谈",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第16页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第18页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18987,
@@ -21951,9 +21952,9 @@
       "word": "粗枝大叶",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19083,
@@ -21987,9 +21988,9 @@
       "word": "华而不实",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第16页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4049,
@@ -22032,9 +22033,9 @@
       "word": "五花八门",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第23页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 21349,
@@ -22077,9 +22078,9 @@
       "word": "言行一致",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第29页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 17314,
@@ -22113,9 +22114,9 @@
       "word": "无动于衷",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第33页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 3168,
@@ -22140,27 +22141,27 @@
       "word": "平安无事",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14638,
       "word": "明目张胆",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18117,
       "word": "若无其事",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 17366,
@@ -22185,18 +22186,18 @@
       "word": "危言耸听",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第42页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19218,
       "word": "是非曲直",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第42页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 13477,
@@ -22212,9 +22213,9 @@
       "word": "至理名言",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第42页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12273,
@@ -22230,9 +22231,9 @@
       "word": "在天之灵",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第44页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26230,
@@ -22266,9 +22267,9 @@
       "word": "孤注一掷",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14847,
@@ -22320,9 +22321,9 @@
       "word": "人之常情",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第50页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14711,
@@ -22428,27 +22429,27 @@
       "word": "不假思索",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12954,
       "word": "里应外合",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 15432,
       "word": "藕断丝连",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第69页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25830,
@@ -22482,9 +22483,9 @@
       "word": "横行霸道",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第74页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 3551,
@@ -22500,18 +22501,18 @@
       "word": "装神弄鬼",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第77页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 20045,
       "word": "顺水推舟",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第77页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2126,
@@ -22527,9 +22528,9 @@
       "word": "拐弯抹角",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第79页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26688,
@@ -22545,27 +22546,27 @@
       "word": "急中生智",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第80页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10089,
       "word": "积少成多",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第82页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 3099,
       "word": "赤手空拳",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1598,
@@ -22671,9 +22672,9 @@
       "word": "生死存亡",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第92页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 17269,
@@ -22689,9 +22690,9 @@
       "word": "幸灾乐祸",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第95页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 11449,
@@ -22734,9 +22735,9 @@
       "word": "肝脑涂地",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第97页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19598,
@@ -22842,9 +22843,9 @@
       "word": "至高无上",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第100页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 28978,
@@ -22878,9 +22879,9 @@
       "word": "如影随形",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 5317,
@@ -22905,9 +22906,9 @@
       "word": "深谋远虑",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22274,
@@ -22950,9 +22951,9 @@
       "word": "一路平安",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第108页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 155,
@@ -22986,18 +22987,18 @@
       "word": "正正经经",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第117页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14044,
       "word": "满不在乎",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第117页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4860,
@@ -23013,9 +23014,9 @@
       "word": "喜怒无常",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第125页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10558,
@@ -23031,9 +23032,9 @@
       "word": "权衡利弊",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第131页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 24030,
@@ -23085,18 +23086,18 @@
       "word": "石破天惊",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18749,
       "word": "神出鬼没",
       "earliestBook": "高中选择性必修中册",
       "references": "[高中选择性必修中册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 28974,
@@ -23139,9 +23140,9 @@
       "word": "反复无常",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第8页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10171,
@@ -23175,9 +23176,9 @@
       "word": "信誓旦旦",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第9页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 20336,
@@ -23202,9 +23203,9 @@
       "word": "年富力强",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第10页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 20,
@@ -23238,9 +23239,9 @@
       "word": "一举一动",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第13页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修下册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 29237,
@@ -23256,9 +23257,9 @@
       "word": "山珍海味",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 13097,
@@ -23310,9 +23311,9 @@
       "word": "杀人如麻",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第21页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14806,
@@ -23382,9 +23383,9 @@
       "word": "塞翁失马",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 18056,
@@ -23472,9 +23473,9 @@
       "word": "断子绝孙",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 28008,
@@ -23517,9 +23518,9 @@
       "word": "西装革履",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第54页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21034,
@@ -23571,9 +23572,9 @@
       "word": "凶神恶煞",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 16199,
@@ -23598,9 +23599,9 @@
       "word": "蒸蒸日上",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 6627,
@@ -23679,9 +23680,9 @@
       "word": "议论纷纷",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第71页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 29341,
@@ -23697,18 +23698,18 @@
       "word": "有条不紊",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第74页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2626,
       "word": "怅然若失",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第76页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22346,
@@ -23877,9 +23878,9 @@
       "word": "喜形于色",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第86页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12680,
@@ -23922,9 +23923,9 @@
       "word": "声如洪钟",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第92页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 20479,
@@ -23958,18 +23959,18 @@
       "word": "敷衍了事",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 24368,
       "word": "言不由衷",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1987,
@@ -23985,27 +23986,27 @@
       "word": "自始至终",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第100页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4124,
       "word": "大惊小怪",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 21702,
       "word": "完美无缺",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2945,
@@ -24021,18 +24022,18 @@
       "word": "人才济济",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第109页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 16877,
       "word": "勤学好问",
       "earliestBook": "高中选择性必修下册",
       "references": "[高中选择性必修下册 · PDF第109页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12387,
@@ -26094,6 +26095,92 @@
       "manualTier": null,
       "tier": 3,
       "source": "textbook"
+    }
+  ],
+  "manualOverrides": [
+    {
+      "id": 25929,
+      "word": "一心一计",
+      "tier": 4,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25658,
+      "word": "一扫而光",
+      "tier": 2,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25867,
+      "word": "一无所成",
+      "tier": 2,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25866,
+      "word": "一无所长",
+      "tier": 2,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 26049,
+      "word": "一语道破",
+      "tier": 2,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25544,
+      "word": "一贫如洗",
+      "tier": 2,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25834,
+      "word": "一往直前",
+      "tier": 3,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25583,
+      "word": "一清二白",
+      "tier": 1,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25906,
+      "word": "一笑了之",
+      "tier": 1,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 24961,
+      "word": "一笔抹煞",
+      "tier": 3,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25360,
+      "word": "一决胜负",
+      "tier": 2,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25507,
+      "word": "一模二样",
+      "tier": 4,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 25458,
+      "word": "一马平川",
+      "tier": 2,
+      "reason": "用户明确指定"
+    },
+    {
+      "id": 24939,
+      "word": "一般见识",
+      "tier": 3,
+      "reason": "用户明确指定"
     }
   ],
   "editorialNotes": "漫天风雪按用户更正保留；新增词释义为编辑释义，旧分为兼容估值。"
