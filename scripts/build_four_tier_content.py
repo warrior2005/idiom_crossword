@@ -29,6 +29,24 @@ def tier(row):
     return (1 if book.startswith(('小学1', '小学2')) else 3 if book.startswith('高中') else 2), 'textbook'
 
 
+def unreviewed_overrides(path, ids, anchored_words):
+    """空白不算人工审核；只接纳稳定ID匹配、明确填档的库外教材词。"""
+    result = []
+    seen = set()
+    for row in reviewed_rows(path):
+        if len(row) != 4:
+            raise ValueError(f'Invalid review row: {row}')
+        ident, word, current, grade = row
+        if (word in seen or len(word) != 4 or not ident.isdigit()
+                or ids.get(word) != int(ident) or word in anchored_words
+                or current not in NAMES or (grade and grade not in NAMES)):
+            raise ValueError(f'Invalid unreviewed override: {word}')
+        seen.add(word)
+        if grade:
+            result.append((word, grade, '非教材审核表人工标注'))
+    return result
+
+
 def inferred(score, bounds=(1, 5, 10)):
     return next((i + 1 for i, end in enumerate(bounds) if score <= end), 4)
 
@@ -90,6 +108,11 @@ def main():
     db_path = ROOT / 'assets/data/idiom_crossword.db'
     with sqlite3.connect(f'{db_path.as_uri()}?mode=ro', uri=True) as db:
         scores = dict(db.execute('SELECT word,difficulty FROM idioms'))
+    unreviewed_path = reviews / '非教材_未人工审核成语分档表.md'
+    extra_overrides = unreviewed_overrides(unreviewed_path, ids, set(anchors))
+    for word, grade, _ in extra_overrides:
+        anchors[word] = (NAMES.index(grade) + 1, 'manual', True)
+    overrides += extra_overrides
     for word, _, _ in overrides:
         if word not in scores or word not in ids:
             raise ValueError(f'Manual override requires existing database word: {word}')
@@ -118,7 +141,7 @@ def main():
                          for p in [reviews / '有数据库ID_四字成语审核表.md',
                                    reviews / '无数据库ID_四字候选审核表.md',
                                    ROOT / 'assets/data/mainline_content.json', details_path,
-                                   ROOT / 'data/scoring_progress.json', override_path]},
+                                   ROOT / 'data/scoring_progress.json', override_path, unreviewed_path]},
         'textbook': [{'id': ids[r[0]], 'word': r[0], 'earliestBook': r[1],
                       'references': r[2], 'manualTier': r[-1] or None,
                       'tier': anchors[r[0]][0], 'source': anchors[r[0]][1]}
@@ -148,7 +171,7 @@ def main():
         words = sorted(w for w, score in scores.items() if score == sc and w not in anchors)[:12]
         report.append(f'| {sc} | {NAMES[inferred(sc)-1]} | {"、".join(words)} |')
     report += ['', '精确册次、PDF页码、人工覆盖及输入SHA-256见 [版本化证据](../reviews/textbook-idioms/four_tier_evidence.json)。新增释义为编辑释义，不能当作教材原文引用。', '']
-    report += ['', '## 人工补充分档', '', '可编辑来源：[人工分档覆盖表](../reviews/textbook-idioms/人工分档覆盖表.md)。以下覆盖已纳入统计，审核标记只作记录。', '', '| 成语 | 指定等级 | 依据 |', '|---|---|---|']
+    report += ['', '## 人工补充分档', '', '可编辑来源：[人工分档覆盖表](../reviews/textbook-idioms/人工分档覆盖表.md)、[非教材审核表](../reviews/textbook-idioms/非教材_未人工审核成语分档表.md)。以下覆盖已纳入统计，审核标记只作记录。', '', '| 成语 | 指定等级 | 依据 |', '|---|---|---|']
     report += [f'| {w} | {g} | {reason} |' for w, g, reason in overrides]
     report += ['', '## 旧清单冲突（使用教材／人工结论）', '', '| 成语 | 旧清单 | 新等级 |', '|---|---|---|']
     for w in sorted(before):

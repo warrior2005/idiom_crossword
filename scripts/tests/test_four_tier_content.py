@@ -4,13 +4,36 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from build_four_tier_content import reviewed_rows, tier
+from build_four_tier_content import reviewed_rows, tier, unreviewed_overrides
 
 
 class FourTierContentTest(unittest.TestCase):
+    def test_unreviewed_export_and_partial_annotations(self):
+        path = ROOT / 'docs/reviews/textbook-idioms/非教材_未人工审核成语分档表.md'
+        ids = json.loads((ROOT / 'data/idiom_ids.json').read_text())
+        content = json.loads((ROOT / 'assets/data/four_tier_content.json').read_text())
+        remaining = {r[1] for r in content['entries'] if not r[4]}
+        rows = reviewed_rows(path)
+        self.assertEqual(len(rows), 26655)
+        self.assertEqual({r[1] for r in rows}, remaining)
+        self.assertEqual(unreviewed_overrides(path, ids, set(ids) - remaining), [])
+        with tempfile.TemporaryDirectory() as d:
+            sample = Path(d) / 'review.md'
+            prefix = '| ID | 成语 | 当前等级 | 人工等级 |\n|---|---|---|---|\n'
+            word = rows[0][1]
+            sample.write_text(prefix + f'| {ids[word]} | {word} | 入门 | 基础 |\n')
+            self.assertEqual(unreviewed_overrides(sample, ids, set()), [(word, '基础', '非教材审核表人工标注')])
+            sample.write_text(prefix + f'| {ids[word]} | {word} | 入门 | 入门 |\n')
+            self.assertEqual(len(unreviewed_overrides(sample, ids, set())), 1)
+            for ident, grade in [(ids[word] + 1, '基础'), (ids[word], '待定')]:
+                sample.write_text(prefix + f'| {ident} | {word} | 入门 | {grade} |\n')
+                with self.assertRaises(ValueError):
+                    unreviewed_overrides(sample, ids, set())
+
     def test_reviewed_content_and_evidence_are_reproducible(self):
         paths = [ROOT / p for p in ['assets/data/four_tier_content.json',
                  'docs/reviews/textbook-idioms/four_tier_evidence.json',
