@@ -1,12 +1,12 @@
 {
-  "version": 3,
+  "version": 4,
   "inferenceBounds": [
     1,
     5,
     10
   ],
   "sourceHashes": {
-    "docs/reviews/textbook-idioms/有数据库ID_四字成语审核表.md": "399a334919b5d53954ed9b4f045d6de0d1280cf9d3873ab4bd2564857239f08c",
+    "docs/reviews/textbook-idioms/有数据库ID_四字成语审核表.md": "ca9f030d4735afab7178b06283a32c608ccd85e4bf5abdc42b7c5f8a4946b4c2",
     "docs/reviews/textbook-idioms/无数据库ID_四字候选审核表.md": "569a1152cbd6408ab887aa85fb5589aaf889d2ae718d1a886b185f93870e44b6",
     "assets/data/mainline_content.json": "cd9d0e10f4c517056b820fc805e4a7ffdc24688a075d006d8958b7a9cd6de8fc",
     "data/textbook_additions.json": "928b993461b3ad8ab91f8d15acd3175363b4e3351bd1f8b730f652a82acc49e0",
@@ -127,9 +127,9 @@
       "word": "桃花潭水",
       "earliestBook": "小学1年级下册",
       "references": "[小学1年级下册 · PDF第41页](</Users/serenaxxsun/my/成语/教材/2025秋小学一年级下册语文电子课本高清新教材_统编人教版.pdf>)；[初中7年级下册 · PDF第61页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21272,
@@ -217,9 +217,9 @@
       "word": "牵牛织女",
       "earliestBook": "小学1年级下册",
       "references": "[小学1年级下册 · PDF第79页](</Users/serenaxxsun/my/成语/教材/2025秋小学一年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学5年级上册 · PDF第52页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第92页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19621,
@@ -235,9 +235,9 @@
       "word": "千门万户",
       "earliestBook": "小学1年级下册",
       "references": "[小学1年级下册 · PDF第116页](</Users/serenaxxsun/my/成语/教材/2025秋小学一年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第50页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学6年级下册 · PDF第51页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 29428,
@@ -379,9 +379,9 @@
       "word": "名山大川",
       "earliestBook": "小学2年级上册",
       "references": "[小学2年级上册 · PDF第48页](</Users/serenaxxsun/my/成语/教材/2025秋小学二年级上册语文电子课本高清新教材_统编人教版.pdf>)；[高中必修上册 · PDF第79页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18509,
@@ -496,9 +496,9 @@
       "word": "得过且过",
       "earliestBook": "小学2年级上册",
       "references": "[小学2年级上册 · PDF第65页](</Users/serenaxxsun/my/成语/教材/2025秋小学二年级上册语文电子课本高清新教材_统编人教版.pdf>)；[高中必修下册 · PDF第154页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18301,
@@ -649,18 +649,18 @@
       "word": "恼羞成怒",
       "earliestBook": "小学2年级上册",
       "references": "[小学2年级上册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/2025秋小学二年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学5年级上册 · PDF第52页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级上册 · PDF第155页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 27445,
       "word": "云开雾散",
       "earliestBook": "小学2年级上册",
       "references": "[小学2年级上册 · PDF第99页](</Users/serenaxxsun/my/成语/教材/2025秋小学二年级上册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4866,
@@ -766,9 +766,9 @@
       "word": "鸡鸣狗吠",
       "earliestBook": "小学2年级上册",
       "references": "[小学2年级上册 · PDF第112页](</Users/serenaxxsun/my/成语/教材/2025秋小学二年级上册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 13491,
@@ -874,9 +874,9 @@
       "word": "羿射九日",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第6页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学2年级下册 · PDF第106页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学4年级上册 · PDF第66页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2452,
@@ -919,9 +919,9 @@
       "word": "碧空如洗",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第15页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学2年级下册 · PDF第126页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 23774,
@@ -955,9 +955,9 @@
       "word": "无名英雄",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第33页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25893,
@@ -1108,9 +1108,9 @@
       "word": "刨根问底",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第89页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19014,
@@ -1126,27 +1126,27 @@
       "word": "与世隔绝",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学2年级下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学6年级下册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 11267,
       "word": "尽心竭力",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学2年级下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[高中必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7494,
       "word": "各色各样",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第103页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学6年级上册 · PDF第127页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 9377,
@@ -1171,9 +1171,9 @@
       "word": "不辞劳苦",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第112页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[高中选择性必修上册 · PDF第26页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2916,
@@ -1189,9 +1189,9 @@
       "word": "毒蛇猛兽",
       "earliestBook": "小学2年级下册",
       "references": "[小学2年级下册 · PDF第112页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学2年级下册 · PDF第113页](</Users/serenaxxsun/my/成语/教材/2026春小学二年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 1,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 13401,
@@ -1288,9 +1288,9 @@
       "word": "张牙舞爪",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第37页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第70页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": "入门",
-      "tier": 1,
-      "source": "manual"
+      "manualTier": null,
+      "tier": 2,
+      "source": "textbook"
     },
     {
       "id": 19671,
@@ -1396,27 +1396,27 @@
       "word": "百发百中",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学4年级上册 · PDF第123页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": "入门",
-      "tier": 1,
-      "source": "manual"
+      "manualTier": null,
+      "tier": 2,
+      "source": "textbook"
     },
     {
       "id": 1887,
       "word": "不劳而获",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第54页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学4年级下册 · PDF第130页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 4030,
       "word": "大吃一惊",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第55页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级上册 · PDF第121页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学4年级下册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 28140,
@@ -1432,9 +1432,9 @@
       "word": "不可思议",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第61页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学5年级上册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级上册 · PDF第51页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 22885,
@@ -1486,9 +1486,9 @@
       "word": "百战百胜",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": "入门",
-      "tier": 1,
-      "source": "manual"
+      "manualTier": null,
+      "tier": 2,
+      "source": "textbook"
     },
     {
       "id": 14472,
@@ -1522,9 +1522,9 @@
       "word": "一本正经",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第68页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级上册 · PDF第121页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学5年级下册 · PDF第120页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 2924,
@@ -1540,9 +1540,9 @@
       "word": "密密层层",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级上册 · PDF第121页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学5年级上册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26042,
@@ -1603,9 +1603,9 @@
       "word": "五洲四海",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第85页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学6年级下册 · PDF第78页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 13407,
@@ -1639,9 +1639,9 @@
       "word": "高楼大厦",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第85页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学4年级上册 · PDF第110页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级下册 · PDF第133页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 4410,
@@ -1657,9 +1657,9 @@
       "word": "呢喃细语",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第92页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级上册 · PDF第94页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 23942,
@@ -1756,9 +1756,9 @@
       "word": "丢三落四",
       "earliestBook": "小学3年级上册",
       "references": "[小学3年级上册 · PDF第111页](</Users/serenaxxsun/my/成语/教材/2025秋小学三年级上册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 14862,
@@ -1882,9 +1882,9 @@
       "word": "无忧无虑",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学4年级下册 · PDF第54页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 27309,
@@ -2080,9 +2080,9 @@
       "word": "欢蹦乱跳",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第82页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6492,
@@ -2125,9 +2125,9 @@
       "word": "千千万万",
       "earliestBook": "小学3年级下册",
       "references": "[小学3年级下册 · PDF第95页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第97页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)；[小学3年级下册 · PDF第99页](</Users/serenaxxsun/my/成语/教材/2026春小学三年级下册语文电子课本高清新教材_统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 22418,
@@ -2368,9 +2368,9 @@
       "word": "没头苍蝇",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第28页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3368,
@@ -2404,9 +2404,9 @@
       "word": "与众不同",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级上册 · PDF第116页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级下册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 27902,
@@ -2422,9 +2422,9 @@
       "word": "好问则裕",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19004,
@@ -2440,18 +2440,18 @@
       "word": "自用则小",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 13697,
       "word": "庐山真面",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第40页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学4年级上册 · PDF第41页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20419,
@@ -2575,9 +2575,9 @@
       "word": "神通广大",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级下册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级上册 · PDF第152页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 28183,
@@ -2629,9 +2629,9 @@
       "word": "雨过天晴",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 21186,
@@ -2944,9 +2944,9 @@
       "word": "茁壮成长",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第110页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 2332,
@@ -2962,18 +2962,18 @@
       "word": "老牛破车",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第111页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5012,
       "word": "顶天立地",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第111页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级下册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级下册 · PDF第18页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 7277,
@@ -3052,9 +3052,9 @@
       "word": "打躬作揖",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第120页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22562,
@@ -3079,9 +3079,9 @@
       "word": "聚精会神",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第123页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第32页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级下册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 18193,
@@ -3097,9 +3097,9 @@
       "word": "匡衡凿壁",
       "earliestBook": "小学4年级上册",
       "references": "[小学4年级上册 · PDF第124页](</Users/serenaxxsun/my/成语/教材/小学4年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22813,
@@ -3313,9 +3313,9 @@
       "word": "车水马龙",
       "earliestBook": "小学4年级下册",
       "references": "[小学4年级下册 · PDF第19页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中8年级上册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": "入门",
-      "tier": 1,
-      "source": "manual"
+      "manualTier": null,
+      "tier": 2,
+      "source": "textbook"
     },
     {
       "id": 10041,
@@ -3367,9 +3367,9 @@
       "word": "衣食住行",
       "earliestBook": "小学4年级下册",
       "references": "[小学4年级下册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级下册 · PDF第112页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 11676,
@@ -3439,9 +3439,9 @@
       "word": "一碧万顷",
       "earliestBook": "小学4年级下册",
       "references": "[小学4年级下册 · PDF第52页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1286,
@@ -3637,18 +3637,18 @@
       "word": "以夜继日",
       "earliestBook": "小学4年级下册",
       "references": "[小学4年级下册 · PDF第82页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2124,
       "word": "不约而同",
       "earliestBook": "小学4年级下册",
       "references": "[小学4年级下册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/小学4年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级下册 · PDF第77页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级上册 · PDF第49页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 27589,
@@ -4150,9 +4150,9 @@
       "word": "花花绿绿",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第43页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 22500,
@@ -4204,9 +4204,9 @@
       "word": "日久天长",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第48页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[高中必修上册 · PDF第30页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 18822,
@@ -4258,9 +4258,9 @@
       "word": "八仙过海",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第53页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[高中选择性必修下册 · PDF第71页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 17499,
@@ -4330,9 +4330,9 @@
       "word": "河出伏流",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第58页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6199,
@@ -4366,9 +4366,9 @@
       "word": "天南海北",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学5年级上册 · PDF第129页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中8年级下册 · PDF第21页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 13315,
@@ -4483,9 +4483,9 @@
       "word": "人寿年丰",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第70页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1437,
@@ -4600,9 +4600,9 @@
       "word": "东西南北",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第79页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级下册 · PDF第65页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级下册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 22762,
@@ -4645,9 +4645,9 @@
       "word": "得意扬扬",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第90页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第44页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级下册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 15888,
@@ -4708,18 +4708,18 @@
       "word": "来处不易",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22530,
       "word": "物力维艰",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 27340,
@@ -4996,9 +4996,9 @@
       "word": "古今中外",
       "earliestBook": "小学5年级上册",
       "references": "[小学5年级上册 · PDF第117页](</Users/serenaxxsun/my/成语/教材/小学5年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级上册 · PDF第51页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第48页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 4208,
@@ -5194,9 +5194,9 @@
       "word": "万里长城",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级下册 · PDF第13页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 760,
@@ -5230,9 +5230,9 @@
       "word": "伸头缩颈",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22810,
@@ -5554,18 +5554,18 @@
       "word": "一点一滴",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第69页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级上册 · PDF第32页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级上册 · PDF第86页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 18672,
       "word": "舍己为公",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第69页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16637,
@@ -5617,9 +5617,9 @@
       "word": "诸亲六眷",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第78页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20958,
@@ -5635,9 +5635,9 @@
       "word": "全神贯注",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第24页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 14790,
@@ -5698,9 +5698,9 @@
       "word": "大喊大叫",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第93页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[高中必修下册 · PDF第141页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第67页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 29193,
@@ -5761,9 +5761,9 @@
       "word": "团花簇锦",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19996,
@@ -5842,9 +5842,9 @@
       "word": "丝竹管弦",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第116页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[高中选择性必修下册 · PDF第83页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 24781,
@@ -5923,9 +5923,9 @@
       "word": "颜筋柳骨",
       "earliestBook": "小学5年级下册",
       "references": "[小学5年级下册 · PDF第124页](</Users/serenaxxsun/my/成语/教材/小学5年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 15001,
@@ -5950,18 +5950,18 @@
       "word": "男女老少",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第9页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级下册 · PDF第77页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中8年级上册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 20062,
       "word": "硕大无朋",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第16页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第20页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6280,
@@ -5977,9 +5977,9 @@
       "word": "婆娑起舞",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7807,
@@ -6013,9 +6013,9 @@
       "word": "万水千山",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第22页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中8年级下册 · PDF第91页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第24页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 7381,
@@ -6238,9 +6238,9 @@
       "word": "心满意足",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第139页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级下册 · PDF第148页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 21828,
@@ -6373,9 +6373,9 @@
       "word": "三长两短",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第70页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 24632,
@@ -6544,36 +6544,36 @@
       "word": "破琴绝弦",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第108页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第110页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7570,
       "word": "耕当问奴",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第109页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 11117,
       "word": "锦囊玉轴",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第109页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 13439,
       "word": "流水高山",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第110页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7374,
@@ -6616,9 +6616,9 @@
       "word": "风雨不透",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第114页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[高中选择性必修中册 · PDF第83页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 29212,
@@ -6724,9 +6724,9 @@
       "word": "一望无际",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第120页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级上册 · PDF第140页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级下册 · PDF第132页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 27781,
@@ -6751,9 +6751,9 @@
       "word": "三更半夜",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第130页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级上册 · PDF第151页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中选择性必修中册 · PDF第114页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 22007,
@@ -6778,9 +6778,9 @@
       "word": "舍身求法",
       "earliestBook": "小学6年级上册",
       "references": "[小学6年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/小学6年级上册语文电子课本高清教材-统编人教部编版.pdf>)；[初中9年级上册 · PDF第107页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级上册 · PDF第108页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26031,
@@ -6832,9 +6832,9 @@
       "word": "悬灯结彩",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第11页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5321,
@@ -6868,18 +6868,18 @@
       "word": "涕零如雨",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26502,
       "word": "盈盈一水",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 25874,
@@ -6949,9 +6949,9 @@
       "word": "天涯海角",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第26页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[初中7年级下册 · PDF第177页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 16582,
@@ -7129,9 +7129,9 @@
       "word": "一生一世",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 25293,
@@ -7228,9 +7228,9 @@
       "word": "五湖四海",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第70页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[小学6年级下册 · PDF第129页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 11323,
@@ -7426,9 +7426,9 @@
       "word": "专心致志",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第86页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)；[高中必修上册 · PDF第121页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第139页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 28993,
@@ -7543,9 +7543,9 @@
       "word": "四方八面",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第113页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 23682,
@@ -7570,9 +7570,9 @@
       "word": "开花结果",
       "earliestBook": "小学6年级下册",
       "references": "[小学6年级下册 · PDF第115页](</Users/serenaxxsun/my/成语/教材/小学6年级下册语文电子课本高清教材-统编人教部编版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 27718,
@@ -7606,18 +7606,18 @@
       "word": "日月经天",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第11页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10640,
       "word": "江河行地",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第11页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19060,
@@ -7750,9 +7750,9 @@
       "word": "无时无刻",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第43页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级下册 · PDF第51页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第55页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 25985,
@@ -7804,9 +7804,9 @@
       "word": "添枝加叶",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第49页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级上册 · PDF第50页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16375,
@@ -7858,18 +7858,18 @@
       "word": "交淡若水",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第52页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16787,
       "word": "切磋琢磨",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第52页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 11961,
@@ -7885,53 +7885,53 @@
       "word": "知人之明",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第52页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级下册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 21211,
       "word": "同声相应",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第53页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 21181,
       "word": "同气相求",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第53页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7427,
       "word": "高枕而卧",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第57页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26179,
       "word": "一座皆惊",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第61页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2138,
       "word": "不知不觉",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第112页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修下册 · PDF第71页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": "基础",
-      "tier": 2,
+      "manualTier": "入门",
+      "tier": 1,
       "source": "manual"
     },
     {
@@ -7957,18 +7957,18 @@
       "word": "安闲自在",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第158页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20302,
       "word": "搜索枯肠",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 12515,
@@ -8002,27 +8002,27 @@
       "word": "入情入理",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级上册 · PDF第66页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修上册 · PDF第100页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 926,
       "word": "悲歌慷慨",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7208,
       "word": "感慨万端",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3703,
@@ -8038,9 +8038,9 @@
       "word": "橙黄橘绿",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16302,
@@ -8155,18 +8155,18 @@
       "word": "不堪其忧",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第73页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级上册 · PDF第75页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1719,
       "word": "不改其乐",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第73页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级上册 · PDF第75页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3869,
@@ -8200,9 +8200,9 @@
       "word": "曲肱而枕",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第74页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级上册 · PDF第75页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19595,
@@ -8299,9 +8299,9 @@
       "word": "兴味索然",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 17599,
@@ -8326,9 +8326,9 @@
       "word": "老莱娱亲",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第82页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 21687,
@@ -8389,9 +8389,9 @@
       "word": "拈轻怕重",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第89页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 14076,
@@ -8461,9 +8461,9 @@
       "word": "损人利己",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第91页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 10487,
@@ -8875,9 +8875,9 @@
       "word": "装模作样",
       "earliestBook": "初中7年级上册",
       "references": "[初中7年级上册 · PDF第151页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级下册 · PDF第118页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 13310,
@@ -9109,9 +9109,9 @@
       "word": "仰之弥高",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第18页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级下册 · PDF第21页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 15458,
@@ -9127,27 +9127,27 @@
       "word": "心不在焉",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第19页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中必修上册 · PDF第28页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第111页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 14844,
       "word": "目不窥园",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第19页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 25137,
       "word": "一反既往",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第20页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 23907,
@@ -9325,9 +9325,9 @@
       "word": "刮目相待",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第29页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中7年级下册 · PDF第30页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级下册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22719,
@@ -9586,9 +9586,9 @@
       "word": "莫名其妙",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第72页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第88页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修上册 · PDF第25页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 17163,
@@ -9793,9 +9793,9 @@
       "word": "良知良能",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第117页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3854,
@@ -9973,9 +9973,9 @@
       "word": "繁文末节",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第128页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 27179,
@@ -10126,27 +10126,27 @@
       "word": "文从字顺",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第150页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级上册 · PDF第113页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 24870,
       "word": "要言不烦",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第150页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修上册 · PDF第53页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 9864,
       "word": "急风暴雨",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第151页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 520,
@@ -10162,9 +10162,9 @@
       "word": "一目数行",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第153页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19447,
@@ -10225,9 +10225,9 @@
       "word": "七七八八",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第163页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 9536,
@@ -10288,9 +10288,9 @@
       "word": "亡国之音",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第183页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中必修下册 · PDF第164页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 8298,
@@ -10360,9 +10360,9 @@
       "word": "履险如夷",
       "earliestBook": "初中7年级下册",
       "references": "[初中7年级下册 · PDF第184页](</Users/serenaxxsun/my/成语/教材/2025秋初中七年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3223,
@@ -10468,9 +10468,9 @@
       "word": "一以贯之",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第25页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3303,
@@ -10531,9 +10531,9 @@
       "word": "踔厉奋发",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26631,
@@ -10738,9 +10738,9 @@
       "word": "无父无君",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1838,
@@ -10819,9 +10819,9 @@
       "word": "林寒涧肃",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第72页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16208,
@@ -10864,18 +10864,18 @@
       "word": "望峰息心",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第77页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2016,
       "word": "不食周粟",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第78页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级下册 · PDF第156页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 8374,
@@ -10891,18 +10891,18 @@
       "word": "一定之规",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 17650,
       "word": "人文荟萃",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第85页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16964,
@@ -10927,9 +10927,9 @@
       "word": "家给人足",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 4473,
@@ -10945,9 +10945,9 @@
       "word": "天朗气清",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第88页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修下册 · PDF第83页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 23058,
@@ -11242,9 +11242,9 @@
       "word": "舍己为人",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第115页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": "入门",
-      "tier": 1,
-      "source": "manual"
+      "manualTier": null,
+      "tier": 2,
+      "source": "textbook"
     },
     {
       "id": 18391,
@@ -11278,18 +11278,18 @@
       "word": "交头接耳",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第119页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[高中必修下册 · PDF第116页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第117页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 16583,
       "word": "千态万状",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第119页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 11565,
@@ -11323,18 +11323,18 @@
       "word": "自出心裁",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第122页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 17591,
       "word": "任其自然",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第123页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3200,
@@ -11422,9 +11422,9 @@
       "word": "繁荣富强",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第133页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 3698,
@@ -11458,9 +11458,9 @@
       "word": "无所不备",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 13834,
@@ -11476,18 +11476,18 @@
       "word": "举手之劳",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第137页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 25312,
       "word": "以简驭繁",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第141页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6298,
@@ -11512,18 +11512,18 @@
       "word": "立身处世",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第152页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修上册 · PDF第53页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10540,
       "word": "兼善天下",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第154页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20933,
@@ -11548,27 +11548,27 @@
       "word": "独行其道",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第154页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5220,
       "word": "动心忍性",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第155页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第55页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 4740,
       "word": "敌国外患",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第155页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级上册 · PDF第156页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26737,
@@ -11584,45 +11584,45 @@
       "word": "法家拂士",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第155页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级上册 · PDF第156页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16165,
       "word": "歧路亡羊",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第157页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 12224,
       "word": "叩石垦壤",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第158页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19932,
       "word": "孀妻弱子",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第158页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2341,
       "word": "残年余力",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第158页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级上册 · PDF第159页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7142,
@@ -11647,27 +11647,27 @@
       "word": "天人之际",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第160页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 157,
       "word": "按辔徐行",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第161页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 28231,
       "word": "质而不俚",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第162页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 27935,
@@ -11692,27 +11692,27 @@
       "word": "海阔天空",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第169页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 29103,
       "word": "自高自大",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第169页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 17874,
       "word": "熔于一炉",
       "earliestBook": "初中8年级上册",
       "references": "[初中8年级上册 · PDF第172页](</Users/serenaxxsun/my/成语/教材/2025秋初中八年级上册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22628,
@@ -11755,9 +11755,9 @@
       "word": "绿水青山",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第6页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第25页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 7513,
@@ -11773,9 +11773,9 @@
       "word": "濠梁之上",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第8页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第144页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第145页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6637,
@@ -11854,9 +11854,9 @@
       "word": "汪洋恣肆",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第29页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修中册 · PDF第57页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 8398,
@@ -11872,27 +11872,27 @@
       "word": "张灯结彩",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第33页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": "入门",
-      "tier": 1,
-      "source": "manual"
+      "manualTier": null,
+      "tier": 2,
+      "source": "textbook"
     },
     {
       "id": 11238,
       "word": "金吾不禁",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第31页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3607,
       "word": "吹角连营",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第32页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级下册 · PDF第68页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6847,
@@ -11944,9 +11944,9 @@
       "word": "花香鸟语",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第40页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第58页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 23208,
@@ -11962,9 +11962,9 @@
       "word": "粗心大意",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第48页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 13185,
@@ -11998,9 +11998,9 @@
       "word": "铜壶滴漏",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第54页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26572,
@@ -12097,18 +12097,18 @@
       "word": "黄发垂髫",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第73页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中8年级下册 · PDF第83页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 24466,
       "word": "言简义丰",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第74页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2469,
@@ -12124,36 +12124,36 @@
       "word": "斗折蛇行",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第76页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19977,
       "word": "水落石出",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第78页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第50页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 11958,
       "word": "君子好逑",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第80页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22546,
       "word": "寤寐求之",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第80页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 15599,
@@ -12169,9 +12169,9 @@
       "word": "日日夜夜",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第80页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级下册 · PDF第144页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 17244,
@@ -12268,9 +12268,9 @@
       "word": "蔚为大观",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第87页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19729,
@@ -12367,9 +12367,9 @@
       "word": "光明正大",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第94页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 892,
@@ -12403,36 +12403,36 @@
       "word": "好行小慧",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 11527,
       "word": "敬业乐群",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22676,
       "word": "无所用心",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中选择性必修下册 · PDF第104页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 24365,
       "word": "言不及义",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 853,
@@ -12448,18 +12448,18 @@
       "word": "主一无适",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第99页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 24623,
       "word": "言行相顾",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第99页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 25730,
@@ -12484,18 +12484,18 @@
       "word": "乐以忘忧",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级下册 · PDF第65页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5839,
       "word": "发愤忘食",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 12277,
@@ -12520,18 +12520,18 @@
       "word": "如此而已",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中选择性必修中册 · PDF第44页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16683,
       "word": "强聒不舍",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 23124,
@@ -12547,18 +12547,18 @@
       "word": "老之将至",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[初中9年级上册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中选择性必修下册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 11617,
       "word": "久久不忘",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第103页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 14703,
@@ -12583,9 +12583,9 @@
       "word": "一帆风顺",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第106页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中必修下册 · PDF第38页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第132页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 2166,
@@ -12601,9 +12601,9 @@
       "word": "推而广之",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第106页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修下册 · PDF第29页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5610,
@@ -12799,9 +12799,9 @@
       "word": "少气无力",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第125页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3542,
@@ -12853,9 +12853,9 @@
       "word": "纷至沓来",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第129页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修中册 · PDF第105页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 14581,
@@ -12871,9 +12871,9 @@
       "word": "险遭不测",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第130页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 14394,
@@ -12916,9 +12916,9 @@
       "word": "巨细无遗",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第138页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 14851,
@@ -12934,9 +12934,9 @@
       "word": "质疑问难",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第141页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修上册 · PDF第104页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1936,
@@ -12988,27 +12988,27 @@
       "word": "老有所终",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第147页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10683,
       "word": "讲信修睦",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第147页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 24143,
       "word": "选贤与能",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第147页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10894,
@@ -13024,9 +13024,9 @@
       "word": "蒙袂辑屦",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第148页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "生僻",
+      "tier": 4,
+      "source": "manual"
     },
     {
       "id": 1563,
@@ -13051,18 +13051,18 @@
       "word": "各取所长",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第150页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3707,
       "word": "唇焦口燥",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第152页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19951,
@@ -13105,9 +13105,9 @@
       "word": "绳锯木断",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第155页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 11171,
@@ -13141,9 +13141,9 @@
       "word": "多闻阙疑",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第157页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 28326,
@@ -13213,27 +13213,27 @@
       "word": "以水济水",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第161页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 28422,
       "word": "治丝而棼",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第161页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "生僻",
+      "tier": 4,
+      "source": "manual"
     },
     {
       "id": 16848,
       "word": "亲仁善邻",
       "earliestBook": "初中8年级下册",
       "references": "[初中8年级下册 · PDF第162页](</Users/serenaxxsun/my/成语/教材/2026春初中八年级下册语文电子课本高清新教材_统编版人教版.pdf>)；[高中选择性必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1764,
@@ -13312,18 +13312,18 @@
       "word": "分外妖娆",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第12页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 8930,
       "word": "红装素裹",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第12页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6548,
@@ -13366,27 +13366,27 @@
       "word": "黄金时代",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第32页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26853,
       "word": "语不惊人",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第33页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级下册 · PDF第89页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1869,
       "word": "不可言传",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第35页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 8677,
@@ -13474,9 +13474,9 @@
       "word": "社会贤达",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 29095,
@@ -13492,18 +13492,18 @@
       "word": "侧目而视",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第46页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级上册 · PDF第47页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 15329,
       "word": "忸怩作态",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第46页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10773,
@@ -13528,9 +13528,9 @@
       "word": "轻而易举",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第46页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级上册 · PDF第114页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 7049,
@@ -13555,18 +13555,18 @@
       "word": "随机应变",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第47页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 27657,
       "word": "择善而从",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第48页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修下册 · PDF第153页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 17608,
@@ -13627,27 +13627,27 @@
       "word": "间不容发",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第49页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 4281,
       "word": "代人受过",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第50页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6960,
       "word": "俯拾即是",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第50页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16085,
@@ -13726,9 +13726,9 @@
       "word": "鹊巢鸠占",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第50页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 23219,
@@ -13816,9 +13816,9 @@
       "word": "持之以恒",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第55页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级上册 · PDF第56页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级上册 · PDF第113页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 5838,
@@ -13834,9 +13834,9 @@
       "word": "轰轰烈烈",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第56页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级下册 · PDF第23页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 2587,
@@ -13879,9 +13879,9 @@
       "word": "游目骋怀",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第58页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中选择性必修下册 · PDF第83页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 8999,
@@ -13897,90 +13897,90 @@
       "word": "浩浩汤汤",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26606,
       "word": "忧谗畏讥",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3699,
       "word": "春和景明",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 18420,
       "word": "沙鸥翔集",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6839,
       "word": "浮光跃金",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 8606,
       "word": "皓月千里",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1576,
       "word": "薄暮冥冥",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16488,
       "word": "迁客骚人",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 11531,
       "word": "静影沉璧",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 22641,
       "word": "吾谁与归",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第61页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26995,
@@ -14005,18 +14005,18 @@
       "word": "山肴野蔌",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2405,
       "word": "苍颜白发",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第64页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7616,
@@ -14032,9 +14032,9 @@
       "word": "月白风清",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第67页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 909,
@@ -14104,9 +14104,9 @@
       "word": "即景生情",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第74页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1628,
@@ -14131,9 +14131,9 @@
       "word": "小户人家",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修下册 · PDF第108页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5607,
@@ -14158,18 +14158,18 @@
       "word": "无关紧要",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第83页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级下册 · PDF第85页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级下册 · PDF第97页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 19039,
       "word": "声气相投",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16839,
@@ -14239,18 +14239,18 @@
       "word": "毫无疑义",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第88页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修上册 · PDF第97页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第10页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 9068,
       "word": "胡说八道",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第88页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修下册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 3124,
@@ -14284,9 +14284,9 @@
       "word": "神色张皇",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第89页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10886,
@@ -14302,18 +14302,18 @@
       "word": "一落千丈",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第92页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 17781,
       "word": "日甚一日",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第95页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20859,
@@ -14365,18 +14365,18 @@
       "word": "地大物博",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第106页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 2198,
       "word": "不足为据",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第107页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级上册 · PDF第108页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16536,
@@ -14491,9 +14491,9 @@
       "word": "讲经说法",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第117页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3864,
@@ -14509,9 +14509,9 @@
       "word": "先知先觉",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第118页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 26345,
@@ -14572,9 +14572,9 @@
       "word": "缄口不言",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第122页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 24585,
@@ -14617,9 +14617,9 @@
       "word": "不知疼痒",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第128页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16527,
@@ -14635,9 +14635,9 @@
       "word": "喏喏连声",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第128页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 17652,
@@ -14662,18 +14662,18 @@
       "word": "无千无万",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第128页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19863,
       "word": "舒头探脑",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第128页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 21850,
@@ -14689,9 +14689,9 @@
       "word": "戴头识脸",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第131页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 21392,
@@ -14716,18 +14716,18 @@
       "word": "面面厮觑",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第132页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 28540,
       "word": "众虎同心",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第133页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 25334,
@@ -14743,9 +14743,9 @@
       "word": "唯唯连声",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 15858,
@@ -14770,18 +14770,18 @@
       "word": "万贯家私",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1972,
       "word": "不三不四",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 16418,
@@ -14797,9 +14797,9 @@
       "word": "夹七夹八",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10616,
@@ -14815,18 +14815,18 @@
       "word": "摸门不着",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6076,
       "word": "方面大耳",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7764,
@@ -14887,18 +14887,18 @@
       "word": "何足为奇",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第140页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 15231,
       "word": "年谊世好",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第140页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 8282,
@@ -14959,9 +14959,9 @@
       "word": "思贤如渴",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第144页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 14542,
@@ -14995,9 +14995,9 @@
       "word": "顿开茅塞",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第144页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5028,
@@ -15130,9 +15130,9 @@
       "word": "草莽英雄",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第153页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1186,
@@ -15211,9 +15211,9 @@
       "word": "安眉带眼",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第155页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 28420,
@@ -15229,9 +15229,9 @@
       "word": "青鸟殷勤",
       "earliestBook": "初中9年级上册",
       "references": "[初中9年级上册 · PDF第157页](</Users/serenaxxsun/my/成语/教材/初中九年级上册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1970,
@@ -15292,9 +15292,9 @@
       "word": "临渴掘井",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第25页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 25415,
@@ -15328,9 +15328,9 @@
       "word": "世态人情",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第26页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2544,
@@ -15364,9 +15364,9 @@
       "word": "君子固穷",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第28页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 25899,
@@ -15517,9 +15517,9 @@
       "word": "赤身露体",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第43页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2034,
@@ -15562,9 +15562,9 @@
       "word": "挨门挨户",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第44页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20192,
@@ -15598,18 +15598,18 @@
       "word": "好戴高帽",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第46页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 4261,
       "word": "戴高帽儿",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第46页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 4013,
@@ -15625,9 +15625,9 @@
       "word": "有枝有叶",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第46页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 12931,
@@ -15652,9 +15652,9 @@
       "word": "十有八九",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第47页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 24848,
@@ -15724,9 +15724,9 @@
       "word": "诗云子曰",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第48页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 14283,
@@ -15760,9 +15760,9 @@
       "word": "拉拉杂杂",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第51页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 721,
@@ -15778,9 +15778,9 @@
       "word": "人手一册",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第54页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20732,
@@ -15877,9 +15877,9 @@
       "word": "德隆望尊",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第63页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1059,
@@ -15904,18 +15904,18 @@
       "word": "司马青衫",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第69页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修上册 · PDF第72页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20176,
       "word": "四面受敌",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第69页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 20174,
@@ -15940,9 +15940,9 @@
       "word": "无所不在",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第70页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1909,
@@ -15985,9 +15985,9 @@
       "word": "言之有序",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第71页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 3304,
@@ -16003,9 +16003,9 @@
       "word": "世代书香",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第73页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7654,
@@ -16021,9 +16021,9 @@
       "word": "功名富贵",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第73页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 21993,
@@ -16048,9 +16048,9 @@
       "word": "显亲扬名",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第73页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16243,
@@ -16075,9 +16075,9 @@
       "word": "嘉言懿行",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第74页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 29188,
@@ -16129,9 +16129,9 @@
       "word": "达官显宦",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第75页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 6167,
@@ -16210,27 +16210,27 @@
       "word": "人生如寄",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第78页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 28248,
       "word": "栉风沐雨",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第78页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 4058,
       "word": "大而无当",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第81页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7387,
@@ -16264,9 +16264,9 @@
       "word": "寻章摘句",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第82页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 12305,
@@ -16318,18 +16318,18 @@
       "word": "淡而无味",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第85页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10468,
       "word": "见景生情",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第86页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 27917,
@@ -16354,9 +16354,9 @@
       "word": "千方百计",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第88页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 2309,
@@ -16381,27 +16381,27 @@
       "word": "尽美尽善",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第90页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 28784,
       "word": "铢两悉称",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第91页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 24366,
       "word": "言不尽意",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第92页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 16992,
@@ -16435,9 +16435,9 @@
       "word": "目不忍睹",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第93页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 15998,
@@ -16498,18 +16498,18 @@
       "word": "无可非议",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中选择性必修中册 · PDF第36页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5251,
       "word": "动之以情",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第103页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19043,
@@ -16624,9 +16624,9 @@
       "word": "指天画地",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第111页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 21085,
@@ -16642,9 +16642,9 @@
       "word": "悲愤填膺",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第112页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 11418,
@@ -16660,9 +16660,9 @@
       "word": "赫赫扬扬",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第113页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 4926,
@@ -16786,9 +16786,9 @@
       "word": "本乡本土",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第131页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 25656,
@@ -16804,9 +16804,9 @@
       "word": "肉食者鄙",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第133页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 25213,
@@ -16822,18 +16822,18 @@
       "word": "彼竭我盈",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第134页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2843,
       "word": "城北徐公",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修上册 · PDF第139页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修上册 · PDF第140页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 27768,
@@ -16912,9 +16912,9 @@
       "word": "内顾之忧",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第142页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 21972,
@@ -16948,63 +16948,63 @@
       "word": "引喻失义",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第142页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 28237,
       "word": "陟罚臧否",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第142页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)；[初中9年级下册 · PDF第145页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 1954,
       "word": "不求闻达",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第143页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 19517,
       "word": "事无大小",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第143页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 17334,
       "word": "屈尊就卑",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第143页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 7743,
       "word": "苟全性命",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第143页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 10056,
       "word": "计日而待",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第143页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)；[高中必修上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 2169,
@@ -17038,9 +17038,9 @@
       "word": "山河表里",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第149页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 5405,
@@ -17245,9 +17245,9 @@
       "word": "水尽鹅飞",
       "earliestBook": "初中9年级下册",
       "references": "[初中9年级下册 · PDF第157页](</Users/serenaxxsun/my/成语/教材/初中九年级下册 语文 电子课本高清教材_部编统编人教版.pdf>)",
-      "manualTier": null,
-      "tier": 2,
-      "source": "textbook"
+      "manualTier": "拓展",
+      "tier": 3,
+      "source": "manual"
     },
     {
       "id": 9473,
@@ -17344,9 +17344,9 @@
       "word": "自告奋勇",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第22页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10705,
@@ -17371,27 +17371,27 @@
       "word": "钢筋铁骨",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第27页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19903,
       "word": "梳妆打扮",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第28页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修下册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 6216,
       "word": "非同寻常",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第32页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第91页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修上册 · PDF第89页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 28046,
@@ -17425,9 +17425,9 @@
       "word": "刻骨铭心",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第40页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修下册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25861,
@@ -17506,9 +17506,9 @@
       "word": "座无虚席",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第50页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 5782,
@@ -17524,9 +17524,9 @@
       "word": "五大三粗",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第54页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26681,
@@ -17542,27 +17542,27 @@
       "word": "不谋而合",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 3390,
       "word": "出类拔萃",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 13663,
       "word": "炉火纯青",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12879,
@@ -17596,9 +17596,9 @@
       "word": "雕虫小技",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1511,
@@ -17632,9 +17632,9 @@
       "word": "雷打不动",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 18252,
@@ -17659,9 +17659,9 @@
       "word": "吃苦耐劳",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 16314,
@@ -17920,9 +17920,9 @@
       "word": "一技之长",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第80页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25982,
@@ -17983,9 +17983,9 @@
       "word": "学以致用",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第90页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第75页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 15061,
@@ -18055,9 +18055,9 @@
       "word": "以毒攻毒",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12015,
@@ -18082,9 +18082,9 @@
       "word": "背信弃义",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第96页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 24660,
@@ -18127,9 +18127,9 @@
       "word": "装腔作势",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第97页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第113页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 5538,
@@ -18262,9 +18262,9 @@
       "word": "欣欣向荣",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修下册 · PDF第62页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "入门",
+      "tier": 1,
+      "source": "manual"
     },
     {
       "id": 2325,
@@ -18289,9 +18289,9 @@
       "word": "礼尚往来",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1067,
@@ -18433,9 +18433,9 @@
       "word": "急于求成",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第121页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第53页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 14243,
@@ -18568,9 +18568,9 @@
       "word": "望文生义",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第135页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修上册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25968,
@@ -18595,27 +18595,27 @@
       "word": "痛哭流涕",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第89页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 4539,
       "word": "道貌岸然",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7755,
       "word": "钩心斗角",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第136页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第156页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1152,
@@ -18685,18 +18685,18 @@
       "word": "面目全非",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第146页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 2136,
       "word": "不正之风",
       "earliestBook": "高中必修上册",
       "references": "[高中必修上册 · PDF第147页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修上册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21335,
@@ -18766,9 +18766,9 @@
       "word": "庖丁解牛",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第5页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第16页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 25990,
@@ -18802,9 +18802,9 @@
       "word": "缘木求鱼",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第14页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1775,
@@ -18838,9 +18838,9 @@
       "word": "一脉相承",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第17页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修中册 · PDF第105页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修中册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 24742,
@@ -18883,9 +18883,9 @@
       "word": "真龙天子",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第21页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 11807,
@@ -18937,9 +18937,9 @@
       "word": "细枝末节",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第24页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第52页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22982,
@@ -19144,9 +19144,9 @@
       "word": "错综复杂",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第34页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修下册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 22584,
@@ -19207,9 +19207,9 @@
       "word": "神魂颠倒",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第45页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 21472,
@@ -19261,9 +19261,9 @@
       "word": "振奋人心",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第55页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 11943,
@@ -19279,9 +19279,9 @@
       "word": "冷嘲热讽",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第58页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 29199,
@@ -19297,9 +19297,9 @@
       "word": "自鸣得意",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第59页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 7377,
@@ -19333,9 +19333,9 @@
       "word": "微乎其微",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第60页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26723,
@@ -19441,9 +19441,9 @@
       "word": "循序渐进",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第84页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修下册 · PDF第101页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10677,
@@ -19504,9 +19504,9 @@
       "word": "汪洋大海",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第88页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 26989,
@@ -19594,18 +19594,18 @@
       "word": "一统天下",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 5795,
       "word": "儿女情长",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第98页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 19654,
@@ -19630,9 +19630,9 @@
       "word": "舍生忘死",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第99页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 17600,
@@ -19648,9 +19648,9 @@
       "word": "融会贯通",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第102页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12164,
@@ -19666,18 +19666,18 @@
       "word": "待人接物",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第103页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 23434,
       "word": "逍遥自在",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第104页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 10304,
@@ -19693,18 +19693,18 @@
       "word": "百无聊赖",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第106页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中必修下册 · PDF第166页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)；[高中选择性必修下册 · PDF第55页](</Users/serenaxxsun/my/成语/教材/普通高中语文选择性必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 12343,
       "word": "宽洪大量",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第108页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 6150,
@@ -19747,9 +19747,9 @@
       "word": "阿弥陀佛",
       "earliestBook": "高中必修下册",
       "references": "[高中必修下册 · PDF第109页](</Users/serenaxxsun/my/成语/教材/普通高中语文必修下册电子课本高清教材（统编版）.pdf>)",
-      "manualTier": null,
-      "tier": 3,
-      "source": "textbook"
+      "manualTier": "基础",
+      "tier": 2,
+      "source": "manual"
     },
     {
       "id": 1722,

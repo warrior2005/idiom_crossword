@@ -56,7 +56,7 @@ python3 scripts/verify_db.py
 python3 scripts/check_idiom_data.py
 ```
 
-成语ID固定在`data/idiom_ids.json`，不得重新编号。统一分档在`assets/data/four_tier_content.json`；当前内容版本3，人工调整入口见[修订记录](docs/specs/four_tier_content_v3_changes.md)。旧`mainline_content.json`只保留迁移输入和5条拼音修正。完整重建及字符关联表命令见[实现记录](docs/specs/four_tier_implementation_v2.md#4-验证结果与复现)。
+成语ID固定在`data/idiom_ids.json`，不得重新编号。统一分档在`assets/data/four_tier_content.json`；当前内容版本4，人工调整入口见[修订记录](docs/specs/four_tier_content_v4_changes.md)。旧`mainline_content.json`只保留迁移输入和5条拼音修正。完整重建及字符关联表命令见[实现记录](docs/specs/four_tier_implementation_v2.md#4-验证结果与复现)。
 
 生成音效 / 关卡样本报告：
 

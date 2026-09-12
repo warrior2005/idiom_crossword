@@ -10,7 +10,7 @@ from pathlib import Path
 import sqlite3
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTENT_VERSION = 3
+CONTENT_VERSION = 4
 NAMES = ['入门', '基础', '拓展', '生僻']
 FIELDS = [('difficulty_tier', 'INTEGER NOT NULL DEFAULT 4'),
           ('difficulty_source', "TEXT NOT NULL DEFAULT 'inferred'"),
