@@ -4,7 +4,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 /// 统一分级内容。审核来源只作记录，不参与准入。
 class FourTierContent {
-  static const currentVersion = 4;
+  static const currentVersion = 5;
   final int version;
   final List<dynamic> entries;
   final List<dynamic> additions;

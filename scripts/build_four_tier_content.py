@@ -10,7 +10,7 @@ from pathlib import Path
 import sqlite3
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTENT_VERSION = 4
+CONTENT_VERSION = 5
 NAMES = ['入门', '基础', '拓展', '生僻']
 FIELDS = [('difficulty_tier', 'INTEGER NOT NULL DEFAULT 4'),
           ('difficulty_source', "TEXT NOT NULL DEFAULT 'inferred'"),
@@ -30,7 +30,7 @@ def tier(row):
 
 
 def unreviewed_overrides(path, ids, anchored_words):
-    """空白不算人工审核；只接纳稳定ID匹配、明确填档的库外教材词。"""
+    """本表已完整审核：空白确认导出时等级，非空为明确修订。"""
     result = []
     seen = set()
     for row in reviewed_rows(path):
@@ -42,8 +42,7 @@ def unreviewed_overrides(path, ids, anchored_words):
                 or current not in NAMES or (grade and grade not in NAMES)):
             raise ValueError(f'Invalid unreviewed override: {word}')
         seen.add(word)
-        if grade:
-            result.append((word, grade, '非教材审核表人工标注'))
+        result.append((word, grade or current, '非教材审核表人工标注' if grade else '完整审核确认原等级'))
     return result
 
 
@@ -155,7 +154,7 @@ def main():
     ids_path.write_text(json.dumps(ids, ensure_ascii=False, indent=2) + '\n')
     report = ['# 四档分级导入与推断报告', '', f'内容版本：{CONTENT_VERSION}。教材/手工覆盖优先；审核状态不限制主线选词。', '',
               f'全库{len(entries)}条，已审核{sum(e[4] for e in entries)}条，新增{len(additions)}条。漫天风雪按用户更正保留。', '',
-              '## 推断参数', '', '仅对未覆盖词使用：1分→入门，2—5分→基础，6—10分→拓展，11—50分→生僻。', '',
+              '## 历史推断参数（当前全库已人工审核）', '', '以下为版本2导入时的历史参数：1分→入门，2—5分→基础，6—10分→拓展，11—50分→生僻。当前无未审核词，所有等级都由审核结果固定；空白标注按用户确认保留原等级。', '',
               '这是可解释的首版保守估值，不是监督学习已证明的边界。教材三个档位分布高度重叠，生僻人工样本不足；未强凑80%—90%。旧分不改，后续抽样可覆盖推断。新增词旧分仅为兼容估值，不参与拟合。', '',
               '| 候选边界 | 入门 | 基础 | 拓展 | 生僻 | 生僻占比 |', '|---|---:|---:|---:|---:|---:|']
     for bounds in [(1, 4, 8), (1, 5, 10), (2, 6, 12)]:
@@ -172,7 +171,8 @@ def main():
         report.append(f'| {sc} | {NAMES[inferred(sc)-1]} | {"、".join(words)} |')
     report += ['', '精确册次、PDF页码、人工覆盖及输入SHA-256见 [版本化证据](../reviews/textbook-idioms/four_tier_evidence.json)。新增释义为编辑释义，不能当作教材原文引用。', '']
     report += ['', '## 人工补充分档', '', '可编辑来源：[人工分档覆盖表](../reviews/textbook-idioms/人工分档覆盖表.md)、[非教材审核表](../reviews/textbook-idioms/非教材_未人工审核成语分档表.md)。以下覆盖已纳入统计，审核标记只作记录。', '', '| 成语 | 指定等级 | 依据 |', '|---|---|---|']
-    report += [f'| {w} | {g} | {reason} |' for w, g, reason in overrides]
+    report += [f'| {w} | {g} | {reason} |' for w, g, reason in overrides if reason != '完整审核确认原等级']
+    report += ['', '完整审核中确认原等级的空白行不逐条重复列出，均已记为已审核；完整记录见证据JSON。']
     report += ['', '## 旧清单冲突（使用教材／人工结论）', '', '| 成语 | 旧清单 | 新等级 |', '|---|---|---|']
     for w in sorted(before):
         if before[w][0] != anchors[w][0]:

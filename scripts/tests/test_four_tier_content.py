@@ -12,15 +12,19 @@ from build_four_tier_content import reviewed_rows, tier, unreviewed_overrides
 
 
 class FourTierContentTest(unittest.TestCase):
-    def test_unreviewed_export_and_partial_annotations(self):
+    def test_completed_review_confirms_blank_and_explicit_annotations(self):
         path = ROOT / 'docs/reviews/textbook-idioms/非教材_未人工审核成语分档表.md'
         ids = json.loads((ROOT / 'data/idiom_ids.json').read_text())
         content = json.loads((ROOT / 'assets/data/four_tier_content.json').read_text())
-        remaining = {r[1] for r in content['entries'] if not r[4]}
+        self.assertTrue(all(r[4] for r in content['entries']))
+        remaining = {r[1] for r in reviewed_rows(path)}
         rows = reviewed_rows(path)
         self.assertEqual(len(rows), 26655)
         self.assertEqual({r[1] for r in rows}, remaining)
-        self.assertEqual(unreviewed_overrides(path, ids, set(ids) - remaining), [])
+        imported = unreviewed_overrides(path, ids, set(ids) - remaining)
+        self.assertEqual(len(imported), 26655)
+        expected = {r[1]: r[3] or r[2] for r in rows}
+        self.assertEqual({w: g for w, g, _ in imported}, expected)
         with tempfile.TemporaryDirectory() as d:
             sample = Path(d) / 'review.md'
             prefix = '| ID | 成语 | 当前等级 | 人工等级 |\n|---|---|---|---|\n'
@@ -29,6 +33,8 @@ class FourTierContentTest(unittest.TestCase):
             self.assertEqual(unreviewed_overrides(sample, ids, set()), [(word, '基础', '非教材审核表人工标注')])
             sample.write_text(prefix + f'| {ids[word]} | {word} | 入门 | 入门 |\n')
             self.assertEqual(len(unreviewed_overrides(sample, ids, set())), 1)
+            sample.write_text(prefix + f'| {ids[word]} | {word} | 基础 | |\n')
+            self.assertEqual(unreviewed_overrides(sample, ids, set()), [(word, '基础', '完整审核确认原等级')])
             for ident, grade in [(ids[word] + 1, '基础'), (ids[word], '待定')]:
                 sample.write_text(prefix + f'| {ident} | {word} | 入门 | {grade} |\n')
                 with self.assertRaises(ValueError):
@@ -44,7 +50,7 @@ class FourTierContentTest(unittest.TestCase):
         content = json.loads(paths[0].read_text())
         entries = {r[1]: r for r in content['entries']}
         self.assertEqual(len(entries), 29724)
-        self.assertEqual(sum(r[4] for r in entries.values()), 3069)
+        self.assertEqual(sum(r[4] for r in entries.values()), 29724)
         self.assertEqual(len(content['additions']), 222)
         self.assertTrue(all(len(w) == 4 for w in entries))
         review_dir = ROOT / 'docs/reviews/textbook-idioms'
@@ -60,7 +66,7 @@ class FourTierContentTest(unittest.TestCase):
         names = ['入门', '基础', '拓展', '生僻']
         for word, grade, _ in overrides:
             self.assertEqual(entries[word][2:], [names.index(grade) + 1, 'manual', True])
-        self.assertEqual(content['version'], 4)
+        self.assertEqual(content['version'], 5)
         evidence = json.loads(paths[1].read_text())
         self.assertEqual(len(evidence['textbook']), 2898)
         for path, digest in evidence['sourceHashes'].items():

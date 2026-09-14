@@ -66,7 +66,7 @@ void main() {
     );
     expect(
       db.select('SELECT sum(is_reviewed) AS n FROM idioms').first['n'],
-      3069,
+      29724,
     );
     expect(
       db
@@ -101,7 +101,7 @@ void main() {
       );
     }
   });
-  test('已安装内容版本3升级到4，人工改档生效且旧分、ID和冻结题不变', () async {
+  test('已安装内容版本4升级到5，人工改档生效且旧分、ID和冻结题不变', () async {
     final dir = await Directory.systemTemp.createTemp('tier_v2_upgrade');
     final file = await File(
       'assets/data/idiom_crossword.db',
@@ -114,7 +114,7 @@ void main() {
     db.execute(
       'CREATE TABLE four_tier_version (id INTEGER PRIMARY KEY, version INTEGER NOT NULL)',
     );
-    db.execute('INSERT INTO four_tier_version VALUES (1,3)');
+    db.execute('INSERT INTO four_tier_version VALUES (1,4)');
     db.execute(
       "UPDATE idioms SET difficulty_tier=1,difficulty_source='inferred',is_reviewed=0,difficulty_version=2 WHERE word='一心一计'",
     );
@@ -124,6 +124,9 @@ void main() {
     db.execute(
       "INSERT INTO level_state_table (level_number,level_json,state_json) VALUES (11,'v2 frozen puzzle','v2 candidates')",
     );
+    db.execute(
+      "UPDATE idioms SET difficulty_tier=1,difficulty_source='inferred',is_reviewed=0,difficulty_version=4 WHERE word='一举成名'",
+    );
     final original = db
         .select('SELECT id,word,difficulty FROM idioms ORDER BY id')
         .map((r) => r.values.toList())
@@ -132,8 +135,18 @@ void main() {
     expect(content.version, FourTierContent.currentVersion);
     content.apply(db);
     expect(
+      db
+          .select(
+            "SELECT difficulty_tier,is_reviewed FROM idioms WHERE word='一举成名'",
+          )
+          .single
+          .values
+          .toList(),
+      [2, 1],
+    );
+    expect(
       db.select('SELECT version FROM four_tier_version').single['version'],
-      4,
+      5,
     );
     expect(
       db
