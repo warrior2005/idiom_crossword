@@ -28,3 +28,5 @@
 目前代码没有整题历史指纹去重，随机生成只降低概率。若要保证最近N道新题不重组，需加入成语组合去重；若要减少玩家的重复感，还需限制近期成语集合重合比例。成语复习本身应继续允许。
 
 复现：`flutter test --no-pub tool/mainline_repeat_audit_test.dart --reporter expanded`。逐题成语、布局、最大重合数及历史重复位置输出至`build/mainline-repeat-audit.json`；再次运行是新的随机样本。本次独立工具测试与工具静态检查通过，没有修改关卡算法。
+
+后续失败定位、最近20题重合统计及改进方案见[生成失败调查与减少重复感方案](2026-09-12-generation-failure-and-repeat-plan.md)。
