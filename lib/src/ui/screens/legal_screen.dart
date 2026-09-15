@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../utils/ad_manager.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text.dart';
 import '../widgets/sub_page_header.dart';
@@ -13,13 +12,8 @@ const appPrivacyConsentKey =
 
 class LegalScreen extends StatelessWidget {
   final int initialIndex;
-  final bool allowConsentChanges;
 
-  const LegalScreen({
-    super.key,
-    this.initialIndex = 0,
-    this.allowConsentChanges = true,
-  });
+  const LegalScreen({super.key, this.initialIndex = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -47,21 +41,6 @@ class LegalScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              if (allowConsentChanges && AdManager().usesDirichlet)
-                TextButton(
-                  onPressed: () async {
-                    try {
-                      await AdManager().changeDirichletConsent();
-                    } catch (_) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('暂时无法修改广告授权，请稍后重试')),
-                        );
-                      }
-                    }
-                  },
-                  child: const Text('修改国内广告隐私授权'),
-                ),
               Expanded(
                 child: TabBarView(
                   children: [

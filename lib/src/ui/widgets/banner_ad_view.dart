@@ -47,7 +47,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     AdManager().isDirichletFullScreenShowing.addListener(_fullScreenChanged);
-    AdManager().adPrivacyChanged.addListener(_reloadForPrivacy);
     AdManager().adsRemovedNotifier.addListener(_reloadForPrivacy);
     _loadBannerAd();
   }
@@ -79,7 +78,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   void dispose() {
     appRouteObserver.unsubscribe(this);
     AdManager().isDirichletFullScreenShowing.removeListener(_fullScreenChanged);
-    AdManager().adPrivacyChanged.removeListener(_reloadForPrivacy);
     AdManager().adsRemovedNotifier.removeListener(_reloadForPrivacy);
     WidgetsBinding.instance.removeObserver(this);
     _bannerAdRetryTimer?.cancel();

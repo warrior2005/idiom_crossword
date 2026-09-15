@@ -83,10 +83,8 @@ class _PrivacyBootstrapState extends State<PrivacyBootstrap> {
                                 onPressed: () =>
                                     Navigator.of(dialogContext).push(
                                       MaterialPageRoute<void>(
-                                        builder: (_) => LegalScreen(
-                                          initialIndex: entry.$1,
-                                          allowConsentChanges: false,
-                                        ),
+                                        builder: (_) =>
+                                            LegalScreen(initialIndex: entry.$1),
                                       ),
                                     ),
                                 child: Text(entry.$2),

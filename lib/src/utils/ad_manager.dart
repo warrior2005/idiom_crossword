@@ -25,7 +25,6 @@ class AdManager with WidgetsBindingObserver {
   final DirichletAds _dirichlet = DirichletAds();
   bool usesDirichlet = false;
   bool _adsRemoved = false;
-  final ValueNotifier<int> adPrivacyChanged = ValueNotifier(0);
   final ValueNotifier<bool> isDirichletFullScreenShowing = ValueNotifier(false);
 
   /// 广告 SDK 仅支持 Android / iOS（Web 与桌面直接跳过）
@@ -646,18 +645,6 @@ class AdManager with WidgetsBindingObserver {
     _interstitialAd = null;
     _isInterstitialAdLoaded = false;
     _isInterstitialAdLoading = false;
-  }
-
-  /// Revisit native consent from the existing legal screen.
-  Future<void> changeDirichletConsent() async {
-    if (!usesDirichlet || _adsRemoved) return;
-    final accepted = await _dirichlet.requestConsent(force: true);
-    _canRequestAdsCached = false;
-    disposeAllAds();
-    _canRequestAdsCached = accepted && await _dirichlet.initialize();
-    _isInitialized = !accepted || _canRequestAdsCached!;
-    adPrivacyChanged.value++;
-    if (_canRequestAdsCached!) unawaited(loadRewardedAd());
   }
 
   // 销毁所有广告

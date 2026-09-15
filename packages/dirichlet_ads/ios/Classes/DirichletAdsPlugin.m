@@ -284,8 +284,7 @@ static BOOL DRCanLoad(void) {
     result(nil);
   } else if ([call.method isEqualToString:@"requestConsent"]) {
     if (self.consentResult) { result(DRError(@"consent_in_progress")); return; }
-    if (![call.arguments[@"force"] boolValue] &&
-        [NSUserDefaults.standardUserDefaults objectForKey:DRConsentKey]) {
+    if ([NSUserDefaults.standardUserDefaults objectForKey:DRConsentKey]) {
       result(@([NSUserDefaults.standardUserDefaults boolForKey:DRConsentKey]));
       return;
     }
@@ -346,7 +345,7 @@ static BOOL DRCanLoad(void) {
     return;
   }
   UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"广告隐私说明"
-      message:@"为提供横幅和观看视频奖励，中国大陆地区使用 Dirichlet 聚合（上海艾得蒽数字科技有限公司）及穿山甲。广告 SDK 会采集设备信息、IDFV、IP 地址、网络状态、广告互动及诊断数据，用于广告投放、效果衡量和反作弊；仅在系统授权后访问 IDFA，不申请定位权限。保存期限和权利行使方式见隐私政策。您可在“设置—用户协议与隐私”查看各平台完整政策并修改授权。拒绝不影响游戏基本功能。"
+      message:@"为提供横幅和观看视频奖励，中国大陆地区使用 Dirichlet 聚合（上海艾得蒽数字科技有限公司）及穿山甲。广告 SDK 会采集设备信息、IDFV、IP 地址、网络状态、广告互动及诊断数据，用于广告投放、效果衡量和反作弊；仅在系统授权后访问 IDFA，不申请定位权限。保存期限和权利行使方式见隐私政策。您可在“设置—用户协议与隐私”查看各平台完整政策。拒绝不影响游戏基本功能。"
       preferredStyle:UIAlertControllerStyleAlert];
   [alert addAction:[UIAlertAction actionWithTitle:@"暂不启用广告" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
     [presenter dismissViewControllerAnimated:YES completion:^{ [self completeConsent:NO]; }];

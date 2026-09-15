@@ -19,9 +19,8 @@ class DirichletAds {
   Future<String?> systemRegion() =>
       _channel.invokeMethod<String>('systemRegion');
 
-  Future<bool> requestConsent({bool force = false}) async =>
-      await _channel.invokeMethod<bool>('requestConsent', {'force': force}) ??
-      false;
+  Future<bool> requestConsent() async =>
+      await _channel.invokeMethod<bool>('requestConsent') ?? false;
 
   Future<bool> initialize() async =>
       await _channel.invokeMethod<bool>('initialize', {'debug': kDebugMode}) ??
