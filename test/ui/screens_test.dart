@@ -136,9 +136,19 @@ void main() {
     await tester.pumpWidget(_wrap(db, const CollectionScreen()));
     await tester.pumpAndSettle();
     expect(find.text('画蛇添足'), findsOneWidget);
+    // 拼音与操作区域按当前卡片设计顶部对齐。
     expect(
-      (tester.getCenter(find.text('HUA SHE TIAN ZU')).dy -
-              tester.getCenter(find.text('删除')).dy)
+      (tester.getTopLeft(find.text('HUA SHE TIAN ZU')).dy -
+              tester
+                  .getTopLeft(
+                    find
+                        .ancestor(
+                          of: find.text('删除'),
+                          matching: find.byType(GestureDetector),
+                        )
+                        .first,
+                  )
+                  .dy)
           .abs(),
       lessThan(1),
     );
@@ -175,9 +185,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(OutlinedButton, '收藏'), findsOneWidget);
+    // 拼音与操作区域按当前卡片设计顶部对齐。
     expect(
-      (tester.getCenter(find.text('HUA SHE TIAN ZU')).dy -
-              tester.getCenter(find.widgetWithText(OutlinedButton, '收藏')).dy)
+      (tester.getTopLeft(find.text('HUA SHE TIAN ZU')).dy -
+              tester.getTopLeft(find.widgetWithText(OutlinedButton, '收藏')).dy)
           .abs(),
       lessThan(1),
     );
