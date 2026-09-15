@@ -16,6 +16,7 @@ import '../../state/daily_challenge.dart';
 import '../../state/daily_reminder.dart';
 import '../../state/player_state.dart';
 import '../../state/level_generation.dart';
+import '../../state/next_level_loader.dart';
 import '../../state/level_state_codec.dart';
 import '../../state/collection_provider.dart';
 import '../../state/level_progress_providers.dart';
@@ -141,6 +142,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
   final Stopwatch _activeClock = Stopwatch();
   int _restoredActiveMs = 0;
   bool _levelFinished = false; // 通关/放弃后不再写存档
+  Future<CrosswordLevel?>? _nextLevelFuture;
+  CrosswordLevel? _nextLevel;
+  bool _startingNextLevel = false;
 
   // 填入正确字时的闪烁反馈
   (int, int)? _flashCell;
@@ -247,6 +251,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     await _configureDailyTimer();
     if (_appIsActive && _routeIsVisible) _activeClock.start();
     await _recordLearning('active');
+    if (mounted && !_isDaily) unawaited(_preloadNextLevel());
   }
 
   /// 构建候选字盘
@@ -1320,7 +1325,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
               label: '下一关',
               primary: true,
               onTap: () {
-                _clearTerminalDialog();
                 Navigator.of(context).pop();
                 _startNextLevel();
               },
@@ -2049,21 +2053,41 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
   }
 
-  /// 直接进入下一关
+  Future<CrosswordLevel?> _preloadNextLevel() {
+    return _nextLevelFuture ??= ref
+        .read(nextLevelLoaderProvider)(widget.level.levelId + 1)
+        .then((level) {
+          if (mounted) _nextLevel = level;
+          return level;
+        })
+        .catchError((Object error, StackTrace stackTrace) {
+          // 预加载失败不打断当前游戏，点击下一关时允许重试。
+          return null;
+        });
+  }
+
+  /// 已预加载时直接切换；生成仍在进行时复用同一个 Future。
   Future<void> _startNextLevel() async {
-    showLevelLoadingDialog(context);
-    var loadingOpen = true;
+    if (_startingNextLevel) return;
+    _startingNextLevel = true;
+    var loadingOpen = false;
     try {
-      final db = ref.read(databaseProvider);
-      final level = await loadOrGenerateLevel(
-        db,
-        widget.level.levelId + 1,
-        playerLevel: ref.read(playerProvider).level,
-      );
-      if (!mounted) return;
-      Navigator.pop(context); // 关闭加载框
-      loadingOpen = false;
+      var level = _nextLevel;
       if (level == null) {
+        showLevelLoadingDialog(context);
+        loadingOpen = true;
+        level = await _preloadNextLevel();
+        if (!mounted) return;
+        if (level == null) {
+          _nextLevelFuture = null;
+          level = await _preloadNextLevel();
+        }
+        if (!mounted) return;
+        Navigator.pop(context);
+        loadingOpen = false;
+      }
+      if (level == null) {
+        _nextLevelFuture = null;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('下一关生成失败，请重试'),
@@ -2072,9 +2096,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
         );
         return;
       }
+      final nextLevel = level;
+      _clearTerminalDialog();
       Navigator.pushReplacement(
         context,
-        AppPageRoute<void>(builder: (_) => GameScreen(level: level)),
+        AppPageRoute<void>(builder: (_) => GameScreen(level: nextLevel)),
       );
     } catch (e) {
       if (mounted) {
@@ -2086,6 +2112,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
           ),
         );
       }
+    } finally {
+      _startingNextLevel = false;
     }
   }
 
@@ -2214,55 +2242,76 @@ class _GameScreenState extends ConsumerState<GameScreen>
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Row(
         children: [
-          _buildExitButton(),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _buildExitButton(),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
                   widget.level.title,
                   style: displayStyle(size: 19, weight: FontWeight.w900),
                 ),
-              ],
+              ),
             ),
           ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '经验值 ${player.totalXp}',
-                style: bodyStyle(size: 11, color: AppColors.muted),
-              ),
-              Text(
-                '积分 ${player.points}',
-                style: bodyStyle(size: 11, color: AppColors.muted),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () async {
-              final enabled = !audioEnabled;
-              await Future.wait([
-                ref.read(soundEnabledProvider.notifier).setEnabled(enabled),
-                ref.read(musicEnabledProvider.notifier).setEnabled(enabled),
-              ]);
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                border: Border.all(color: AppColors.border),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Opacity(
-                  opacity: audioEnabled ? 1 : 0.4,
-                  child: const AppIcon('sound', size: 20),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '经验值 ${player.totalXp}',
+                          style: bodyStyle(size: 11, color: AppColors.muted),
+                        ),
+                        Text(
+                          '积分 ${player.points}',
+                          style: bodyStyle(size: 11, color: AppColors.muted),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () async {
+                    final enabled = !audioEnabled;
+                    await Future.wait([
+                      ref
+                          .read(soundEnabledProvider.notifier)
+                          .setEnabled(enabled),
+                      ref
+                          .read(musicEnabledProvider.notifier)
+                          .setEnabled(enabled),
+                    ]);
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: Opacity(
+                        opacity: audioEnabled ? 1 : 0.4,
+                        child: const AppIcon('sound', size: 20),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

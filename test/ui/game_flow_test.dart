@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:idiom_crossword/src/state/level_state_codec.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -15,6 +16,7 @@ import 'package:idiom_crossword/src/reviews/app_review.dart';
 import 'package:idiom_crossword/src/state/daily_challenge.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
+import 'package:idiom_crossword/src/state/next_level_loader.dart';
 import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
@@ -53,6 +55,119 @@ void main() {
       },
     );
   });
+
+  testWidgets('关卡标题相对页面居中，不受积分位数影响', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        nextLevelLoaderProvider.overrideWithValue((_) async => null),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final title = find.text('第 1 关');
+    expect(tester.getCenter(title).dx, closeTo(195, 0.1));
+    await container.read(playerProvider.notifier).addPoints(123456);
+    await tester.pump();
+    expect(tester.getCenter(title).dx, closeTo(195, 0.1));
+    expect(
+      tester.getRect(title).right,
+      lessThan(tester.getRect(find.text('积分 123456')).left),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final mode in ['ready', 'pending', 'failed', 'retry']) {
+    testWidgets('下一关预加载 $mode：复用结果或失败后重试', (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final pending = Completer<engine.CrosswordLevel?>();
+      final next = _buildLevel(levelId: 2);
+      var calls = 0;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            databaseProvider.overrideWithValue(db),
+            nextLevelLoaderProvider.overrideWithValue((number) {
+              if (number != 2) return Future.value(null);
+              calls++;
+              if (mode == 'pending') return pending.future;
+              if ((mode == 'failed' && calls == 1) ||
+                  (mode == 'retry' && calls <= 2)) {
+                return Future.error(StateError('test preload failure'));
+              }
+              return Future.value(next);
+            }),
+          ],
+          child: MaterialApp(home: GameScreen(level: _buildLevel())),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(calls, 1);
+      expect(await db.isLevelCompleted(2), isFalse);
+      for (final char in ['蛇', '添', '足']) {
+        await tester.tap(find.text(char));
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      await _pumpUntil(
+        tester,
+        () => find.text('下一关').evaluate().isNotEmpty,
+        const Duration(seconds: 5),
+      );
+      await tester.tap(find.text('下一关'));
+      await tester.pump();
+      if (mode == 'pending') {
+        expect(calls, 1);
+        expect(find.text('正在生成关卡...'), findsOneWidget);
+        pending.complete(next);
+      } else if (mode == 'ready') {
+        expect(find.text('正在生成关卡...'), findsNothing);
+      }
+      await tester.pumpAndSettle();
+      if (mode == 'retry') {
+        expect(
+          tester.widget<GameScreen>(find.byType(GameScreen)).level.levelId,
+          1,
+        );
+        expect(calls, 2);
+        await tester.tapAt(
+          tester.getCenter(
+            find.byWidgetPredicate(
+              (w) => w is CustomPaint && w.painter is GridPainter,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('下一关'));
+        await tester.pumpAndSettle();
+      }
+      expect(
+        tester.widget<GameScreen>(find.byType(GameScreen)).level,
+        same(next),
+      );
+      expect(
+        calls,
+        mode == 'retry'
+            ? 3
+            : mode == 'failed'
+            ? 2
+            : 1,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('新候选盘填写后断点恢复，数量与已用槽位保持一致', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
