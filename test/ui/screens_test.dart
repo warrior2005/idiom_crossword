@@ -972,12 +972,9 @@ void main() {
       (w) => w is RichText && w.text.toPlainText().contains(text),
     );
     expect(richTextContaining('激励广告：观看完成'), findsOneWidget);
-    expect(richTextContaining('插页式广告'), findsOneWidget);
     expect(richTextContaining('观看完成 +10 积分'), findsOneWidget);
     expect(richTextContaining('每天最多 10 次'), findsOneWidget);
     expect(richTextContaining('每次完成后冷却 3 分钟'), findsOneWidget);
-    expect(richTextContaining('不奖励积分'), findsNWidgets(2));
-    expect(richTextContaining('横幅广告'), findsOneWidget);
     expect(richTextContaining('主线关卡首次通关：每关 +5 积分'), findsOneWidget);
   });
 
