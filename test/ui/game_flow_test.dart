@@ -1092,14 +1092,8 @@ void main() {
     await tester.tap(wrongChar.at(3));
     await tester.pumpAndSettle();
     expect(find.text('挑战失败'), findsOneWidget);
-    final adButton = tester.widget<PrimaryButton>(
-      find.widgetWithText(PrimaryButton, '看广告复活(0)'),
-    );
-    final shareButton = tester.widget<PrimaryButton>(
-      find.widgetWithText(PrimaryButton, '分享后复活(0)'),
-    );
-    expect(adButton.onTap, isNull);
-    expect(shareButton.onTap, isNull);
+    expect(find.textContaining('看广告复活'), findsNothing);
+    expect(find.textContaining('分享后复活'), findsNothing);
     expect(find.text('使用复活卡(2)'), findsOneWidget);
     final replayButton = find.widgetWithText(PrimaryButton, '重玩本关');
     final homeButton = find.widgetWithText(PrimaryButton, '返回主页');
@@ -1200,10 +1194,10 @@ void main() {
     adReady.value = true;
     await tester.pump();
     adButton = tester.widget<PrimaryButton>(
-      find.widgetWithText(PrimaryButton, '看广告复活(10)'),
+      find.widgetWithText(PrimaryButton, '看广告复活'),
     );
     expect(adButton.onTap, isNotNull);
-    expect(find.text('分享后复活(10)'), findsOneWidget);
+    expect(find.text('分享后复活'), findsOneWidget);
     expect(find.text('使用复活卡(0)'), findsOneWidget);
     expect(find.text('重玩本关（无经验）'), findsOneWidget);
     expect(find.text('返回主页'), findsOneWidget);

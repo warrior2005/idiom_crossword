@@ -1508,20 +1508,20 @@ class _GameScreenState extends ConsumerState<GameScreen>
       xpText: null,
       dismissible: true,
       actions: [
-        WinCardAction(
-          label: '看广告复活(${quota.adRemaining})',
-          primary: true,
-          onTap: quota.adRemaining > 0 ? _handleAdRevive : null,
-          enabledListenable: quota.adRemaining > 0
-              ? adManager.isRewardedAdReadyNotifier
-              : null,
-          disabledLabel: '看广告复活(加载中)',
-        ),
-        WinCardAction(
-          label: '分享后复活(${quota.shareRemaining})',
-          primary: true,
-          onTap: quota.shareRemaining > 0 ? _handleShareRevive : null,
-        ),
+        if (quota.adRemaining > 0)
+          WinCardAction(
+            label: '看广告复活',
+            primary: true,
+            onTap: _handleAdRevive,
+            enabledListenable: adManager.isRewardedAdReadyNotifier,
+            disabledLabel: '看广告复活(加载中)',
+          ),
+        if (quota.shareRemaining > 0)
+          WinCardAction(
+            label: '分享后复活',
+            primary: true,
+            onTap: _handleShareRevive,
+          ),
         WinCardAction(
           label: '使用复活卡($reviveCount)',
           primary: true,
