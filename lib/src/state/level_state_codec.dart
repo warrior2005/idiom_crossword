@@ -60,7 +60,7 @@ String encodeLevel(CrosswordLevel level) {
 CrosswordLevel? decodeLevel(String source) {
   try {
     final data = jsonDecode(source) as Map<String, dynamic>;
-    if ((data['strategyVersion'] as int? ?? 0) > 2 ||
+    if ((data['strategyVersion'] as int? ?? 0) > 3 ||
         (data['contentVersion'] as int? ?? 0) >
             FourTierContent.currentVersion) {
       return null;

@@ -5,39 +5,40 @@ import 'grid_engine.dart';
 class AdaptivePolicy {
   final int level;
   final int step;
-  AdaptivePolicy(this.level, int step) : step = step.clamp(-5, 30);
+  final int tier;
+  final int nextCount;
+  AdaptivePolicy(this.level, int step, {this.tier = 1, this.nextCount = 0})
+    : step = step.clamp(-5, 30);
   int get size => level <= 10
       ? [2, 2, 3, 3, 4, 4, 5, 5, 6, 6][(level - 1).clamp(0, 9)]
       : 6 + max<int>(0, step) ~/ 5;
-  int get answerTarget => level <= 10
+  int get _baseAnswerTarget => level <= 10
       ? max<int>(size, size + max<int>(0, (level - 4) ~/ 2) + min<int>(0, step))
       : step < 0
       ? size + max<int>(0, 3 - (-step + 1) ~/ 2)
       : size + 3 + (step + 2) ~/ 5;
+  // 试探词至少留两空，避免过多预填让下一档一直得不到有效观察。
+  int get answerTarget =>
+      max(_baseAnswerTarget, size + (tier < 4 ? quotas[tier + 1]! : 0));
   double get distractorRatio => 0.5 + ((max<int>(0, step) + 1) ~/ 5) * 0.05;
   int candidateCount(int answers) =>
       answers + max<int>(4, (answers * distractorRatio).ceil());
   Map<int, int> get quotas {
-    if (level <= 10) {
-      final initialBasic = level <= 4
-          ? 0
-          : level <= 8
+    final result = {1: 0, 2: 0, 3: 0, 4: 0};
+    final lower = tier > 1 && size >= 6 ? 1 : 0;
+    // 更早档偶尔穿插；仍只试探相邻高一档。
+    if (lower > 0) {
+      final lowerTier = level % 5 == 0
           ? 1
-          : 2;
-      final basic = max<int>(0, initialBasic + min<int>(0, step) ~/ 2);
-      return {1: size - basic, 2: basic, 3: 0, 4: 0};
+          : tier == 4 && level % 5 == 2
+          ? 2
+          : tier - 1;
+      result[lowerTier] = lower;
     }
-    final expansion = step < 7 ? 0 : 1 + (step - 7) ~/ 10;
-    final rare = step < 22 ? 0 : 1;
-    final intro = step < 0
-        ? min<int>(6, 4 + (-step) ~/ 2)
-        : (4 - (step + 3) ~/ 5).clamp(2, 4);
-    return {
-      1: intro,
-      2: size - intro - expansion - rare,
-      3: expansion,
-      4: rare,
-    };
+    final next = tier < 4 ? nextCount.clamp(0, size - lower - 1) : 0;
+    result[tier] = size - lower - next;
+    if (tier < 4) result[tier + 1] = next;
+    return result;
   }
 
   bool accepts(Iterable<Idiom> words, Map<String, int> tiers) {
@@ -64,7 +65,7 @@ class AdaptivePolicy {
               p.cells
                   .where((c) => !puzzle.grid.cellAt(c.$1, c.$2).isGiven)
                   .length >
-              1,
+              (tiers[p.idiom.text] == tier + 1 ? 2 : 1),
         );
     void give((int, int) pos) {
       final cell = puzzle.grid.cellAt(pos.$1, pos.$2);

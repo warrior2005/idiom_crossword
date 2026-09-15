@@ -1,6 +1,8 @@
 import 'dart:convert';
 import '../engine/grid_engine.dart';
 import 'database.dart';
+import 'tier_progression.dart';
+import 'mainline_exposure.dart';
 
 /// 轻量本地观察；题面支持下完成不等同于掌握。保留最近40次题目及词级汇总。
 class MainlineLearning {
@@ -45,9 +47,18 @@ class MainlineLearning {
   static Future<Set<String>> dueWords(AppDatabase db, {DateTime? now}) async {
     final data = await read(db);
     final time = (now ?? DateTime.now()).millisecondsSinceEpoch;
+    final exposure = await MainlineExposure.read(db);
+    final sequence = exposure['sequence'] as int;
+    final recent = MainlineExposure.recentWords(exposure);
     final words = data['words'] as Map<String, dynamic>;
     return words.entries
-        .where((e) => (e.value['due'] as int) <= time)
+        .where((e) {
+          final w = e.value as Map;
+          if (w['reviewNeeded'] != true || recent.contains(e.key)) return false;
+          final gap = (w['reviewSuccesses'] as int? ?? 0) > 0 ? 12 : 6;
+          return sequence - (w['seenSequence'] as int? ?? sequence) >= gap ||
+              time >= (w['reviewDue'] as int? ?? time + 1);
+        })
         .map((e) => e.key)
         .toSet();
   }
@@ -66,6 +77,9 @@ class MainlineLearning {
     if (level.strategyVersion == 0 || level.instanceId == null) return;
     final time = (now ?? DateTime.now()).millisecondsSinceEpoch;
     await db.transaction(() async {
+      await MainlineExposure.show(db, level);
+      final exposure = await MainlineExposure.read(db);
+      final sequence = exposure['sequence'] as int;
       final data = await read(db);
       final sessions = (data['sessions'] as List).cast<Map<String, dynamic>>();
       final matching = sessions.where((s) => s['id'] == level.instanceId);
@@ -154,7 +168,7 @@ class MainlineLearning {
         final supports = level.placements.isEmpty
             ? 0
             : givens / level.placements.length;
-        final observation = successful
+        final rawObservation = successful
             ? (0.92 -
                       hints.clamp(0, 4) * 0.13 -
                       errors.clamp(0, 4) * 0.10 -
@@ -164,13 +178,26 @@ class MainlineLearning {
                   0.65 *
                       solved.length /
                       (level.idioms.isEmpty ? 1 : level.idioms.length);
+        // 新策略中持续未过关必须能减负；部分完成仍保留词级学习证据。
+        final observation = level.strategyVersion >= 3 && !successful
+            ? rawObservation.clamp(0.0, 0.45)
+            : rawObservation;
         final trend =
             (adaptive['trend'] as num? ?? 0.7).toDouble() * 0.8 +
             observation * 0.2;
         final count = (adaptive['sinceChange'] as int? ?? 0) + 1;
         var step = (adaptive['step'] as int? ?? 0).clamp(-5, 30);
         var changed = false;
-        if (count >= 5) {
+        final vocabularyChanged =
+            level.strategyVersion >= 3 &&
+            TierProgression.observe(
+              data,
+              level,
+              successful ? level.idioms.map((i) => i.text).toSet() : solved,
+              wrong,
+              hints,
+            );
+        if (count >= 5 && !vocabularyChanged) {
           final tiersReady = tierPerformance.entries
               .where((e) => wordTiers.values.contains(int.parse(e.key)))
               .map((e) => e.value)
@@ -191,7 +218,7 @@ class MainlineLearning {
         adaptive.addAll({
           'step': step,
           'trend': trend,
-          'sinceChange': changed ? 0 : count,
+          'sinceChange': changed || vocabularyChanged ? 0 : count,
           'lastReason': changed
               ? (trend >= 0.82 ? 'consistent_success' : 'consistent_struggle')
               : 'observe',
@@ -208,6 +235,7 @@ class MainlineLearning {
             ...previous,
             'exposures': (previous['exposures'] as int? ?? 0) + 1,
             'lastSeen': time,
+            'seenSequence': sequence,
             'due':
                 previous['due'] ??
                 time + const Duration(days: 1).inMilliseconds,
@@ -215,6 +243,24 @@ class MainlineLearning {
         }
         session['exposed'] = true;
       }
+      final reviewSignals = Set<String>.from(
+        session['reviewSignals'] as List? ?? [],
+      );
+      for (final word in wrong) {
+        if (!level.idioms.any((i) => i.text == word) ||
+            !reviewSignals.add(word)) {
+          continue;
+        }
+        final previous = words[word] as Map<String, dynamic>? ?? {};
+        words[word] = {
+          ...previous,
+          'reviewNeeded': true,
+          'reviewSuccesses': 0,
+          'reviewSignals': (previous['reviewSignals'] as int? ?? 0) + 1,
+          'reviewDue': time + const Duration(days: 1).inMilliseconds,
+        };
+      }
+      session['reviewSignals'] = reviewSignals.toList();
       final credited = Set<String>.from(session['credited'] as List);
       for (final word in completed) {
         if (!credited.add(word)) continue;
@@ -244,8 +290,33 @@ class MainlineLearning {
             (previous['delayedIndependent'] as int? ?? 0) + (delayed ? 1 : 0);
         final count =
             (previous['independent'] as int? ?? 0) + (independent ? 1 : 0);
+        final reviewGap =
+            sequence - (previous['lastReviewSequence'] as int? ?? -100);
+        final reviewClean =
+            hints == 0 &&
+            !wrong.contains(word) &&
+            givens <= 2 &&
+            p.cells
+                    .where(
+                      (c) =>
+                          !level.grid.cellAt(c.$1, c.$2).isGiven &&
+                          level.grid.cellAt(c.$1, c.$2).isIntersection,
+                    )
+                    .length <=
+                1;
+        final reviewSuccesses =
+            (previous['reviewSuccesses'] as int? ?? 0) +
+            (reviewClean && reviewGap >= 4 ? 1 : 0);
         words[word] = {
           ...previous,
+          if (previous['reviewNeeded'] == true &&
+              reviewClean &&
+              reviewGap >= 4) ...{
+            'reviewSuccesses': reviewSuccesses,
+            'reviewNeeded': reviewSuccesses < 2,
+            'lastReviewSequence': sequence,
+            'reviewDue': time + const Duration(days: 3).inMilliseconds,
+          },
           'practices': (previous['practices'] as int? ?? 0) + 1,
           'independent': count,
           'delayedIndependent': retained,

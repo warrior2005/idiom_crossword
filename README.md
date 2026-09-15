@@ -5,7 +5,7 @@
 
 产品设计与进度见 [PRD.md](PRD.md) 与 [PLANS.md](PLANS.md)。
 
-当前难度与关卡规则见[四档智能主线实现记录](docs/specs/four_tier_implementation_v2.md)，包含教材分档、平滑适配、冻结及迁移验收。
+当前难度与关卡规则见[主线策略3实施记录](docs/specs/mainline_strategy_v3_implementation.md)，包含逐档推进、平滑适配、按需复习与指纹去重。
 
 ## 功能
 

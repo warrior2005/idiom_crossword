@@ -29,12 +29,29 @@ void main() {
           'sessions': [],
           'words': {},
           'adaptive': {'step': step},
+          'progression': {
+            'tier': step == 30
+                ? 3
+                : step == 15
+                ? 2
+                : 1,
+            'next': step == 30 ? 1 : 0,
+          },
         }),
       );
       for (final number in [1, 10, 11, 200, 6000]) {
         final level = await generateLevel(db, number, seed: 17);
         expect(level, isNotNull, reason: 'number $number step $step');
-        final policy = AdaptivePolicy(number, step);
+        final policy = AdaptivePolicy(
+          number,
+          step,
+          tier: step == 30
+              ? 3
+              : step == 15
+              ? 2
+              : 1,
+          nextCount: step == 30 ? 1 : 0,
+        );
         expect(level!.idioms.length, policy.size);
         if (number > 10) expect(level.idioms.length, inInclusiveRange(6, 12));
         expect(
@@ -57,12 +74,47 @@ void main() {
         expect(decodeLevel(encodeLevel(level))!.strategy, level.strategy);
         final tiers = Map<String, int>.from(level.strategy['wordTiers'] as Map);
         expect(policy.accepts(level.idioms, tiers), isTrue);
-        expect(level.strategyVersion, 2);
+        expect(level.strategyVersion, 3);
         expect(level.contentVersion, 5);
         if (step == 30 && number > 10) expect(tiers.values, contains(4));
       }
     }
   }, timeout: const Timeout(Duration(minutes: 3)));
+
+  test('大量薄弱词不会把普通词池排空；主动复习最多两个', () async {
+    final dir = await Directory.systemTemp.createTemp('review_pool_');
+    final file = await File(
+      'assets/data/idiom_crossword.db',
+    ).copy('${dir.path}/test.db');
+    final db = AppDatabase(NativeDatabase(file));
+    addTearDown(() async {
+      await db.close();
+      await dir.delete(recursive: true);
+    });
+    final rows = await (db.select(
+      db.idioms,
+    )..where((t) => t.difficultyTier.equals(1))).get();
+    await db.setSetting(
+      MainlineLearning.key,
+      jsonEncode({
+        'sessions': [],
+        'words': {
+          for (final r in rows)
+            r.word: {'reviewNeeded': true, 'reviewDue': 0, 'seenSequence': -10},
+        },
+      }),
+    );
+    final level = await generateLevel(db, 11, seed: 881);
+    expect(level, isNotNull);
+    expect(
+      (level!.strategy['reviewWords'] as List).length,
+      lessThanOrEqualTo(2),
+    );
+    expect(
+      (level.strategy['incidentalWeakWords'] as List).length,
+      greaterThanOrEqualTo(4),
+    );
+  });
 
   test('每日冻结旧词集合；历史题面不随新增字典重做消歧', () async {
     final dir = await Directory.systemTemp.createTemp('daily_cohort_');

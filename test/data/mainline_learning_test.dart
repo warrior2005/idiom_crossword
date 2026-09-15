@@ -157,7 +157,7 @@ void main() {
         db,
         now: now.add(const Duration(days: 1)),
       ),
-      contains('画蛇添足'),
+      isEmpty,
     );
     await MainlineLearning.record(
       db,
@@ -218,7 +218,7 @@ void main() {
         db,
         now: now.add(const Duration(days: 9)),
       ),
-      contains('画蛇添足'),
+      isEmpty,
     );
   });
   test('连续成功缓慢提升、交替成败不抖动，中断无影响，40次后仍保持观察间隔', () async {

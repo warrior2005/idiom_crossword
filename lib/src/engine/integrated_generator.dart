@@ -60,7 +60,11 @@ class IntegratedGenerator {
     Set<int>? candidatePool,
     bool Function(CrosswordLevel)? accept,
     Set<String> preferredSeeds = const {},
+    Set<String> fallbackSeeds = const {},
     bool Function(Iterable<Idiom>)? canSelect,
+    bool boundedSearch = false,
+    Set<int> fallbackPool = const {},
+    double Function(String)? wordPriority,
   }) {
     // 如果提供了 spiralResult，使用螺旋难度范围
     if (spiralResult != null) {
@@ -80,18 +84,28 @@ class IntegratedGenerator {
         }
       }
     }
-    if (candidates.length < targetSize) return null;
+    if (candidates.union(fallbackPool).length < targetSize) return null;
 
     CrosswordLevel? bestLevel;
     var validLevelCount = 0;
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
-      final result = _tryGenerate(
-        candidates,
-        targetSize,
-        levelNumber,
-        preferredSeeds,
-        canSelect,
-      );
+      final result = boundedSearch
+          ? _search(
+              candidates,
+              fallbackPool,
+              targetSize,
+              levelNumber,
+              attempt < 3 ? preferredSeeds : fallbackSeeds,
+              canSelect,
+              wordPriority,
+            )
+          : _tryGenerate(
+              candidates,
+              targetSize,
+              levelNumber,
+              preferredSeeds,
+              canSelect,
+            );
       if (result != null &&
           !result.hasInterchangeableAnswers &&
           !result.hasAmbiguousAdjacency &&
@@ -105,6 +119,100 @@ class IntegratedGenerator {
       }
     }
     return bestLevel;
+  }
+
+  /// 主线专用有界回退；普通候选无解时才尝试末尾复习补位。
+  CrosswordLevel? _search(
+    Set<int> candidates,
+    Set<int> fallback,
+    int target,
+    int? number,
+    Set<String> preferred,
+    bool Function(Iterable<Idiom>)? canSelect,
+    double Function(String)? priority,
+  ) {
+    final seeds = candidates.toList()..shuffle(_random);
+    seeds.sort(
+      (a, b) => (preferred.contains(graph.idioms[b].text) ? 1 : 0).compareTo(
+        preferred.contains(graph.idioms[a].text) ? 1 : 0,
+      ),
+    );
+    final viable = seeds.where(
+      (i) => canSelect == null || canSelect([graph.idioms[i]]),
+    );
+    if (viable.isEmpty) return null;
+    final seed = viable.first;
+    final placed = <int, _PlacedNode>{
+      seed: _PlacedNode(
+        idiomIdx: seed,
+        direction: Direction.horizontal,
+        startRow: 10,
+        startCol: 5,
+      ),
+    };
+    final occupied = <(int, int), int>{};
+    _markCells(placed[seed]!, graph.idioms[seed].text.length, occupied, seed);
+    var nodes = 0;
+    bool search() {
+      if (placed.length == target) return true;
+      if (++nodes > 240) return false;
+      final reversed = placed.keys
+          .map((i) => _reverse(graph.idioms[i].text))
+          .toSet();
+      for (final pool in [
+        candidates,
+        if (target - placed.length <= 2) fallback,
+      ]) {
+        final options = <(int, int)>[];
+        for (final parent in placed.keys) {
+          for (final child in graph.getNeighbors(parent)) {
+            if (!pool.contains(child) ||
+                placed.containsKey(child) ||
+                reversed.contains(graph.idioms[child].text)) {
+              continue;
+            }
+            if (canSelect != null &&
+                !canSelect([
+                  ...placed.keys.map((i) => graph.idioms[i]),
+                  graph.idioms[child],
+                ])) {
+              continue;
+            }
+            options.add((parent, child));
+          }
+        }
+        options.shuffle(_random);
+        if (priority != null) {
+          options.sort(
+            (a, b) => priority(
+              graph.idioms[a.$2].text,
+            ).compareTo(priority(graph.idioms[b.$2].text)),
+          );
+        }
+        var branches = 0;
+        for (final option in options) {
+          final before = Map<(int, int), int>.from(occupied);
+          if (!_tryPlaceNeighbor(
+            node: option.$2,
+            neighborOf: option.$1,
+            placed: placed,
+            occupied: occupied,
+          )) {
+            continue;
+          }
+          if (search()) return true;
+          placed.remove(option.$2);
+          occupied
+            ..clear()
+            ..addAll(before);
+          if (++branches >= 12 || nodes > 240) break;
+        }
+        if (nodes > 240) break;
+      }
+      return false;
+    }
+
+    return search() ? _buildLevel(placed, number) : null;
   }
 
   int _compareLevels(CrosswordLevel a, CrosswordLevel b) {

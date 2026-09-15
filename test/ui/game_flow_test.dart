@@ -136,7 +136,7 @@ void main() {
                   .widget<GameScreen>(find.byType(GameScreen).last)
                   .level
                   .strategyVersion ==
-              2,
+              3,
       const Duration(seconds: 5),
     );
     for (var attempt = 0; attempt < 40; attempt++) {
@@ -149,7 +149,7 @@ void main() {
     await tester.pumpAndSettle();
     final level = tester.widget<GameScreen>(find.byType(GameScreen)).level;
     expect(level.levelId, 1);
-    expect(level.strategyVersion, 2);
+    expect(level.strategyVersion, 3);
     expect(await db.isLevelCompleted(1), isFalse);
     expect(await db.getLevelHistory(), isEmpty);
     final saved = await db.getLevelState(1);

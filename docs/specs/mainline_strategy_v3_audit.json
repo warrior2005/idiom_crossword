@@ -1,0 +1,670 @@
+{
+  "contentVersion": 5,
+  "strategyVersion": 3,
+  "baseCommit": "e2d21c7ea131ba520710744e97b5be9adccb6fb1",
+  "seed": "130000 + n * 11 + retry",
+  "clock": "2026-09-14 + n * 90 minutes",
+  "profiles": [
+    {
+      "profile": "intro",
+      "target": 1000,
+      "generated": 1000,
+      "requests": 1000,
+      "failedRequests": 0,
+      "stuck": 0,
+      "sameSets": 0,
+      "halfRecent20": 7,
+      "uniqueWords": 459,
+      "allOld": 812,
+      "reviewWords": 0,
+      "fallbackWords": 0,
+      "firstTier": {
+        "1": 1
+      },
+      "p50ms": 23,
+      "p95ms": 29,
+      "maxms": 470,
+      "topWords": {
+        "表里不一": 31,
+        "长生不老": 31,
+        "自高自大": 29,
+        "大有可为": 28,
+        "九死一生": 27,
+        "下落不明": 27,
+        "无地自容": 27,
+        "缺一不可": 26,
+        "百里挑一": 26,
+        "水落石出": 26
+      },
+      "reviewDistribution": {
+        "0": 1000,
+        "1": 0,
+        "2": 0
+      },
+      "incidentalWeakWords": 0,
+      "firstAppearance": {
+        "1": 1,
+        "2": null,
+        "3": null,
+        "4": null
+      },
+      "firstMajority": {
+        "1": 1,
+        "2": null,
+        "3": null,
+        "4": null
+      },
+      "lastPolicy": {
+        "step": 0,
+        "tier": 1,
+        "next": 0,
+        "fingerprint": "2f04ee19a8c02fa1848bcbafe64ce9b1a039dd6d9cf061b0cc21051c2ca14181",
+        "reviewWords": [],
+        "reviewReasons": {},
+        "incidentalWeakWords": [],
+        "generationAttempt": 1,
+        "size": 6,
+        "answers": 9,
+        "candidates": 14,
+        "distractorRatio": 0.5,
+        "quotas": {
+          "1": 6,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "wordTiers": {
+          "杀人灭口": 1,
+          "百年树人": 1,
+          "遗臭万年": 1,
+          "百花争艳": 1,
+          "头昏眼花": 1,
+          "三头六臂": 1
+        },
+        "noveltyBudget": 1,
+        "unfamiliar": 0
+      }
+    },
+    {
+      "profile": "basic",
+      "target": 1000,
+      "generated": 1000,
+      "requests": 1000,
+      "failedRequests": 0,
+      "stuck": 0,
+      "sameSets": 0,
+      "halfRecent20": 2,
+      "uniqueWords": 2204,
+      "allOld": 97,
+      "reviewWords": 0,
+      "fallbackWords": 0,
+      "firstTier": {
+        "2": 1
+      },
+      "p50ms": 78,
+      "p95ms": 94,
+      "maxms": 326,
+      "topWords": {
+        "以防万一": 39,
+        "人心不古": 38,
+        "生死不渝": 36,
+        "无事生非": 34,
+        "不胫而走": 34,
+        "虎口余生": 33,
+        "自愧不如": 33,
+        "金口玉言": 32,
+        "一走了之": 31,
+        "失之交臂": 31
+      },
+      "reviewDistribution": {
+        "0": 1000,
+        "1": 0,
+        "2": 0
+      },
+      "incidentalWeakWords": 0,
+      "firstAppearance": {
+        "1": 1,
+        "2": 1,
+        "3": null,
+        "4": null
+      },
+      "firstMajority": {
+        "1": null,
+        "2": 1,
+        "3": null,
+        "4": null
+      },
+      "lastPolicy": {
+        "step": 0,
+        "tier": 2,
+        "next": 0,
+        "fingerprint": "fe0ff6523265eacdb0a86751418c85ddcf1200bc4269c3eff9e64b702aa5abb0",
+        "reviewWords": [],
+        "reviewReasons": {},
+        "incidentalWeakWords": [],
+        "generationAttempt": 1,
+        "size": 6,
+        "answers": 9,
+        "candidates": 14,
+        "distractorRatio": 0.5,
+        "quotas": {
+          "1": 1,
+          "2": 5,
+          "3": 0,
+          "4": 0
+        },
+        "wordTiers": {
+          "言多必失": 1,
+          "言外之意": 2,
+          "瓮中之鳖": 2,
+          "诚心诚意": 2,
+          "坐失良机": 2,
+          "坐地分赃": 2
+        },
+        "noveltyBudget": 3,
+        "unfamiliar": 3
+      }
+    },
+    {
+      "profile": "expansion",
+      "target": 1000,
+      "generated": 1000,
+      "requests": 1000,
+      "failedRequests": 0,
+      "stuck": 0,
+      "sameSets": 0,
+      "halfRecent20": 0,
+      "uniqueWords": 4314,
+      "allOld": 0,
+      "reviewWords": 0,
+      "fallbackWords": 0,
+      "firstTier": {
+        "3": 1
+      },
+      "p50ms": 359,
+      "p95ms": 386,
+      "maxms": 821,
+      "topWords": {
+        "流年不利": 29,
+        "言之无物": 28,
+        "金石之言": 27,
+        "无所用心": 27,
+        "相与为一": 26,
+        "吊胆惊心": 26,
+        "人生如梦": 26,
+        "利出一孔": 25,
+        "无所不在": 25,
+        "自成一家": 25
+      },
+      "reviewDistribution": {
+        "0": 1000,
+        "1": 0,
+        "2": 0
+      },
+      "incidentalWeakWords": 0,
+      "firstAppearance": {
+        "1": 5,
+        "2": 1,
+        "3": 1,
+        "4": 1
+      },
+      "firstMajority": {
+        "1": null,
+        "2": null,
+        "3": 1,
+        "4": null
+      },
+      "lastPolicy": {
+        "step": 15,
+        "tier": 3,
+        "next": 1,
+        "fingerprint": "400522b6324542a4c5ca54d2c4e90572872d800c39fc4851af8259c94e0efbc7",
+        "reviewWords": [],
+        "reviewReasons": {},
+        "incidentalWeakWords": [],
+        "generationAttempt": 1,
+        "size": 9,
+        "answers": 14,
+        "candidates": 24,
+        "distractorRatio": 0.65,
+        "quotas": {
+          "1": 1,
+          "2": 0,
+          "3": 7,
+          "4": 1
+        },
+        "wordTiers": {
+          "大地回春": 3,
+          "地久天长": 1,
+          "宏图大志": 3,
+          "马齿徒长": 4,
+          "戎马倥傯": 3,
+          "天高气爽": 3,
+          "气宇轩昂": 3,
+          "齿白唇红": 3,
+          "宽宏大度": 3
+        },
+        "noveltyBudget": 5,
+        "unfamiliar": 5
+      }
+    },
+    {
+      "profile": "rare",
+      "target": 1000,
+      "generated": 1000,
+      "requests": 1000,
+      "failedRequests": 0,
+      "stuck": 0,
+      "sameSets": 0,
+      "halfRecent20": 0,
+      "uniqueWords": 7412,
+      "allOld": 0,
+      "reviewWords": 0,
+      "fallbackWords": 0,
+      "firstTier": {
+        "4": 1
+      },
+      "p50ms": 388,
+      "p95ms": 494,
+      "maxms": 1105,
+      "topWords": {
+        "相帅成风": 40,
+        "千里无烟": 39,
+        "世道人情": 38,
+        "以石投水": 38,
+        "要而论之": 37,
+        "百不当一": 36,
+        "百无一成": 36,
+        "无动为大": 36,
+        "烟炎张天": 35,
+        "不识之无": 34
+      },
+      "reviewDistribution": {
+        "0": 1000,
+        "1": 0,
+        "2": 0
+      },
+      "incidentalWeakWords": 0,
+      "firstAppearance": {
+        "1": 5,
+        "2": 2,
+        "3": 1,
+        "4": 1
+      },
+      "firstMajority": {
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": 1
+      },
+      "lastPolicy": {
+        "step": 30,
+        "tier": 4,
+        "next": 0,
+        "fingerprint": "9cb12a2acef68e908aada601ac9a126de5f14d742a89569030c85eaf60fddd74",
+        "reviewWords": [],
+        "reviewReasons": {},
+        "incidentalWeakWords": [],
+        "generationAttempt": 1,
+        "size": 12,
+        "answers": 20,
+        "candidates": 36,
+        "distractorRatio": 0.8,
+        "quotas": {
+          "1": 1,
+          "2": 0,
+          "3": 0,
+          "4": 11
+        },
+        "wordTiers": {
+          "百无一成": 4,
+          "数一数二": 1,
+          "百年偕老": 4,
+          "平澹无奇": 4,
+          "疑行无成": 4,
+          "行间字里": 4,
+          "瞬息之间": 4,
+          "千里无烟": 4,
+          "千岁鹤归": 4,
+          "烟炎张天": 4,
+          "无与为比": 4,
+          "无所依归": 4
+        },
+        "noveltyBudget": 6,
+        "unfamiliar": 6
+      }
+    },
+    {
+      "profile": "fast",
+      "target": 1000,
+      "generated": 1000,
+      "requests": 1000,
+      "failedRequests": 0,
+      "stuck": 0,
+      "sameSets": 0,
+      "halfRecent20": 0,
+      "uniqueWords": 7396,
+      "allOld": 2,
+      "reviewWords": 0,
+      "fallbackWords": 0,
+      "firstTier": {
+        "1": 1,
+        "2": 27,
+        "3": 75,
+        "4": 131
+      },
+      "p50ms": 390,
+      "p95ms": 481,
+      "maxms": 925,
+      "topWords": {
+        "言行若一": 54,
+        "无大不大": 41,
+        "一叶迷山": 37,
+        "大谋不谋": 34,
+        "狗行狼心": 31,
+        "人中龙虎": 30,
+        "月晕而风": 30,
+        "遗物识心": 28,
+        "东流西落": 28,
+        "及宾有鱼": 28
+      },
+      "reviewDistribution": {
+        "0": 1000,
+        "1": 0,
+        "2": 0
+      },
+      "incidentalWeakWords": 0,
+      "firstAppearance": {
+        "1": 1,
+        "2": 7,
+        "3": 35,
+        "4": 83
+      },
+      "firstMajority": {
+        "1": 1,
+        "2": 21,
+        "3": 59,
+        "4": 115
+      },
+      "lastPolicy": {
+        "step": 30,
+        "tier": 4,
+        "next": 0,
+        "fingerprint": "1011bc72b57deea623df0b96787f9b4ad9edc21643de49ca7cc5dfd968760c8c",
+        "reviewWords": [],
+        "reviewReasons": {},
+        "incidentalWeakWords": [],
+        "generationAttempt": 1,
+        "size": 12,
+        "answers": 21,
+        "candidates": 38,
+        "distractorRatio": 0.8,
+        "quotas": {
+          "1": 1,
+          "2": 0,
+          "3": 0,
+          "4": 11
+        },
+        "wordTiers": {
+          "樽酒论文": 4,
+          "花天酒地": 1,
+          "一牛鸣地": 4,
+          "雄视一世": 4,
+          "做人做世": 4,
+          "轰天裂地": 4,
+          "哲人其萎": 4,
+          "金玉其质": 4,
+          "金口御言": 4,
+          "不言而谕": 4,
+          "大节不夺": 4,
+          "迷而不返": 4
+        },
+        "noveltyBudget": 6,
+        "unfamiliar": 6
+      }
+    },
+    {
+      "profile": "weak",
+      "target": 1000,
+      "generated": 1000,
+      "requests": 1000,
+      "failedRequests": 0,
+      "stuck": 0,
+      "sameSets": 0,
+      "halfRecent20": 10,
+      "uniqueWords": 452,
+      "allOld": 802,
+      "reviewWords": 485,
+      "fallbackWords": 3,
+      "firstTier": {
+        "1": 1
+      },
+      "p50ms": 25,
+      "p95ms": 31,
+      "maxms": 300,
+      "topWords": {
+        "丢三落四": 51,
+        "不约而同": 42,
+        "十有八九": 41,
+        "一望无际": 40,
+        "五花八门": 39,
+        "九牛一毛": 33,
+        "大吃一惊": 32,
+        "物美价廉": 32,
+        "多如牛毛": 32,
+        "言而无信": 31
+      },
+      "reviewDistribution": {
+        "0": 516,
+        "1": 483,
+        "2": 1
+      },
+      "incidentalWeakWords": 476,
+      "firstAppearance": {
+        "1": 1,
+        "2": null,
+        "3": null,
+        "4": null
+      },
+      "firstMajority": {
+        "1": 1,
+        "2": null,
+        "3": null,
+        "4": null
+      },
+      "lastPolicy": {
+        "step": 0,
+        "tier": 1,
+        "next": 0,
+        "fingerprint": "1f5e7f6733a00845b6d9099d2a3c7c6f070d065eba45a67b150724f21adc06a4",
+        "reviewWords": [
+          "丢三落四"
+        ],
+        "reviewReasons": {
+          "丢三落四": "learning"
+        },
+        "incidentalWeakWords": [
+          "天下无敌"
+        ],
+        "generationAttempt": 1,
+        "size": 6,
+        "answers": 9,
+        "candidates": 14,
+        "distractorRatio": 0.5,
+        "quotas": {
+          "1": 6,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "wordTiers": {
+          "丢三落四": 1,
+          "落井下石": 1,
+          "天下无敌": 1,
+          "天南海北": 1,
+          "福如东海": 1,
+          "胆小如鼠": 1
+        },
+        "noveltyBudget": 1,
+        "unfamiliar": 0
+      }
+    },
+    {
+      "profile": "recovery",
+      "target": 1000,
+      "generated": 1000,
+      "requests": 1000,
+      "failedRequests": 0,
+      "stuck": 0,
+      "sameSets": 0,
+      "halfRecent20": 17,
+      "uniqueWords": 1561,
+      "allOld": 683,
+      "reviewWords": 478,
+      "fallbackWords": 16,
+      "firstTier": {
+        "3": 1,
+        "2": 78,
+        "1": 142
+      },
+      "p50ms": 37,
+      "p95ms": 323,
+      "maxms": 458,
+      "topWords": {
+        "下落不明": 33,
+        "表里不一": 31,
+        "花红柳绿": 30,
+        "顶天立地": 28,
+        "千家万户": 28,
+        "称心如意": 27,
+        "一表人才": 27,
+        "成千上万": 27,
+        "不约而同": 26,
+        "茁壮成长": 26
+      },
+      "reviewDistribution": {
+        "0": 528,
+        "1": 466,
+        "2": 6
+      },
+      "incidentalWeakWords": 1480,
+      "firstAppearance": {
+        "1": 5,
+        "2": 1,
+        "3": 1,
+        "4": 13
+      },
+      "firstMajority": {
+        "1": 151,
+        "2": 118,
+        "3": 1,
+        "4": null
+      },
+      "lastPolicy": {
+        "step": -5,
+        "tier": 1,
+        "next": 0,
+        "fingerprint": "45a39a338db44015ae3db2da4e4ba561fe41f0c5d793c540963ddb913bb592b8",
+        "reviewWords": [],
+        "reviewReasons": {},
+        "incidentalWeakWords": [
+          "绚丽多彩"
+        ],
+        "generationAttempt": 1,
+        "size": 6,
+        "answers": 6,
+        "candidates": 10,
+        "distractorRatio": 0.5,
+        "quotas": {
+          "1": 6,
+          "2": 0,
+          "3": 0,
+          "4": 0
+        },
+        "wordTiers": {
+          "惹事生非": 1,
+          "娇生惯养": 1,
+          "多管闲事": 1,
+          "绚丽多彩": 1,
+          "风和日丽": 1,
+          "风平浪静": 1
+        },
+        "noveltyBudget": 2,
+        "unfamiliar": 2
+      }
+    }
+  ],
+  "controlledLatency": [
+    {
+      "variant": "before",
+      "seed": 132101,
+      "milliseconds": 11708
+    },
+    {
+      "variant": "after",
+      "seed": 132101,
+      "milliseconds": 477
+    },
+    {
+      "variant": "after",
+      "seed": 132102,
+      "milliseconds": 415
+    },
+    {
+      "variant": "after",
+      "seed": 132103,
+      "milliseconds": 430
+    },
+    {
+      "variant": "after",
+      "seed": 132104,
+      "milliseconds": 425
+    },
+    {
+      "variant": "after",
+      "seed": 132105,
+      "milliseconds": 407
+    },
+    {
+      "variant": "after",
+      "seed": 132106,
+      "milliseconds": 420
+    },
+    {
+      "variant": "after",
+      "seed": 132107,
+      "milliseconds": 436
+    },
+    {
+      "variant": "after",
+      "seed": 132108,
+      "milliseconds": 450
+    },
+    {
+      "variant": "after",
+      "seed": 132109,
+      "milliseconds": 400
+    },
+    {
+      "variant": "after",
+      "seed": 132110,
+      "milliseconds": 408
+    },
+    {
+      "variant": "after",
+      "seed": 132111,
+      "milliseconds": 451
+    }
+  ],
+  "sourceSha256": {
+    "lib/src/data/mainline_learning.dart": "0a8bb3f7c7d09b56692aa6f2e039f2a985dc93c622d7556ddb389b21fd05543d",
+    "lib/src/data/mainline_exposure.dart": "8253c3ff5959da86b3ae37719e812ed73753d9c0620c788d7b9a7fd3f3f8bf06",
+    "lib/src/data/tier_progression.dart": "46780ecc79307e12d3f089f76044222e7ca2af4da95348fb9dc882f9913c2014",
+    "lib/src/engine/adaptive_policy.dart": "4922adf7b20ff521826b60f0aee84c7d288bcb114e5df6637c93de77de96e841",
+    "lib/src/engine/integrated_generator.dart": "81968b656a990245caca2742531304c0fd6d9daafbec9ca200d2fb28d6b0fdf7",
+    "lib/src/state/level_generation.dart": "a21424d74f18cf071094d2194682eb43b2defa02dba4e139b288898cefa9854e",
+    "lib/src/state/level_state_codec.dart": "7c0b785ac194bf249547e43669dad6cb3040839d97f5b29891af9d0b66e750da",
+    "tool/mainline_v3_audit_test.dart": "7baf36993b1ffde1bb94fd42f67abf2b09ac7b48896bff50eb6efde51998ef9b"
+  },
+  "assetSha256": "16f72f69d6a1a093492987bcbccf76543a863608c71ae347865751b3dae786c7"
+}
