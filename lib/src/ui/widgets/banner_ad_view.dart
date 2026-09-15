@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../audio/audio_route_observer.dart';
-import '../../state/player_state.dart';
 import '../../utils/ad_manager.dart';
 import 'dirichlet_banner_view.dart';
 
@@ -15,21 +14,12 @@ Duration bannerAdRetryDelay(int retryAttempt) => switch (retryAttempt) {
   _ => const Duration(minutes: 1),
 };
 
-@visibleForTesting
-bool canAccrueBannerPoints({
-  required bool active,
-  required bool canShowAds,
-  required bool isBannerLoaded,
-  required bool appForeground,
-  required bool routeVisible,
-}) => active && canShowAds && isBannerLoaded && appForeground && routeVisible;
-
 /// 页面底部横幅广告
 ///
 /// 每个页面持有独立 BannerAd 实例，页面销毁时自动释放。
 /// 非移动端或广告未就绪时渲染为空，不影响页面布局。
 class BannerAdView extends ConsumerStatefulWidget {
-  /// 当前页面是否处于可见 Tab（避免 IndexedStack 中多个横幅同时累计积分）
+  /// 当前页面是否处于可见 Tab
   final bool active;
 
   const BannerAdView({super.key, this.active = true});
@@ -49,10 +39,8 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   bool _appForeground = true;
   bool _routeVisible = true;
   PageRoute<dynamic>? _subscribedRoute;
-  Timer? _accrualTimer;
   Timer? _bannerAdRetryTimer;
   int _bannerAdRetryAttempt = 0;
-  int _accruedSeconds = 0;
 
   @override
   void initState() {
@@ -79,14 +67,12 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   void didPushNext() {
     _routeVisible = false;
     _refreshDirichletVisibility();
-    _syncAccrual();
   }
 
   @override
   void didPopNext() {
     _routeVisible = true;
     _refreshDirichletVisibility();
-    _syncAccrual();
   }
 
   @override
@@ -96,7 +82,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
     AdManager().adPrivacyChanged.removeListener(_reloadForPrivacy);
     AdManager().adsRemovedNotifier.removeListener(_reloadForPrivacy);
     WidgetsBinding.instance.removeObserver(this);
-    _accrualTimer?.cancel();
     _bannerAdRetryTimer?.cancel();
     _bannerAd?.dispose();
     _bannerAd = null;
@@ -108,7 +93,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.active != widget.active) {
       _refreshDirichletVisibility();
-      _syncAccrual();
     }
   }
 
@@ -116,12 +100,10 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _appForeground = state == AppLifecycleState.resumed;
     _refreshDirichletVisibility();
-    _syncAccrual();
   }
 
   void _fullScreenChanged() {
     _refreshDirichletVisibility();
-    _syncAccrual();
   }
 
   void _reloadForPrivacy() {
@@ -134,7 +116,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
       _isBannerLoaded = false;
       _dirichletClosed = false;
     });
-    _syncAccrual();
     unawaited(_loadBannerAd());
   }
 
@@ -144,39 +125,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
     setState(() {
       _isBannerLoaded = false;
       _dirichletViewGeneration++;
-    });
-  }
-
-  /// 横幅可见时每累计 60 秒发放 1 积分（受每日上限约束）
-  void _syncAccrual() {
-    _accrualTimer?.cancel();
-    _accrualTimer = null;
-    if (!canAccrueBannerPoints(
-      active: widget.active,
-      canShowAds: _canShowAds,
-      isBannerLoaded: _isBannerLoaded,
-      appForeground: _appForeground,
-      routeVisible: _routeVisible,
-    )) {
-      _accruedSeconds = 0;
-      return;
-    }
-    _accrualTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted ||
-          !canAccrueBannerPoints(
-            active: widget.active,
-            canShowAds: _canShowAds,
-            isBannerLoaded: _isBannerLoaded,
-            appForeground: _appForeground,
-            routeVisible: _routeVisible,
-          )) {
-        return;
-      }
-      _accruedSeconds++;
-      if (_accruedSeconds >= 60) {
-        _accruedSeconds -= 60;
-        unawaited(ref.read(playerProvider.notifier).addBannerPoints(1));
-      }
     });
   }
 
@@ -204,7 +152,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
           _bannerAdRetryTimer = null;
           _bannerAdRetryAttempt = 0;
           setState(() => _isBannerLoaded = true);
-          _syncAccrual();
         }
       },
       onAdFailedToLoad: (ad, error) {
@@ -212,7 +159,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
         if (mounted) {
           _bannerAd = null;
           setState(() => _isBannerLoaded = false);
-          _syncAccrual();
           _scheduleBannerAdRetry();
         }
       },
@@ -255,7 +201,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
                 if (!mounted) return;
                 _bannerAdRetryAttempt = 0;
                 setState(() => _isBannerLoaded = true);
-                _syncAccrual();
               },
               onFailed: () {
                 if (!mounted) return;
@@ -263,7 +208,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
                   _isBannerLoaded = false;
                   _dirichletFailed = true;
                 });
-                _syncAccrual();
                 _scheduleBannerAdRetry();
               },
               onClosed: () {
@@ -272,7 +216,6 @@ class _BannerAdViewState extends ConsumerState<BannerAdView>
                   _isBannerLoaded = false;
                   _dirichletClosed = true;
                 });
-                _syncAccrual();
               },
             ),
           ),

@@ -972,8 +972,11 @@ void main() {
       (w) => w is RichText && w.text.toPlainText().contains(text),
     );
     expect(richTextContaining('激励广告：观看完成'), findsOneWidget);
-    expect(richTextContaining('插页式激励广告'), findsOneWidget);
-    expect(richTextContaining('未完成不奖励'), findsOneWidget);
+    expect(richTextContaining('插页式广告'), findsOneWidget);
+    expect(richTextContaining('观看完成 +10 积分'), findsOneWidget);
+    expect(richTextContaining('每天最多 10 次'), findsOneWidget);
+    expect(richTextContaining('每次完成后冷却 3 分钟'), findsOneWidget);
+    expect(richTextContaining('不奖励积分'), findsNWidgets(2));
     expect(richTextContaining('横幅广告'), findsOneWidget);
     expect(richTextContaining('主线关卡首次通关：每关 +5 积分'), findsOneWidget);
   });
@@ -1329,7 +1332,7 @@ void main() {
     expect(find.text('文房四宝 · 商城'), findsOneWidget);
     expect(find.text('提示卡'), findsOneWidget);
     expect(find.text('复活卡'), findsOneWidget);
-    expect(find.text('0/100'), findsOneWidget); // 激励广告今日次数（按钮下方）
+    expect(find.text('0/10'), findsOneWidget); // 激励广告今日次数（按钮下方）
     expect(find.text('重新加载'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('功能道具'),

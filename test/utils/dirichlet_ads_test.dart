@@ -19,6 +19,37 @@ void main() {
     messenger.setMockMethodCallHandler(channel, null);
   });
 
+  for (final shown in [true, false]) {
+    test(
+      'interstitial uses its own placement and reports shown=$shown',
+      () async {
+        final methods = <String>[];
+        messenger.setMockMethodCallHandler(channel, (call) async {
+          methods.add(call.method);
+          if (call.method == 'loadInterstitial') return true;
+          if (call.method == 'showInterstitial') return shown;
+          return null;
+        });
+        expect(await ads.loadInterstitial(), isTrue);
+        expect(ads.rewardReady.value, isFalse);
+        var impressions = 0;
+        final closed = Completer<void>();
+        expect(
+          ads.showInterstitial(
+            onAdShown: () => impressions++,
+            onAdClosed: closed.complete,
+          ),
+          isTrue,
+        );
+        expect(ads.showInterstitial(), isFalse);
+        await closed.future;
+        expect(impressions, shown ? 1 : 0);
+        expect(methods, ['loadInterstitial', 'showInterstitial']);
+        expect(ads.interstitialReady.value, isFalse);
+      },
+    );
+  }
+
   test('only mainland system region selects Dirichlet', () {
     expect(usesDirichletForRegion('CN'), isTrue);
     expect(usesDirichletForRegion('cn'), isTrue);

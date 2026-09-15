@@ -432,51 +432,48 @@ void main() {
     );
   });
 
-  test('激励广告：前10次冷却1分钟，之后2分钟，每日上限100次', () async {
+  test('插页广告第11关起50%概率，展示后持久化跳过4关', () async {
     final notifier = container.read(playerProvider.notifier);
-    var status = await notifier.rewardedAdStatus();
-    expect(status.canWatch, isTrue);
-    expect(status.countToday, 0);
-
-    // 每次调用前把上次观看时间拨到 5 分钟前，模拟冷却已结束
-    Future<void> expireCooldown() => db.setSetting(
-      kRewardedAdsLastTsKey,
-      '${DateTime.now().subtract(const Duration(minutes: 5)).millisecondsSinceEpoch}',
+    for (var level = 1; level <= 10; level++) {
+      expect(await notifier.shouldShowInterstitial(level, 0), isFalse);
+    }
+    expect(await notifier.shouldShowInterstitial(11, 0.5), isFalse);
+    expect(await notifier.shouldShowInterstitial(11, 0.49), isTrue);
+    await notifier.recordInterstitialShown();
+    final restarted = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(db)],
     );
-
-    for (var i = 0; i < 9; i++) {
-      await expireCooldown();
-      status = await notifier.consumeRewardedAd();
-      expect(status.countToday, i + 1);
-      expect(status.cooldownSeconds, 60);
-      expect(status.canWatch, isFalse);
+    addTearDown(restarted.dispose);
+    final player = restarted.read(playerProvider.notifier);
+    for (var level = 12; level <= 15; level++) {
+      expect(await player.shouldShowInterstitial(level, 0), isFalse);
     }
+    expect(await player.shouldShowInterstitial(16, 0.5), isFalse);
+    expect(await player.shouldShowInterstitial(16, 0.49), isTrue);
+  });
 
-    // 第 10 次后进入 2 分钟冷却档
-    await expireCooldown();
-    status = await notifier.consumeRewardedAd();
-    expect(status.countToday, 10);
-    expect(status.cooldownSeconds, 120);
-
-    // 冷却未结束不可观看，也不会增加次数
-    final blocked = await notifier.consumeRewardedAd();
-    expect(blocked.countToday, 10);
-    expect(blocked.canWatch, isFalse);
-
-    // 模拟冷却结束后继续观看，直到达到每日 100 次上限
-    for (var i = 10; i < kRewardedAdMaxPerDay; i++) {
-      await expireCooldown();
-      status = await notifier.consumeRewardedAd();
-      expect(status.countToday, i + 1);
-      expect(status.canWatch, isFalse);
+  test('激励广告每次冷却3分钟，每日最多10次', () async {
+    final notifier = container.read(playerProvider.notifier);
+    expect((await notifier.rewardedAdStatus()).canWatch, isTrue);
+    expect(kRewardedAdPointsReward, 10);
+    for (var i = 1; i <= 10; i++) {
+      await db.setSetting(
+        kRewardedAdsLastTsKey,
+        '${DateTime.now().subtract(const Duration(minutes: 5)).millisecondsSinceEpoch}',
+      );
+      final status = await notifier.consumeRewardedAd();
+      expect(status.countToday, i);
+      expect(status.cooldownSeconds, i == 10 ? 0 : 180);
+      expect(status.maxReached, i == 10);
+      expect((await notifier.consumeRewardedAd()).countToday, i);
     }
-    expect(status.maxReached, isTrue);
-    expect(status.countToday, kRewardedAdMaxPerDay);
-
-    final finalStatus = await notifier.rewardedAdStatus();
-    expect(finalStatus.maxReached, isTrue);
-    expect(finalStatus.canWatch, isFalse);
-    expect(finalStatus.cooldownSeconds, 0);
+    expect((await notifier.rewardedAdStatus()).canWatch, isFalse);
+    await db.setSetting(kRewardedAdsDateKey, '2000-01-01');
+    // 跨日重置次数，但上次观看后的3分钟冷却仍有效。
+    expect((await notifier.rewardedAdStatus()).canWatch, isFalse);
+    await db.setSetting(kRewardedAdsLastTsKey, '0');
+    expect((await notifier.rewardedAdStatus()).canWatch, isTrue);
+    expect((await notifier.rewardedAdStatus()).countToday, 0);
   });
 
   test('复活额度：广告和分享每日各10次，跨关卡共享并次日重置', () async {
@@ -546,35 +543,6 @@ void main() {
     expect(consumed, [isTrue, isTrue]);
     final quota = await notifier.dailyReviveQuota(now: now);
     expect(quota.adRemaining, 8);
-  });
-
-  test('横幅广告积分按分钟累计，每日上限120', () async {
-    final notifier = container.read(playerProvider.notifier);
-    for (var i = 0; i < 121; i++) {
-      await notifier.addBannerPoints(1);
-    }
-    expect(container.read(playerProvider).points, kMaxBannerPointsPerDay);
-    expect((await db.getPlayerProgress())!.points, kMaxBannerPointsPerDay);
-    expect(await db.getSetting(kBannerPointsCountKey), '120');
-
-    // 同日达到上限后不再发放
-    final granted = await notifier.addBannerPoints(1);
-    expect(granted, 0);
-    expect(container.read(playerProvider).points, kMaxBannerPointsPerDay);
-  });
-
-  test('并发累计横幅广告积分不会丢失每日计数', () async {
-    final notifier = container.read(playerProvider.notifier);
-
-    final granted = await Future.wait([
-      notifier.addBannerPoints(1),
-      notifier.addBannerPoints(1),
-    ]);
-
-    expect(granted, [1, 1]);
-    expect(container.read(playerProvider).points, 2);
-    expect((await db.getPlayerProgress())!.points, 2);
-    expect(await db.getSetting(kBannerPointsCountKey), '2');
   });
 
   test('设置网格皮肤并持久化', () async {

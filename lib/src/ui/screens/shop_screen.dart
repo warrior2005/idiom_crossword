@@ -170,18 +170,12 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         '主线关卡首次通关',
                         '每关 +$kLevelCompletionPointsReward 积分；重玩和每日挑战不重复奖励。',
                       ),
+                      _guideLine('激励广告', '观看完成 +10 积分；每天最多 10 次，每次完成后冷却 3 分钟。'),
                       _guideLine(
-                        '激励广告',
-                        '观看完成 +3 积分；每天最多 100 次，前 10 次冷却 1 分钟，之后每次冷却 2 分钟。',
+                        '插页式广告',
+                        '前 10 关不出现，第 11 关起通关时以 50% 概率出现，展示后跳过后续 4 关，不奖励积分。',
                       ),
-                      _guideLine(
-                        '插页式激励广告',
-                        '通关结算前随机提供；确认观看且达到奖励条件后 +$kRewardedInterstitialAdPointsReward 积分，跳过或未完成不奖励。',
-                      ),
-                      _guideLine(
-                        '横幅广告',
-                        '关卡/收藏/商城底部常驻，每累计观看 1 分钟 +1 积分，每天上限 $kMaxBannerPointsPerDay 积分。',
-                      ),
+                      _guideLine('横幅广告', '关卡/收藏/商城底部展示，不奖励积分。'),
                       _guideLine('积分用途', '兑换提示卡、复活卡、备考礼盒、广告兑换网格皮肤与头像框。'),
                     ],
                   ),
@@ -255,8 +249,11 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       await _loadRewardedAd(showFailure: true);
       if (!AdManager().isRewardedAdReadyNotifier.value) return;
     }
+    var rewardGranted = false;
     final shown = AdManager().showRewardedAd(
       onRewardEarned: (type, amount) async {
+        if (rewardGranted) return;
+        rewardGranted = true;
         final newStatus = await notifier.consumeRewardedAd();
         await notifier.addPoints(kRewardedAdPointsReward);
         if (!mounted) return;

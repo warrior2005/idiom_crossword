@@ -654,6 +654,8 @@ void main() {
     await tester.tap(find.byTooltip('关闭'));
     await tester.pumpAndSettle();
     expect(find.text('恭喜通过 · 第 1 关'), findsNothing);
+    expect(find.text('经验值 20'), findsOneWidget);
+    expect(find.text('积分 15'), findsOneWidget);
 
     expect(find.text('释义：比喻做了多余的事'), findsOneWidget);
     await tester.tap(find.text('画蛇添足'));

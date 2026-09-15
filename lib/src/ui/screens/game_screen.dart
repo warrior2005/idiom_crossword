@@ -82,7 +82,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     with RouteAware, WidgetsBindingObserver {
   static const int _initialLives = 3;
   static const int _dailyTimeLimitSeconds = 180;
-  static const double _rewardedInterstitialAdChance = 0.4;
 
   late CrosswordGrid _grid;
   late final Map<(int, int), String> _pinyinByCell;
@@ -167,9 +166,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _levelStartTime = DateTime.now();
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
     unawaited(_initializeLevel());
-    // 提前预加载插页式激励广告，避免在通关后等待加载。
+    // 提前预加载插页式广告，避免在通关后等待加载。
     if (AdManager.isSupportedPlatform) {
-      unawaited(AdManager().loadRewardedInterstitialAd());
+      unawaited(AdManager().loadInterstitialAd());
       unawaited(AdManager().loadRewardedAd());
     }
   }
@@ -1091,7 +1090,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     await _promptForReviewIfNeeded();
     if (!mounted) return;
 
-    await _maybeShowRewardedInterstitial(() {
+    await _maybeShowInterstitial(() {
       if (!mounted) return;
       _showSettlement(result, newDefs, timeSpentMs);
     });
@@ -1216,88 +1215,27 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
   }
 
-  /// 胜利结算前有 40% 概率询问是否观看插页式激励广告。
-  Future<void> _maybeShowRewardedInterstitial(VoidCallback onDone) async {
-    final adManager = AdManager();
-    if (widget.level.levelId <= 5 || // 教学关 1-5 不提供插页式激励广告
-        !AdManager.isSupportedPlatform ||
-        Random().nextDouble() >= _rewardedInterstitialAdChance) {
-      onDone();
-      return;
-    }
-    if (!adManager.isRewardedInterstitialAdReady) {
-      unawaited(adManager.loadRewardedInterstitialAd());
-      onDone();
-      return;
-    }
-    if (!mounted) return;
-    final accepted = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => ThemeDialog(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '观看广告领奖励',
-              style: displayStyle(size: 20, weight: FontWeight.w900),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              '观看完整的插页式激励广告，可获得 '
-              '$kRewardedInterstitialAdPointsReward 积分。你也可以跳过，通关结算不受影响。',
-              style: bodyStyle(size: 13.5, color: AppColors.muted),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: PrimaryButton(
-                    label: '跳过',
-                    small: true,
-                    ghost: true,
-                    onTap: () => Navigator.of(dialogContext).pop(false),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: PrimaryButton(
-                    label: '观看广告',
-                    small: true,
-                    onTap: () => Navigator.of(dialogContext).pop(true),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+  /// 仅主线第 11 关起判断，实际展示后跳过后续 4 次主线通关。
+  Future<void> _maybeShowInterstitial(VoidCallback onDone) async {
+    final player = ref.read(playerProvider.notifier);
+    final eligible = await player.shouldShowInterstitial(
+      widget.level.levelId,
+      Random().nextDouble(),
     );
-    if (!mounted) return;
-    if (accepted != true) {
+    if (!eligible || !AdManager.isSupportedPlatform) {
       onDone();
       return;
     }
-
-    var rewardGranted = false;
-    final shown = adManager.showRewardedInterstitialAd(
-      onRewardEarned: (_, _) {
-        if (rewardGranted) return;
-        rewardGranted = true;
-        unawaited(
-          ref
-              .read(playerProvider.notifier)
-              .addPoints(kRewardedInterstitialAdPointsReward),
-        );
+    final adManager = AdManager();
+    if (!mounted) return;
+    final shown = adManager.showInterstitialAd(
+      onAdShown: () {
+        unawaited(player.recordInterstitialShown());
       },
-      onAdClosed: () {
-        onDone();
-      },
+      onAdClosed: onDone,
     );
     if (!shown) {
-      // 广告状态在确认期间发生变化时，直接继续结算且不发奖励。
-      unawaited(adManager.loadRewardedInterstitialAd());
+      unawaited(adManager.loadInterstitialAd());
       onDone();
     }
   }
@@ -2271,6 +2209,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         ref.watch(musicEnabledProvider).value ??
         MusicManager.instance.musicEnabled;
     final audioEnabled = soundEnabled && musicEnabled;
+    final player = ref.watch(playerProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Row(
@@ -2287,6 +2226,21 @@ class _GameScreenState extends ConsumerState<GameScreen>
               ],
             ),
           ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '经验值 ${player.totalXp}',
+                style: bodyStyle(size: 11, color: AppColors.muted),
+              ),
+              Text(
+                '积分 ${player.points}',
+                style: bodyStyle(size: 11, color: AppColors.muted),
+              ),
+            ],
+          ),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: () async {
               final enabled = !audioEnabled;

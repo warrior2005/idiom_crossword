@@ -7,6 +7,7 @@
 
 static NSString *const DRConsentKey = @"dirichlet_ad_privacy_v1";
 static NSString *const DRRewardSpace = @"1063798";
+static NSString *const DRInterstitialSpace = @"1065942";
 static NSString *const DRBannerSpace = @"1063797";
 
 static FlutterError *DRError(NSString *code) {
@@ -187,7 +188,12 @@ static BOOL DRCanLoad(void) {
 }
 @end
 
-@interface DirichletAdsPlugin () <DRMRewardVideoAdDelegate>
+@interface DirichletAdsPlugin () <DRMRewardVideoAdDelegate, DRMInterstitialAdDelegate>
+@property(nonatomic, strong) DRMInterstitialAd *interstitialAd;
+@property(nonatomic, copy) FlutterResult interstitialLoadResult;
+@property(nonatomic, copy) FlutterResult interstitialShowResult;
+@property(nonatomic) BOOL interstitialDidShow;
+@property(nonatomic) NSUInteger interstitialGeneration;
 @property(nonatomic, copy) NSString *privacyAssetPath;
 @property(nonatomic, strong) DRMRewardVideoAd *rewardAd;
 @property(nonatomic, copy) FlutterResult loadResult;
@@ -290,7 +296,7 @@ static BOOL DRCanLoad(void) {
   } else if ([call.method isEqualToString:@"loadRewarded"]) {
     [self loadRewarded:result];
   } else if ([call.method isEqualToString:@"showRewarded"]) {
-    if (self.showResult || !DRCanLoad() || ![self.rewardAd isReady]) {
+    if (self.showResult || self.interstitialShowResult || !DRCanLoad() || ![self.rewardAd isReady]) {
       result(DRError(@"ad_not_ready")); return;
     }
     for (DRBannerView *banner in self.bannerFactory.views) [banner disposeAd];
@@ -305,6 +311,23 @@ static BOOL DRCanLoad(void) {
       if (self.rewardAd == presentingAd && self.showResult && !self.rewardDidShow) {
         self.rewarded = NO;
         [self finishRewarded];
+      }
+    });
+  } else if ([call.method isEqualToString:@"loadInterstitial"]) {
+    [self loadInterstitial:result];
+  } else if ([call.method isEqualToString:@"showInterstitial"]) {
+    if (self.showResult || self.interstitialShowResult || !DRCanLoad() || ![self.interstitialAd isReady]) {
+      result(DRError(@"ad_not_ready")); return;
+    }
+    for (DRBannerView *banner in self.bannerFactory.views) [banner disposeAd];
+    self.interstitialShowResult = result;
+    self.interstitialDidShow = NO;
+    self.interstitialAd.delegate = self;
+    DRMInterstitialAd *presentingAd = self.interstitialAd;
+    [presentingAd showFromViewController:DRPresenter()];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+      if (self.interstitialAd == presentingAd && self.interstitialShowResult && !self.interstitialDidShow) {
+        [self finishInterstitial];
       }
     });
   } else if ([call.method isEqualToString:@"disposeAds"]) {
@@ -397,6 +420,64 @@ static BOOL DRCanLoad(void) {
     start(ATTrackingManager.trackingAuthorizationStatus);
   }
 }
+- (void)loadInterstitial:(FlutterResult)result {
+  if (!DRCanLoad() || self.interstitialShowResult || self.showResult) { result(@NO); return; }
+  if ([self.interstitialAd isReady]) { result(@YES); return; }
+  if (self.interstitialLoadResult) { result(DRError(@"load_in_progress")); return; }
+  [self.interstitialAd destroy];
+  self.interstitialAd = nil;
+  self.interstitialLoadResult = result;
+  NSUInteger generation = ++self.interstitialGeneration;
+  DRMAdLoadRequest *request = [[DRMAdLoadRequest alloc] initWithSpaceId:DRInterstitialSpace];
+  [DRMInterstitialAd loadWithRequest:request completion:^(NSArray<DRMInterstitialAd *> *ads, NSError *error) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (generation != self.interstitialGeneration || !self.interstitialLoadResult) {
+        for (DRMInterstitialAd *ad in ads) [ad destroy];
+        return;
+      }
+      FlutterResult pending = self.interstitialLoadResult;
+      self.interstitialLoadResult = nil;
+      if (error || !DRCanLoad()) {
+        for (DRMInterstitialAd *ad in ads) [ad destroy];
+        pending(@NO); return;
+      }
+      self.interstitialAd = ads.firstObject;
+      for (NSUInteger i = 1; i < ads.count; i++) [ads[i] destroy];
+      pending(@([self.interstitialAd isReady]));
+    });
+  }];
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    if (generation != self.interstitialGeneration || !self.interstitialLoadResult) return;
+    self.interstitialGeneration++;
+    FlutterResult pending = self.interstitialLoadResult;
+    self.interstitialLoadResult = nil;
+    pending(@NO);
+  });
+}
+- (void)interstitialAdDidShow:(DRMInterstitialAd *)ad {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (ad == self.interstitialAd && self.interstitialShowResult) self.interstitialDidShow = YES;
+  });
+}
+- (void)interstitialAdDidClose:(DRMInterstitialAd *)ad {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (ad == self.interstitialAd) [self finishInterstitial];
+  });
+}
+- (void)interstitialAdDidFailToShow:(DRMInterstitialAd *)ad withError:(NSError *)error {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (ad == self.interstitialAd) [self finishInterstitial];
+  });
+}
+- (void)finishInterstitial {
+  FlutterResult result = self.interstitialShowResult;
+  self.interstitialShowResult = nil;
+  self.interstitialAd.delegate = nil;
+  [self.interstitialAd destroy];
+  self.interstitialAd = nil;
+  if (result) result(@(self.interstitialDidShow));
+  self.interstitialDidShow = NO;
+}
 - (void)loadRewarded:(FlutterResult)result {
   if (!DRCanLoad() || self.showResult) { result(@NO); return; }
   if ([self.rewardAd isReady]) { result(@YES); return; }
@@ -487,6 +568,11 @@ static BOOL DRCanLoad(void) {
   [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 - (void)disposeAds {
+  self.interstitialGeneration++;
+  FlutterResult interstitialLoading = self.interstitialLoadResult;
+  self.interstitialLoadResult = nil;
+  if (interstitialLoading) interstitialLoading(@NO);
+  [self finishInterstitial];
   self.generation++;
   FlutterResult loading = self.loadResult;
   self.loadResult = nil;

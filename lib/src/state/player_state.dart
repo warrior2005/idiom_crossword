@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'database_provider.dart';
 import '../data/achievement_manager.dart';
@@ -8,22 +6,10 @@ import '../data/growth_manager.dart';
 import 'game_center_service.dart';
 import 'level_generation.dart';
 
-/// 激励广告配额与冷却常量
-const int kRewardedAdMaxPerDay = 100;
-
-/// 前 10 次激励广告使用 1 分钟冷却，之后为 2 分钟
-const int kRewardedAdFirstCount = 10;
-const int kRewardedAdFirstCooldownSeconds = 60;
-const int kRewardedAdLaterCooldownSeconds = 120;
-
-/// 每则激励广告奖励积分（按激励广告 eCPM 估算，可后续调整）
-const int kRewardedAdPointsReward = 3;
-
-/// 完成插页式激励广告后奖励积分。
-const int kRewardedInterstitialAdPointsReward = 2;
-
-/// 横幅广告每观看 1 分钟奖励 1 积分，每日上限 120 积分
-const int kMaxBannerPointsPerDay = 120;
+/// 激励广告每日最多 10 次，每次完成后冷却 3 分钟。
+const int kRewardedAdMaxPerDay = 10;
+const int kRewardedAdCooldownSeconds = 180;
+const int kRewardedAdPointsReward = 10;
 
 const String kRewardedAdsDateKey = 'rewarded_ads_date';
 const String kRewardedAdsCountKey = 'rewarded_ads_count';
@@ -32,8 +18,6 @@ const int kDailyReviveLimit = 10;
 const String kDailyReviveDateKey = 'daily_revive_date';
 const String kDailyAdReviveCountKey = 'daily_ad_revive_count';
 const String kDailyShareReviveCountKey = 'daily_share_revive_count';
-const String kBannerPointsDateKey = 'banner_points_date';
-const String kBannerPointsCountKey = 'banner_points_count';
 const String kCustomAvatarPathKey = 'custom_avatar_path';
 const String kActiveBackgroundKey = 'active_background';
 
@@ -588,38 +572,6 @@ class PlayerNotifier extends Notifier<PlayerState> {
     return definition.points;
   }
 
-  /// 横幅广告积分：按分钟累计，受每日上限约束；返回实际发放的积分
-  Future<int> addBannerPoints(int amount) async {
-    if (amount <= 0) return 0;
-    final db = ref.read(databaseProvider);
-    final now = DateTime.now();
-    final today = _dateKey(now);
-    var granted = 0;
-    int? persistedPoints;
-
-    await db.transaction(() async {
-      final savedDate = await db.getSetting(kBannerPointsDateKey);
-      final used = savedDate == today
-          ? int.tryParse(await db.getSetting(kBannerPointsCountKey) ?? '0') ?? 0
-          : 0;
-      if (used >= kMaxBannerPointsPerDay) return;
-
-      granted = min(amount, kMaxBannerPointsPerDay - used);
-      final savedPoints =
-          (await db.getPlayerProgress())?.points ?? state.points;
-      final nextState = state.copyWith(points: savedPoints + granted);
-      await _persistState(db, nextState);
-      await db.setSetting(kBannerPointsDateKey, today);
-      await db.setSetting(kBannerPointsCountKey, '${used + granted}');
-      persistedPoints = nextState.points;
-    });
-
-    if (persistedPoints case final points?) {
-      state = state.copyWith(points: points);
-    }
-    return granted;
-  }
-
   /// 消耗积分购买道具/装饰；积分不足返回 false
   Future<bool> spendPoints(int amount) async {
     if (amount <= 0 || state.points < amount) return false;
@@ -650,28 +602,36 @@ class PlayerNotifier extends Notifier<PlayerState> {
     return '${time.year}-$m-$d';
   }
 
+  /// 普通插页广告在前 10 关及每日挑战中不出现，展示后跳过 4 关。
+  Future<bool> shouldShowInterstitial(int levelId, double roll) async {
+    if (levelId <= 10 || levelId >= dailyLevelOffset) return false;
+    final db = ref.read(databaseProvider);
+    final skipped =
+        int.tryParse(await db.getSetting('interstitial_skip_levels') ?? '0') ??
+        0;
+    if (skipped > 0) {
+      await db.setSetting('interstitial_skip_levels', '${skipped - 1}');
+      return false;
+    }
+    return roll < 0.5;
+  }
+
+  Future<void> recordInterstitialShown() =>
+      ref.read(databaseProvider).setSetting('interstitial_skip_levels', '4');
+
   /// 查询激励广告今日次数、剩余冷却与是否可观看
   Future<RewardedAdStatus> rewardedAdStatus() async {
     final db = ref.read(databaseProvider);
     final now = DateTime.now();
     final today = _dateKey(now);
     final savedDate = await db.getSetting(kRewardedAdsDateKey);
-    if (savedDate != today) {
-      return const RewardedAdStatus(
-        countToday: 0,
-        cooldownSeconds: 0,
-        canWatch: true,
-        maxReached: false,
-      );
-    }
-    final count =
-        int.tryParse(await db.getSetting(kRewardedAdsCountKey) ?? '0') ?? 0;
+    final count = savedDate == today
+        ? int.tryParse(await db.getSetting(kRewardedAdsCountKey) ?? '0') ?? 0
+        : 0;
     final lastTs =
         int.tryParse(await db.getSetting(kRewardedAdsLastTsKey) ?? '0') ?? 0;
     final maxReached = count >= kRewardedAdMaxPerDay;
-    final cooldown = count < kRewardedAdFirstCount
-        ? kRewardedAdFirstCooldownSeconds
-        : kRewardedAdLaterCooldownSeconds;
+    final cooldown = kRewardedAdCooldownSeconds;
     final remainingMs =
         (cooldown * 1000 - (now.millisecondsSinceEpoch - lastTs)).clamp(
           0,
@@ -699,11 +659,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final maxReached = count >= kRewardedAdMaxPerDay;
     return RewardedAdStatus(
       countToday: count,
-      cooldownSeconds: maxReached
-          ? 0
-          : count < kRewardedAdFirstCount
-          ? kRewardedAdFirstCooldownSeconds
-          : kRewardedAdLaterCooldownSeconds,
+      cooldownSeconds: maxReached ? 0 : kRewardedAdCooldownSeconds,
       canWatch: false,
       maxReached: maxReached,
     );

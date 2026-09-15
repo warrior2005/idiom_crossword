@@ -9,6 +9,8 @@ class DirichletAds {
     : _channel = channel ?? const MethodChannel('idiom_crossword/dirichlet');
 
   final MethodChannel _channel;
+  final ValueNotifier<bool> interstitialReady = ValueNotifier(false);
+  Future<bool>? _interstitialLoading;
   final ValueNotifier<bool> rewardReady = ValueNotifier(false);
   Future<bool>? _loading;
   bool _showing = false;
@@ -73,8 +75,56 @@ class DirichletAds {
     }
   }
 
+  Future<bool> loadInterstitial() {
+    if (_showing) return Future.value(false);
+    return _interstitialLoading ??= _loadInterstitial();
+  }
+
+  Future<bool> _loadInterstitial() async {
+    final generation = _generation;
+    try {
+      final loaded =
+          await _channel.invokeMethod<bool>('loadInterstitial') ?? false;
+      if (generation != _generation) return false;
+      interstitialReady.value = loaded;
+      return loaded;
+    } on PlatformException {
+      if (generation == _generation) interstitialReady.value = false;
+      return false;
+    } finally {
+      if (generation == _generation) _interstitialLoading = null;
+    }
+  }
+
+  bool showInterstitial({VoidCallback? onAdShown, VoidCallback? onAdClosed}) {
+    if (_showing || !interstitialReady.value) return false;
+    _showing = true;
+    interstitialReady.value = false;
+    unawaited(_showInterstitial(onAdShown, onAdClosed));
+    return true;
+  }
+
+  Future<void> _showInterstitial(
+    VoidCallback? onAdShown,
+    VoidCallback? onAdClosed,
+  ) async {
+    final generation = _generation;
+    try {
+      final shown =
+          await _channel.invokeMethod<bool>('showInterstitial') ?? false;
+      if (shown && generation == _generation) onAdShown?.call();
+    } on PlatformException catch (error) {
+      debugPrint('Dirichlet interstitial failed: ${error.code}');
+    } finally {
+      _showing = false;
+      onAdClosed?.call();
+    }
+  }
+
   Future<void> disposeAds() async {
     _generation++;
+    _interstitialLoading = null;
+    interstitialReady.value = false;
     _loading = null;
     rewardReady.value = false;
     try {
