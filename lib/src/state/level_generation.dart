@@ -667,6 +667,22 @@ Future<engine.CrosswordLevel?> loadOrGenerateLevel(
   bool globalRange = false,
   int playerLevel = 1,
 }) async {
+  final saved = await loadExistingLevel(db, levelNumber);
+  if (saved != null) return saved;
+  // 3) 否则新生成
+  return generateLevel(
+    db,
+    levelNumber,
+    globalRange: globalRange,
+    playerLevel: playerLevel,
+  );
+}
+
+/// 已作答存档、预生成题面、已通关冻结定义均优先复用。
+Future<engine.CrosswordLevel?> loadExistingLevel(
+  AppDatabase db,
+  int levelNumber,
+) async {
   // 1) 未完成存档优先（断点续玩）
   final saved = await db.getLevelState(levelNumber);
   if (saved != null) {
@@ -679,11 +695,5 @@ Future<engine.CrosswordLevel?> loadOrGenerateLevel(
     final restored = decodeLevel(frozen);
     if (restored != null) return restored;
   }
-  // 3) 否则新生成
-  return generateLevel(
-    db,
-    levelNumber,
-    globalRange: globalRange,
-    playerLevel: playerLevel,
-  );
+  return null;
 }

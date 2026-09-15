@@ -223,15 +223,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Future<void> _loadReversiblePairs() async {
     try {
       final db = ref.read(databaseProvider);
-      for (final placement in widget.level.placements) {
-        final word = placement.idiom.text;
-        final id = await db.findIdiomIdByWord(word);
-        if (id == null) continue;
-        final pair = await db.findReversibleForm(id);
-        if (pair != null &&
-            pair.word == _swapHalves(word) &&
-            !_reversiblePairs.containsKey(word)) {
-          _reversiblePairs[word] = pair.word;
+      final alternatives = await db.findReversibleWordsFor(
+        widget.level.placements.map((p) => p.idiom.text),
+      );
+      for (final entry in alternatives.entries) {
+        final swapped = _swapHalves(entry.key);
+        if (entry.value.contains(swapped)) {
+          _reversiblePairs[entry.key] = swapped;
         }
       }
     } catch (_) {
@@ -243,14 +241,16 @@ class _GameScreenState extends ConsumerState<GameScreen>
       word.length == 4 ? word.substring(2) + word.substring(0, 2) : word;
 
   Future<void> _initializeLevel() async {
-    await ref.read(hapticEnabledProvider.future);
-    await _buildCandidateBoard();
+    await Future.wait([
+      ref.read(hapticEnabledProvider.future),
+      _buildCandidateBoard(),
+      _loadReversiblePairs(),
+    ]);
     if (!mounted) return;
-    await _loadReversiblePairs();
     await _restoreSavedState();
     await _configureDailyTimer();
     if (_appIsActive && _routeIsVisible) _activeClock.start();
-    await _recordLearning('active');
+    await _saveState();
     if (mounted && !_isDaily) unawaited(_preloadNextLevel());
   }
 
@@ -484,7 +484,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   /// 把当前进度写入存档（断点续玩）
   Future<void> _saveState() async {
-    if (_levelFinished || _failed || widget.level.levelId <= 0) return;
+    if (_restoring || _levelFinished || _failed || widget.level.levelId <= 0) {
+      return;
+    }
     try {
       final db = ref.read(databaseProvider);
       await db.saveLevelState(
@@ -2100,7 +2102,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _clearTerminalDialog();
       Navigator.pushReplacement(
         context,
-        AppPageRoute<void>(builder: (_) => GameScreen(level: nextLevel)),
+        PageRouteBuilder<void>(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (_, _, _) => GameScreen(level: nextLevel),
+        ),
       );
     } catch (e) {
       if (mounted) {

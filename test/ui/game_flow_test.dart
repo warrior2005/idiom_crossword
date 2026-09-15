@@ -134,6 +134,9 @@ void main() {
         pending.complete(next);
       } else if (mode == 'ready') {
         expect(find.text('正在生成关卡...'), findsNothing);
+        final route = ModalRoute.of(tester.element(find.byType(GameScreen)))!;
+        expect(route.transitionDuration, Duration.zero);
+        expect(route.opaque, isTrue);
       }
       await tester.pumpAndSettle();
       if (mode == 'retry') {
@@ -168,6 +171,36 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('未填字退出后保留题面和候选盘，重新进入不会生成新题', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        nextLevelLoaderProvider.overrideWithValue((_) async => null),
+      ],
+    );
+    addTearDown(container.dispose);
+    Widget app(engine.CrosswordLevel level) => UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(home: GameScreen(level: level)),
+    );
+    await tester.pumpWidget(app(_buildLevel()));
+    await tester.pumpAndSettle();
+    final saved = (await db.getLevelState(1))!;
+    expect(decodeGameState(saved.stateJson)!.answers, isEmpty);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    final level = (await loadOrGenerateLevel(db, 1))!;
+    expect(encodeLevel(level), saved.levelJson);
+    await tester.pumpWidget(app(level));
+    await tester.pumpAndSettle();
+    expect(
+      decodeGameState((await db.getLevelState(1))!.stateJson)!.candidateBoard,
+      decodeGameState(saved.stateJson)!.candidateBoard,
+    );
+  });
 
   testWidgets('新候选盘填写后断点恢复，数量与已用槽位保持一致', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());

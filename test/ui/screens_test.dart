@@ -33,6 +33,7 @@ import 'package:idiom_crossword/src/audio/music_manager.dart';
 import 'package:idiom_crossword/src/audio/sound_manager.dart';
 import 'package:idiom_crossword/src/ui/widgets/user_avatar.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
+import 'package:idiom_crossword/src/state/next_level_loader.dart';
 
 /// 数据驱动界面的 widget 测试（内存数据库 + Provider 覆盖）
 
@@ -1011,8 +1012,15 @@ void main() {
   testWidgets('关卡页：PageView 展示关卡，完成后显示通角标', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    Widget screen() => ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        nextLevelLoaderProvider.overrideWithValue((_) async => null),
+      ],
+      child: const MaterialApp(home: LevelSelectScreen()),
+    );
 
-    await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
+    await tester.pumpWidget(screen());
     await tester.pumpAndSettle();
     // 无记录：当前关第 1 关
     expect(find.text('选择关卡'), findsOneWidget);
@@ -1024,7 +1032,7 @@ void main() {
       idiomsUsed: const [],
     );
     await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pumpWidget(_wrap(db, const LevelSelectScreen()));
+    await tester.pumpWidget(screen());
     await tester.pumpAndSettle();
     expect(find.text('2'), findsOneWidget); // 当前关
 

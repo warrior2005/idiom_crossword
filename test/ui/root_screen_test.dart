@@ -4,11 +4,39 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/data/database.dart';
 import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/player_state.dart';
+import 'package:idiom_crossword/src/state/next_level_loader.dart';
 import 'package:idiom_crossword/src/ui/screens/root_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 import 'package:drift/native.dart';
 
 void main() {
+  testWidgets('进入首页即预加载当前主线，切换收藏和关卡仍复用同一请求', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final requested = <int>[];
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          nextLevelLoaderProvider.overrideWithValue((number) async {
+            requested.add(number);
+            return null;
+          }),
+        ],
+        child: const MaterialApp(
+          home: RootScreen(claimDailyLoginReward: false),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(requested, [1]);
+    await tester.tap(find.text('收藏').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('关卡').last);
+    await tester.pumpAndSettle();
+    expect(requested, [1]);
+  });
+
   testWidgets('新版本首次登录展示更新奖励且不重复发放', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     final container = ProviderContainer(

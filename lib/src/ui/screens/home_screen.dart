@@ -4,6 +4,7 @@ import '../app_page_route.dart';
 import '../../state/player_state.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
+import '../../state/next_level_loader.dart';
 import '../../state/daily_challenge.dart';
 import '../../state/level_progress_providers.dart';
 import '../../data/growth_manager.dart';
@@ -43,6 +44,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(preparedMainLevelProvider);
     final player = ref.watch(playerProvider);
     final avatarSeal = GrowthManager.avatarSeal(player.level);
     final daily = ref.watch(dailyInfoProvider).value;
@@ -282,13 +284,8 @@ class HomeScreen extends ConsumerWidget {
 
     try {
       final db = ref.read(databaseProvider);
-      final player = ref.read(playerProvider);
       final nextLevel = await db.getNextMainLevel();
-      final level = await loadOrGenerateLevel(
-        db,
-        nextLevel,
-        playerLevel: player.level,
-      );
+      final level = await ref.read(nextLevelLoaderProvider)(nextLevel);
 
       if (!context.mounted) return;
       Navigator.pop(context);

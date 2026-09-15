@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_page_route.dart';
 import '../../state/database_provider.dart';
 import '../../state/level_generation.dart';
+import '../../state/next_level_loader.dart';
 import '../../state/daily_challenge.dart';
 import '../../state/level_progress_providers.dart';
 import '../../state/player_state.dart';
@@ -158,11 +159,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen> {
     var loadingOpen = true;
     try {
       final db = ref.read(databaseProvider);
-      final level = await loadOrGenerateLevel(
-        db,
-        levelNumber,
-        playerLevel: ref.read(playerProvider).level,
-      );
+      final level = await ref.read(nextLevelLoaderProvider)(levelNumber);
       if (!mounted) return;
       Navigator.pop(context);
       loadingOpen = false;
