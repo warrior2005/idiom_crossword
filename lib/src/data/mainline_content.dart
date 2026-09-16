@@ -50,6 +50,24 @@ class MainlineContent {
           row['id'],
         ]);
       }
+      // v2：只清理末尾未配对的右引号，不改正文中的引号或正常配对。
+      if (version >= 2) {
+        for (final row in db.select(
+          'SELECT id,derivation,explanation FROM idioms',
+        )) {
+          for (final field in ['derivation', 'explanation']) {
+            final old = row[field] as String?;
+            if (old == null) continue;
+            final fixed = fixTrailingQuotes(old);
+            if (fixed != old) {
+              db.execute('UPDATE idioms SET $field=? WHERE id=?', [
+                fixed,
+                row['id'],
+              ]);
+            }
+          }
+        }
+      }
       db.execute('INSERT OR REPLACE INTO content_version VALUES (1, ?)', [
         version,
       ]);
@@ -59,4 +77,27 @@ class MainlineContent {
       rethrow;
     }
   }
+}
+
+/// 保留正文和尾部空白，只删除末尾没有对应左引号的连续右引号。
+String fixTrailingQuotes(String text) {
+  final end = text.trimRight().length;
+  var depth = 0;
+  final unmatched = <int>{};
+  for (var i = 0; i < end; i++) {
+    if (text[i] == '“') {
+      depth++;
+    } else if (text[i] == '”') {
+      if (depth > 0) {
+        depth--;
+      } else {
+        unmatched.add(i);
+      }
+    }
+  }
+  var cut = end;
+  while (unmatched.contains(cut - 1)) {
+    cut--;
+  }
+  return text.substring(0, cut) + text.substring(end);
 }

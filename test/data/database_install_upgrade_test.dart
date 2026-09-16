@@ -111,6 +111,12 @@ void main() {
         );
         final words = await db.select(db.idioms).get();
         final byId = {for (final word in words) word.id: word};
+        for (final word in words) {
+          expect(fixTrailingQuotes(word.explanation), word.explanation);
+          if (word.derivation != null) {
+            expect(fixTrailingQuotes(word.derivation!), word.derivation);
+          }
+        }
         for (final entry in tiers.entries) {
           final actual = byId[entry[0]]!;
           expect(
@@ -164,6 +170,39 @@ void main() {
   }
 
   test('新安装：复制资产、应用内容、生成关卡及再次启动', () => verify());
+
+  test('内容 v1 升级到 v2：修复双字段、保留正常引号与玩家存档', () async {
+    final file = await template.copy('${directory.path}/idiom_crossword.db');
+    final old = sqlite.sqlite3.open(file.path);
+    old.execute(
+      'CREATE TABLE IF NOT EXISTS content_version '
+      '(id INTEGER PRIMARY KEY, version INTEGER NOT NULL)',
+    );
+    old.execute('INSERT OR REPLACE INTO content_version VALUES (1,1)');
+    old.execute('UPDATE idioms SET derivation=?,explanation=? WHERE id=1', [
+      '出处。”',
+      '同师出无名”',
+    ]);
+    old.execute('UPDATE idioms SET derivation=? WHERE id=2', ['《书》：“正文。”']);
+    old.close();
+    await verify(oldSchema: currentSchemaVersion);
+    final updated = sqlite.sqlite3.open(file.path);
+    try {
+      final row = updated
+          .select('SELECT derivation,explanation FROM idioms WHERE id=1')
+          .single;
+      expect(row['derivation'], '出处。');
+      expect(row['explanation'], '同师出无名');
+      expect(
+        updated
+            .select('SELECT derivation FROM idioms WHERE id=2')
+            .single['derivation'],
+        '《书》：“正文。”',
+      );
+    } finally {
+      updated.close();
+    }
+  });
 
   test('早期异构 idiom 单数表：沿用重建路径后能够启动', () async {
     final old = sqlite.sqlite3.open('${directory.path}/idiom_crossword.db');

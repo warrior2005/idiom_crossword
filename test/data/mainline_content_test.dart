@@ -5,6 +5,17 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:idiom_crossword/src/data/mainline_content.dart';
 
 void main() {
+  test('仅删除末尾未配对引号，保留正常引号且幂等', () {
+    final cases =
+        jsonDecode(
+              File('test/fixtures/trailing_quotes.json').readAsStringSync(),
+            )
+            as List;
+    for (final pair in cases) {
+      expect(fixTrailingQuotes(pair[0] as String), pair[1]);
+      expect(fixTrailingQuotes(pair[1] as String), pair[1]);
+    }
+  });
   final content = MainlineContent.fromJson(
     jsonDecode(File('assets/data/mainline_content.json').readAsStringSync())
         as Map<String, dynamic>,
@@ -13,16 +24,14 @@ void main() {
     final db = sqlite3.openInMemory();
     addTearDown(db.close);
     db.execute(
-      'CREATE TABLE idioms(id INTEGER PRIMARY KEY,word TEXT,pinyin TEXT,pinyin_abbr TEXT)',
+      'CREATE TABLE idioms(id INTEGER PRIMARY KEY,word TEXT,pinyin TEXT,pinyin_abbr TEXT,derivation TEXT,explanation TEXT)',
     );
     db.execute('CREATE TABLE collection(idiom_id INTEGER PRIMARY KEY)');
     for (final row in content.corrections) {
-      db.execute('INSERT INTO idioms VALUES (?,?,?,?)', [
-        row['id'],
-        row['word'],
-        'bad',
-        'bad',
-      ]);
+      db.execute(
+        'INSERT INTO idioms(id,word,pinyin,pinyin_abbr) VALUES (?,?,?,?)',
+        [row['id'], row['word'], 'bad', 'bad'],
+      );
       db.execute('INSERT INTO collection VALUES (?)', [row['id']]);
     }
     content.applyCorrections(db);
@@ -41,15 +50,13 @@ void main() {
     final db = sqlite3.openInMemory();
     addTearDown(db.close);
     db.execute(
-      'CREATE TABLE idioms(id INTEGER PRIMARY KEY,word TEXT,pinyin TEXT,pinyin_abbr TEXT)',
+      'CREATE TABLE idioms(id INTEGER PRIMARY KEY,word TEXT,pinyin TEXT,pinyin_abbr TEXT,derivation TEXT,explanation TEXT)',
     );
     final first = content.corrections.first;
-    db.execute('INSERT INTO idioms VALUES (?,?,?,?)', [
-      first['id'],
-      first['word'],
-      'bad',
-      'bad',
-    ]);
+    db.execute(
+      'INSERT INTO idioms(id,word,pinyin,pinyin_abbr) VALUES (?,?,?,?)',
+      [first['id'], first['word'], 'bad', 'bad'],
+    );
     expect(() => content.applyCorrections(db), throwsStateError);
     expect(db.select('SELECT pinyin FROM idioms').single['pinyin'], 'bad');
     expect(db.select('SELECT * FROM content_version'), isEmpty);
