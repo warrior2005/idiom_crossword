@@ -13,7 +13,7 @@ class AppPageRoute<T> extends PageRoute<T> {
   Duration get reverseTransitionDuration => transitionDuration;
 
   @override
-  bool get opaque => false;
+  bool get opaque => true;
 
   @override
   bool get barrierDismissible => false;
@@ -44,8 +44,8 @@ class AppPageRoute<T> extends PageRoute<T> {
     final disableAnimations = MediaQuery.maybeOf(context)?.disableAnimations;
     if (disableAnimations ?? false) return child;
     return ScaleTransition(
-      scale: CurvedAnimation(parent: animation, curve: Curves.linearToEaseOut),
-      child: child,
+      scale: animation.drive(CurveTween(curve: Curves.linearToEaseOut)),
+      child: RepaintBoundary(child: child),
     );
   }
 }

@@ -18,6 +18,7 @@ import 'package:idiom_crossword/src/state/database_provider.dart';
 import 'package:idiom_crossword/src/state/level_generation.dart';
 import 'package:idiom_crossword/src/state/next_level_loader.dart';
 import 'package:idiom_crossword/src/state/player_state.dart';
+import 'package:idiom_crossword/src/ui/app_page_route.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
@@ -54,6 +55,40 @@ void main() {
         return null;
       },
     );
+  });
+
+  testWidgets('游戏棋盘在入场结束后初始化，转场中退出可安全取消', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final navigator = GlobalKey<NavigatorState>();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          nextLevelLoaderProvider.overrideWithValue((_) async => null),
+        ],
+        child: MaterialApp(
+          navigatorKey: navigator,
+          home: const Scaffold(body: Text('首页')),
+        ),
+      ),
+    );
+    final board = find.byWidgetPredicate(
+      (widget) => widget is CustomPaint && widget.painter is GridPainter,
+    );
+    void enter() => navigator.currentState!.push(
+      AppPageRoute<void>(builder: (_) => GameScreen(level: _buildLevel())),
+    );
+    enter();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(board, findsNothing);
+    navigator.currentState!.pop();
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    enter();
+    await tester.pumpAndSettle();
+    expect(board, findsOneWidget);
   });
 
   testWidgets('关卡标题相对页面居中，不受积分位数影响', (tester) async {
@@ -472,6 +507,7 @@ void main() {
       await tester.tap(find.text(char));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 350));
+      expect(find.textContaining('√ '), findsNothing);
     }
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));

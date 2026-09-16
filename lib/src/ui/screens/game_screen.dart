@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -152,6 +153,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
   /// 本关成语的“前后两半可交换”倒装对（word -> 交换后的词）
   final Map<String, String> _reversiblePairs = {};
   PageRoute<dynamic>? _subscribedRoute;
+  Animation<double>? _entranceAnimation;
+  bool _initializationStarted = false;
+  bool _entranceCheckScheduled = false;
 
   // 成语释义区滚动条
   final ScrollController _completedScrollController = ScrollController();
@@ -169,12 +173,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     _findFirstEmptyCell();
     _levelStartTime = DateTime.now();
     _correctStreak = ref.read(playerProvider).currentCorrectStreak;
-    unawaited(_initializeLevel());
-    // 提前预加载插页式广告，避免在通关后等待加载。
-    if (AdManager.isSupportedPlatform) {
-      unawaited(AdManager().loadInterstitialAd());
-      unawaited(AdManager().loadRewardedAd());
-    }
   }
 
   @override
@@ -186,6 +184,41 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _subscribedRoute = route;
       appRouteObserver.subscribe(this, route);
     }
+    if (_entranceCheckScheduled) return;
+    _entranceCheckScheduled = true;
+    // 路由首帧离屏测量时 animation 会临时为 completed，须等测量结束。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final animation = route?.animation;
+      if (animation != null && animation.status != AnimationStatus.completed) {
+        _entranceAnimation = animation;
+        animation.addStatusListener(_onEntranceStatus);
+      } else {
+        _startInitialization();
+      }
+    });
+  }
+
+  void _onEntranceStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    _entranceAnimation?.removeStatusListener(_onEntranceStatus);
+    _entranceAnimation = null;
+    _startInitialization();
+  }
+
+  void _startInitialization() {
+    if (_initializationStarted || !mounted) return;
+    _initializationStarted = true;
+    // 等转场最后一帧绘制完成，再恢复棋盘和启动后台预加载。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(_initializeLevel());
+      if (AdManager.isSupportedPlatform) {
+        unawaited(AdManager().loadInterstitialAd());
+        unawaited(AdManager().loadRewardedAd());
+      }
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
   }
 
   @override
@@ -556,6 +589,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void dispose() {
     _activeClock.stop();
+    _entranceAnimation?.removeStatusListener(_onEntranceStatus);
+    _completedScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     appRouteObserver.unsubscribe(this);
     _subscribedRoute = null;
@@ -819,14 +854,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     if (_completedIdiomList.any((item) => item.word == resolvedIdiom.text)) {
       return false;
     }
-
-    // 成语完成
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('√ ${resolvedIdiom.text}'),
-        duration: const Duration(milliseconds: 800),
-      ),
-    );
 
     // 记录已完成格子
     for (int k = 0; k < placement.idiom.text.length; k++) {
@@ -2444,22 +2471,24 @@ class _GameScreenState extends ConsumerState<GameScreen>
               child: SizedBox(
                 width: gridWidth,
                 height: gridHeight,
-                child: ClipRect(
-                  child: CustomPaint(
-                    painter: GridPainter(
-                      grid: _grid,
-                      playerAnswers: _playerAnswers,
-                      focusRow: _focusRow,
-                      focusCol: _focusCol,
-                      errorCells: _errorCells,
-                      completedCells: _completedCells,
-                      flashCell: _flashCell,
-                      cellSize: actualCellSize,
-                      skin: skin,
-                      showPinyin: showPinyin,
-                      pinyinByCell: _pinyinByCell,
-                      // 把整个矩阵上移/左移 1 格，裁掉不绘制的边框
-                      offset: Offset(-actualCellSize, -actualCellSize),
+                child: RepaintBoundary(
+                  child: ClipRect(
+                    child: CustomPaint(
+                      painter: GridPainter(
+                        grid: _grid,
+                        playerAnswers: _playerAnswers,
+                        focusRow: _focusRow,
+                        focusCol: _focusCol,
+                        errorCells: _errorCells,
+                        completedCells: _completedCells,
+                        flashCell: _flashCell,
+                        cellSize: actualCellSize,
+                        skin: skin,
+                        showPinyin: showPinyin,
+                        pinyinByCell: _pinyinByCell,
+                        // 把整个矩阵上移/左移 1 格，裁掉不绘制的边框
+                        offset: Offset(-actualCellSize, -actualCellSize),
+                      ),
                     ),
                   ),
                 ),
@@ -2984,18 +3013,27 @@ class GridPainter extends CustomPainter {
 
   GridPainter({
     required this.grid,
-    required this.playerAnswers,
+    required Map<(int, int), String> playerAnswers,
     required this.focusRow,
     required this.focusCol,
-    required this.errorCells,
-    required this.completedCells,
+    required Set<(int, int)> errorCells,
+    required Set<(int, int)> completedCells,
     required this.flashCell,
     required this.cellSize,
     required this.skin,
     required this.showPinyin,
     required this.pinyinByCell,
     required this.offset,
-  });
+  }) : playerAnswers = Map.of(playerAnswers),
+       errorCells = Set.of(errorCells),
+       completedCells = Set.of(completedCells),
+       _givenCells = [
+         for (var r = 0; r < grid.rows; r++)
+           for (var c = 0; c < grid.cols; c++) grid.cellAt(r, c).isGiven,
+       ];
+
+  // 提示会原地修改 grid，保留快照才能判断提示字是否变化。
+  final List<bool> _givenCells;
 
   String? pinyinAt(int row, int col) {
     final cell = grid.cellAt(row, col);
@@ -3155,12 +3193,27 @@ class GridPainter extends CustomPainter {
             y + s - pinyinPainter.height - 4 * (s / 48.0),
           ),
         );
+        characterPainter.dispose();
+        pinyinPainter?.dispose();
       }
     }
   }
 
   @override
-  bool shouldRepaint(covariant GridPainter oldDelegate) => true;
+  bool shouldRepaint(covariant GridPainter oldDelegate) =>
+      grid != oldDelegate.grid ||
+      !listEquals(_givenCells, oldDelegate._givenCells) ||
+      !mapEquals(playerAnswers, oldDelegate.playerAnswers) ||
+      !setEquals(errorCells, oldDelegate.errorCells) ||
+      !setEquals(completedCells, oldDelegate.completedCells) ||
+      focusRow != oldDelegate.focusRow ||
+      focusCol != oldDelegate.focusCol ||
+      flashCell != oldDelegate.flashCell ||
+      cellSize != oldDelegate.cellSize ||
+      skin != oldDelegate.skin ||
+      showPinyin != oldDelegate.showPinyin ||
+      !mapEquals(pinyinByCell, oldDelegate.pinyinByCell) ||
+      offset != oldDelegate.offset;
 
   @override
   bool hitTest(Offset position) => true;
