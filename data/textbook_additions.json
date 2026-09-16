@@ -1,890 +1,1334 @@
 {
   "大雪纷飞": {
     "pinyin": "da xue fen fei",
-    "explanation": "雪花大量而纷乱地飘落。"
+    "explanation": "纷：多而杂乱。雪片大量飘落的样子。形容雪下得大。",
+    "derivation": "鲁迅《“大雪纷飞”》：“在江浙，倘要说出‘大雪纷飞’的意思来……大抵用‘凶’，‘猛’或‘厉害’，来形容这下雪的样子。”",
+    "example": "古华《芙蓉镇》第三章：“就在一个大雪纷飞的晚上，来到黎满庚家。”"
   },
   "遮遮掩掩": {
     "pinyin": "zhe zhe yan yan",
-    "explanation": "掩饰或隐瞒，不肯坦率说明。"
+    "explanation": "指要隐瞒某种真相而行为不爽利。",
+    "derivation": "明·冯梦龙《喻世明言》第二卷：“这里小姐，起初害羞，遮遮掩掩。今番背却夫人，一般也老落起来。”",
+    "example": "钱钟书《围城》：“鸿渐才买了些回去，进旅馆时，遮遮掩掩的深怕落在掌柜或伙计的势利眼里。”"
   },
   "奔流不息": {
     "pinyin": "ben liu bu xi",
-    "explanation": "水流不停地奔腾流动。"
+    "explanation": "形容水急速地、不停地流动。也比喻时光等不停地消逝。",
+    "derivation": "",
+    "example": "时间就像这条河流，奔流不息。"
   },
   "见善则迁": {
     "pinyin": "jian shan ze qian",
-    "explanation": "见到好的品行就学习改进。"
+    "explanation": "看到好事就仿效去做。",
+    "derivation": "《周易·益》：风雷益，君子以见善则迁，有过则改。",
+    "example": ""
   },
   "兵来将挡": {
     "pinyin": "bing lai jiang dang",
-    "explanation": "遇到来犯的敌人或困难，采取相应办法应对。"
+    "explanation": "比喻不管对方使用什么手段，总有相应的对付方法。",
+    "derivation": "明·兰陵笑笑生《金瓶梅词话》第四十八回：“常言‘兵来将挡，水来土掩’，事到其间，道在人为。”",
+    "example": "常言道：“兵来将挡，水来土掩”，事到其间，道在人为。——《金瓶梅词话》第四十八回"
   },
   "眼见为实": {
     "pinyin": "yan jian wei shi",
-    "explanation": "亲眼看到的才认为真实可靠。"
+    "explanation": "亲眼看到才算是真实的。",
+    "derivation": "汉·刘向《说苑·政理》：“夫耳闻之，不如目见之；目见之，不如足践之。”",
+    "example": "所谓耳听为虚，眼见为实，你今天总算见到他的厉害了吧！"
   },
   "耳听为虚": {
     "pinyin": "er ting wei xu",
-    "explanation": "只凭听说的事情未必可靠。"
+    "explanation": "听来的传闻是靠不住的。",
+    "derivation": "汉·刘向《说苑·政理》：“夫耳闻之，不如目见之；目见之，不如足践之。”",
+    "example": "所谓耳听为虚，眼见为实，你今天总算见到他的厉害了吧！"
   },
   "近墨者黑": {
     "pinyin": "jin mo zhe hei",
-    "explanation": "接近不良的人或环境，容易受到坏的影响。"
+    "explanation": "接近黑色就会使自身变黑。比喻接近坏人易使人学坏。指客观环境对人有很大影响。",
+    "derivation": "",
+    "example": ""
   },
   "近朱者赤": {
     "pinyin": "jin zhu zhe chi",
-    "explanation": "接近优秀的人或良好环境，容易受到好的影响。"
+    "explanation": "朱：朱砂。靠近朱砂的变红。比喻接近好人容易使人变好。指外部环境具有很大影响。",
+    "derivation": "晋·傅玄《傅鹑觚集·太子少傅箴》：“故近朱者赤，近墨者黑；声和则响清，形正则影直。”",
+    "example": "明·冯梦龙《醒世恒言》第11卷：“自古道：近朱者赤，近墨者黑。”"
   },
   "但愿如此": {
     "pinyin": "dan yuan ru ci",
-    "explanation": "希望事情确实像所说或所想的那样。"
+    "explanation": "但：仅，只。就愿意这样。",
+    "derivation": "晋·陶潜《庚戌岁九月中于西田获早稻》：“但愿长如此，躬耕非所叹。”",
+    "example": "但愿如此，我们还得努力"
   },
   "惩恶扬善": {
     "pinyin": "cheng e yang shan",
-    "explanation": "惩治恶行，表彰和弘扬善行。"
+    "explanation": "惩罚恶势力，奖励、宣扬善良的意志。",
+    "derivation": "",
+    "example": "惩恶扬善、舍己救人的勇士，理应受到全社会的敬重。"
   },
   "各显神通": {
     "pinyin": "ge xian shen tong",
-    "explanation": "各自施展本领。"
+    "explanation": "比喻在各自工作中显身手。",
+    "derivation": "明·吴承恩《西游记》第81回：“正是八仙过海，独自显神通。”",
+    "example": "《初刻拍案惊奇》卷七：「如张果叶法善罗公远诸仙众异人皆来聚会，往来禁内，各显神通，不一而足。」"
   },
   "差之毫厘": {
     "pinyin": "cha zhi hao li",
-    "explanation": "开始只有极小的差别，常用来提醒细微差错可能造成重大后果。"
+    "explanation": "开始时虽然相差很微小，结果会造成很大的错误。",
+    "derivation": "",
+    "example": ""
   },
   "志存高远": {
     "pinyin": "zhi cun gao yuan",
-    "explanation": "志向远大，追求长远而高尚的目标。"
+    "explanation": "指立志很高远，有雄心壮志。",
+    "derivation": "熊召政《张居正》第三卷第九回：“皇上年纪虽小，但志存高远，可以料定他长大之后，必然是一位英明君主。”",
+    "example": "他志存高远，将来能成大器"
   },
   "秉公执法": {
     "pinyin": "bing gong zhi fa",
-    "explanation": "按照公正的原则执行法律。"
+    "explanation": "秉持公正之心执行法律。",
+    "derivation": "",
+    "example": ""
   },
   "人烟稀少": {
     "pinyin": "ren yan xi shao",
-    "explanation": "居住的人家很少。"
+    "explanation": "人烟：指住户。指住户少。",
+    "derivation": "明·无名氏《杨家将演义》第四卷：“此去俱是长源深谷，人烟稀少，汝往前村寻问那家借宿一宵，明日早上山去。”",
+    "example": "李英儒《野火春风斗古城》第四章：“经过纸烟工厂、屠宰场、穷人房等高低不平杂乱无章的建筑，到了人烟稀少的郊园。”"
   },
   "膀大腰圆": {
     "pinyin": "bang da yao yuan",
-    "explanation": "肩膀宽大、腰身粗壮，形容体格强壮。"
+    "explanation": "形容魁梧粗壮的人。",
+    "derivation": "清·贪梦道人《彭公案》第一回：“对面来了一人，身高九尺，膀大腰圆，身穿一件白纱长衫，内衬蓝夏布汗褂裤。”",
+    "example": "王朔《许爷》：“他二哥的个头现在比他还猛，块头还足，完全是个膀大腰圆的骠悍青年，其健美雄骏堪为中国人民雕像之模特儿。”"
   },
   "嫦娥奔月": {
     "pinyin": "chang e ben yue",
-    "explanation": "嫦娥飞往月宫的神话故事。"
+    "explanation": "嫦娥：月宫仙子；奔：投向。嫦娥投向月亮。",
+    "derivation": "西汉·刘安《淮南子·览冥训》：“羿请不死之药于西王母，姮娥窃以奔月，怅然有丧。”",
+    "example": "郭沫若《科学的春天》：“嫦娥奔月，龙宫探宝。”"
   },
   "鲲鹏展翅": {
     "pinyin": "kun peng zhan chi",
-    "explanation": "鲲鹏展开翅膀，比喻施展远大抱负。"
+    "explanation": "施展抱负，实现宏伟的理想，创造一番事业。",
+    "derivation": "",
+    "example": "他年纪轻轻，就有此壮志，将来必如鲲鹏展翅，前途无量。"
   },
   "趁其不备": {
     "pinyin": "chen qi bu bei",
-    "explanation": "利用对方没有防备的时机。"
+    "explanation": "指趁对方不防备的时候，去伤害对方。",
+    "derivation": "",
+    "example": ""
   },
   "老老少少": {
     "pinyin": "lao lao shao shao",
-    "explanation": "老人和孩子，泛指各种年龄的人。"
+    "explanation": "指老人与小孩。",
+    "derivation": "明·冯梦龙《警世通言》第40卷：“不想那孽龙知道，杀了他的党族，一呼百集，老老少少，大大小小，都打做一团儿。”",
+    "example": "路遥《平凡的世界》第一卷第23章：“一家老老少少都依靠和指望着他，他怎么能这样胡思乱想呢？”"
   },
   "自胜者强": {
     "pinyin": "zi sheng zhe qiang",
-    "explanation": "能够克服自身弱点的人才是真正的强者。"
+    "explanation": "自胜：战胜自己；强：刚，强。能够战胜自己的人才算刚强。",
+    "derivation": "春秋·楚·李耳《老子·道德经》第33章：“胜人者有力，自胜者强。”",
+    "example": "胜人者有力，自胜者强。——春秋·楚·李耳《老子·道德经》第33章"
   },
   "人影绰绰": {
     "pinyin": "ren ying chuo chuo",
-    "explanation": "人的身影隐约晃动，看不清楚。"
+    "explanation": "人的身影隐约晃动，看不清楚。",
+    "derivation": "",
+    "example": ""
   },
   "整整齐齐": {
     "pinyin": "zheng zheng qi qi",
-    "explanation": "排列有序，规整一致。"
+    "explanation": "保持整洁和有条不紊。",
+    "derivation": "元·王实甫《西厢记》第五本第四折：“打扮得整整齐齐，则等做女婿。”",
+    "example": "老舍《有了小孩以后》：“看着别人家的孩子，肥肥胖胖，整整齐齐，你总觉得小孩们理应如此。”"
   },
   "一泻汪洋": {
     "pinyin": "yi xie wang yang",
-    "explanation": "水流奔涌而下，汇入广阔水域；形容气势奔放宏大。"
+    "explanation": "形容水流迅速，水势浩大。",
+    "derivation": "清·梁启超《少年中国说》：“河出伏流，一泻汪洋。”",
+    "example": "河出伏流，一泻汪洋。——清·梁启超《少年中国说》"
   },
   "干将发硎": {
     "pinyin": "gan jiang fa xing",
-    "explanation": "宝剑刚在磨刀石上磨出锋刃，比喻新生力量锋芒初露。"
+    "explanation": "宝剑的刃是新磨出来的，看上去十分锋利。",
+    "derivation": "清·梁启超《少年中国说》：“干将发硎，有作其芒。”",
+    "example": "干将发硎，有作其芒。——清·梁启超《少年中国说》"
   },
   "有作其芒": {
     "pinyin": "you zuo qi mang",
-    "explanation": "显露出耀眼的光芒，形容锋芒焕发。"
+    "explanation": "宝剑新磨，闪射出光芒。",
+    "derivation": "清·梁启超《少年中国说》：“干将发硎，有作其芒。”",
+    "example": "干将发硎，有作其芒。——清·梁启超《少年中国说》"
   },
   "潜龙腾渊": {
     "pinyin": "qian long teng yuan",
-    "explanation": "潜伏的龙从深渊腾起，比喻力量蓬勃兴起。"
+    "explanation": "象征被压抑已久的巨人将要雄起,隐忍已久的巨力将要释放。",
+    "derivation": "清·梁启超《少年中国说》：“潜龙腾渊，鳞爪飞扬。”",
+    "example": "潜龙腾渊，鳞爪飞扬。——清·梁启超《少年中国说》"
   },
   "矞矞皇皇": {
     "pinyin": "yu yu huang huang",
-    "explanation": "形容光彩美盛、气象宏伟。"
+    "explanation": "繁荣昌盛、富丽堂皇的意思。",
+    "derivation": "清·梁启超《少年中国说》：“奇花初胎，矞矞皇皇。”",
+    "example": "奇花初胎，矞矞皇皇。——清·梁启超《少年中国说》"
   },
   "鹰隼试翼": {
     "pinyin": "ying sun shi yi",
-    "explanation": "鹰隼试着展翅飞翔，比喻初展身手。"
+    "explanation": "雄鹰隼鸟振翅欲飞。",
+    "derivation": "清·梁启超《少年中国说》：“鹰隼试翼，风尘吸张。”",
+    "example": "鹰隼试翼，风尘吸张。——清·梁启超《少年中国说》"
   },
   "端端正正": {
     "pinyin": "duan duan zheng zheng",
-    "explanation": "位置、形状或态度端正，没有歪斜。"
+    "explanation": "形式上、结构上或安排上协调相称，正正规规。",
+    "derivation": "明·施耐庵《水浒传》第93回：“李逵端端正正朝上拜了三拜，心中想道：‘阿也！少了一拜！’”",
+    "example": "清·曹雪芹《红楼梦》第六回：“粉光脂艳，端端正正坐在那里，手内拿着小铜火箸儿拨手炉内的灰。”"
   },
   "舐犊之情": {
     "pinyin": "shi du zhi qing",
-    "explanation": "比喻父母对子女的慈爱之情。"
+    "explanation": "比喻父母疼爱子女的深厚感情。",
+    "derivation": "柯灵《市楼独唱》：“我悯惜这\"舐犊之情\"，然而我更向往这年轻的心！”",
+    "example": "我悯惜这\"舐犊之情\"，然而我更向往这年轻的心！——柯灵《市楼独唱》"
   },
   "戒奢以俭": {
     "pinyin": "jie she yi jian",
-    "explanation": "戒除奢侈，以节俭自律。"
+    "explanation": "戒：戒除；奢：奢侈；俭：节俭。用节俭来消除奢侈。",
+    "derivation": "唐·魏征《谏太宗十思疏》：“不念居安思危，戒奢以俭，斯亦伐根以求木茂，塞源而欲流长也。”",
+    "example": "不念居安思危，戒奢以俭，斯亦伐根以求木茂，塞源而欲流长也。——唐·魏征《谏太宗十思疏》"
   },
   "学如不及": {
     "pinyin": "xue ru bu ji",
-    "explanation": "学习时像追赶不上那样努力。"
+    "explanation": "学习好像追赶什么，总怕赶不上。形容学习勤奋，进取心强。又形容做其他事情的迫切心情。",
+    "derivation": "《论语·泰伯》：“学如不及，犹恐失之。”",
+    "example": "宋·苏轼《谢除两职守礼部尚书表》之二：恭惟皇帝陛下，即位以来，学如不及。问道八年，寒暑不废。"
   },
   "犹恐失之": {
     "pinyin": "you kong shi zhi",
-    "explanation": "仍然担心失去已经得到的东西，常形容学习不敢懈怠。"
+    "explanation": "仍怕失去已经获得的东西，形容学习或做事勤奋而迫切。",
+    "derivation": "《论语·泰伯》：“学如不及，犹恐失之。”",
+    "example": "学如不及，犹恐失之。——《论语》"
   },
   "终夜不寝": {
     "pinyin": "zhong ye bu qin",
-    "explanation": "整夜没有睡觉。"
+    "explanation": "整夜不睡觉。",
+    "derivation": "《论语·卫灵公》：“吾尝终日不食，终夜不寝，以思，无益，不如学也。”",
+    "example": "吾尝终日不食，终夜不寝，以思，无益，不如学也。——《论语·卫灵公》"
   },
   "官迫民反": {
     "pinyin": "guan po min fan",
-    "explanation": "官府的压迫使百姓起来反抗。"
+    "explanation": "官府的压迫使百姓起来反抗。",
+    "derivation": "",
+    "example": ""
   },
   "统而言之": {
     "pinyin": "tong er yan zhi",
-    "explanation": "总起来说。"
+    "explanation": "总的说起来。",
+    "derivation": "《魏书·李平传》：皆是皇居帝里，相去不远，可得统而言之。",
+    "example": "二月河《乾隆皇帝》五：行仁义者为君子，不行仁义者为小人，此统而言之也。"
   },
   "田忌赛马": {
     "pinyin": "tian ji sai ma",
-    "explanation": "田忌通过调整马匹出场次序取胜的故事，说明策略和统筹的重要。"
+    "explanation": "田忌赛马时以一场失利换取两场胜利。比喻通过合理安排取得整体胜利。",
+    "derivation": "",
+    "example": ""
   },
   "山高月小": {
     "pinyin": "shan gao yue xiao",
-    "explanation": "山势高耸，月亮显得小，描写山间夜景。"
+    "explanation": "形容夜景的气势：从山下望去，山高高耸立，天上的月亮小而明亮。",
+    "derivation": "宋·苏轼《后赤壁赋》：江流有声，断岸千尺，山高月小，水落石出。",
+    "example": "明·罗贯中《三国演义》第五十回：山高月小水茫茫，追叹前朝割据忙。"
   },
   "一饮而尽": {
     "pinyin": "yi yin er jin",
-    "explanation": "把杯中的饮品一下子喝完。"
+    "explanation": "饮：喝。一口气就喝完了。形容喝得非常爽快。",
+    "derivation": "明·冯梦龙《醒世恒言》第三卷：“鸨儿只道他敬客，却自家一饮而尽。”",
+    "example": "欧阳山《苦斗》：“他像一个英雄人物一样昂着头，敞开衣襟，端起酒杯，一饮而尽。”"
   },
   "日精月华": {
     "pinyin": "ri jing yue hua",
-    "explanation": "太阳和月亮的精华。"
+    "explanation": "太阳星与太阴星所散发出来的光华。",
+    "derivation": "",
+    "example": ""
   },
   "乜乜些些": {
     "pinyin": "nie nie xie xie",
-    "explanation": "形容眼睛眯斜的样子。"
+    "explanation": "装痴作呆。",
+    "derivation": "",
+    "example": ""
   },
   "云腾致雨": {
     "pinyin": "yun teng zhi yu",
-    "explanation": "云气升腾，形成降雨。"
+    "explanation": "云一翻腾就导致下雨。",
+    "derivation": "南朝梁·周兴嗣《千字文》：“云腾致雨，露结为霜。”",
+    "example": "云腾致雨，露结为霜。——南朝梁·周兴嗣《千字文》"
   },
   "威名远扬": {
     "pinyin": "wei ming yuan yang",
-    "explanation": "使人敬畏的名声传到很远的地方。"
+    "explanation": "指名望声望传播到很远的地方。",
+    "derivation": "",
+    "example": ""
   },
   "移步换景": {
     "pinyin": "yi bu huan jing",
-    "explanation": "随着观察位置移动，所见景物随之变化的观察或描写方法。"
+    "explanation": "一般适合于游记或参观记，描写景物时，人走景移，随着观察点的变换，不断展现新画面。",
+    "derivation": "",
+    "example": ""
   },
   "左膀右臂": {
     "pinyin": "zuo bang you bi",
-    "explanation": "比喻得力的助手。"
+    "explanation": "比喻得力的助手。",
+    "derivation": "凌叔华《古韵》：“据说恭亲王把他视为左膀右臂，将来肯定官运亨通。”",
+    "example": "熊召政《张居正》第四卷第26回：“他与张居正两个可谓皇上的左膀右臂。”"
   },
   "片刻不离": {
     "pinyin": "pian ke bu li",
-    "explanation": "很短的时间也不离开。"
+    "explanation": "一会儿也没有离开，形容关系非常密切，一会儿也不忍离开。",
+    "derivation": "",
+    "example": ""
   },
   "一碧千里": {
     "pinyin": "yi bi qian li",
-    "explanation": "一片碧绿，延伸得十分辽阔。"
+    "explanation": "形容澄碧的天空、水面、草原等的一望无边。",
+    "derivation": "",
+    "example": ""
   },
   "婉言谢绝": {
     "pinyin": "wan yan xie jue",
-    "explanation": "用委婉的话拒绝。"
+    "explanation": "婉：婉转。辞语婉转地不答应。",
+    "derivation": "曾朴《孽海花》第32回：“幸亏英相罗士勃雷婉言谢绝，否则一个女儿受了两家茶，不特破坏垂成的和局，而且丧失大信。”",
+    "example": "路遥《平凡的世界》第五卷第14章：“有些邻近村庄没办法的庄稼人，也跑来想上他的工，他赶忙婉言谢绝了。”"
   },
   "鸣钟击磬": {
     "pinyin": "ming zhong ji qing",
-    "explanation": "敲响钟和磬，形容礼乐齐鸣的场面。"
+    "explanation": "敲响钟和磬，形容礼乐齐鸣的场面。",
+    "derivation": "",
+    "example": ""
   },
   "无边无涯": {
     "pinyin": "wu bian wu ya",
-    "explanation": "没有边际，形容非常辽阔。"
+    "explanation": "形容范围极为广阔。",
+    "derivation": "周克芹《许茂和他的女儿们》第三章：“是收工回家的时候了，妇女们的无边无涯的‘闲条’这会儿自然收了场。”",
+    "example": "《金色的鱼钩》：“小梁，你看这草地，无边无涯，没个尽头。”"
   },
   "朝花夕拾": {
     "pinyin": "zhao hua xi shi",
-    "explanation": "早晨的花到晚上拾取，比喻回忆往事；也是鲁迅散文集的名称。"
+    "explanation": "早晨盛开的鲜花，傍晚的时候摘掉或捡起。比喻重拾往事，旧事重提。",
+    "derivation": "鲁迅《朝花夕拾》。",
+    "example": ""
   },
   "无暇顾及": {
     "pinyin": "wu xia gu ji",
-    "explanation": "没有空闲时间照顾或考虑到。"
+    "explanation": "暇：闲暇；顾及：照顾到。没有功夫顾及到。",
+    "derivation": "",
+    "example": "鲁迅《而已集·扣丝杂感》：那时只要一个“俄”字，已够惊心动魄，自然无暇顾及时代和内容。"
   },
   "春风拂面": {
     "pinyin": "chun feng fu mian",
-    "explanation": "春风轻轻吹过脸颊，形容温暖舒适的感受。"
+    "explanation": "指像春风一样从脸上轻轻擦过，形容使人感到愉快、舒服。",
+    "derivation": "",
+    "example": ""
   },
   "骄阳似火": {
     "pinyin": "jiao yang shi huo",
-    "explanation": "强烈的太阳像火一样灼热。"
+    "explanation": "骄阳：火辣辣的太阳。强烈的阳光如同烈火一样，形容太阳非常的炎热。",
+    "derivation": "",
+    "example": "1. 在骄阳似火的七月，我们举行了毕业典礼。2. 夏日，虽然骄阳似火、暑气逼人，却绿树成荫，莲叶遮天，别有一番意趣。3.骄阳似火的午后，公园里游客格外稀少。"
   },
   "桃李满门": {
     "pinyin": "tao li man men",
-    "explanation": "比喻学生很多。"
+    "explanation": "比喻学生很多。",
+    "derivation": "",
+    "example": ""
   },
   "秋风萧瑟": {
     "pinyin": "qiu feng xiao se",
-    "explanation": "秋风吹动草木，发出瑟瑟声，也形容秋景凄凉。"
+    "explanation": "1.形容秋天的风吹拂树木发出的声音。2.形容秋天悲凉，凄凉的气氛。",
+    "derivation": "",
+    "example": ""
   },
   "人迹罕至": {
     "pinyin": "ren ji han zhi",
-    "explanation": "很少有人到达。"
+    "explanation": "罕：少。人的足迹很少到达。指荒凉偏辟的地方很少有人来过。",
+    "derivation": "汉·荀悦《汉纪·孝武纪二》：“而夷狄殊俗之国，辽绝异党之地，舟车不通，人迹罕至。”",
+    "example": "冯牧《瀑布之歌》：“它们所以不被人知，仅仅是因为它们处在人迹罕至、交通阻隔的地方。”"
   },
   "潜龙勿用": {
     "pinyin": "qian long wu yong",
-    "explanation": "龙潜伏时不宜有所作为，比喻时机未到，应当蓄养力量。"
+    "explanation": "蛟龙潜伏着不为人知。比喻人才未被重用。",
+    "derivation": "《周易·乾》：“初九，潜龙勿用。”",
+    "example": "《艺文类聚》第46卷：“函崤重险，钟鼎沦覆，潜龙勿用，瞻鸟在室。”"
   },
   "历久弥新": {
     "pinyin": "li jiu mi xin",
-    "explanation": "经历很长时间，反而更加鲜活或更有价值。"
+    "explanation": "经过长久的时间，不但没有衰败、陈旧，反而更新、更好。是指一样东西不因时间而变旧，变腐，反而更加有活力，更显价值，比新的还要好。",
+    "derivation": "",
+    "example": ""
   },
   "年与时驰": {
     "pinyin": "nian yu shi chi",
-    "explanation": "年华随着时间飞快流逝。"
+    "explanation": "年华随时光而飞逝。",
+    "derivation": "三国蜀·诸葛亮《诫子书》：“年与时驰，意与日去，遂成枯落，多不接世。”",
+    "example": "年与时驰，意与日去，遂成枯落，多不接世。——三国蜀·诸葛亮《诫子书》"
   },
   "层次分明": {
     "pinyin": "ceng ci fen ming",
-    "explanation": "事物的结构或表达条理清楚。"
+    "explanation": "层次：事物的次序。事物的次序界限清楚。",
+    "derivation": "",
+    "example": ""
   },
   "兀兀穷年": {
     "pinyin": "wu wu qiong nian",
-    "explanation": "一年到头辛苦劳作或用心钻研。"
+    "explanation": "兀兀：劳苦的样子；穷年：终年。一年到头辛苦劳动，勤劳不懈。",
+    "derivation": "东汉·班固《汉书·王褒传》：“故工人之用钝器也，劳筋苦骨，终日矻矻。”",
+    "example": "臧克家《闻一多先生的说和做》：“他从唐诗下手，目不窥园，足不下楼，兀兀穷年，呕心沥血。”"
   },
   "心会神凝": {
     "pinyin": "xin hui shen ning",
-    "explanation": "精神集中，深入领会。"
+    "explanation": "精神高度集中，十分认真。",
+    "derivation": "",
+    "example": ""
   },
   "群蚁排衙": {
     "pinyin": "qun yi pai ya",
-    "explanation": "形容排列密集而整齐，教材中用来形容细密的字迹。"
+    "explanation": "指整齐地排列着。",
+    "derivation": "",
+    "example": ""
   },
   "气度不凡": {
     "pinyin": "qi du bu fan",
-    "explanation": "人的气质和风度不同寻常。"
+    "explanation": "气：气质。气质和风度不同一般。",
+    "derivation": "王朔《空中小姐》：“我那时的确也有些气度不凡。”",
+    "example": "《人民日报》：“我不禁惊诧于这穷乡僻壤，竟有如此气度不凡的建筑。”"
   },
   "神秘莫测": {
     "pinyin": "shen mi mo ce",
-    "explanation": "神秘得无法揣测。"
+    "explanation": "不可理解与预测的。",
+    "derivation": "李云德《沸腾的群山》：“苏福顺和古尚清领唐黎岘走到井口，往里边望望，黑洞洞阴森森的，神秘莫测。”",
+    "example": "王朔《玩儿的就是心跳》：“装得要在一个遥远的地方神秘莫测地消失，其实无处可去。”"
   },
   "士别三日": {
     "pinyin": "shi bie san ri",
-    "explanation": "与人分别一段时间后，对方可能已有长进，应重新认识。"
+    "explanation": "指隔了很久。",
+    "derivation": "",
+    "example": ""
   },
   "无欲则刚": {
     "pinyin": "wu yu ze gang",
-    "explanation": "没有私欲，才能刚正坚定。"
+    "explanation": "没有非分的贪欲，就能保持刚正。",
+    "derivation": "《论语·公冶长》：“枨也欲，焉得刚？”",
+    "example": ""
   },
   "有容乃大": {
     "pinyin": "you rong nai da",
-    "explanation": "能够包容，才能达到宽广的境界。"
+    "explanation": "有度量，能宽容，才能够成就大业。",
+    "derivation": "",
+    "example": ""
   },
   "风吹雨淋": {
     "pinyin": "feng chui yu lin",
-    "explanation": "遭受风吹和雨水淋湿，形容在外经受风雨。"
+    "explanation": "因为暴露在露天之下，没有遮挡，所以，只得任由日晒、风吹和雨淋。",
+    "derivation": "",
+    "example": ""
   },
   "如临其境": {
     "pinyin": "ru lin qi jing",
-    "explanation": "仿佛亲自来到那个环境之中。"
+    "explanation": "好像亲身来到那种境界一样，形容作品刻画生动逼真，引人入胜。",
+    "derivation": "",
+    "example": ""
   },
   "憨态可掬": {
     "pinyin": "han tai ke ju",
-    "explanation": "天真质朴的神态十分可爱。"
+    "explanation": "可掬：可以用手捧取。形容顽皮娇痴、单纯幼稚的样子充溢在外。招人喜爱。",
+    "derivation": "清·蒲松龄《聊斋志异·种梨》：乡人馈馈，憨状可掬，其见笑于市人，有以哉。",
+    "example": ""
   },
   "月华如水": {
     "pinyin": "yue hua ru shui",
-    "explanation": "月光柔和清澈，好像流水一样。"
+    "explanation": "月光如流水般清澈柔和。",
+    "derivation": "《秦併六国平话》：“夜久无云天练净，月华如水正三更。”",
+    "example": "夜久无云天练净，月华如水正三更。——《秦併六国平话》"
   },
   "由己及人": {
     "pinyin": "you ji ji ren",
-    "explanation": "从自己推及别人，设身处地理解他人。"
+    "explanation": "用自己的心意去推想别人的心意，指设身处地替别人着想。",
+    "derivation": "",
+    "example": ""
   },
   "围追堵截": {
     "pinyin": "wei zhui du jie",
-    "explanation": "从各方面包围、追赶、拦堵和截击。"
+    "explanation": "把军队分成几路同时进行包围式的追击，将敌人堵截成几块，加以消灭。",
+    "derivation": "毛泽东《论反对日本帝国主义的策略》：“天上每日几十架飞机侦察轰炸，地下几十万大军围追堵截，路上遇着了说不尽的艰难险阻。”",
+    "example": "红军躲过国民党军队的围追堵截进行二万五千里长征"
   },
   "尊老爱幼": {
     "pinyin": "zun lao ai you",
-    "explanation": "尊敬老人，爱护儿童。"
+    "explanation": "尊老爱幼，其中“尊老”指的是尊敬长辈，“爱幼”即爱护晚辈；形容人的品德良好。尊老爱幼是中国的传统美德，我们要弘扬这优良的传统，为新中国的精神文明建设贡献自己的一份力量。",
+    "derivation": "",
+    "example": ""
   },
   "志不可满": {
     "pinyin": "zhi bu ke man",
-    "explanation": "志向和追求不能因自满而停滞。"
+    "explanation": "不可因自满而不求上进。",
+    "derivation": "北齐·颜之推《颜氏家训·止足》：「欲不可纵，志不可满。」",
+    "example": "北齐·颜之推《颜氏家训·止足》：「欲不可纵，志不可满。」"
   },
   "重重叠叠": {
     "pinyin": "chong chong die die",
-    "explanation": "一层又一层地堆叠。"
+    "explanation": "同样的东西层层堆叠或指反反复复。",
+    "derivation": "元·王实甫《西厢记》第四本第三折：“从今后衫儿、袖儿，都揾做重重叠叠的泪。”",
+    "example": "曲波《林海雪原》：“一个一个有水缸大小，密密层层，重重叠叠，也不知有几万个。”"
   },
   "漫天风雪": {
     "pinyin": "man tian feng xue",
-    "explanation": "风雪遍布天空，形容风雪很大。"
+    "explanation": "漫天：满天。满天的风雪。形容风雪很大，弥漫了天空。",
+    "derivation": "宋·洪朋《喜雪》：漫天风雪纷纷暗，到地空花片片明。",
+    "example": ""
   },
   "心有灵犀": {
     "pinyin": "xin you ling xi",
-    "explanation": "比喻彼此心意相通。"
+    "explanation": "灵犀：灵兽犀牛。比喻恋爱着的男女双方心心相印。现多比喻比方对彼此的心思都能心领神会。",
+    "derivation": "唐·李商隐《无题》诗：“身无彩凤双飞翼，心有灵犀一点通。”",
+    "example": "熊召政《张居正》第二卷第35回：“两人心有灵犀。”"
   },
   "死于安乐": {
     "pinyin": "si yu an le",
-    "explanation": "安逸享乐可能使人或国家衰亡。"
+    "explanation": "安逸享乐会使人丧失警惕，走向衰亡。",
+    "derivation": "《孟子·告子下》：“然后知生于忧患，而死于安乐也。”",
+    "example": "然后知生于忧患，而死于安乐也。——《孟子·告子下》"
   },
   "逆流而上": {
     "pinyin": "ni liu er shang",
-    "explanation": "迎着水流方向前进，也比喻克服困难前进。"
+    "explanation": "逆：倒。逆水前进。比喻迎着困难而上。",
+    "derivation": "《诗经·秦风·蒹葭》：“溯洄从之。”毛亨传：“逆流而上曰溯洄。”",
+    "example": "张天民《创业》第13章：“目前，正有一股寒流向我们压过来，我们要逆流而上，打上去！”"
   },
   "顺流而下": {
     "pinyin": "shun liu er xia",
-    "explanation": "沿着水流的方向向下游前进。"
+    "explanation": "顺着河流的方向一直下去。形容毫无阻碍。",
+    "derivation": "明·罗贯中《三国演义》第四十五回：竺领命，驾小舟顺流而下，迳至周瑜大寨前。",
+    "example": "清·张春帆《九尾龟》第六十回：宋子英便叫水手开船，水手们答应一声，抽起跳板把船拦开，点了一篙，那船便顺流而下。"
   },
   "回清倒影": {
     "pinyin": "hui qing dao ying",
-    "explanation": "清波回旋，映出景物的倒影。"
+    "explanation": "回旋的清波映出了山石林木的倒影",
+    "derivation": "北魏·郦道元《水经注·江水》：“春冬之时，则素湍绿潭，回清倒影。”",
+    "example": "春冬之时，则素湍绿潭，回清倒影。——北魏·郦道元《水经注·江水》"
   },
   "清荣峻茂": {
     "pinyin": "qing rong jun mao",
-    "explanation": "水清、树荣、山高、草盛，形容山水草木的美景。"
+    "explanation": "水清、树荣、山高、草茂。指江水清澈，两岸山峰高峻，山上草木茂盛。",
+    "derivation": "北魏·郦道元《水经注·江水》：“清荣峻茂，良多趣味。”",
+    "example": "清荣峻茂，良多趣味。——北魏·郦道元《水经注·江水》"
   },
   "空谷传响": {
     "pinyin": "kong gu chuan xiang",
-    "explanation": "空旷的山谷中传来回声。"
+    "explanation": "空荡的山谷里传来回声",
+    "derivation": "北魏·郦道元《水经注·江水》：“常有高猿长啸，属引凄异，空谷传响，哀转久绝。”",
+    "example": "常有高猿长啸，属引凄异，空谷传响，哀转久绝。——北魏·郦道元《水经注·江水》"
   },
   "奇山异水": {
     "pinyin": "qi shan yi shui",
-    "explanation": "奇特秀丽的山水。"
+    "explanation": "异：新异。指奇异瑰丽的山水。",
+    "derivation": "朱自清《山野掇拾》：“所记奇山异水，或令我惊心动魄，或让我游目骋怀。”",
+    "example": "郁达夫《日本的文化生活》：“一半虽则也是奇山异水很多的日本地势使然，但一大半却也可以说是他们那些岛国民族的天性。”"
   },
   "坦荡如砥": {
     "pinyin": "tan dang ru di",
-    "explanation": "平坦得像磨刀石一样，形容十分平坦。"
+    "explanation": "坦荡：宽广平坦；砥：磨刀石。平坦得像磨刀石。",
+    "derivation": "茅盾《白杨礼赞》：“黄与绿主宰着，无边无垠，坦荡如砥。”",
+    "example": "陈忠实《白鹿原》第22章：“队伍终于拉出山沟进入坦荡如砥的关中平原了。”"
   },
   "旁逸斜出": {
     "pinyin": "pang yi xie chu",
-    "explanation": "枝条从树干旁边斜伸出来。"
+    "explanation": "逸：引申为超出。指树枝从树干旁边伸出。",
+    "derivation": "茅盾《白杨礼赞》：“它所有的丫枝一律向上，而且紧紧靠拢，也象加过人工似的，成为一束，绝不旁逸斜出。”",
+    "example": "王朔《修改后发表》：“俟其终篇，回头一看，本属旁逸斜出的一枝竟百花丛生独成蓬伞大树，余者皆在荫下。”"
   },
   "潜滋暗长": {
     "pinyin": "qian zi an zhang",
-    "explanation": "暗中不知不觉地滋生发展。"
+    "explanation": "潜：暗中，隐藏；滋：生长。暗暗地不知不觉地生长。",
+    "derivation": "茅盾《白杨礼赞》：“你对当前的‘雄壮’或‘伟大’闭了眼，而另一种的味儿在你心头潜滋暗长了——‘单调’。”",
+    "example": "你对当前的‘雄壮’或‘伟大’闭了眼，而另一种的味儿在你心头潜滋暗长了——‘单调’。——茅盾《白杨礼赞》"
   },
   "纵横决荡": {
     "pinyin": "zong heng jue dang",
-    "explanation": "纵横驰骋，冲击涤荡，形容力量奔放。"
+    "explanation": "纵横：奔放，不受拘束；荡：冲杀。纵横驰骋，冲杀突击。",
+    "derivation": "茅盾《白杨礼赞》：“难道你又不更远一点想到，这样枝枝叶叶靠紧团结，力求上进的白杨树，宛然象征了今天在华北平原纵横决荡、用血写出新中国历史的那种精神和意志？”",
+    "example": "难道你又不更远一点想到，这样枝枝叶叶靠紧团结，力求上进的白杨树，宛然象征了今天在华北平原纵横决荡、用血写出新中国历史的那种精神和意志？——茅盾《白杨礼赞》"
   },
   "文采斐然": {
     "pinyin": "wen cai fei ran",
-    "explanation": "文章或言辞富有文采。"
+    "explanation": "指文章中表现出来的典雅艳丽和令人赏心悦目的色彩和风格，说一个人文采好。",
+    "derivation": "",
+    "example": ""
   },
   "娓娓道来": {
     "pinyin": "wei wei dao lai",
-    "explanation": "连续不断而生动地讲述。"
+    "explanation": "说话连续不间断。",
+    "derivation": "",
+    "example": ""
   },
   "恹恹欲睡": {
     "pinyin": "yan yan yu shui",
-    "explanation": "精神不振，困倦想睡。"
+    "explanation": "形容患病而精神疲乏。",
+    "derivation": "",
+    "example": ""
   },
   "长虹饮涧": {
     "pinyin": "chang hong yin jian",
-    "explanation": "像长虹横跨山涧吸水，常用来形容桥梁的姿态。"
+    "explanation": "像长虹横跨山涧吸水，常用来形容桥梁的姿态。",
+    "derivation": "",
+    "example": ""
   },
   "字字千钧": {
     "pinyin": "zi zi qian jun",
-    "explanation": "每个字都很有分量和力量。"
+    "explanation": "形容文字很有分量。",
+    "derivation": "",
+    "example": ""
   },
   "舳舻相接": {
     "pinyin": "zhu lu xiang jie",
-    "explanation": "船只首尾相连，形容船只很多。"
+    "explanation": "舳：船尾；舻：船头。形容船与船相接，数量多。",
+    "derivation": "唐·魏征《隋书·食货志》：“帝御龙舟，文武官五品以上给楼船，九品以上给黄篾舫，舳舻相接，二百余里。”",
+    "example": "明·冯梦龙《东周列国志》第30回：“直达河、汾、雍、绛之间，舳舻相接，命曰‘泛舟之役’。”"
   },
   "生于忧患": {
     "pinyin": "sheng yu you huan",
-    "explanation": "忧患和磨炼能使人奋发、生存发展。"
+    "explanation": "忧患可以促使人奋发图强，从而生存发展。",
+    "derivation": "《孟子·告子下》：“然后知生于忧患，而死于安乐也。”",
+    "example": "然后知生于忧患，而死于安乐也。——《孟子·告子下》"
   },
   "固不可彻": {
     "pinyin": "gu bu ke che",
-    "explanation": "顽固得无法通达事理。"
+    "explanation": "固：固执；彻：透彻，明白。非常固执，无法说服。",
+    "derivation": "《列子·汤问》：汝心之固，固不可彻。",
+    "example": "汝心之固，固不可彻，曾不若孀妻弱子。——《列子·汤问》"
   },
   "寒暑易节": {
     "pinyin": "han shu yi jie",
-    "explanation": "寒冷和炎热的季节交替。"
+    "explanation": "指季节的交替。即指一周年。",
+    "derivation": "列子汤问篇：“寒暑易节，始一反焉。”",
+    "example": "寒暑易节，始一反焉。——列子汤问篇"
   },
   "辨而不华": {
     "pinyin": "bian er bu hua",
-    "explanation": "善于辨析而不浮华。"
+    "explanation": "表达清楚明白而不浮华。",
+    "derivation": "《汉书·司马迁传赞》：“服其善序事理，辨而不华，质而不俚。”",
+    "example": "服其善序事理，辨而不华，质而不俚。——《汉书·司马迁传赞》"
   },
   "蓄势待发": {
     "pinyin": "xu shi dai fa",
-    "explanation": "积蓄力量，等待行动的时机。"
+    "explanation": "积蓄实力，等待时机行动。",
+    "derivation": "",
+    "example": "运动会即将来临，同学们个个摩拳擦掌，蓄势待发。"
   },
   "固不待言": {
     "pinyin": "gu bu dai yan",
-    "explanation": "本来就不必多说。"
+    "explanation": "本来就不必多说。",
+    "derivation": "明·李东阳《与陈提学书》：“而扶植教化之盛心，固不待言也。”",
+    "example": "而扶植教化之盛心，固不待言也。——明·李东阳《与陈提学书》"
   },
   "阡陌交通": {
     "pinyin": "qian mo jiao tong",
-    "explanation": "田间小路交错相通。"
+    "explanation": "田间小路交错相通。",
+    "derivation": "晋·陶渊明《桃花源记》：“阡陌交通，鸡犬相闻。”",
+    "example": "阡陌交通，鸡犬相闻。——晋·陶渊明《桃花源记》"
   },
   "矫首昂视": {
     "pinyin": "jiao shou ang shi",
-    "explanation": "抬起头向上看。"
+    "explanation": "抬起头向上看。",
+    "derivation": "明·魏学洢《核舟记》：“矫首昂视。”",
+    "example": "矫首昂视。——明·魏学洢《核舟记》"
   },
   "袒胸露乳": {
     "pinyin": "tan xiong lu ru",
-    "explanation": "敞开衣服，露出胸部。"
+    "explanation": "脱去上衣，裸露出胸腹。",
+    "derivation": "明·魏学洢《核舟记》：“佛印绝类弥勒，袒胸露乳，矫首昂视，神情与苏、黄不属。”",
+    "example": "佛印绝类弥勒，袒胸露乳，矫首昂视，神情与苏、黄不属。——明·魏学洢《核舟记》"
   },
   "理至易明": {
     "pinyin": "li zhi yi ming",
-    "explanation": "道理极其明白，容易理解。"
+    "explanation": "指道理述说到了极致，简单明了，极容易明白。其中“至”是极其的意思。",
+    "derivation": "",
+    "example": ""
   },
   "敬事而信": {
     "pinyin": "jing shi er xin",
-    "explanation": "认真对待事务，讲求信用。"
+    "explanation": "谨慎认真地办事，并守信用。",
+    "derivation": "《论语》：“道千乘之国，敬事而信，节用而爱人，使民以时。”",
+    "example": "道千乘之国，敬事而信，节用而爱人，使民以时。——《论语》"
   },
   "人生在世": {
     "pinyin": "ren sheng zai shi",
-    "explanation": "人活在世上。"
+    "explanation": "指人生活在世上。",
+    "derivation": "南朝·齐·萧嶷《遗令》第六卷：“人生在世，本自非常，吾年已老，前路几何？”",
+    "example": "清·褚人获《隋唐演义》第52回：“人生在世，千里相逢，原不是容易得的事，难道你还有七十岁活么？”"
   },
   "推推搡搡": {
     "pinyin": "tui tui sang sang",
-    "explanation": "粗鲁地推来推去。"
+    "explanation": "粗暴地、接连不断地猛推。",
+    "derivation": "《儒林外史 · 第五五回》：“王太就挨著身子上前去偷看。小厮们看见他穿的褴褛，推推搡搡，不许他上前。”《儿女英雄传· 第五回》：“那和尚更不答话，把他推推搡搡，推到廊下。”",
+    "example": "大家慢慢走，别推推搡搡的。"
   },
   "柔中有刚": {
     "pinyin": "rou zhong you gang",
-    "explanation": "柔和之中含有坚强的力量。"
+    "explanation": "形容人的性格温柔中带有刚强。",
+    "derivation": "周克芹《许茂和他的女儿们》第二章：“再加以她那活活泼泼的神态，柔中有刚的清脆声音，是谁也无法招架的。”",
+    "example": "他的性格是柔中有刚"
   },
   "不测之险": {
     "pinyin": "bu ce zhi xian",
-    "explanation": "难以预料的危险。"
+    "explanation": "难以预料的危险。",
+    "derivation": "《汉书·盖宽饶传》：“用不訾之躯，临不测之险。”",
+    "example": "用不訾之躯，临不测之险。——《汉书·盖宽饶传》"
   },
   "夜凉如水": {
     "pinyin": "ye liang ru shui",
-    "explanation": "夜间凉意像水一样沁人。"
+    "explanation": "夜间清凉如水。",
+    "derivation": "",
+    "example": "夜凉如水，走在幽暗寂静的寨中，头顶星空璨灿夺目。"
   },
   "胜利在望": {
     "pinyin": "sheng li zai wang",
-    "explanation": "胜利已近在眼前。"
+    "explanation": "在望：盼望的事就在眼前。指胜利即将到来。也指一件事情马上就要成功。",
+    "derivation": "",
+    "example": "陆文夫《人之窝》第十八回：她与汪永富刚刚展开的两条道路殊死的搏斗，已经胜利在望，却要前功尽弃。"
   },
   "和和美美": {
     "pinyin": "he he mei mei",
-    "explanation": "和睦而美满。"
+    "explanation": "指和谐美好。",
+    "derivation": "清·西周生《醒世姻缘传》引起：“兄弟你爱我敬，和和美美，都在父母膝前。”",
+    "example": "给他们把喜事办了，和和美美的多好哇！——浩然《艳阳天》第三十九章"
   },
   "克明俊德": {
     "pinyin": "ke ming jun de",
-    "explanation": "能够彰明崇高的德行。"
+    "explanation": "能够发扬崇高的德行。",
+    "derivation": "《尚书·尧典》：“克明俊德，以亲九族。”",
+    "example": ""
   },
   "以和为贵": {
     "pinyin": "yi he wei gui",
-    "explanation": "把和谐相处看作重要原则。"
+    "explanation": "重视并维护和睦相处。",
+    "derivation": "",
+    "example": ""
   },
   "各美其美": {
     "pinyin": "ge mei qi mei",
-    "explanation": "各自欣赏和珍视自身文化的美好。"
+    "explanation": "各自欣赏、珍视自身文化的美。",
+    "derivation": "费孝通：“各美其美，美人之美，美美与共，天下大同。”",
+    "example": "各美其美，美人之美，美美与共，天下大同。——费孝通"
   },
   "袅袅不绝": {
     "pinyin": "niao niao bu jue",
-    "explanation": "声音等绵延不断。"
+    "explanation": "袅袅：声音宛转悠扬。形容宛转悠扬的音乐声连绵不断。",
+    "derivation": "宋·苏轼《前赤壁赋》：余音袅袅，不绝如缕。",
+    "example": "钱钟书《围城》第五章：那声气哗啦哗啦，又像风涛澎，又像狼吞虎咽，中间还夹着一丝又尖又细的声音，忽高忽低，袅袅不绝。"
   },
   "秦皇汉武": {
     "pinyin": "qin huang han wu",
-    "explanation": "秦始皇和汉武帝的合称。"
+    "explanation": "秦始皇和汉武帝。",
+    "derivation": "宋·孔平仲《续世说·直谏》：“此秦皇汉武之所行，非二帝三王之事业也。”",
+    "example": "惜秦皇汉武，略输文采，唐宗宋祖，稍逊风骚。 ★毛泽东《沁园春·雪》"
   },
   "饶有兴味": {
     "pinyin": "rao you xing wei",
-    "explanation": "很有趣味或兴趣很浓。"
+    "explanation": "饶：富裕、丰富；兴味：趣味，兴趣。形容事物和景物富有情趣。",
+    "derivation": "宋·蔡襄《漳州白莲僧宗要见遗纸扇》：直应携去林泉好，转觉林泉兴味长。",
+    "example": ""
   },
   "实实在在": {
     "pinyin": "shi shi zai zai",
-    "explanation": "真实、切实，不虚假。"
+    "explanation": "真实，不夸张，现实存在的。",
+    "derivation": "清·无名氏《说呼全传》第40回：“八王就实实在在问话，孩儿也细细告诉了他，就求他请诏。”",
+    "example": "邓小平《关于经济工作的几点意见》：“就是说，我们的工作要扎实，效果要实实在在。”"
   },
   "铮铮作响": {
     "pinyin": "zheng zheng zuo xiang",
-    "explanation": "发出响亮清脆的金属声。"
+    "explanation": "撞击金属所发出的声音很响亮。",
+    "derivation": "",
+    "example": ""
   },
   "宠辱偕忘": {
     "pinyin": "chong ru xie wang",
-    "explanation": "荣耀和屈辱都不放在心上。"
+    "explanation": "荣耀和屈辱一并忘却，受宠受辱都不计较。",
+    "derivation": "宋·范仲淹《岳阳楼记》：“登斯楼也，则有心旷神怡，宠辱偕忘，把酒临风，其喜洋洋者矣。”",
+    "example": "登斯楼也，则有心旷神怡，宠辱偕忘，把酒临风，其喜洋洋者矣。——宋·范仲淹《岳阳楼记》"
   },
   "樯倾楫摧": {
     "pinyin": "qiang qing ji cui",
-    "explanation": "桅杆倒下，船桨折断，形容风浪猛烈或船只受损。"
+    "explanation": "桅杆倾倒，船桨折断。形容船只破损或景象破败。",
+    "derivation": "宋·范仲淹《岳阳楼记》：“商旅不行，樯倾楫摧。”",
+    "example": "商旅不行，樯倾楫摧。——宋·范仲淹《岳阳楼记》"
   },
   "波澜不惊": {
     "pinyin": "bo lan bu jing",
-    "explanation": "水面平静，没有大的波浪；也比喻心情平静。"
+    "explanation": "水面平静，没有波浪。比喻局面平静、形势平稳，没有变化或曲折。",
+    "derivation": "宋·范仲淹《岳阳楼记》：“至若春和景明，波澜不惊，上下天光，一碧万顷。”",
+    "example": "至若春和景明，波澜不惊，上下天光，一碧万顷。——宋·范仲淹《岳阳楼记》"
   },
   "满目萧然": {
     "pinyin": "man mu xiao ran",
-    "explanation": "眼前一片萧条冷落。"
+    "explanation": "萧然：冷落的样子。满目是凄凉的景象。",
+    "derivation": "宋·范仲淹《岳阳楼记》：“登斯楼也，则有去国怀乡，忧谗畏讥，满目萧然，感极而悲者矣。”",
+    "example": "登斯楼也，则有去国怀乡，忧谗畏讥，满目萧然，感极而悲者矣。——宋·范仲淹《岳阳楼记》"
   },
   "虎啸猿啼": {
     "pinyin": "hu xiao yuan ti",
-    "explanation": "老虎吼叫，猿猴啼鸣。"
+    "explanation": "老虎吼叫，猿猴啼鸣。",
+    "derivation": "宋·范仲淹《岳阳楼记》：“薄暮冥冥，虎啸猿啼。”",
+    "example": "薄暮冥冥，虎啸猿啼。——宋·范仲淹《岳阳楼记》"
   },
   "郁郁青青": {
     "pinyin": "yu yu qing qing",
-    "explanation": "草木青翠茂盛。"
+    "explanation": "草木芳香茂盛的样子。",
+    "derivation": "宋·范仲淹〈岳阳楼记〉：「岸芷汀兰，郁郁青青。」",
+    "example": "宋·范仲淹〈岳阳楼记〉：「岸芷汀兰，郁郁青青。」"
   },
   "风霜高洁": {
     "pinyin": "feng shuang gao jie",
-    "explanation": "天气清爽，霜色洁白，描写秋日景象。"
+    "explanation": "天气高爽，霜色洁白。",
+    "derivation": "宋·欧阳修《醉翁亭记》：“野芳发而幽香，佳木秀而繁阴，风霜高洁，水落而石出者，山间之四时也。”",
+    "example": "野芳发而幽香，佳木秀而繁阴，风霜高洁，水落而石出者，山间之四时也。——宋·欧阳修《醉翁亭记》"
   },
   "求神拜佛": {
     "pinyin": "qiu shen bai fo",
-    "explanation": "向神佛祈求庇佑。"
+    "explanation": "礼拜神仙，请求保佑。",
+    "derivation": "明·凌蒙初《初刻拍案惊奇》第13卷：“有一富民姓严，夫妻两口儿过活，三十岁上无子，求神拜佛，无时无处不将此事挂在念头上。”",
+    "example": "当他妈妈生病的时候，他去求神拜佛。 ★周恩来《学习毛泽东》"
   },
   "善解人意": {
     "pinyin": "shan jie ren yi",
-    "explanation": "善于体谅别人的心意。"
+    "explanation": "善：善于；解：理解。善于理解别人的意图。",
+    "derivation": "清·褚人获《隋唐演义》第87回：“他总不离杨妃左右，最能言语，善解人意，聪慧异常，杨妃爱之如宝，呼为雪衣女。”",
+    "example": "章诒和《往事并不如烟·最后的贵族》：“她与康老一样的善解人意，却很少将自己的事随便告人。”"
   },
   "春蚕自缚": {
     "pinyin": "chun can zi fu",
-    "explanation": "春蚕吐丝把自己裹住，比喻自己使自己受到束缚。"
+    "explanation": "缚：缠束，捆绑。像春天的蚕作茧那样，自己把自己缠束起来。",
+    "derivation": "清·文康《儿女英雄传》第二十二回：“掉句文，便叫做痴鼠拖姜，春蚕自缚。”",
+    "example": "掉句文，便叫做痴鼠拖姜，春蚕自缚。——清·文康《儿女英雄传》第二十二回"
   },
   "不谙世事": {
     "pinyin": "bu an shi shi",
-    "explanation": "不熟悉人情世故。"
+    "explanation": "不了解社会上的种种事情，缺乏社会经验。",
+    "derivation": "",
+    "example": "那时候我还是一个不谙世事的孩童。"
   },
   "国弊民穷": {
     "pinyin": "guo bi min qiong",
-    "explanation": "国家衰弱，百姓贫困。"
+    "explanation": "国家衰弱，百姓贫困。",
+    "derivation": "方志敏《可爱的中国》：“不错，目前的中国，固然是江山破碎，国弊民穷。”",
+    "example": "不错，目前的中国，固然是江山破碎，国弊民穷。——方志敏《可爱的中国》"
   },
   "男扮女装": {
     "pinyin": "nan ban nv zhuang",
-    "explanation": "男子装扮成女子。"
+    "explanation": "男人打扮成女人。",
+    "derivation": "金敬迈《欧阳海之歌》第一章：“缺盐少米的穷苦人，独子也要抓丁。男扮女装也没得用呵。”",
+    "example": "金敬迈《欧阳海之歌》第一章：“缺盐少米的穷苦人，独子也要抓丁。男扮女装也没得用呵。”"
   },
   "云山雾罩": {
     "pinyin": "yun shan wu zhao",
-    "explanation": "云雾笼罩，也形容言语含糊、使人不明所以。"
+    "explanation": "罩：覆盖。山被云雾笼罩，看不清它的真实面目。比喻故弄玄虚，暧昧不明。",
+    "derivation": "",
+    "example": "放爆竹的硝烟，象云山雾罩，正在热闹。（梁斌《红旗谱》三十六）"
   },
   "免冠徒跣": {
     "pinyin": "mian guan tu xian",
-    "explanation": "摘下帽子，赤着脚。"
+    "explanation": "摘下帽子，光脚行走。",
+    "derivation": "《战国策·魏策四》：“布衣之怒，亦免冠徒跣，以头抢地尔。”",
+    "example": "布衣之怒，亦免冠徒跣，以头抢地尔。——《战国策·魏策四》"
   },
   "天下缟素": {
     "pinyin": "tian xia gao su",
-    "explanation": "天下人都穿白色丧服，形容举国哀悼。"
+    "explanation": "天下人都穿上白色丧服，表示举国哀悼。",
+    "derivation": "《战国策·魏策四》：“若士必怒，伏尸二人，流血五步，天下缟素，今日是也。”",
+    "example": "若士必怒，伏尸二人，流血五步，天下缟素，今日是也。——《战国策·魏策四》"
   },
   "彗星袭月": {
     "pinyin": "hui xing xi yue",
-    "explanation": "彗星的光芒接近或掩映月亮，古人视为特殊天象。"
+    "explanation": "彗星的光芒扫过月亮，古人认为是灾难的征兆。",
+    "derivation": "《战国策·魏策四》：“夫专诸之刺王僚也，彗星袭月。”",
+    "example": "夫专诸之刺王僚也，彗星袭月。——《战国策·魏策四》"
   },
   "口体之奉": {
     "pinyin": "kou ti zhi feng",
-    "explanation": "供给口腹和身体的饮食衣物。"
+    "explanation": "奉：奉养。指衣食方面的奉养。",
+    "derivation": "宋·朱熹《论语集注》卷二：“心欲求道，而以口体之奉不若人为耻，其识趣之卑陋甚矣，何足与议于道哉？”",
+    "example": "不知口体之奉不若人也。 ★明·宋濂《送东阳马生序》"
   },
   "负箧曳屣": {
     "pinyin": "fu qie ye xi",
-    "explanation": "背着书箱，拖着鞋子，形容求学奔走的艰辛。"
+    "explanation": "背着书箱，拖着鞋子，形容求学旅途艰辛或生活贫苦。",
+    "derivation": "明·宋濂《送东阳马生序》：“当余之从师也，负箧曳屣行深山巨谷中。”",
+    "example": "当余之从师也，负箧曳屣行深山巨谷中。——明·宋濂《送东阳马生序》"
   },
   "烛幽索隐": {
     "pinyin": "zhu you suo yin",
-    "explanation": "照见幽暗，探寻隐微，比喻探究深奥之处。"
+    "explanation": "照见幽暗，探寻隐微，比喻探究深奥之处。",
+    "derivation": "鲁迅《中国小说史略》：“烛幽索隐，物无遁形。”",
+    "example": "烛幽索隐，物无遁形。——鲁迅《中国小说史略》"
   },
   "针砭时弊": {
     "pinyin": "zhen bian shi bi",
-    "explanation": "指出并批评当时社会的弊病。"
+    "explanation": "比喻指出并批评社会上的弊端和问题，劝人改正。",
+    "derivation": "",
+    "example": ""
   },
   "天高地远": {
     "pinyin": "tian gao di yuan",
-    "explanation": "天地辽阔，距离遥远。"
+    "explanation": "形容相隔极远。同“天高地迥”。",
+    "derivation": "宋·沈瀛《醉落魄》词：“致知格物。初学工夫参圣域。天高地远无穷极。”",
+    "example": "遮莫你上碧霄下黄泉，赤紧地天高地远。 ★元·谷子敬《城南柳》第三折"
   },
   "收放自如": {
     "pinyin": "shou fang zi ru",
-    "explanation": "收束和展开都能自由掌握。"
+    "explanation": "形容对情感的控制，无论收敛或奔放都自然合宜，不拘泥、不做作。",
+    "derivation": "",
+    "example": "在这部戏中，她的演技收放自如，演活了剧中的女主角。"
   },
   "长空万里": {
     "pinyin": "chang kong wan li",
-    "explanation": "辽阔无边的天空。"
+    "explanation": "辽阔的天空绵延万里。",
+    "derivation": "",
+    "example": ""
   },
   "文采藻饰": {
     "pinyin": "wen cai zao shi",
-    "explanation": "修饰言辞，使之富于文采。"
+    "explanation": "修饰言辞，使之富于文采。",
+    "derivation": "",
+    "example": ""
   },
   "揭竿为旗": {
     "pinyin": "jie gan wei qi",
-    "explanation": "举起竹竿作旗帜，指发动起义。"
+    "explanation": "举起竹竿当作旗帜，指发动武装起义。",
+    "derivation": "汉·贾谊《过秦论》：“斩木为兵，揭竿为旗。”",
+    "example": "斩木为兵，揭竿为旗。——汉·贾谊《过秦论》"
   },
   "斩木为兵": {
     "pinyin": "zhan mu wei bing",
-    "explanation": "砍削树木作为武器。"
+    "explanation": "斩削树木作为兵器。比喻武装起义。",
+    "derivation": "《文选·贾谊·过秦论》：「斩木为兵，揭竿为旗，天下云集而响应。」",
+    "example": "《文选·贾谊·过秦论》：「斩木为兵，揭竿为旗，天下云集而响应。」"
   },
   "深入不毛": {
     "pinyin": "shen ru bu mao",
-    "explanation": "深入不生草木的荒凉地区。"
+    "explanation": "不毛：指不生长庄稼的贫瘠土地或地带。深入到荒凉的地方。",
+    "derivation": "《三国志·蜀志·诸葛亮传》：“故五月渡泸，深入不毛，并日而食，臣非不自惜也。”",
+    "example": "今丞相亲提士卒，深入不毛，收服蛮方；目今蛮王既已归服，何不置官吏，与孟获一同守之？ ★明·罗贯中《三国演义》第九十回"
   },
   "寻寻觅觅": {
     "pinyin": "xun xun mi mi",
-    "explanation": "不断寻找。"
+    "explanation": "指反复寻求探索。",
+    "derivation": "清·褚人获《隋唐演义》第60回：“看他假假真真，寻寻觅觅。玉案琼珠在手，香山丹桂犹含色。”",
+    "example": "高阳《胡雪岩全传·灯火楼台》：“朱铁口寻寻觅觅，找出来四样古玩。”"
   },
   "百舸争流": {
     "pinyin": "bai ge zheng liu",
-    "explanation": "许多船竞相航行，比喻众人奋力争先。"
+    "explanation": "许多船只竞相前行，比喻众人奋勇争先。",
+    "derivation": "毛泽东《沁园春·长沙》：“漫江碧透，百舸争流。”",
+    "example": "漫江碧透，百舸争流。——毛泽东《沁园春·长沙》"
   },
   "书生意气": {
     "pinyin": "shu sheng yi qi",
-    "explanation": "读书人的志气、热情和抱负。"
+    "explanation": "读书人的志气、热情和抱负。",
+    "derivation": "",
+    "example": ""
   },
   "弯弯曲曲": {
     "pinyin": "wan wan qu qu",
-    "explanation": "曲折不直。"
+    "explanation": "曲折不直的。",
+    "derivation": "清·曹雪芹《红楼梦》第87回：“于是二人别了惜春，离了蓼风轩，弯弯曲曲，走近潇湘馆，忽听得叮咚之声。”",
+    "example": "一条弯弯曲曲的小路伸向远方。"
   },
   "锐意进取": {
     "pinyin": "rui yi jin qu",
-    "explanation": "意志坚决地追求进步。"
+    "explanation": "有决心、有魄力地积极向前，不断求新求变。",
+    "derivation": "",
+    "example": ""
   },
   "山不厌高": {
     "pinyin": "shan bu yan gao",
-    "explanation": "山不以高大为满足，常比喻胸怀广阔、不断追求。"
+    "explanation": "山不嫌其高。比喻品行越高尚越好。",
+    "derivation": "汉·曹操《短歌行》：“山不厌高，海不厌深，周公吐哺，天下归心。”",
+    "example": "山不厌高，海不厌深，周公吐哺，天下归心。——汉·曹操《短歌行》"
   },
   "海不厌深": {
     "pinyin": "hai bu yan shen",
-    "explanation": "海不以深广为满足，常比喻包容广博、求贤不止。"
+    "explanation": "大海不满足于自身的深度，比喻希望尽可能多地接纳人才。",
+    "derivation": "汉·曹操《短歌行》：“山不厌高，海不厌深。周公吐哺，天下归心。”",
+    "example": "山不厌高，海不厌深。周公吐哺，天下归心。——汉·曹操《短歌行》"
   },
   "鼓瑟吹笙": {
     "pinyin": "gu se chui sheng",
-    "explanation": "弹瑟吹笙，奏乐相和。"
+    "explanation": "弹瑟、吹笙，指演奏音乐。",
+    "derivation": "《诗经·小雅·鹿鸣》：“我有嘉宾，鼓瑟吹笙。”",
+    "example": "我有嘉宾，鼓瑟吹笙。——《诗经·小雅·鹿鸣》"
   },
   "恬然自安": {
     "pinyin": "tian ran zi an",
-    "explanation": "心情安静，自觉安适。"
+    "explanation": "心情平静，安于现状。",
+    "derivation": "唐·白居易《琵琶行》序：“予出官二年，恬然自安。”",
+    "example": "予出官二年，恬然自安。——唐·白居易《琵琶行》序"
   },
   "封狼居胥": {
     "pinyin": "feng lang ju xu",
-    "explanation": "在狼居胥山举行祭天仪式，后用来指建立显赫战功。"
+    "explanation": "汉代霍去病在狼居山筑坛祭天以庆战功的典故。",
+    "derivation": "《汉书·霍去病传》：“票骑将军去病率师躬将所获荤允之士，约轻赍，绝大幕，涉获单于章渠，以诛北车耆，转系左大将双，获旗鼓，历度难侯，济弓卢，获屯头王、韩王等三人，将军、相国、当户、都尉八十三人，封狼居胥山，禅于姑衍，登临翰海。”",
+    "example": "票骑将军去病率师躬将所获荤允之士，约轻赍，绝大幕，涉获单于章渠，以诛北车耆，转系左大将双，获旗鼓，历度难侯，济弓卢，获屯头王、韩王等三人，将军、相国、当户、都尉八十三人，封狼居胥山，禅于姑衍，登临翰海。——《汉书·霍去病传》"
   },
   "冷冷清清": {
     "pinyin": "leng leng qing qing",
-    "explanation": "冷落寂静，没有热闹气氛。"
+    "explanation": "死气沉沉，冷落、凄凉、寂寞。",
+    "derivation": "清·曹雪芹《红楼梦》第113回：“紫鹃到了这里，我从没合他说句知心的话儿，冷冷清清撂著他，我心里甚不过意。”",
+    "example": "红军每到一地，群众冷冷清清，经过宣传之后，才慢慢地起来。 ★毛泽东《井冈山的斗争》"
   },
   "点点滴滴": {
     "pinyin": "dian dian di di",
-    "explanation": "零星细小的部分或积累。"
+    "explanation": "一点一滴，形容数量非常少。",
+    "derivation": "清·钱彩《说岳全传》第四回：“眼光四射，口中流出涎来，点点滴滴，滴在水内。”",
+    "example": "学习要靠点点滴滴地积累。"
   },
   "有理有据": {
     "pinyin": "you li you ju",
-    "explanation": "有道理，也有依据。"
+    "explanation": "有充分的道理和依据。",
+    "derivation": "",
+    "example": ""
   },
   "含糊不清": {
     "pinyin": "han hu bu qing",
-    "explanation": "表达或事物模糊，不清楚明确。"
+    "explanation": "指说话声音不清楚或事物没有分辨清楚。也指不能明辨是非。",
+    "derivation": "邓小平《目前的形势和任务》：“各级党组织直到每个支部的态度都要十分坚定，不能有任何游移不定、含糊不清的表现。”",
+    "example": "她的话语表达含糊不清。"
   },
   "善假于物": {
     "pinyin": "shan jia yu wu",
-    "explanation": "善于借助外物或外部条件。"
+    "explanation": "善于借助外界事物的力量。",
+    "derivation": "《荀子·劝学》：“君子生非异也，善假于物也。”",
+    "example": "君子生非异也，善假于物也。——《荀子·劝学》"
   },
   "木直中绳": {
     "pinyin": "mu zhi zhong sheng",
-    "explanation": "木材笔直，合乎墨线标准。"
+    "explanation": "中：符合、合乎；绳：木匠用以取直，浸满墨汁的线绳。木材直得合乎拉直的墨线。",
+    "derivation": "战国·赵·荀况《劝学》：“木直中绳，𫐓以为轮，其曲中规。”",
+    "example": "木直中绳，𫐓以为轮，其曲中规。——战国·赵·荀况《劝学》"
   },
   "恰恰相反": {
     "pinyin": "qia qia xiang fan",
-    "explanation": "正好与所说或所想的相反。"
+    "explanation": "正好与所说或所想的相反。",
+    "derivation": "",
+    "example": ""
   },
   "旌旗蔽空": {
     "pinyin": "jing qi bi kong",
-    "explanation": "旗帜多得遮蔽天空，形容军容盛大。"
+    "explanation": "旌旗：旗帜；蔽：遮蔽。旌旗繁多遮蔽天空。比喻军队阵容的盛大壮观。",
+    "derivation": "宋·苏轼《前赤壁赋》：“旌旗蔽空，酾酒临江，横槊赋诗，固一世之雄也，而今安在哉？”",
+    "example": "旌旗蔽空，酾酒临江，横槊赋诗，固一世之雄也，而今安在哉？——宋·苏轼《前赤壁赋》"
   },
   "舳舻千里": {
     "pinyin": "zhu lu qian li",
-    "explanation": "船只首尾相连，绵延很远。"
+    "explanation": "船首、船尾相连，绵延千里。形容船只众多。《汉书·卷六·武帝纪》：「舳舻千里，薄枞阳而出，作盛唐枞阳之歌。」宋·苏轼〈赤壁赋〉：「舳舻千里，旌旗蔽空，酾酒临江，横槊赋诗。」也作「轴轳千里」。",
+    "derivation": "",
+    "example": ""
   },
   "洗盏更酌": {
     "pinyin": "xi zhan geng zhuo",
-    "explanation": "洗净酒杯，重新斟酒。"
+    "explanation": "清洗酒杯，再度饮酒。",
+    "derivation": "宋·苏轼〈赤壁赋〉：「客喜而笑，洗盏更酌。」",
+    "example": "宋·苏轼〈赤壁赋〉：「客喜而笑，洗盏更酌。」"
   },
   "柔情似水": {
     "pinyin": "rou qing shi shui",
-    "explanation": "柔和深长的情意像流水一样。"
+    "explanation": "柔：温柔。温柔的情感象水一样。形容男女之间情思缠绵不断。",
+    "derivation": "宋·秦观《鹊桥仙》词：“柔情似水，佳期如梦，忍顾鹊桥归路。”",
+    "example": "见他穿一身白纱衫裤，头上只带著一排茉莉花条，趁著那杨柳纤腰，梨花白面，趁显得柔情似水，媚态如春。 ★清·张春帆《九尾龟》六十二"
   },
   "千乘之国": {
     "pinyin": "qian sheng zhi guo",
-    "explanation": "拥有千辆兵车的诸侯国。"
+    "explanation": "拥有一千辆兵车的国家。春秋时指中等诸侯国。",
+    "derivation": "春秋·鲁·孔丘《论语·先进》：“千乘之国。”",
+    "example": "清·吴趼人《二十年目睹之怪现状》第61回：“说来说去都是千乘之国，不知支那之外，更有五洲万国的了。”"
   },
   "为国以礼": {
     "pinyin": "wei guo yi li",
-    "explanation": "用礼的原则治理国家。"
+    "explanation": "用礼来治理国家。",
+    "derivation": "《论语》：“为国以礼，其言不让，是故哂之。”",
+    "example": "为国以礼，其言不让，是故哂之。——《论语》"
   },
   "保民而王": {
     "pinyin": "bao min er wang",
-    "explanation": "保护百姓而成就王业。"
+    "explanation": "使百姓安居乐业，从而统一天下。",
+    "derivation": "《孟子·梁惠王上》：“保民而王，莫之能御也。”",
+    "example": "保民而王，莫之能御也。——《孟子·梁惠王上》"
   },
   "技经肯綮": {
     "pinyin": "ji jing ken qing",
-    "explanation": "筋脉聚结、骨肉连接的地方，出自庖丁解牛的描写。"
+    "explanation": "筋脉聚结、骨肉连接的地方，出自庖丁解牛的描写。",
+    "derivation": "《庄子·养生主》：“技经肯綮之未尝，而况大軱乎？”",
+    "example": "技经肯綮之未尝，而况大軱乎？——《庄子·养生主》"
   },
   "以乱易整": {
     "pinyin": "yi luan yi zheng",
-    "explanation": "用散乱的队伍对付整齐的队伍。"
+    "explanation": "用散乱的队伍对付整齐的队伍。",
+    "derivation": "《左传·僖公三十年》：“以乱易整，不武。”",
+    "example": "以乱易整，不武。——《左传·僖公三十年》"
   },
   "为之奈何": {
     "pinyin": "wei zhi nai he",
-    "explanation": "对于这件事怎么办。"
+    "explanation": "对此怎么办，表示询问应对办法或无可奈何。",
+    "derivation": "",
+    "example": ""
   },
   "前合后偃": {
     "pinyin": "qian he hou yan",
-    "explanation": "身体前倾后仰，形容站立不稳或困顿的样子。"
+    "explanation": "形容身体前后晃动的样子。",
+    "derivation": "元·关汉卿《窦娥冤》第三折：“则被这枷纽的我左侧右偏，人拥的我前合后偃。”",
+    "example": "立不定前合后偃，行不动东倒西歪。折倒的我身体儿尪赢，忧愁的髭发斑白。 ★元·张国宾《衣锦还乡》第二折"
   },
   "吵吵嚷嚷": {
     "pinyin": "chao chao rang rang",
-    "explanation": "大声争吵或喧闹。"
+    "explanation": "大声喧闹，发出嘈杂的声音。",
+    "derivation": "",
+    "example": ""
   },
   "窥斑见豹": {
     "pinyin": "kui ban jian bao",
-    "explanation": "从局部推知整体。"
+    "explanation": "比喻从观察到的部分，可以推测全貌。",
+    "derivation": "",
+    "example": ""
   },
   "居为奇货": {
     "pinyin": "ju wei qi huo",
-    "explanation": "把某种事物当作珍奇货物囤存，等待有利时机。"
+    "explanation": "储存起来，当作稀奇的货物，等待高价出售。",
+    "derivation": "清·蒲松龄《聊斋志异·促织》：“昂其直，居为奇货。”",
+    "example": "昂其直，居为奇货。——清·蒲松龄《聊斋志异·促织》"
   },
   "天高气爽": {
     "pinyin": "tian gao qi shuang",
-    "explanation": "天空高远，空气清爽。"
+    "explanation": "形容秋天天空高远明朗、气候凉爽宜人。",
+    "derivation": "元·马致远《汉宫秋》楔子：“今日天高气爽，众头目每向沙堤射猎一番。”",
+    "example": "天高气爽，正好去秋游。"
   },
   "玉鉴琼田": {
     "pinyin": "yu jian qiong tian",
-    "explanation": "像玉镜和美玉田地一样，形容澄澈洁白的景色。"
+    "explanation": "形容湖水明净光洁，如玉镜、玉田一般。",
+    "derivation": "宋·张孝祥《念奴娇·过洞庭》：“玉鉴琼田三万顷，著我扁舟一叶。”",
+    "example": "玉鉴琼田三万顷，著我扁舟一叶。——宋·张孝祥《念奴娇·过洞庭》"
   },
   "朝飞暮卷": {
     "pinyin": "zhao fei mu juan",
-    "explanation": "早晨飞动，傍晚卷舒，描写云霞变幻。"
+    "explanation": "朝：早晨；暮：傍晚。形容天气的变化和景色的优美。",
+    "derivation": "唐·王勃《滕王阁》诗：“画栋朝飞南浦云，朱帘暮卷西山雨。”",
+    "example": "朝飞暮卷，云霞翠轩。雨丝风片，烟波画船。 ★明·汤显祖《牡丹亭·惊梦》"
   },
   "互诉衷肠": {
     "pinyin": "hu su zhong chang",
-    "explanation": "互相倾诉内心的感情。"
+    "explanation": "互相倾诉内心的话。",
+    "derivation": "",
+    "example": ""
   },
   "烽烟四起": {
     "pinyin": "feng yan si qi",
-    "explanation": "各处燃起战火，形容战乱纷起。"
+    "explanation": "比喻到处有战乱。",
+    "derivation": "",
+    "example": "在这风声鹤唳，烽烟四起的乱世，能保住性命已是不容易了。"
   },
   "与子同袍": {
     "pinyin": "yu zi tong pao",
-    "explanation": "与你同穿战袍，比喻同心协力、共同战斗。"
+    "explanation": "与你共穿一件衣袍。指战士之间相亲相爱。",
+    "derivation": "《诗经·秦风·无衣》：「岂曰无衣，与子同袍。」",
+    "example": "《诗经·秦风·无衣》：「岂曰无衣，与子同袍。」"
   },
   "寒风凛冽": {
     "pinyin": "han feng lin lie",
-    "explanation": "寒风刺骨，非常冷。"
+    "explanation": "寒风刺骨，极为寒冷。",
+    "derivation": "",
+    "example": ""
   },
   "仁者不忧": {
     "pinyin": "ren zhe bu you",
-    "explanation": "有仁德的人不因私欲而忧愁。"
+    "explanation": "有仁德的人心地坦然，没有忧虑。",
+    "derivation": "《论语》：“知者不惑，仁者不忧，勇者不惧。”",
+    "example": "知者不惑，仁者不忧，勇者不惧。——《论语》"
   },
   "知者不惑": {
     "pinyin": "zhi zhe bu huo",
-    "explanation": "有智慧的人不迷惑。"
+    "explanation": "聪慧的人能深入了解，凡事不会疑惑不决。",
+    "derivation": "语出《论语·子罕》：「知者不惑，仁者不忧，勇者不惧。」",
+    "example": "语出《论语·子罕》：「知者不惑，仁者不忧，勇者不惧。」"
   },
   "非礼勿动": {
     "pinyin": "fei li wu dong",
-    "explanation": "不符合礼的行为不要做。"
+    "explanation": "不做不符合礼仪的事。",
+    "derivation": "《论语》：“非礼勿视，非礼勿听，非礼勿言，非礼勿动。”",
+    "example": "非礼勿视，非礼勿听，非礼勿言，非礼勿动。——《论语》"
   },
   "非礼勿听": {
     "pinyin": "fei li wu ting",
-    "explanation": "不符合礼的话不要听。"
+    "explanation": "不听不合礼仪的话。",
+    "derivation": "《论语》：“非礼勿视，非礼勿听，非礼勿言，非礼勿动。”",
+    "example": "非礼勿视，非礼勿听，非礼勿言，非礼勿动。——《论语》"
   },
   "非礼勿视": {
     "pinyin": "fei li wu shi",
-    "explanation": "不符合礼的事不要看。"
+    "explanation": "不看不合礼仪的东西。",
+    "derivation": "《论语》：“非礼勿视，非礼勿听，非礼勿言，非礼勿动。”",
+    "example": "非礼勿视，非礼勿听，非礼勿言，非礼勿动。——《论语》"
   },
   "非礼勿言": {
     "pinyin": "fei li wu yan",
-    "explanation": "不符合礼的话不要说。"
+    "explanation": "不说不合礼仪的话。",
+    "derivation": "《论语》：“非礼勿视，非礼勿听，非礼勿言，非礼勿动。”",
+    "example": "非礼勿视，非礼勿听，非礼勿言，非礼勿动。——《论语》"
   },
   "合抱之木": {
     "pinyin": "he bao zhi mu",
-    "explanation": "粗大到需要两臂环抱的树木。"
+    "explanation": "粗大得要用两臂合围的树木。",
+    "derivation": "",
+    "example": ""
   },
   "天人合一": {
     "pinyin": "tian ren he yi",
-    "explanation": "认为人与自然相通、应协调统一的思想。"
+    "explanation": "中国哲学中关于天人关系的一种观念。宋代理学家认为「仁」是所有德行的总名，仁者以天地万物为一体。所以学者应汲于求仁，尽己之心性，存天理，去人欲，由格致诚正修齐治平，而与天地合德，就可以达到「天人合一」的境界。",
+    "derivation": "",
+    "example": ""
   },
   "民为邦本": {
     "pinyin": "min wei bang ben",
-    "explanation": "百姓是国家的根本。"
+    "explanation": "邦：国家。百姓是国家的根本。",
+    "derivation": "《尚书·五子之歌》：“民惟邦本，本固邦宁。”",
+    "example": "作为领导者应该明白民为邦本的道理。"
   },
   "简而言之": {
     "pinyin": "jian er yan zhi",
-    "explanation": "简要地说。"
+    "explanation": "简括地说，长话短说。",
+    "derivation": "",
+    "example": "简而言之，我们得尽快办好。"
   },
   "以史为鉴": {
     "pinyin": "yi shi wei jian",
-    "explanation": "以历史经验作为借鉴。"
+    "explanation": "把历史作为镜子，从过去的事情中吸取教训。",
+    "derivation": "",
+    "example": ""
   },
   "兼听则明": {
     "pinyin": "jian ting ze ming",
-    "explanation": "广泛听取不同意见，才能明辨是非。"
+    "explanation": "多方听取意见，才能辨明是非得失。",
+    "derivation": "《三国演义》第八十三回：“古云：兼听则明，偏听则蔽。”",
+    "example": "兼听则明，偏听则蔽。——《三国演义》第八十三回"
   },
   "威振四海": {
     "pinyin": "wei zhen si hai",
-    "explanation": "威势震动天下。"
+    "explanation": "威势震动天下。",
+    "derivation": "汉·贾谊《过秦论》：“执敲朴以鞭笞天下，威振四海。”",
+    "example": "执敲朴以鞭笞天下，威振四海。——汉·贾谊《过秦论》"
   },
   "流血漂橹": {
     "pinyin": "liu xue piao lu",
-    "explanation": "流出的血能浮起盾牌，夸张地形容战争伤亡惨重。"
+    "explanation": "橹：盾牌。血流成河，可以漂浮盾牌。",
+    "derivation": "汉·贾谊《过秦论》：“伏尸百万，流血漂橹。”",
+    "example": "伏尸百万，流血漂橹。——汉·贾谊《过秦论》"
   },
   "不测之渊": {
     "pinyin": "bu ce zhi yuan",
-    "explanation": "无法测量深度的深渊。"
+    "explanation": "深渊。亦以比喻危险之地。",
+    "derivation": "汉·贾谊《过秦论》：“临不测之渊，以为固。”",
+    "example": "今人有谓臣曰，入不测之渊而必出，不出，请以一鼠首为女殉者，臣必不为也。 ★西汉·刘向《战国策·魏策三》"
   },
   "猗顿之富": {
     "pinyin": "yi dun zhi fu",
-    "explanation": "像猗顿那样富有，指巨大的财富。"
+    "explanation": "猗顿：春秋时鲁国人，家境富裕。像猗顿那样富有。泛指拥有巨额财产。",
+    "derivation": "《韩非子·解老》：“虽上有天子诸侯之势尊，而下有猗顿、陶朱、卜祝之富，犹失其民人而亡其财资也。”",
+    "example": "材能不及中庸，非有仲尼、墨翟之贤，陶朱、猗顿之富。 ★汉·贾谊《过秦论》"
   },
   "急急忙忙": {
     "pinyin": "ji ji mang mang",
-    "explanation": "急促匆忙的样子。"
+    "explanation": "因为著急而行动加快，匆匆忙忙。",
+    "derivation": "清·曹雪芹《红楼梦》第101回：“一面说，一面带了两个丫头急急忙忙回到家中。”",
+    "example": "何必急急忙忙地要来‘统一’这块巴掌大的边区呢？ ★毛泽东《质问国民党》"
   },
   "断断续续": {
     "pinyin": "duan duan xu xu",
-    "explanation": "时而中断，时而继续。"
+    "explanation": "时断时续地接连下去。",
+    "derivation": "鲁迅《致台静农》：“而且所收到的印本断断续续，也提不起兴趣来。”",
+    "example": "我实在忍不住打断她断断续续的谈话。"
   },
   "张弛有度": {
     "pinyin": "zhang chi you du",
-    "explanation": "紧张与放松安排得当。"
+    "explanation": "松紧适度，收放自如。",
+    "derivation": "",
+    "example": ""
   },
   "孤孤单单": {
     "pinyin": "gu gu dan dan",
-    "explanation": "独自一人，孤独无伴。"
+    "explanation": "单身无靠，感到寂寞。",
+    "derivation": "清·姜振名《永庆升平前传》第30回：“想我张广泰也不能归家，也不能与红玉相见，孤孤单单，冷冷清清，不知终身该当如何？”",
+    "example": "这里就是他孤孤单单的一个人。"
   },
   "徘徊不前": {
     "pinyin": "pai huai bu qian",
-    "explanation": "来回犹豫，不肯或不能向前。"
+    "explanation": "徘徊：来回地行走。犹豫不决，停步不前。比喻总在一个地点不能前进。",
+    "derivation": "成仿吾《长征回忆录》：“林彪又消极抗令，徘徊不前，受到军委的严厉批评。”",
+    "example": "她的成绩一直徘徊不前。"
   },
   "吹胡瞪眼": {
     "pinyin": "chui hu deng yan",
-    "explanation": "形容生气发怒的样子。"
+    "explanation": "形容生气、发怒的样子。",
+    "derivation": "",
+    "example": ""
   },
   "波澜起伏": {
     "pinyin": "bo lan qi fu",
-    "explanation": "波浪时起时落，也比喻情节或局势多有变化。"
+    "explanation": "原指波浪起落，常比喻文艺作品的情节曲折。",
+    "derivation": "",
+    "example": ""
   },
   "至情至性": {
     "pinyin": "zhi qing zhi xing",
-    "explanation": "感情真挚，性情率真。"
+    "explanation": "感情真挚、率性自然，不矫揉做作。",
+    "derivation": "",
+    "example": ""
   },
   "俯仰一世": {
     "pinyin": "fu yang yi shi",
-    "explanation": "一俯一仰之间度过一生，感叹人生短暂。"
+    "explanation": "俯仰：低头，抬头，指周旋、应付。周旋、应付一辈子。",
+    "derivation": "晋·王羲之《兰亭集序》：“夫人之相与，俯仰一世，或取诸怀抱，晤言一室之内。”",
+    "example": "夫人之相与，俯仰一世，或取诸怀抱，晤言一室之内。——晋·王羲之《兰亭集序》"
   },
   "少长咸集": {
     "pinyin": "shao zhang xian ji",
-    "explanation": "年少和年长的人都聚集在一起。"
+    "explanation": "年少的和年长的人都聚集在一起。",
+    "derivation": "晋·王羲之《兰亭集序》：“群贤毕至，少长咸集。”",
+    "example": "群贤毕至，少长咸集。——晋·王羲之《兰亭集序》"
   },
   "狂放不羁": {
     "pinyin": "kuang fang bu ji",
-    "explanation": "性情豪放，不受拘束。"
+    "explanation": "任性放荡，不受拘束。",
+    "derivation": "",
+    "example": ""
   },
   "群贤毕至": {
     "pinyin": "qun xian bi zhi",
-    "explanation": "众多贤能的人都来到。"
+    "explanation": "指贤能者齐集，济济一堂。",
+    "derivation": "晋·王羲之《兰亭集序》：“群贤毕至，少长咸集，此地有崇山峻岭，茂林修竹。”",
+    "example": "好了！群贤毕至，少长咸集，快来接著玩咱们的吧！ ★端木蕻良《曹雪芹》"
   },
   "载欣载奔": {
     "pinyin": "zai xin zai ben",
-    "explanation": "一边欢喜，一边奔走。"
+    "explanation": "载：文言助司；欣：喜悦；奔：快走。一面心里高兴，一面加快脚步。",
+    "derivation": "晋·陶潜《归去来辞》：“乃瞻衡宇，载欣载奔。僮仆来迎，稚子侯门。”",
+    "example": "乃瞻衡宇，载欣载奔。僮仆来迎，稚子侯门。——晋·陶潜《归去来辞》"
   },
   "前途无量": {
     "pinyin": "qian tu wu liang",
-    "explanation": "未来的发展不可限量。"
+    "explanation": "指一个人的前途没有限量。",
+    "derivation": "钱锺书《围城》：“鸿渐还低头不响——‘我只希望方先生前途无量。’”",
+    "example": "我相信你会前途无量的。"
   },
   "天圆地方": {
     "pinyin": "tian yuan di fang",
-    "explanation": "古人关于天形圆、地形方的观念。"
+    "explanation": "古代关于天地形状的一种观念，认为天是圆的，地是方的。",
+    "derivation": "《大戴礼记·曾子天圆》：“天圆而地方者，诚有之乎？”",
+    "example": ""
   }
 }

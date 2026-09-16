@@ -101,7 +101,7 @@ void main() {
       );
     }
   });
-  test('已安装内容版本4升级到5，人工改档生效且旧分、ID和冻结题不变', () async {
+  test('已安装内容版本4升级到当前版本，人工改档生效且旧分、ID和冻结题不变', () async {
     final dir = await Directory.systemTemp.createTemp('tier_v2_upgrade');
     final file = await File(
       'assets/data/idiom_crossword.db',
@@ -146,7 +146,7 @@ void main() {
     );
     expect(
       db.select('SELECT version FROM four_tier_version').single['version'],
-      5,
+      FourTierContent.currentVersion,
     );
     expect(
       db
@@ -181,6 +181,66 @@ void main() {
           .toList(),
       ['v2 frozen puzzle', 'v2 candidates'],
     );
+  });
+
+  test('版本5的已导入词条更新词典字段，保留ID、分档和用户数据', () async {
+    final dir = await Directory.systemTemp.createTemp('dictionary_upgrade');
+    final file = await File(
+      'assets/data/idiom_crossword.db',
+    ).copy('${dir.path}/v5.db');
+    final db = sqlite3.open(file.path);
+    addTearDown(() {
+      db.close();
+      dir.deleteSync(recursive: true);
+    });
+    db.execute(
+      'CREATE TABLE four_tier_version (id INTEGER PRIMARY KEY, version INTEGER NOT NULL)',
+    );
+    db.execute('INSERT INTO four_tier_version VALUES (1,5)');
+    db.execute(
+      "UPDATE idioms SET explanation='编辑释义',derivation='教材审核保留；高中必修',example='' WHERE id>29502",
+    );
+    db.execute('INSERT INTO collection (idiom_id) VALUES (29503)');
+    final before = db
+        .select(
+          'SELECT id,word,difficulty,difficulty_tier FROM idioms ORDER BY id',
+        )
+        .map((r) => r.values.toList())
+        .toList();
+    final content = await FourTierContent.load();
+    content.apply(db);
+    for (final row in content.additions) {
+      expect(
+        db
+            .select(
+              'SELECT explanation,derivation,example FROM idioms WHERE id=?',
+              [row['id']],
+            )
+            .single
+            .values
+            .toList(),
+        [row['explanation'], row['derivation'], row['example']],
+      );
+    }
+    expect(
+      db
+          .select(
+            'SELECT id,word,difficulty,difficulty_tier FROM idioms ORDER BY id',
+          )
+          .map((r) => r.values.toList())
+          .toList(),
+      before,
+    );
+    expect(
+      db.select('SELECT idiom_id FROM collection').single['idiom_id'],
+      29503,
+    );
+    content.apply(db);
+    expect(
+      db.select('SELECT version FROM four_tier_version').single['version'],
+      content.version,
+    );
+    expect(db.select('PRAGMA integrity_check').single.values.single, 'ok');
   });
 
   test('ID冲突使内容事务回滚，不提交版本', () {

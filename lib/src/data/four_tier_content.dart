@@ -4,7 +4,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 /// 统一分级内容。审核来源只作记录，不参与准入。
 class FourTierContent {
-  static const currentVersion = 5;
+  static const currentVersion = 6;
   final int version;
   final List<dynamic> entries;
   final List<dynamic> additions;
@@ -61,7 +61,7 @@ class FourTierContent {
         db.execute(
           'INSERT OR IGNORE INTO idioms '
           '(id,word,pinyin,pinyin_abbr,explanation,derivation,first_char,last_char,difficulty,example) '
-          "VALUES (?,?,?,?,?,?,?,?,?,'')",
+          'VALUES (?,?,?,?,?,?,?,?,?,?)',
           [
             row['id'],
             word,
@@ -72,6 +72,17 @@ class FourTierContent {
             word[0],
             word[3],
             row['difficulty'],
+            row['example'],
+          ],
+        );
+        db.execute(
+          'UPDATE idioms SET explanation=?,derivation=?,example=? WHERE id=? AND word=?',
+          [
+            row['explanation'],
+            row['derivation'],
+            row['example'],
+            row['id'],
+            word,
           ],
         );
         for (var position = 0; position < 4; position++) {

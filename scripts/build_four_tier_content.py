@@ -10,7 +10,7 @@ from pathlib import Path
 import sqlite3
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTENT_VERSION = 5
+CONTENT_VERSION = 6
 NAMES = ['入门', '基础', '拓展', '生僻']
 FIELDS = [('difficulty_tier', 'INTEGER NOT NULL DEFAULT 4'),
           ('difficulty_source', "TEXT NOT NULL DEFAULT 'inferred'"),
@@ -61,8 +61,8 @@ def apply_content(db, content):
             raise ValueError(f'ID mismatch: {row["word"]}')
         db.execute('INSERT OR IGNORE INTO idioms (id,word,pinyin,pinyin_abbr,explanation,derivation,first_char,last_char,difficulty) VALUES (?,?,?,?,?,?,?,?,?)',
                    [row['id'], row['word'], row['pinyin'], row['pinyinAbbr'], row['explanation'], row['derivation'], row['word'][0], row['word'][-1], row['difficulty']])
-        db.execute('UPDATE idioms SET pinyin=?,pinyin_abbr=?,explanation=?,derivation=?,example=\'\' WHERE id=? AND word=?',
-                   [row['pinyin'],row['pinyinAbbr'],row['explanation'],row['derivation'],row['id'],row['word']])
+        db.execute('UPDATE idioms SET pinyin=?,pinyin_abbr=?,explanation=?,derivation=?,example=? WHERE id=? AND word=?',
+                   [row['pinyin'],row['pinyinAbbr'],row['explanation'],row['derivation'],row['example'],row['id'],row['word']])
         for pos, char in enumerate(row['word']):
             db.execute('INSERT OR IGNORE INTO idiom_char_index VALUES (?,?,?,?,?)', [row['id'], char, pos, int(pos == 0), int(pos == 3)])
     for ident, word, grade, source, reviewed in content['entries']:
@@ -124,12 +124,15 @@ def main():
             raise ValueError(f'Missing pronunciation/definition: {word}')
         detail = details[word]
         assert len(detail['pinyin'].split()) == 4 and detail['explanation'].strip()
+        for field in ('derivation', 'example'):
+            if not isinstance(detail.get(field), str):
+                raise ValueError(f'Missing dictionary field {field}: {word}')
         grade = anchors[word][0]
         score = {1: 1, 2: 5, 3: 10, 4: 30}[grade]
         scores.setdefault(word, score)
         additions.append({'id': ids[word], 'word': word, **detail,
                           'pinyinAbbr': ''.join(p[0] for p in detail['pinyin'].split()),
-                          'difficulty': score, 'derivation': f'教材审核保留；首次检出：{row[1]}。释义为编辑释义。'})
+                          'difficulty': score})
     entries = [[ids[w], w, *anchors.get(w, (inferred(score), 'inferred', False))] for w, score in scores.items()]
     entries.sort()
     content = {'version': CONTENT_VERSION, 'legacyMaxId': 29502, 'inferenceBounds': [1, 5, 10],
@@ -147,7 +150,7 @@ def main():
                      for r in existing + selected],
         'manualOverrides': [{'id': ids[w], 'word': w, 'tier': NAMES.index(g) + 1, 'reason': reason}
                             for w, g, reason in overrides],
-        'editorialNotes': '漫天风雪按用户更正保留；新增词释义为编辑释义，旧分为兼容估值。',
+        'editorialNotes': '漫天风雪按用户更正保留；新增词释义、出处与例句见词典核查记录；旧分为兼容估值。',
     }
     (reviews / 'four_tier_evidence.json').write_text(json.dumps(evidence, ensure_ascii=False, indent=2) + '\n')
     (ROOT / 'assets/data/four_tier_content.json').write_text(json.dumps(content, ensure_ascii=False, separators=(',', ':')) + '\n')
@@ -169,7 +172,7 @@ def main():
     for sc in [1, 2, 5, 6, 10, 11]:
         words = sorted(w for w, score in scores.items() if score == sc and w not in anchors)[:12]
         report.append(f'| {sc} | {NAMES[inferred(sc)-1]} | {"、".join(words)} |')
-    report += ['', '精确册次、PDF页码、人工覆盖及输入SHA-256见 [版本化证据](../reviews/textbook-idioms/four_tier_evidence.json)。新增释义为编辑释义，不能当作教材原文引用。', '']
+    report += ['', '精确册次、PDF页码、人工覆盖及输入SHA-256见 [版本化证据](../reviews/textbook-idioms/four_tier_evidence.json)。新增词释义、出处与例句见 [词典核查记录](../reviews/textbook-idioms/dictionary_enrichment_report.md)。', '']
     report += ['', '## 人工补充分档', '', '可编辑来源：[人工分档覆盖表](../reviews/textbook-idioms/人工分档覆盖表.md)、[非教材审核表](../reviews/textbook-idioms/非教材_未人工审核成语分档表.md)。以下覆盖已纳入统计，审核标记只作记录。', '', '| 成语 | 指定等级 | 依据 |', '|---|---|---|']
     report += [f'| {w} | {g} | {reason} |' for w, g, reason in overrides if reason != '完整审核确认原等级']
     report += ['', '完整审核中确认原等级的空白行不逐条重复列出，均已记为已审核；完整记录见证据JSON。']
@@ -198,7 +201,8 @@ def main():
                 raw_by[w] = {'word': w, 'example': ''}
                 raw.append(raw_by[w])
             raw_by[w].update({'pinyin': row['pinyin'], 'abbreviation': row['pinyinAbbr'],
-                             'explanation': row['explanation'], 'derivation': row['derivation']})
+                             'explanation': row['explanation'], 'derivation': row['derivation'],
+                             'example': row['example']})
             if w not in scored_by:
                 scored_by[w] = {'word': w, 'old_score': row['difficulty']}
                 scored.append(scored_by[w])

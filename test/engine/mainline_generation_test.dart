@@ -75,7 +75,7 @@ void main() {
         final tiers = Map<String, int>.from(level.strategy['wordTiers'] as Map);
         expect(policy.accepts(level.idioms, tiers), isTrue);
         expect(level.strategyVersion, 3);
-        expect(level.contentVersion, 5);
+        expect(level.contentVersion, 6);
         if (step == 30 && number > 10) expect(tiers.values, contains(4));
       }
     }
@@ -167,7 +167,7 @@ void main() {
     final future = jsonDecode(encoded) as Map<String, dynamic>;
     future['contentVersion'] = 2;
     expect(decodeLevel(jsonEncode(future)), isNotNull);
-    future['contentVersion'] = 6;
+    future['contentVersion'] = 7;
     expect(decodeLevel(jsonEncode(future)), isNull);
     future['contentVersion'] = 3;
     expect(decodeLevel(jsonEncode(future)), isNotNull);

@@ -1,6 +1,6 @@
 # 四档分级导入与推断报告
 
-内容版本：5。教材/手工覆盖优先；审核状态不限制主线选词。
+内容版本：6。教材/手工覆盖优先；审核状态不限制主线选词。
 
 全库29724条，已审核29724条，新增222条。漫天风雪按用户更正保留。
 
@@ -84,7 +84,7 @@
 | 10 | 拓展 |  |
 | 11 | 生僻 |  |
 
-精确册次、PDF页码、人工覆盖及输入SHA-256见 [版本化证据](../reviews/textbook-idioms/four_tier_evidence.json)。新增释义为编辑释义，不能当作教材原文引用。
+精确册次、PDF页码、人工覆盖及输入SHA-256见 [版本化证据](../reviews/textbook-idioms/four_tier_evidence.json)。新增词释义、出处与例句见 [词典核查记录](../reviews/textbook-idioms/dictionary_enrichment_report.md)。
 
 
 ## 人工补充分档

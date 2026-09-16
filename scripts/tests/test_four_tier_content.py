@@ -3,12 +3,13 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import sqlite3
 import unittest
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from build_four_tier_content import reviewed_rows, tier, unreviewed_overrides
+from build_four_tier_content import apply_content, reviewed_rows, tier, unreviewed_overrides
 
 
 class FourTierContentTest(unittest.TestCase):
@@ -40,6 +41,23 @@ class FourTierContentTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     unreviewed_overrides(sample, ids, set())
 
+    def test_dictionary_fields_survive_reimport(self):
+        content = json.loads((ROOT / 'assets/data/four_tier_content.json').read_text())
+        details = json.loads((ROOT / 'data/textbook_additions.json').read_text())
+        with sqlite3.connect(':memory:') as db:
+            with sqlite3.connect(ROOT / 'assets/data/idiom_crossword.db') as source:
+                source.backup(db)
+            db.execute("UPDATE idioms SET explanation='编辑释义',derivation='教材审核保留',example='' WHERE id>29502")
+            apply_content(db, content)
+            for row in content['additions']:
+                expected = tuple(details[row['word']][f] for f in ('explanation', 'derivation', 'example'))
+                self.assertEqual(db.execute('SELECT explanation,derivation,example FROM idioms WHERE id=?', [row['id']]).fetchone(), expected)
+                self.assertTrue(expected[0])
+                self.assertNotIn('教材审核', expected[1])
+            before = list(db.iterdump())
+            apply_content(db, content)
+            self.assertEqual(list(db.iterdump()), before)
+
     def test_reviewed_content_and_evidence_are_reproducible(self):
         paths = [ROOT / p for p in ['assets/data/four_tier_content.json',
                  'docs/reviews/textbook-idioms/four_tier_evidence.json',
@@ -66,7 +84,7 @@ class FourTierContentTest(unittest.TestCase):
         names = ['入门', '基础', '拓展', '生僻']
         for word, grade, _ in overrides:
             self.assertEqual(entries[word][2:], [names.index(grade) + 1, 'manual', True])
-        self.assertEqual(content['version'], 5)
+        self.assertEqual(content['version'], 6)
         evidence = json.loads(paths[1].read_text())
         self.assertEqual(len(evidence['textbook']), 2898)
         for path, digest in evidence['sourceHashes'].items():

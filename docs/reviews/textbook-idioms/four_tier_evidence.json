@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "inferenceBounds": [
     1,
     5,
@@ -9,7 +9,7 @@
     "docs/reviews/textbook-idioms/有数据库ID_四字成语审核表.md": "ca9f030d4735afab7178b06283a32c608ccd85e4bf5abdc42b7c5f8a4946b4c2",
     "docs/reviews/textbook-idioms/无数据库ID_四字候选审核表.md": "569a1152cbd6408ab887aa85fb5589aaf889d2ae718d1a886b185f93870e44b6",
     "assets/data/mainline_content.json": "cd9d0e10f4c517056b820fc805e4a7ffdc24688a075d006d8958b7a9cd6de8fc",
-    "data/textbook_additions.json": "928b993461b3ad8ab91f8d15acd3175363b4e3351bd1f8b730f652a82acc49e0",
+    "data/textbook_additions.json": "93127783538606192071c9c3cf06e93ba2bb6eee9c305092f409e4674fcdede8",
     "data/scoring_progress.json": "67e81888aa206f1c0f9f317288934f10984b90477e4f6600c6edcef59f68ac54",
     "docs/reviews/textbook-idioms/人工分档覆盖表.md": "cf1288d6e43450bdda3a764c6443e41c9b9b436e2a81177a70bac9b5d7ad5b04",
     "docs/reviews/textbook-idioms/非教材_未人工审核成语分档表.md": "03279c3a0bdb0bac83022bac35b34d7bb32c414998e95469684f9b4a44afd2c4"
@@ -186114,5 +186114,5 @@
       "reason": "完整审核确认原等级"
     }
   ],
-  "editorialNotes": "漫天风雪按用户更正保留；新增词释义为编辑释义，旧分为兼容估值。"
+  "editorialNotes": "漫天风雪按用户更正保留；新增词释义、出处与例句见词典核查记录；旧分为兼容估值。"
 }
