@@ -43,7 +43,6 @@ void main() {
       focusCol: 0,
       errorCells: {},
       completedCells: completed,
-      flashCell: null,
       cellSize: 40,
       skin: gridSkins.first,
       showPinyin: false,

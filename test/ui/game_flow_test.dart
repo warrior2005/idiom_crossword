@@ -545,6 +545,101 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
   });
 
+  testWidgets('未填满不扣心，多个错字及横竖同时判错都只扣一颗心', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: GameScreen(level: _buildCrossingLevel())),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final board = find.byWidgetPredicate(
+      (widget) => widget is CustomPaint && widget.painter is GridPainter,
+    );
+    final rect = tester.getRect(board);
+    final size = rect.width / 4;
+    Future<void> fill(int row, int col, String char) async {
+      await tester.tapAt(
+        Offset(rect.left + (col - 0.5) * size, rect.top + (row - 0.5) * size),
+      );
+      await tester.pump();
+      await tester.tap(find.text(char).first);
+      await tester.pump();
+    }
+
+    // 留交叉格为空，横竖各填一个错字，都还不能扣心。
+    await fill(1, 3, '足');
+    await fill(1, 4, '添');
+    await fill(2, 2, '心');
+    await fill(3, 2, '蝎');
+    expect(find.byIcon(Icons.favorite), findsNWidgets(3));
+    // 最后一笔本身正确，但闭合的两条成语共四个错字，只扣一次。
+    await fill(1, 2, '蛇');
+    expect(find.byIcon(Icons.favorite), findsNWidgets(2));
+    final painter = tester.widget<CustomPaint>(board).painter! as GridPainter;
+    expect(painter.errorCells, {(1, 3), (1, 4), (2, 2), (3, 2)});
+    expect(painter.correctCells, {(1, 2)});
+    expect(find.text('挑战失败'), findsNothing);
+  });
+
+  for (final wrongCrossing in [false, true]) {
+    testWidgets('成语填满才逐字判色，交叉格错误=$wrongCrossing', (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: MaterialApp(home: GameScreen(level: _buildCrossingLevel())),
+        ),
+      );
+      await tester.pumpAndSettle();
+      GridPainter painter() => tester
+          .widgetList<CustomPaint>(find.byType(CustomPaint))
+          .map((widget) => widget.painter)
+          .whereType<GridPainter>()
+          .single;
+      final wrongChar = tester
+          .widget<Text>(
+            find
+                .byWidgetPredicate(
+                  (widget) =>
+                      widget is Text &&
+                      widget.data != null &&
+                      widget.data!.length == 1 &&
+                      !'画蛇添足蝎心肠'.contains(widget.data!),
+                )
+                .first,
+          )
+          .data!;
+      final chars = wrongCrossing
+          ? [wrongChar, '添', '足']
+          : ['蛇', wrongChar, '足'];
+      for (final char in chars.take(2)) {
+        await tester.tap(find.text(char).first);
+        await tester.pump();
+        expect(painter().errorCells, isEmpty);
+        expect(painter().correctCells, isEmpty);
+        expect(painter().completedCells, isEmpty);
+        expect(find.byIcon(Icons.favorite), findsNWidgets(3));
+      }
+      await tester.tap(find.text(chars.last));
+      await tester.pump();
+      expect(find.byIcon(Icons.favorite), findsNWidgets(2));
+      expect(painter().errorCells, {(1, wrongCrossing ? 2 : 3)});
+      expect(painter().correctCells, {(1, wrongCrossing ? 3 : 2), (1, 4)});
+      expect(painter().completedCells, isEmpty);
+      // 纵向成语尚未填满，交叉格仍保留横向成语的判色。
+      expect(painter().playerAnswers[(2, 2)], isNull);
+      await tester.tap(find.text('撤销'));
+      await tester.pump();
+      expect(painter().errorCells, isEmpty);
+      expect(painter().correctCells, isEmpty);
+      await tester.pump(const Duration(milliseconds: 300));
+    });
+  }
+
   testWidgets('清空保留已完成成语并清除所有未完成成语的已填字', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -1230,7 +1325,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
   });
 
-  testWidgets('3 颗心允许填错 3 次，第 4 次才失败', (tester) async {
+  testWidgets('3 颗心允许填满判错 3 次，第 4 次才失败', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     AdManager().isRewardedAdReadyNotifier.value = false;
@@ -1264,6 +1359,17 @@ void main() {
       gridRect.left + gridRect.width * 3 / 8,
       gridRect.center.dy,
     );
+
+    await tester.tapAt(
+      Offset(gridRect.left + gridRect.width * 5 / 8, gridRect.center.dy),
+    );
+    await tester.pump();
+    for (final char in ['添', '足']) {
+      await tester.tap(find.text(char));
+      await tester.pump();
+    }
+    await tester.tapAt(snakeCell);
+    await tester.pump();
 
     for (var error = 1; error <= 3; error++) {
       await tester.tap(wrongChar.at(error - 1));
@@ -1485,7 +1591,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.timer_outlined), findsOneWidget);
-    for (final ch in ['蛇', '添', '足']) {
+    for (final ch in ['蛇']) {
       await tester.tap(find.text(ch));
       await tester.pump(const Duration(milliseconds: 100));
     }
@@ -1560,6 +1666,17 @@ Future<void> _failCurrentLevel(WidgetTester tester) async {
     gridRect.left + gridRect.width * 3 / 8,
     gridRect.center.dy,
   );
+
+  await tester.tapAt(
+    Offset(gridRect.left + gridRect.width * 5 / 8, gridRect.center.dy),
+  );
+  await tester.pump();
+  for (final char in ['添', '足']) {
+    await tester.tap(find.text(char));
+    await tester.pump();
+  }
+  await tester.tapAt(snakeCell);
+  await tester.pump();
 
   for (var error = 0; error < 4; error++) {
     await tester.tap(wrongChar.at(error));

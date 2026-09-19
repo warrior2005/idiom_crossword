@@ -115,9 +115,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
   // 已使用的候选字位置（row, col）
   final Set<(int, int)> _usedCandidateSlots = {};
 
-  // 错误提示（闪烁效果用）
-  final Set<(int, int)> _errorCells = {};
-
   // 填入历史（撤销用）
   final List<({int row, int col, int candRow, int candCol})> _fillHistory = [];
 
@@ -146,9 +143,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Future<CrosswordLevel?>? _nextLevelFuture;
   CrosswordLevel? _nextLevel;
   bool _startingNextLevel = false;
-
-  // 填入正确字时的闪烁反馈
-  (int, int)? _flashCell;
 
   /// 本关成语的“前后两半可交换”倒装对（word -> 交换后的词）
   final Map<String, String> _reversiblePairs = {};
@@ -453,9 +447,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
   }
 
-  /// 根据当前答案重建派生状态（错误格、完成格、完成成语列表）
+  /// 根据当前答案重建派生状态（完成格、完成成语列表）
   void _recomputeDerivedState() {
-    _errorCells.clear();
     _completedCells.clear();
     _completedIdiomList.clear();
     _selectedCompletedIndex = null;
@@ -485,11 +478,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
           word: completedIdiom.text,
           meaning: completedIdiom.meaning,
         ));
-      } else if (allFilled) {
-        for (int k = 0; k < placement.idiom.text.length; k++) {
-          final (r, c) = placement.cellAt(k);
-          if (!_grid.cellAt(r, c).isGiven) _errorCells.add((r, c));
-        }
       }
     }
     if (_completedIdiomList.isNotEmpty) {
@@ -574,16 +562,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
         duration: const Duration(milliseconds: 1500),
       ),
     );
-  }
-
-  /// 正确填字时的闪烁反馈
-  void _flashCellAt(int row, int col) {
-    setState(() => _flashCell = (row, col));
-    Future.delayed(const Duration(milliseconds: 260), () {
-      if (mounted && _flashCell == (row, col)) {
-        setState(() => _flashCell = null);
-      }
-    });
   }
 
   @override
@@ -732,7 +710,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final filledRow = _focusRow;
     final filledCol = _focusCol;
     final isCorrect = _isCharCorrectForCell(filledRow, filledCol, char);
-    final shouldFail = !isCorrect && _lives == 0;
     _totalFills++; // 本关填字尝试次数（含错误字），提示填入不计
     if (isCorrect) {
       _correctStreak++;
@@ -748,13 +725,14 @@ class _GameScreenState extends ConsumerState<GameScreen>
       }
     } else {
       _errorsMade++;
-      _lives = max(0, _lives - 1);
       _correctStreak = 0;
       _markActiveIdiomWrong(filledRow, filledCol);
       ref.read(playerProvider.notifier).recordWrongFill();
     }
 
     var idiomCompleted = false;
+    var hasWrongCompletedIdiom = false;
+    var shouldFail = false;
     setState(() {
       // 覆盖填入时，释放旧字占用的候选槽位
       final oldSlot = _cellToCandidateSlot[(_focusRow, _focusCol)];
@@ -770,6 +748,26 @@ class _GameScreenState extends ConsumerState<GameScreen>
         candCol: col,
       ));
       _cellToCandidateSlot[(_focusRow, _focusCol)] = (row, col);
+      // 一次落字可能闭合横、纵两条成语，合并判错后最多扣一颗心。
+      for (final placement in _placementsContaining(filledRow, filledCol)) {
+        var allFilled = true;
+        var hasWrongChar = false;
+        for (var k = 0; k < placement.idiom.text.length; k++) {
+          final (r, c) = placement.cellAt(k);
+          if (_grid.cellAt(r, c).isGiven) continue;
+          final answer = _playerAnswers[(r, c)];
+          if (answer == null) {
+            allFilled = false;
+          } else if (!_isCharCorrectForCell(r, c, answer)) {
+            hasWrongChar = true;
+          }
+        }
+        hasWrongCompletedIdiom |= allFilled && hasWrongChar;
+      }
+      if (hasWrongCompletedIdiom) {
+        shouldFail = _lives == 0;
+        _lives = max(0, _lives - 1);
+      }
       idiomCompleted = _checkCompletionForCurrentIdiom();
     });
 
@@ -778,20 +776,18 @@ class _GameScreenState extends ConsumerState<GameScreen>
       return;
     }
 
-    if (isCorrect && idiomCompleted) {
+    if (idiomCompleted) _scrollCompletedIdiomsToEnd();
+    if (hasWrongCompletedIdiom) {
+      _triggerHaptic(HapticFeedback.lightImpact);
+      SoundManager.instance.playWrong();
+    } else if (idiomCompleted) {
       _triggerHaptic(HapticFeedback.mediumImpact);
       SoundManager.instance.playIdiom();
-      _scrollCompletedIdiomsToEnd();
     } else {
       _triggerHaptic(HapticFeedback.lightImpact);
-      if (isCorrect) {
-        SoundManager.instance.playCorrect();
-      } else {
-        SoundManager.instance.playWrong();
-      }
+      SoundManager.instance.playFill();
     }
     _moveToNextEmptyCell();
-    if (isCorrect) _flashCellAt(filledRow, filledCol);
     _saveState();
   }
 
@@ -818,13 +814,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   /// 检查一个成语是否已被完整且正确地填入
   bool _checkIdiomCompletion(Placement placement) {
-    // 先清除这个 placement 的旧错误标记，再重新计算
-    for (int k = 0; k < placement.idiom.text.length; k++) {
-      final (r, c) = placement.cellAt(k);
-      if (_grid.cellAt(r, c).isGiven) continue;
-      _errorCells.remove((r, c));
-    }
-
     bool allFilled = true;
     bool allCorrect = true;
 
@@ -838,7 +827,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
         allFilled = false;
       } else if (!_isCharCorrectForCell(r, c, filled)) {
         allCorrect = false;
-        _errorCells.add((r, c));
       }
     }
 
@@ -1771,7 +1759,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _playerAnswers.remove(cell);
       final slot = _cellToCandidateSlot.remove(cell);
       if (slot != null) _usedCandidateSlots.remove(slot);
-      _errorCells.remove(cell);
     }
     _fillHistory.removeWhere((e) => wrongCells.contains((e.row, e.col)));
     _recomputeDerivedState();
@@ -2427,6 +2414,31 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildGrid() {
+    // 交叉格只要有一个所属成语填满，就按当前答案逐字判色。
+    final correctCells = <(int, int)>{};
+    final errorCells = <(int, int)>{};
+    for (final placement in widget.level.placements) {
+      final cells = [
+        for (var k = 0; k < placement.idiom.text.length; k++)
+          placement.cellAt(k),
+      ];
+      if (!cells.every(
+        (cell) =>
+            _grid.cellAt(cell.$1, cell.$2).isGiven ||
+            _playerAnswers.containsKey(cell),
+      )) {
+        continue;
+      }
+      for (final cell in cells) {
+        if (_grid.cellAt(cell.$1, cell.$2).isGiven) continue;
+        final isCorrect = _isCharCorrectForCell(
+          cell.$1,
+          cell.$2,
+          _playerAnswers[cell]!,
+        );
+        (isCorrect ? correctCells : errorCells).add(cell);
+      }
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: LayoutBuilder(
@@ -2479,9 +2491,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         playerAnswers: _playerAnswers,
                         focusRow: _focusRow,
                         focusCol: _focusCol,
-                        errorCells: _errorCells,
+                        errorCells: errorCells,
+                        correctCells: correctCells,
                         completedCells: _completedCells,
-                        flashCell: _flashCell,
                         cellSize: actualCellSize,
                         skin: skin,
                         showPinyin: showPinyin,
@@ -2773,7 +2785,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     setState(() {
       _playerAnswers.remove((entry.row, entry.col));
       _usedCandidateSlots.remove((entry.candRow, entry.candCol));
-      _errorCells.remove((entry.row, entry.col));
       _cellToCandidateSlot.remove((entry.row, entry.col));
     });
     _focusRow = entry.row;
@@ -2842,7 +2853,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
   /// 在格子里填入答案并记录候选槽位占用（需在 setState 内调用）
   void _applyAnswer(int row, int col, String char) {
     _playerAnswers[(row, col)] = char;
-    _errorCells.remove((row, col));
     final slot = _findFreeCandidateSlot(char);
     if (slot != null) {
       _usedCandidateSlots.add(slot);
@@ -2861,7 +2871,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     if (_completedCells.contains((_focusRow, _focusCol))) return;
     setState(() {
       _playerAnswers.remove((_focusRow, _focusCol));
-      _errorCells.remove((_focusRow, _focusCol));
       final candSlot = _cellToCandidateSlot.remove((_focusRow, _focusCol));
       if (candSlot != null) {
         _usedCandidateSlots.remove(candSlot);
@@ -2879,7 +2888,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     setState(() {
       for (final cell in cellsToClear) {
         _playerAnswers.remove(cell);
-        _errorCells.remove(cell);
         final candidateSlot = _cellToCandidateSlot.remove(cell);
         if (candidateSlot != null) {
           _usedCandidateSlots.remove(candidateSlot);
@@ -3003,8 +3011,8 @@ class GridPainter extends CustomPainter {
   final int focusRow;
   final int focusCol;
   final Set<(int, int)> errorCells;
+  final Set<(int, int)> correctCells;
   final Set<(int, int)> completedCells;
-  final (int, int)? flashCell;
   final double cellSize;
   final GridSkin skin;
   final bool showPinyin;
@@ -3017,8 +3025,8 @@ class GridPainter extends CustomPainter {
     required this.focusRow,
     required this.focusCol,
     required Set<(int, int)> errorCells,
+    Set<(int, int)> correctCells = const {},
     required Set<(int, int)> completedCells,
-    required this.flashCell,
     required this.cellSize,
     required this.skin,
     required this.showPinyin,
@@ -3026,6 +3034,7 @@ class GridPainter extends CustomPainter {
     required this.offset,
   }) : playerAnswers = Map.of(playerAnswers),
        errorCells = Set.of(errorCells),
+       correctCells = Set.of(correctCells),
        completedCells = Set.of(completedCells),
        _givenCells = [
          for (var r = 0; r < grid.rows; r++)
@@ -3071,12 +3080,11 @@ class GridPainter extends CustomPainter {
         Color bgColor;
         if (cell.isGiven) {
           bgColor = skin.surface2;
-        } else if (completedCells.contains((r, c))) {
+        } else if (correctCells.contains((r, c)) ||
+            completedCells.contains((r, c))) {
           bgColor = skin.leafSoft;
         } else if (errorCells.contains((r, c))) {
           bgColor = skin.accent;
-        } else if (flashCell == (r, c)) {
-          bgColor = skin.leafSoft;
         } else if (focusRow == r && focusCol == c) {
           bgColor = skin.accentPale;
         } else {
@@ -3130,16 +3138,19 @@ class GridPainter extends CustomPainter {
         final displayChar = cell.isGiven
             ? cell.character
             : (playerAnswers[(r, c)] ?? '');
-        // 已填但所属成语尚未完成 → 半透明（"暂定"状态，PRD 6.2）
+        // 已填但所属成语尚未填满 → 半透明（"暂定"状态，PRD 6.2）
         final tentative =
             !cell.isGiven &&
             playerAnswers.containsKey((r, c)) &&
-            !completedCells.contains((r, c));
+            !completedCells.contains((r, c)) &&
+            !correctCells.contains((r, c)) &&
+            !errorCells.contains((r, c));
 
         Color textColor;
         if (cell.isGiven) {
           textColor = skin.foreground;
-        } else if (completedCells.contains((r, c))) {
+        } else if (correctCells.contains((r, c)) ||
+            completedCells.contains((r, c))) {
           textColor = skin.leaf;
         } else if (errorCells.contains((r, c))) {
           textColor = const Color(0xFFFFF6EC);
@@ -3205,10 +3216,10 @@ class GridPainter extends CustomPainter {
       !listEquals(_givenCells, oldDelegate._givenCells) ||
       !mapEquals(playerAnswers, oldDelegate.playerAnswers) ||
       !setEquals(errorCells, oldDelegate.errorCells) ||
+      !setEquals(correctCells, oldDelegate.correctCells) ||
       !setEquals(completedCells, oldDelegate.completedCells) ||
       focusRow != oldDelegate.focusRow ||
       focusCol != oldDelegate.focusCol ||
-      flashCell != oldDelegate.flashCell ||
       cellSize != oldDelegate.cellSize ||
       skin != oldDelegate.skin ||
       showPinyin != oldDelegate.showPinyin ||
