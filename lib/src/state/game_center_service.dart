@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:games_services/games_services.dart';
@@ -12,11 +11,59 @@ class GameCenterService {
   static const signInTimeout = Duration(seconds: 8);
   static Future<bool>? _signInFuture;
   static Future<void>? _syncFuture;
+  static Timer? _retryTimer;
+  static Duration _retryDelay = const Duration(seconds: 30);
+  static const _maxRetryDelay = Duration(minutes: 5);
 
-  static bool get isSupported => !kIsWeb && Platform.isIOS;
+  static void _scheduleRetry() {
+    if (_retryTimer != null) return;
+    _retryTimer = Timer(_retryDelay, () {
+      _retryTimer = null;
+      unawaited(ensureSignedIn());
+    });
+    _retryDelay = Duration(
+      seconds: (_retryDelay.inSeconds * 2).clamp(30, _maxRetryDelay.inSeconds),
+    );
+  }
+
+  static void _stopRetrying() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    _retryDelay = const Duration(seconds: 30);
+  }
+
+  @visibleForTesting
+  static void resetForTesting() {
+    _stopRetrying();
+    _signInFuture = null;
+    _syncFuture = null;
+  }
+
+  static bool get isSupported =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
+  /// 自动上报只读取当前登录状态，不能在游戏中触发原生登录流程。
+  static Future<bool> isSignedIn() async {
+    if (!isSupported) return false;
+    try {
+      // first 在超时后也会取消订阅，避免原生事件未返回时遗留监听。
+      final signedIn = await GameAuth.player
+          .timeout(signInTimeout)
+          .map((player) => player != null)
+          .first;
+      if (signedIn) _stopRetrying();
+      return signedIn;
+    } catch (_) {
+      return false;
+    }
+  }
 
   static Future<bool> ensureSignedIn({Duration timeout = signInTimeout}) async {
     if (!isSupported) return false;
+    // 所有调用方共用退避窗口，避免通关、成就和云备份重复拉起登录。
+    if (_retryTimer != null) {
+      return isSignedIn().timeout(timeout, onTimeout: () => false);
+    }
     final existing = _signInFuture;
     final Future<bool> pending;
     if (existing != null) {
@@ -26,8 +73,12 @@ class GameCenterService {
       _signInFuture = pending;
       unawaited(
         pending.then((signedIn) {
-          if (!signedIn && identical(_signInFuture, pending)) {
+          if (!identical(_signInFuture, pending)) return;
+          if (signedIn) {
+            _stopRetrying();
+          } else {
             _signInFuture = null;
+            _scheduleRetry();
           }
         }),
       );
@@ -43,10 +94,11 @@ class GameCenterService {
 
   static Future<bool> _signIn() async {
     try {
+      if (await isSignedIn()) return true;
       await GameAuth.signIn();
-      return await GameAuth.isSignedIn;
-    } catch (error, stackTrace) {
-      debugPrint('Game Center sign-in failed: $error\n$stackTrace');
+      return await isSignedIn();
+    } catch (error) {
+      debugPrint('Game Center sign-in failed: $error');
       return false;
     }
   }
@@ -135,7 +187,7 @@ class GameCenterService {
   }
 
   static Future<void> reportAchievement(AchievementId id) async {
-    if (!await ensureSignedIn()) return;
+    if (!await isSignedIn()) return;
     try {
       await _report(achievementDefFor(id));
     } catch (_) {

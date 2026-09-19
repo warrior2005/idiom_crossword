@@ -105,7 +105,7 @@ class CloudSaveService {
   static Future<void> _backUpIfChanged(AppDatabase db) async {
     if (!GameCenterService.isSupported ||
         await PlayerSaveRepository.isLocalSaveEmpty(db) ||
-        !await GameCenterService.ensureSignedIn()) {
+        !await GameCenterService.isSignedIn()) {
       return;
     }
     try {

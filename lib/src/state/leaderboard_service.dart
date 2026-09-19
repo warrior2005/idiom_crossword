@@ -67,9 +67,9 @@ class LeaderboardService {
     return history.fold<int>(0, (sum, item) => sum + (item.xpGained));
   }
 
-  /// 总榜提交总经验；周榜提交本周累计经验。
+  /// 总榜提交总经验；周榜提交本周累计经验。未登录时跳过，不触发登录。
   static Future<void> submitScores(AppDatabase db, int totalXp) async {
-    if (!await GameCenterService.ensureSignedIn()) return;
+    if (!await GameCenterService.isSignedIn()) return;
     try {
       final weeklyXp = await currentWeekXp(db);
       await Future.wait([
@@ -106,7 +106,7 @@ class LeaderboardService {
       xp: localXp,
       isCurrentPlayer: true,
     );
-    if (!await GameCenterService.ensureSignedIn()) {
+    if (!await GameCenterService.isSignedIn()) {
       return LeaderboardSnapshot(
         leaders: const [],
         currentPlayer: fallback(),

@@ -263,16 +263,17 @@ class _CloudSaveBootstrapState extends ConsumerState<CloudSaveBootstrap> {
     unawaited(ref.read(dailyReminderProvider.future));
 
     unawaited(_syncAchievementsAndRewards());
+  }
+
+  Future<void> _syncAchievementsAndRewards() async {
+    await GameCenterService.syncAchievements(widget.db);
+    if (!mounted) return;
     unawaited(
       LeaderboardService.submitScores(
         widget.db,
         ref.read(playerProvider).totalXp,
       ),
     );
-  }
-
-  Future<void> _syncAchievementsAndRewards() async {
-    await GameCenterService.syncAchievements(widget.db);
     await ref.read(playerProvider.notifier).claimUnlockedAchievementRewards();
   }
 

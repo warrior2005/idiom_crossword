@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/growth_manager.dart';
 import '../../state/database_provider.dart';
+import '../../state/game_center_service.dart';
 import '../../state/leaderboard_service.dart';
 import '../../state/player_state.dart';
 import '../theme/app_colors.dart';
@@ -16,7 +17,9 @@ final leaderboardProvider = FutureProvider.autoDispose
       final db = ref.watch(databaseProvider);
       final player = ref.watch(playerProvider);
       final weeklyXp = await LeaderboardService.currentWeekXp(db);
-      await LeaderboardService.submitScores(db, player.totalXp);
+      if (await GameCenterService.ensureSignedIn()) {
+        await LeaderboardService.submitScores(db, player.totalXp);
+      }
       return LeaderboardService.load(
         kind: kind,
         localTotalXp: player.totalXp,
