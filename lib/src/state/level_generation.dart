@@ -9,6 +9,7 @@ import '../engine/distractor_engine.dart';
 import '../data/mainline_learning.dart';
 import '../data/mainline_exposure.dart';
 import '../data/tier_progression.dart';
+import '../data/adaptive_learning.dart';
 import '../engine/candidate_ambiguity.dart';
 import '../engine/crossing_graph.dart';
 import '../engine/grid_engine.dart' as engine;
@@ -190,26 +191,42 @@ Future<engine.CrosswordLevel?> _generateMainline(
   String? title,
   DateTime? now,
 }) async {
-  final step = await MainlineLearning.ability(db);
-  final observations = await MainlineLearning.read(db);
-  if (observations['progression'] == null &&
-      (observations['sessions'] as List).any(
-        (s) => (s['strategy'] as int? ?? 0) == 2,
-      )) {
-    final rows = await db.select(db.idioms).get();
-    TierProgression.restoreLegacy(observations, {
-      for (final r in rows) r.word: r.difficultyTier,
-    });
-    await db.setSetting(MainlineLearning.key, jsonEncode(observations));
-  }
-  final progression = TierProgression.state(observations);
+  final observations = await db.transaction(() async {
+    final data = await MainlineLearning.read(db);
+    final before = jsonEncode(data);
+    if (data['progression'] == null &&
+        (data['sessions'] as List).any((s) => s['strategy'] == 2)) {
+      final rows = await db.select(db.idioms).get();
+      TierProgression.restoreLegacy(data, {
+        for (final r in rows) r.word: r.difficultyTier,
+      });
+    }
+    await MainlineLearning.prepareAdaptive(db, data);
+    if (jsonEncode(data) != before) {
+      await db.setSetting(MainlineLearning.key, jsonEncode(data));
+    }
+    return data;
+  });
+  final step = ((observations['adaptive'] as Map?)?['step'] as int? ?? 0).clamp(
+    -5,
+    30,
+  );
+  final progression = AdaptiveLearning.state(observations);
+  final exposure = await MainlineExposure.read(db);
+  final size = AdaptivePolicy(number, step).size;
+  final quota = AdaptiveLearning.quotas(
+    (progression['mix'] as List).map((v) => (v as num).toDouble()).toList(),
+    size,
+    exposure['sequence'] as int,
+  );
+  final tier = progression['tier'] as int;
   final policy = AdaptivePolicy(
     number,
     step,
-    tier: progression['tier'] as int,
-    nextCount: progression['next'] as int,
+    tier: tier,
+    nextCount: tier < 4 ? quota[tier + 1]! : 0,
+    quotaOverride: quota,
   );
-  final exposure = await MainlineExposure.read(db);
   final blocked = MainlineExposure.blocked(db, exposure);
   final due = await MainlineLearning.dueWords(db, now: now);
   final familiar = await MainlineLearning.familiarWords(db);
@@ -507,7 +524,7 @@ Future<engine.CrosswordLevel?> _generateMainline(
       givenCharacters: level.givenCharacters,
       title: title ?? '第 $number 关',
       contentVersion: FourTierContent.currentVersion,
-      strategyVersion: 3,
+      strategyVersion: 4,
       support: 2,
       instanceId: '${number}_${DateTime.now().microsecondsSinceEpoch}',
       initialCandidates: board,

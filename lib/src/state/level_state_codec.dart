@@ -60,7 +60,7 @@ String encodeLevel(CrosswordLevel level) {
 CrosswordLevel? decodeLevel(String source) {
   try {
     final data = jsonDecode(source) as Map<String, dynamic>;
-    if ((data['strategyVersion'] as int? ?? 0) > 3 ||
+    if ((data['strategyVersion'] as int? ?? 0) > 4 ||
         (data['contentVersion'] as int? ?? 0) >
             FourTierContent.currentVersion) {
       return null;
@@ -139,6 +139,7 @@ class SavedGameState {
   final int correctStreak;
   final int totalFills;
   final Set<String> wrongIdiomWords;
+  final Set<String>? hintedIdiomWords;
   final int lives;
   final int remainingSeconds;
   final bool revived;
@@ -159,6 +160,7 @@ class SavedGameState {
     required this.correctStreak,
     required this.totalFills,
     this.wrongIdiomWords = const {},
+    this.hintedIdiomWords,
     this.lives = 3,
     this.remainingSeconds = 180,
     this.revived = false,
@@ -189,6 +191,7 @@ String encodeGameState(SavedGameState state) {
     'streak': state.correctStreak,
     'fills': state.totalFills,
     'wrongWords': state.wrongIdiomWords.toList(),
+    'hintedWords': state.hintedIdiomWords?.toList(),
     'lives': state.lives,
     'time': state.remainingSeconds,
     'revived': state.revived ? 1 : 0,
@@ -254,6 +257,7 @@ SavedGameState? decodeGameState(String source) {
       wrongIdiomWords: (data['wrongWords'] as List? ?? const [])
           .cast<String>()
           .toSet(),
+      hintedIdiomWords: (data['hintedWords'] as List?)?.cast<String>().toSet(),
       lives: data['lives'] as int? ?? 3,
       remainingSeconds: data['time'] as int? ?? 180,
       revived: (data['revived'] as int? ?? 0) == 1,

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import '../engine/grid_engine.dart';
 import 'database.dart';
+import 'adaptive_learning.dart';
+import 'four_tier_content.dart';
 import 'tier_progression.dart';
 import 'mainline_exposure.dart';
 
@@ -12,6 +14,24 @@ class MainlineLearning {
     return raw == null
         ? {'sessions': <dynamic>[], 'words': <String, dynamic>{}}
         : jsonDecode(raw) as Map<String, dynamic>;
+  }
+
+  /// 内容变更时重新归属覆盖证据，分母始终来自实际全档词库。
+  static Future<void> prepareAdaptive(
+    AppDatabase db,
+    Map<String, dynamic> data,
+  ) async {
+    if ((data['adaptiveV4'] as Map?)?['contentVersion'] ==
+        FourTierContent.currentVersion) {
+      return;
+    }
+    final rows = await db
+        .customSelect('SELECT word, difficulty_tier FROM idioms')
+        .get();
+    AdaptiveLearning.initialize(data, {
+      for (final row in rows)
+        row.read<String>('word'): row.read<int>('difficulty_tier'),
+    }, FourTierContent.currentVersion);
   }
 
   // 旧偏好和旧分档窗口只作历史记录，不参与新策略。
@@ -71,6 +91,7 @@ class MainlineLearning {
     required int errors,
     Iterable<String> completed = const [],
     Set<String> wrong = const {},
+    Set<String>? hinted,
     DateTime? now,
     int activeTimeMs = 0,
   }) async {
@@ -154,78 +175,105 @@ class MainlineLearning {
           };
         }
         data['tierPerformance'] = tierPerformance;
-        // 多字预填完成最多提供中等强度证据；用时不作为独立惩罚项。
-        final givens = level.grid.rows == 0
-            ? 0
-            : level.placements.fold<int>(
-                0,
-                (sum, p) =>
-                    sum +
-                    p.cells
-                        .where((c) => level.grid.cellAt(c.$1, c.$2).isGiven)
-                        .length,
+        if (level.strategyVersion >= 4 || data['adaptiveV4'] != null) {
+          await prepareAdaptive(db, data);
+          final currentWords =
+              await (db.select(db.idioms)..where(
+                    (t) =>
+                        t.word.isIn(level.idioms.map((i) => i.text).toList()),
+                  ))
+                  .get();
+          AdaptiveLearning.observe(
+            data,
+            level,
+            successful: successful,
+            solved: successful
+                ? level.idioms.map((i) => i.text).toSet()
+                : solved,
+            wrong: wrong,
+            hinted: hinted,
+            hints: hints,
+            errors: errors,
+            activeTimeMs: activeTimeMs,
+            currentWordTiers: {
+              for (final w in currentWords) w.word: w.difficultyTier,
+            },
+          );
+          session['abilityAfter'] = (data['adaptive'] as Map)['step'];
+        } else {
+          // 旧实例兼容：多字预填只提供中等证据，旧策略不使用时间。
+          final givens = level.grid.rows == 0
+              ? 0
+              : level.placements.fold<int>(
+                  0,
+                  (sum, p) =>
+                      sum +
+                      p.cells
+                          .where((c) => level.grid.cellAt(c.$1, c.$2).isGiven)
+                          .length,
+                );
+          final supports = level.placements.isEmpty
+              ? 0
+              : givens / level.placements.length;
+          final rawObservation = successful
+              ? (0.92 -
+                        hints.clamp(0, 4) * 0.13 -
+                        errors.clamp(0, 4) * 0.10 -
+                        (supports > 2 ? 0.08 : 0))
+                    .clamp(0.0, 1.0)
+              : 0.2 +
+                    0.65 *
+                        solved.length /
+                        (level.idioms.isEmpty ? 1 : level.idioms.length);
+          // 新策略中持续未过关必须能减负；部分完成仍保留词级学习证据。
+          final observation = level.strategyVersion >= 3 && !successful
+              ? rawObservation.clamp(0.0, 0.45)
+              : rawObservation;
+          final trend =
+              (adaptive['trend'] as num? ?? 0.7).toDouble() * 0.8 +
+              observation * 0.2;
+          final count = (adaptive['sinceChange'] as int? ?? 0) + 1;
+          var step = (adaptive['step'] as int? ?? 0).clamp(-5, 30);
+          var changed = false;
+          final vocabularyChanged =
+              level.strategyVersion >= 3 &&
+              TierProgression.observe(
+                data,
+                level,
+                successful ? level.idioms.map((i) => i.text).toSet() : solved,
+                wrong,
+                hints,
               );
-        final supports = level.placements.isEmpty
-            ? 0
-            : givens / level.placements.length;
-        final rawObservation = successful
-            ? (0.92 -
-                      hints.clamp(0, 4) * 0.13 -
-                      errors.clamp(0, 4) * 0.10 -
-                      (supports > 2 ? 0.08 : 0))
-                  .clamp(0.0, 1.0)
-            : 0.2 +
-                  0.65 *
-                      solved.length /
-                      (level.idioms.isEmpty ? 1 : level.idioms.length);
-        // 新策略中持续未过关必须能减负；部分完成仍保留词级学习证据。
-        final observation = level.strategyVersion >= 3 && !successful
-            ? rawObservation.clamp(0.0, 0.45)
-            : rawObservation;
-        final trend =
-            (adaptive['trend'] as num? ?? 0.7).toDouble() * 0.8 +
-            observation * 0.2;
-        final count = (adaptive['sinceChange'] as int? ?? 0) + 1;
-        var step = (adaptive['step'] as int? ?? 0).clamp(-5, 30);
-        var changed = false;
-        final vocabularyChanged =
-            level.strategyVersion >= 3 &&
-            TierProgression.observe(
-              data,
-              level,
-              successful ? level.idioms.map((i) => i.text).toSet() : solved,
-              wrong,
-              hints,
-            );
-        if (count >= 5 && !vocabularyChanged) {
-          final tiersReady = tierPerformance.entries
-              .where((e) => wordTiers.values.contains(int.parse(e.key)))
-              .map((e) => e.value)
-              .every(
-                (v) =>
-                    (v['observations'] as int) < 5 ||
-                    (v['trend'] as num) >= 0.6,
-              );
-          if (trend >= 0.82 && step < 30 && tiersReady) {
-            step++;
-            changed = true;
+          if (count >= 5 && !vocabularyChanged) {
+            final tiersReady = tierPerformance.entries
+                .where((e) => wordTiers.values.contains(int.parse(e.key)))
+                .map((e) => e.value)
+                .every(
+                  (v) =>
+                      (v['observations'] as int) < 5 ||
+                      (v['trend'] as num) >= 0.6,
+                );
+            if (trend >= 0.82 && step < 30 && tiersReady) {
+              step++;
+              changed = true;
+            }
+            if (trend <= 0.50 && step > -5) {
+              step--;
+              changed = true;
+            }
           }
-          if (trend <= 0.50 && step > -5) {
-            step--;
-            changed = true;
-          }
+          adaptive.addAll({
+            'step': step,
+            'trend': trend,
+            'sinceChange': changed || vocabularyChanged ? 0 : count,
+            'lastReason': changed
+                ? (trend >= 0.82 ? 'consistent_success' : 'consistent_struggle')
+                : 'observe',
+          });
+          data['adaptive'] = adaptive;
+          session['observation'] = observation;
+          session['abilityAfter'] = step;
         }
-        adaptive.addAll({
-          'step': step,
-          'trend': trend,
-          'sinceChange': changed || vocabularyChanged ? 0 : count,
-          'lastReason': changed
-              ? (trend >= 0.82 ? 'consistent_success' : 'consistent_struggle')
-              : 'observe',
-        });
-        data['adaptive'] = adaptive;
-        session['observation'] = observation;
-        session['abilityAfter'] = step;
       }
       final words = data['words'] as Map<String, dynamic>;
       if (session['exposed'] != true) {

@@ -18,6 +18,7 @@ void main() {
       totalFills: 7,
       activeTimeMs: 1234,
       wrongIdiomWords: const {'画蛇添足'},
+      hintedIdiomWords: const {'画龙点睛'},
       reviveUsesThisLevel: 2,
     );
     final decoded = decodeGameState(encodeGameState(s));
@@ -25,6 +26,7 @@ void main() {
     expect(decoded, isNotNull);
     expect(decoded.totalFills, 7);
     expect(decoded.wrongIdiomWords, {'画蛇添足'});
+    expect(decoded.hintedIdiomWords, {'画龙点睛'});
     expect(decoded.remainingSeconds, 180);
     expect(decoded.reviveUsesThisLevel, 2);
 
@@ -33,5 +35,6 @@ void main() {
       '{"answers":[],"used":[],"history":[],"slots":[],"board":[[]],"hints":0,"errors":0,"streak":0}',
     );
     expect(legacy!.totalFills, 0);
+    expect(legacy.hintedIdiomWords, isNull);
   });
 }

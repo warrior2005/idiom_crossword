@@ -7,8 +7,14 @@ class AdaptivePolicy {
   final int step;
   final int tier;
   final int nextCount;
-  AdaptivePolicy(this.level, int step, {this.tier = 1, this.nextCount = 0})
-    : step = step.clamp(-5, 30);
+  final Map<int, int>? quotaOverride;
+  AdaptivePolicy(
+    this.level,
+    int step, {
+    this.tier = 1,
+    this.nextCount = 0,
+    this.quotaOverride,
+  }) : step = step.clamp(-5, 30);
   int get size => level <= 10
       ? [2, 2, 3, 3, 4, 4, 5, 5, 6, 6][(level - 1).clamp(0, 9)]
       : 6 + max<int>(0, step) ~/ 5;
@@ -24,6 +30,7 @@ class AdaptivePolicy {
   int candidateCount(int answers) =>
       answers + max<int>(4, (answers * distractorRatio).ceil());
   Map<int, int> get quotas {
+    if (quotaOverride != null) return quotaOverride!;
     final result = {1: 0, 2: 0, 3: 0, 4: 0};
     final lower = tier > 1 && size >= 6 ? 1 : 0;
     // 更早档偶尔穿插；仍只试探相邻高一档。

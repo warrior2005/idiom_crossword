@@ -332,7 +332,7 @@ void main() {
     await tester.pumpAndSettle();
     final level = tester.widget<GameScreen>(find.byType(GameScreen)).level;
     expect(level.levelId, 1);
-    expect(level.strategyVersion, 3);
+    expect(level.strategyVersion, 4);
     expect(await db.isLevelCompleted(1), isFalse);
     expect(await db.getLevelHistory(), isEmpty);
     final saved = await db.getLevelState(1);

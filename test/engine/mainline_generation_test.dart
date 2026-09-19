@@ -51,8 +51,12 @@ void main() {
               ? 2
               : 1,
           nextCount: step == 30 ? 1 : 0,
+          quotaOverride: {
+            for (final e in (level!.strategy['quotas'] as Map).entries)
+              int.parse(e.key as String): e.value as int,
+          },
         );
-        expect(level!.idioms.length, policy.size);
+        expect(level.idioms.length, policy.size);
         if (number > 10) expect(level.idioms.length, inInclusiveRange(6, 12));
         expect(
           level.fillableCells,
@@ -74,7 +78,7 @@ void main() {
         expect(decodeLevel(encodeLevel(level))!.strategy, level.strategy);
         final tiers = Map<String, int>.from(level.strategy['wordTiers'] as Map);
         expect(policy.accepts(level.idioms, tiers), isTrue);
-        expect(level.strategyVersion, 3);
+        expect(level.strategyVersion, 4);
         expect(level.contentVersion, 6);
         if (step == 30 && number > 10) expect(tiers.values, contains(4));
       }

@@ -125,6 +125,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
   final Set<(int, int)> _completedCells = {};
   final List<({String word, String meaning})> _completedIdiomList = [];
   final Set<String> _wrongIdiomWords = {};
+  final Set<String> _hintedIdiomWords = {};
+  bool _hintAttributionKnown = true;
   int? _selectedCompletedIndex;
 
   // 本关提示使用情况
@@ -407,6 +409,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
         _correctStreak = state.correctStreak;
         _totalFills = state.totalFills;
         _wrongIdiomWords.addAll(state.wrongIdiomWords);
+        _hintedIdiomWords.addAll(state.hintedIdiomWords ?? {});
+        _hintAttributionKnown =
+            state.hintedIdiomWords != null || state.hintUsesThisLevel == 0;
         _lives = state.lives;
         _remainingSeconds = state.remainingSeconds;
         _revived = state.revived;
@@ -496,6 +501,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         errors: _errorsMade,
         completed: _completedIdiomList.map((i) => i.word),
         wrong: _wrongIdiomWords,
+        hinted: _hintAttributionKnown ? _hintedIdiomWords : null,
         activeTimeMs: _restoredActiveMs + _activeClock.elapsedMilliseconds,
       );
     } catch (error) {
@@ -528,6 +534,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
             correctStreak: _correctStreak,
             totalFills: _totalFills,
             wrongIdiomWords: Set.from(_wrongIdiomWords),
+            hintedIdiomWords: _hintAttributionKnown
+                ? Set.from(_hintedIdiomWords)
+                : null,
             lives: _lives,
             remainingSeconds: _remainingSeconds,
             revived: _revived,
@@ -2818,6 +2827,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
     await ref.read(playerProvider.notifier).useHintCard();
     _hintUsesThisLevel++;
+    _hintedIdiomWords.addAll(
+      _placementsContaining(_focusRow, _focusCol).map((p) => p.idiom.text),
+    );
     _markActiveIdiomWrong(_focusRow, _focusCol);
 
     var idiomCompleted = false;
