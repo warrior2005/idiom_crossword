@@ -186,6 +186,8 @@ class CloudSaveBootstrap extends ConsumerStatefulWidget {
 
 class _CloudSaveBootstrapState extends ConsumerState<CloudSaveBootstrap> {
   CloudSaveCoordinator? _coordinator;
+  StreamSubscription<void>? _signedInSubscription;
+  Future<void>? _onlineSyncFuture;
   late final AppLifecycleListener _lifecycleListener;
   late bool _waitingForSaveChoice;
   var _servicesStarted = false;
@@ -258,23 +260,35 @@ class _CloudSaveBootstrapState extends ConsumerState<CloudSaveBootstrap> {
   void _startOnlineServices() {
     if (_servicesStarted) return;
     _servicesStarted = true;
+    _signedInSubscription = GameCenterService.signedInEvents.listen((_) {
+      unawaited(_syncOnlineProgress());
+    });
     _coordinator = CloudSaveCoordinator(widget.db)..start();
     ref.invalidate(dailyReminderProvider);
     unawaited(ref.read(dailyReminderProvider.future));
 
-    unawaited(_syncAchievementsAndRewards());
+    unawaited(_syncOnlineProgress());
   }
 
-  Future<void> _syncAchievementsAndRewards() async {
+  Future<void> _syncOnlineProgress() {
+    if (!mounted) return Future.value();
+    return _onlineSyncFuture ??= _syncOnlineProgressOnce().whenComplete(() {
+      _onlineSyncFuture = null;
+    });
+  }
+
+  Future<void> _syncOnlineProgressOnce() async {
     await GameCenterService.syncAchievements(widget.db);
     if (!mounted) return;
-    unawaited(
+    await ref.read(playerProvider.notifier).claimUnlockedAchievementRewards();
+    if (!mounted) return;
+    await Future.wait([
       LeaderboardService.submitScores(
         widget.db,
         ref.read(playerProvider).totalXp,
       ),
-    );
-    await ref.read(playerProvider.notifier).claimUnlockedAchievementRewards();
+      CloudSaveService.backUpIfChanged(widget.db),
+    ]);
   }
 
   Future<void> _syncDailyReminderAuthorization() async {
@@ -285,6 +299,7 @@ class _CloudSaveBootstrapState extends ConsumerState<CloudSaveBootstrap> {
   @override
   void dispose() {
     _lifecycleListener.dispose();
+    _signedInSubscription?.cancel();
     _coordinator?.dispose();
     super.dispose();
   }

@@ -11,6 +11,11 @@ class GameCenterService {
   static const signInTimeout = Duration(seconds: 8);
   static Future<bool>? _signInFuture;
   static Future<void>? _syncFuture;
+  static final _signedInController = StreamController<void>.broadcast();
+  static bool _wasSignedIn = false;
+
+  /// 登录从不可用变为可用时通知应用补报本地进度。
+  static Stream<void> get signedInEvents => _signedInController.stream;
   static Timer? _retryTimer;
   static Duration _retryDelay = const Duration(seconds: 30);
   static const _maxRetryDelay = Duration(minutes: 5);
@@ -37,6 +42,7 @@ class GameCenterService {
     _stopRetrying();
     _signInFuture = null;
     _syncFuture = null;
+    _wasSignedIn = false;
   }
 
   static bool get isSupported =>
@@ -51,7 +57,11 @@ class GameCenterService {
           .timeout(signInTimeout)
           .map((player) => player != null)
           .first;
-      if (signedIn) _stopRetrying();
+      if (signedIn) {
+        _stopRetrying();
+        if (!_wasSignedIn) _signedInController.add(null);
+      }
+      _wasSignedIn = signedIn;
       return signedIn;
     } catch (_) {
       return false;
