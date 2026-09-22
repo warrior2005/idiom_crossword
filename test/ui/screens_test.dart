@@ -201,6 +201,13 @@ void main() {
       findsOneWidget,
     );
     expect(await db.getFavoriteIds(), [id]);
+    expect(
+      tester.widget<SnackBar>(find.byType(SnackBar)).duration,
+      const Duration(seconds: 1),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(find.byType(SnackBar), findsNothing);
 
     ScaffoldMessenger.of(
       tester.element(find.byType(CollectionScreen)),
@@ -214,6 +221,13 @@ void main() {
     );
     expect(find.widgetWithText(OutlinedButton, '收藏'), findsOneWidget);
     expect(await db.getFavoriteIds(), isEmpty);
+    expect(
+      tester.widget<SnackBar>(find.byType(SnackBar)).duration,
+      const Duration(seconds: 1),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(find.byType(SnackBar), findsNothing);
 
     ScaffoldMessenger.of(
       tester.element(find.byType(CollectionScreen)),

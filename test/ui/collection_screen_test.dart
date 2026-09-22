@@ -50,7 +50,18 @@ void main() {
 
   for (final tab in ['收藏', '全部']) {
     testWidgets('$tab 翻到下一页和上一页均回到顶部', (tester) async {
-      await tester.pumpWidget(_screen(List.generate(20, (id) => _item(id))));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        _screen(
+          List.generate(
+            20,
+            (id) => _item(
+              id,
+              example: List.filled(id < 10 ? 2 : 15, '长短不同的例句').join('，'),
+            ),
+          ),
+        ),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(Tab, tab));
       await tester.pumpAndSettle();
@@ -75,6 +86,13 @@ void main() {
           matching: find.byType(IconButton),
         );
         await tester.tap(next ? buttons.last : buttons.first);
+        await tester.pumpAndSettle();
+        expect(tester.state<ScrollableState>(scrollable).position.pixels, 0);
+        // 模拟底部广告出现和关闭带来的可用高度变化。
+        await tester.binding.setSurfaceSize(const Size(800, 542));
+        await tester.pumpAndSettle();
+        expect(tester.state<ScrollableState>(scrollable).position.pixels, 0);
+        await tester.binding.setSurfaceSize(null);
         await tester.pumpAndSettle();
         expect(tester.state<ScrollableState>(scrollable).position.pixels, 0);
         expect(find.text(next ? '成语10' : '成语0'), findsOneWidget);

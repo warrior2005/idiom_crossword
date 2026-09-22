@@ -157,7 +157,10 @@ class CollectionScreen extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
-      SnackBar(content: Text(isFavorite ? '取消收藏' : '已收藏')),
+      SnackBar(
+        content: Text(isFavorite ? '取消收藏' : '已收藏'),
+        duration: const Duration(seconds: 1),
+      ),
     );
   }
 }
@@ -187,7 +190,7 @@ class _CollectionList extends StatefulWidget {
 
 class _CollectionListState extends State<_CollectionList> {
   static const _pageSize = 10;
-  final _scrollController = ScrollController();
+  final _scrollController = ScrollController(keepScrollOffset: false);
   String _query = '';
   int _page = 0;
 
@@ -199,7 +202,6 @@ class _CollectionListState extends State<_CollectionList> {
 
   void _changePage(int page) {
     setState(() => _page = page);
-    _scrollController.jumpTo(0);
   }
 
   @override
@@ -262,6 +264,7 @@ class _CollectionListState extends State<_CollectionList> {
                         ((page + 1) * _pageSize).clamp(0, filtered.length),
                       );
                       return ListView.builder(
+                        key: ValueKey(page),
                         controller: _scrollController,
                         padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
                         itemCount: items.length + 1,
