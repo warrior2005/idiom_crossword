@@ -129,8 +129,8 @@ void main() {
       );
       final notifier = container.read(playerProvider.notifier);
       await notifier.loadFromDatabase(db);
-      final expectedHints = level >= 7 ? 7 : 4;
-      final expectedRevives = level >= 7 ? 3 : 2;
+      final expectedHints = (level >= 7 ? 7 : 4) + (level >= 19 ? 5 : 0);
+      final expectedRevives = (level >= 7 ? 3 : 2) + (level >= 19 ? 5 : 0);
       expect(container.read(playerProvider).functionalItems, {
         'hint_card': expectedHints,
         'revive_card': expectedRevives,
@@ -152,6 +152,96 @@ void main() {
         'hint_card': expectedHints,
         'revive_card': expectedRevives,
       });
+    });
+  }
+
+  test('旧 Lv.19 补发卡片一次且保留已获九五至尊皮肤', () async {
+    await db.updatePlayerProgress(
+      level: 19,
+      totalXp: 786894,
+      completedLevels: 0,
+      hintCards: 2,
+      reviveCards: 1,
+    );
+    await db.setSetting(kExamGiftBoxClaimedKey, 'true');
+    await db.addDecoration('grid_skin', 'emperor');
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.loadFromDatabase(db);
+    expect(container.read(playerProvider).functionalItems, {
+      'hint_card': 7,
+      'revive_card': 6,
+    });
+    expect(
+      container.read(playerProvider).ownedDecorations,
+      contains('grid_skin_emperor'),
+    );
+    expect(await db.getSetting(kTaishiSuppliesClaimedKey), 'true');
+    await notifier.loadFromDatabase(db);
+    expect(container.read(playerProvider).functionalItems, {
+      'hint_card': 7,
+      'revive_card': 6,
+    });
+    expect(await db.getOwnedDecorationIds(), contains('grid_skin_emperor'));
+  });
+
+  test('一次跨过两级时发放所有等级奖励', () async {
+    final notifier = container.read(playerProvider.notifier);
+    final result = await notifier.completeLevel(dailyLevelNumber(), [5]);
+    expect(result.newLevel, 3);
+    expect(
+      container.read(playerProvider).ownedDecorations,
+      containsAll(['avatar_frame_sifang', 'grid_skin_bamboo']),
+    );
+    expect(
+      await db.getOwnedDecorationIds(),
+      containsAll(['avatar_frame_sifang', 'grid_skin_bamboo']),
+    );
+  });
+
+  for (var target = 2; target <= GrowthManager.maxLevel; target++) {
+    test('晋升 Lv.$target 发放配置奖励并持久化，重载不重复', () async {
+      final threshold = List.generate(
+        target - 1,
+        (i) => GrowthManager.xpForLevel(i + 1),
+      ).fold<int>(0, (sum, xp) => sum + xp);
+      await db.updatePlayerProgress(
+        level: target - 1,
+        totalXp: threshold - 20,
+        completedLevels: 0,
+        hintCards: 10,
+        reviveCards: 10,
+      );
+      final notifier = container.read(playerProvider.notifier);
+      await notifier.loadFromDatabase(db);
+      final before = container.read(playerProvider);
+      final result = await notifier.completeLevel(1, [5]);
+      expect(result.newLevel, target);
+      final reward = GrowthManager.rewardForLevel(target)!;
+      final expectedItems = {...before.functionalItems};
+      if (reward.type == RewardType.functional) {
+        if (reward.item == 'exam_gift_box') {
+          expectedItems['hint_card'] = expectedItems['hint_card']! + 3;
+          expectedItems['revive_card'] = expectedItems['revive_card']! + 1;
+        } else if (reward.item == 'taishi_supplies') {
+          expectedItems['hint_card'] = expectedItems['hint_card']! + 5;
+          expectedItems['revive_card'] = expectedItems['revive_card']! + 5;
+        } else {
+          expectedItems[reward.item] =
+              (expectedItems[reward.item] ?? 0) + reward.quantity;
+        }
+      } else {
+        expect(
+          container.read(playerProvider).ownedDecorations,
+          contains(reward.item),
+        );
+        expect(await db.getOwnedDecorationIds(), contains(reward.item));
+      }
+      expect(container.read(playerProvider).functionalItems, expectedItems);
+      final saved = (await db.getPlayerProgress())!;
+      expect(saved.hintCards, expectedItems['hint_card']);
+      expect(saved.reviveCards, expectedItems['revive_card']);
+      await notifier.loadFromDatabase(db);
+      expect(container.read(playerProvider).functionalItems, expectedItems);
     });
   }
 

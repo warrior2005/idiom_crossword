@@ -34,6 +34,7 @@ const String kDailyLoginStreakKey = 'daily_login_streak';
 const int kVersionUpdatePointsReward = 100;
 const String kLastSeenAppVersionKey = 'last_seen_app_version';
 const String kExamGiftBoxClaimedKey = 'exam_gift_box_claimed';
+const String kTaishiSuppliesClaimedKey = 'taishi_supplies_claimed';
 const String _achievementRewardKeyPrefix = 'achievement_reward_claimed_';
 
 class DailyLoginReward {
@@ -293,25 +294,30 @@ class PlayerNotifier extends Notifier<PlayerState> {
       activeTitleEffect: await db.getActiveDecorationId('title_effect'),
     );
     await _claimLegacyLevelCompletionRewards(db);
-    await _claimLegacyExamGiftBox(db);
+    await _claimLegacyFunctionalRewards(db);
   }
 
-  /// 老玩家达到贡士后补发备考礼盒，与正常晋升共用领取标记。
-  Future<void> _claimLegacyExamGiftBox(AppDatabase db) async {
-    if (state.level < 7) return;
-    PlayerState? rewardedState;
-    await db.transaction(() async {
-      if (await db.getSetting(kExamGiftBoxClaimedKey) == 'true') return;
-      rewardedState = state.copyWith(
-        functionalItems: _applyReward(
-          state.functionalItems,
-          GrowthManager.rewardForLevel(7),
-        ),
-      );
-      await _persistState(db, rewardedState!);
-      await db.setSetting(kExamGiftBoxClaimedKey, 'true');
-    });
-    if (rewardedState != null) state = rewardedState!;
+  /// 调整过的道具奖励为老玩家补发一次，与正常晋升共用领取标记。
+  Future<void> _claimLegacyFunctionalRewards(AppDatabase db) async {
+    for (final entry in {
+      7: kExamGiftBoxClaimedKey,
+      19: kTaishiSuppliesClaimedKey,
+    }.entries) {
+      if (state.level < entry.key) continue;
+      PlayerState? rewardedState;
+      await db.transaction(() async {
+        if (await db.getSetting(entry.value) == 'true') return;
+        rewardedState = state.copyWith(
+          functionalItems: _applyReward(
+            state.functionalItems,
+            GrowthManager.rewardForLevel(entry.key),
+          ),
+        );
+        await _persistState(db, rewardedState!);
+        await db.setSetting(entry.value, 'true');
+      });
+      if (rewardedState != null) state = rewardedState!;
+    }
   }
 
   Future<ExperienceResult> completeLevel(
@@ -323,7 +329,17 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final newTotalXp = state.totalXp + xp;
     final newLevel = GrowthManager.levelFromXp(newTotalXp);
     final leveledUp = newLevel > oldLevel;
-    final reward = leveledUp ? GrowthManager.rewardForLevel(newLevel) : null;
+    final rewards = <LevelReward>[
+      for (var level = oldLevel + 1; level <= newLevel; level++)
+        ?GrowthManager.rewardForLevel(level),
+    ];
+    final reward = rewards.isEmpty ? null : rewards.last;
+    var items = state.functionalItems;
+    var decorations = state.ownedDecorations;
+    for (final reward in rewards) {
+      items = _applyReward(items, reward);
+      decorations = _applyDecorationReward(decorations, reward);
+    }
     final isDaily = levelNumber >= dailyLevelOffset;
 
     state = state.copyWith(
@@ -339,27 +355,33 @@ class PlayerNotifier extends Notifier<PlayerState> {
       points: isDaily
           ? state.points
           : state.points + kLevelCompletionPointsReward,
-      functionalItems: _applyReward(state.functionalItems, reward),
-      ownedDecorations: _applyDecorationReward(state.ownedDecorations, reward),
+      functionalItems: items,
+      ownedDecorations: decorations,
     );
 
     final db = ref.read(databaseProvider);
     await db.transaction(() async {
       await _persist(db);
-      if (reward?.item == 'exam_gift_box') {
-        await db.setSetting(kExamGiftBoxClaimedKey, 'true');
+      for (final reward in rewards) {
+        if (reward.item == 'exam_gift_box') {
+          await db.setSetting(kExamGiftBoxClaimedKey, 'true');
+        }
+        if (reward.item == 'taishi_supplies') {
+          await db.setSetting(kTaishiSuppliesClaimedKey, 'true');
+        }
+        if (reward.type == RewardType.decoration) {
+          final (type, id) = _splitDecorationId(reward.item);
+          await db.addDecoration(type, id);
+        }
       }
     });
-    if (reward != null && reward.type == RewardType.decoration) {
-      final (type, id) = _splitDecorationId(reward.item);
-      await db.addDecoration(type, id);
-    }
 
     return ExperienceResult(
       xpGained: xp,
       leveledUp: leveledUp,
       newLevel: newLevel,
       reward: reward,
+      rewards: rewards,
     );
   }
 
@@ -769,6 +791,10 @@ class PlayerNotifier extends Notifier<PlayerState> {
     if (reward.item == 'exam_gift_box') {
       updated['hint_card'] = (updated['hint_card'] ?? 0) + 3 * reward.quantity;
       updated['revive_card'] = (updated['revive_card'] ?? 0) + reward.quantity;
+    } else if (reward.item == 'taishi_supplies') {
+      updated['hint_card'] = (updated['hint_card'] ?? 0) + 5 * reward.quantity;
+      updated['revive_card'] =
+          (updated['revive_card'] ?? 0) + 5 * reward.quantity;
     } else {
       updated[reward.item] = (updated[reward.item] ?? 0) + reward.quantity;
     }

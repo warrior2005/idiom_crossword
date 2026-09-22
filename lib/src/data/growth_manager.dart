@@ -27,12 +27,14 @@ class ExperienceResult {
   final bool leveledUp;
   final int newLevel;
   final LevelReward? reward;
+  final List<LevelReward> rewards;
 
   const ExperienceResult({
     required this.xpGained,
     required this.leveledUp,
     required this.newLevel,
     this.reward,
+    this.rewards = const [],
   });
 }
 
@@ -160,13 +162,13 @@ class GrowthManager {
       quantity: 1,
     ),
     19: LevelReward(
-      type: RewardType.decoration,
-      item: 'grid_skin_emperor',
+      type: RewardType.functional,
+      item: 'taishi_supplies',
       quantity: 1,
     ),
     20: LevelReward(
       type: RewardType.decoration,
-      item: 'custom_title_unlock',
+      item: 'grid_skin_emperor',
       quantity: 1,
     ),
     21: LevelReward(

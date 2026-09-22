@@ -383,8 +383,8 @@ class GrowthManager {
     16: LevelReward(type: RewardType.functional, item: 'revive_card', quantity: 5),
     17: LevelReward(type: RewardType.decoration, item: 'title_effect_tianzi', quantity: 1),
     18: LevelReward(type: RewardType.decoration, item: 'avatar_frame_sangong', quantity: 1),
-    19: LevelReward(type: RewardType.decoration, item: 'grid_skin_emperor', quantity: 1),
-    20: LevelReward(type: RewardType.decoration, item: 'custom_title_unlock', quantity: 1),
+    19: LevelReward(type: RewardType.functional, item: 'taishi_supplies', quantity: 1), // 提示卡×5、复活卡×5
+    20: LevelReward(type: RewardType.decoration, item: 'grid_skin_emperor', quantity: 1),
   };
 
   /// 获取升级奖励

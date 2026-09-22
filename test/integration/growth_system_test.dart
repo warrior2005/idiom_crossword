@@ -60,7 +60,7 @@ void main() {
       expect(GrowthManager.rewardForLevel(18)?.item, 'avatar_frame_zhongjing');
       expect(GrowthManager.rewardForLevel(21)?.item, 'avatar_frame_tianzi');
       expect(GrowthManager.rewardForLevel(3)?.item, 'grid_skin_bamboo');
-      expect(GrowthManager.rewardForLevel(20)?.item, 'custom_title_unlock');
+      expect(GrowthManager.rewardForLevel(20)?.item, 'grid_skin_emperor');
     });
   });
 }

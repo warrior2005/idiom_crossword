@@ -1299,13 +1299,23 @@ class _GameScreenState extends ConsumerState<GameScreen>
     int timeSpentMs,
   ) {
     final title = GrowthManager.titleForLevel(newLevel);
-    final rewardText = reward.type == RewardType.functional
-        ? '${reward.item == "exam_gift_box"
-              ? "备考礼盒"
-              : reward.item == "hint_card"
-              ? "提示卡"
-              : "复活卡"} ×${reward.quantity}'
-        : decorationName(reward.item);
+    final rewards = result.rewards.isEmpty ? [reward] : result.rewards;
+    final rewardText = rewards
+        .map((reward) {
+          if (reward.type == RewardType.decoration) {
+            return decorationName(reward.item);
+          }
+          if (reward.item == 'taishi_supplies') {
+            return '提示卡 ×${5 * reward.quantity}、复活卡 ×${5 * reward.quantity}';
+          }
+          final name = switch (reward.item) {
+            'exam_gift_box' => '备考礼盒',
+            'hint_card' => '提示卡',
+            _ => '复活卡',
+          };
+          return '$name ×${reward.quantity}';
+        })
+        .join('、');
 
     showWinCardDialog(
       context,

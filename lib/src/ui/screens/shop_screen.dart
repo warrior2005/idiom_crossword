@@ -33,7 +33,7 @@ const Map<String, int> kLevelSkinUnlockLevels = {
   'bamboo': 3, // 竹简
   'qinghua': 11, // 青花
   'gold': 15, // 金箔
-  'emperor': 19, // 九五至尊
+  'emperor': 20, // 九五至尊
 };
 
 /// 商城商品条目统一高度（购买/解锁前后保持不变）
