@@ -187,8 +187,20 @@ class _CollectionList extends StatefulWidget {
 
 class _CollectionListState extends State<_CollectionList> {
   static const _pageSize = 10;
+  final _scrollController = ScrollController();
   String _query = '';
   int _page = 0;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _changePage(int page) {
+    setState(() => _page = page);
+    _scrollController.jumpTo(0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -250,6 +262,7 @@ class _CollectionListState extends State<_CollectionList> {
                         ((page + 1) * _pageSize).clamp(0, filtered.length),
                       );
                       return ListView.builder(
+                        controller: _scrollController,
                         padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
                         itemCount: items.length + 1,
                         itemBuilder: (context, index) {
@@ -257,8 +270,8 @@ class _CollectionListState extends State<_CollectionList> {
                             return _Pager(
                               page: page,
                               maxPage: maxPage,
-                              onPrev: () => setState(() => _page--),
-                              onNext: () => setState(() => _page++),
+                              onPrev: () => _changePage(page - 1),
+                              onNext: () => _changePage(page + 1),
                             );
                           }
                           final item = items[index];
@@ -425,6 +438,16 @@ class _ColCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       '· ${item.derivation}',
+                      style: bodyStyle(size: 11, color: AppColors.faint),
+                    ),
+                  ),
+                if (item.example != null &&
+                    item.example!.trim().isNotEmpty &&
+                    item.example!.trim() != '无')
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      '· ${item.example}',
                       style: bodyStyle(size: 11, color: AppColors.faint),
                     ),
                   ),

@@ -7,6 +7,7 @@ class CollectionItem {
   final String word;
   final String explanation;
   final String? derivation;
+  final String? example;
   final String pinyin;
   final DateTime collectedAt;
 
@@ -15,6 +16,7 @@ class CollectionItem {
     required this.word,
     required this.explanation,
     required this.derivation,
+    this.example,
     required this.pinyin,
     required this.collectedAt,
   });
@@ -30,6 +32,7 @@ final collectionProvider = FutureProvider<List<CollectionItem>>((ref) async {
           word: r.idiom.word,
           explanation: r.idiom.explanation,
           derivation: r.idiom.derivation,
+          example: r.idiom.example,
           pinyin: r.idiom.pinyin,
           collectedAt: r.collectedAt,
         ),
@@ -52,6 +55,7 @@ final favoritesProvider = FutureProvider<List<CollectionItem>>((ref) async {
           word: r.idiom.word,
           explanation: r.idiom.explanation,
           derivation: r.idiom.derivation,
+          example: r.idiom.example,
           pinyin: r.idiom.pinyin,
           collectedAt: r.favoritedAt,
         ),
