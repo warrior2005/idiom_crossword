@@ -100,8 +100,8 @@ class GrowthManager {
     ),
     6: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 3),
     7: LevelReward(
-      type: RewardType.decoration,
-      item: 'grid_skin_paper',
+      type: RewardType.functional,
+      item: 'exam_gift_box',
       quantity: 1,
     ),
     8: LevelReward(

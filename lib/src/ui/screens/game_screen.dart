@@ -1300,7 +1300,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
   ) {
     final title = GrowthManager.titleForLevel(newLevel);
     final rewardText = reward.type == RewardType.functional
-        ? '${reward.item == "hint_card" ? "提示卡" : "复活卡"} ×${reward.quantity}'
+        ? '${reward.item == "exam_gift_box"
+              ? "备考礼盒"
+              : reward.item == "hint_card"
+              ? "提示卡"
+              : "复活卡"} ×${reward.quantity}'
         : decorationName(reward.item);
 
     showWinCardDialog(
@@ -1308,6 +1312,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       seal: '升',
       title: '晋升 ${GrowthManager.levelLabel(newLevel)} $title',
       subtitle: '获得奖励：$rewardText',
+      subtitleColor: AppColors.accent,
       xpText: '${result.xpGained > 0 ? '+' : ''}${result.xpGained}',
       actions: [
         WinCardAction(

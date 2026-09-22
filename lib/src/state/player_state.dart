@@ -33,6 +33,7 @@ const String kDailyLoginLastDateKey = 'daily_login_last_date';
 const String kDailyLoginStreakKey = 'daily_login_streak';
 const int kVersionUpdatePointsReward = 100;
 const String kLastSeenAppVersionKey = 'last_seen_app_version';
+const String kExamGiftBoxClaimedKey = 'exam_gift_box_claimed';
 const String _achievementRewardKeyPrefix = 'achievement_reward_claimed_';
 
 class DailyLoginReward {
@@ -292,6 +293,25 @@ class PlayerNotifier extends Notifier<PlayerState> {
       activeTitleEffect: await db.getActiveDecorationId('title_effect'),
     );
     await _claimLegacyLevelCompletionRewards(db);
+    await _claimLegacyExamGiftBox(db);
+  }
+
+  /// 老玩家达到贡士后补发备考礼盒，与正常晋升共用领取标记。
+  Future<void> _claimLegacyExamGiftBox(AppDatabase db) async {
+    if (state.level < 7) return;
+    PlayerState? rewardedState;
+    await db.transaction(() async {
+      if (await db.getSetting(kExamGiftBoxClaimedKey) == 'true') return;
+      rewardedState = state.copyWith(
+        functionalItems: _applyReward(
+          state.functionalItems,
+          GrowthManager.rewardForLevel(7),
+        ),
+      );
+      await _persistState(db, rewardedState!);
+      await db.setSetting(kExamGiftBoxClaimedKey, 'true');
+    });
+    if (rewardedState != null) state = rewardedState!;
   }
 
   Future<ExperienceResult> completeLevel(
@@ -324,7 +344,12 @@ class PlayerNotifier extends Notifier<PlayerState> {
     );
 
     final db = ref.read(databaseProvider);
-    await _persist(db);
+    await db.transaction(() async {
+      await _persist(db);
+      if (reward?.item == 'exam_gift_box') {
+        await db.setSetting(kExamGiftBoxClaimedKey, 'true');
+      }
+    });
     if (reward != null && reward.type == RewardType.decoration) {
       final (type, id) = _splitDecorationId(reward.item);
       await db.addDecoration(type, id);
@@ -741,7 +766,12 @@ class PlayerNotifier extends Notifier<PlayerState> {
   Map<String, int> _applyReward(Map<String, int> items, LevelReward? reward) {
     if (reward == null || reward.type != RewardType.functional) return items;
     final updated = Map<String, int>.from(items);
-    updated[reward.item] = (updated[reward.item] ?? 0) + reward.quantity;
+    if (reward.item == 'exam_gift_box') {
+      updated['hint_card'] = (updated['hint_card'] ?? 0) + 3 * reward.quantity;
+      updated['revive_card'] = (updated['revive_card'] ?? 0) + reward.quantity;
+    } else {
+      updated[reward.item] = (updated[reward.item] ?? 0) + reward.quantity;
+    }
     return updated;
   }
 

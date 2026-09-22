@@ -76,6 +76,85 @@ void main() {
     expect(await db.getOwnedDecorationIds(), contains('avatar_frame_sifang'));
   });
 
+  test('晋升贡士将备考礼盒拆为卡片并持久化，不重复发放', () async {
+    final threshold = List.generate(
+      6,
+      (i) => GrowthManager.xpForLevel(i + 1),
+    ).reduce((a, b) => a + b);
+    await db.updatePlayerProgress(
+      level: 6,
+      totalXp: threshold - 20,
+      completedLevels: 0,
+      hintCards: 4,
+      reviveCards: 2,
+    );
+    final notifier = container.read(playerProvider.notifier);
+    await notifier.loadFromDatabase(db);
+
+    final result = await notifier.completeLevel(1, [5]);
+    expect(result.newLevel, 7);
+    expect(result.reward?.item, 'exam_gift_box');
+    expect(result.reward?.quantity, 1);
+    expect(container.read(playerProvider).functionalItems, {
+      'hint_card': 7,
+      'revive_card': 3,
+    });
+    expect(
+      container.read(playerProvider).ownedDecorations,
+      isNot(contains('grid_skin_paper')),
+    );
+    final progress = (await db.getPlayerProgress())!;
+    expect(progress.hintCards, 7);
+    expect(progress.reviveCards, 3);
+
+    await notifier.loadFromDatabase(db);
+    await notifier.completeLevel(1, [5]);
+    expect(container.read(playerProvider).functionalItems, {
+      'hint_card': 7,
+      'revive_card': 3,
+    });
+  });
+
+  for (final level in [6, 7, 12, GrowthManager.maxLevel]) {
+    test('旧存档 Lv.$level 仅达到贡士时补发礼盒，重启不重复', () async {
+      await db.updatePlayerProgress(
+        level: level,
+        totalXp: List.generate(
+          level - 1,
+          (i) => GrowthManager.xpForLevel(i + 1),
+        ).fold<int>(0, (sum, xp) => sum + xp),
+        completedLevels: 0,
+        hintCards: 4,
+        reviveCards: 2,
+      );
+      final notifier = container.read(playerProvider.notifier);
+      await notifier.loadFromDatabase(db);
+      final expectedHints = level >= 7 ? 7 : 4;
+      final expectedRevives = level >= 7 ? 3 : 2;
+      expect(container.read(playerProvider).functionalItems, {
+        'hint_card': expectedHints,
+        'revive_card': expectedRevives,
+      });
+      final progress = (await db.getPlayerProgress())!;
+      expect(progress.hintCards, expectedHints);
+      expect(progress.reviveCards, expectedRevives);
+      expect(
+        await db.getSetting(kExamGiftBoxClaimedKey),
+        level >= 7 ? 'true' : isNull,
+      );
+
+      container.dispose();
+      container = ProviderContainer(
+        overrides: [databaseProvider.overrideWithValue(db)],
+      );
+      await container.read(playerProvider.notifier).loadFromDatabase(db);
+      expect(container.read(playerProvider).functionalItems, {
+        'hint_card': expectedHints,
+        'revive_card': expectedRevives,
+      });
+    });
+  }
+
   test('装饰奖励写入数据库', () async {
     final notifier = container.read(playerProvider.notifier);
     // 13 个教学关 → 260xp → 3 级（奖励网格皮肤·竹简）

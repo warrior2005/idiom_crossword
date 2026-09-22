@@ -371,7 +371,7 @@ class GrowthManager {
     4: LevelReward(type: RewardType.functional, item: 'revive_card', quantity: 1),
     5: LevelReward(type: RewardType.decoration, item: 'avatar_frame_wusha', quantity: 1),
     6: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 3),
-    7: LevelReward(type: RewardType.decoration, item: 'grid_skin_paper', quantity: 1),
+    7: LevelReward(type: RewardType.functional, item: 'exam_gift_box', quantity: 1), // 备考礼盒：提示卡×3、复活卡×1
     8: LevelReward(type: RewardType.functional, item: 'revive_card', quantity: 2),
     9: LevelReward(type: RewardType.decoration, item: 'title_effect_jinbang', quantity: 1),
     10: LevelReward(type: RewardType.functional, item: 'hint_card', quantity: 5),

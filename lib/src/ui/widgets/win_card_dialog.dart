@@ -28,6 +28,7 @@ class WinCard extends StatelessWidget {
   final String seal;
   final String title;
   final String? subtitle;
+  final Color subtitleColor;
   final String? xpText;
   final List<WinCardIdiom> idioms;
   final List<WinCardAction> actions;
@@ -38,6 +39,7 @@ class WinCard extends StatelessWidget {
     required this.seal,
     required this.title,
     this.subtitle,
+    this.subtitleColor = AppColors.muted,
     required this.xpText,
     required this.idioms,
     required this.actions,
@@ -101,10 +103,7 @@ class WinCard extends StatelessWidget {
             Text(title, style: displayStyle(size: 26, weight: FontWeight.w900)),
             if (subtitle != null) ...[
               const SizedBox(height: 8),
-              Text(
-                subtitle!,
-                style: bodyStyle(size: 13, color: AppColors.muted),
-              ),
+              Text(subtitle!, style: bodyStyle(size: 13, color: subtitleColor)),
             ],
             if (experience != null) ...[
               const SizedBox(height: 16),
@@ -229,6 +228,7 @@ Future<void> showWinCardDialog(
   required String seal,
   required String title,
   String? subtitle,
+  Color subtitleColor = AppColors.muted,
   required String? xpText,
   List<WinCardIdiom> idioms = const [],
   List<WinCardAction> actions = const [],
@@ -248,6 +248,7 @@ Future<void> showWinCardDialog(
             seal: seal,
             title: title,
             subtitle: subtitle,
+            subtitleColor: subtitleColor,
             xpText: xpText,
             idioms: idioms,
             actions: actions,

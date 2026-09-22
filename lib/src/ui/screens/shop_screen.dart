@@ -31,7 +31,6 @@ const Map<String, int> kAdSkinPoints = {
 /// 等级皮肤解锁等级（升级奖励发放后自动拥有）
 const Map<String, int> kLevelSkinUnlockLevels = {
   'bamboo': 3, // 竹简
-  'paper': 7, // 宣纸
   'qinghua': 11, // 青花
   'gold': 15, // 金箔
   'emperor': 19, // 九五至尊
