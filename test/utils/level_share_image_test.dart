@@ -3,10 +3,17 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart';
+import 'package:idiom_crossword/src/ui/theme/app_text.dart';
 import 'package:idiom_crossword/src/utils/level_share_image.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    final loader = FontLoader(kSerif)
+      ..addFont(rootBundle.load('assets/fonts/NotoSerifSC-Bold.ttf'));
+    await loader.load();
+  });
 
   test('分享图包含初始网格并生成 PNG', () async {
     final grid = CrosswordGrid(rows: 3, cols: 4);
@@ -46,6 +53,28 @@ void main() {
     final frame = await codec.getNextFrame();
     expect(frame.image.width, 1080);
     expect(frame.image.height, greaterThan(800));
+    final pixels = (await frame.image.toByteData())!;
+    // 首个格子为 (284, 300, 128, 128)，只统计深色文字像素。
+    var top = 428;
+    var bottom = 300;
+    var left = 412;
+    var right = 284;
+    for (var y = 304; y < 424; y++) {
+      for (var x = 288; x < 408; x++) {
+        final offset = (y * frame.image.width + x) * 4;
+        if (pixels.getUint8(offset) < 100 &&
+            pixels.getUint8(offset + 1) < 100 &&
+            pixels.getUint8(offset + 2) < 100) {
+          if (y < top) top = y;
+          if (y > bottom) bottom = y;
+          if (x < left) left = x;
+          if (x > right) right = x;
+        }
+      }
+    }
+    expect(bottom, greaterThan(top));
+    expect((left + right + 1) / 2, closeTo(348, 4));
+    expect((top + bottom + 1) / 2, closeTo(364, 4));
     frame.image.dispose();
     codec.dispose();
   });

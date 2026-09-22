@@ -102,8 +102,9 @@ Future<Uint8List> buildLevelShareImage({
           _paintCenteredText(
             canvas,
             text: cell.character,
-            y: y + (maxCellSize - maxCellSize * 0.58) / 2 - 5,
+            y: y,
             width: maxCellSize,
+            height: maxCellSize,
             x: x,
             style: TextStyle(
               fontFamily: kSerif,
@@ -168,13 +169,21 @@ void _paintCenteredText(
   required double width,
   required TextStyle style,
   double x = 0,
+  double? height,
 }) {
   final painter = TextPainter(
     text: TextSpan(text: text, style: style),
     textDirection: TextDirection.ltr,
     textAlign: TextAlign.center,
   )..layout(maxWidth: width);
-  painter.paint(canvas, Offset(x + (width - painter.width) / 2, y));
+  painter.paint(
+    canvas,
+    Offset(
+      x + (width - painter.width) / 2,
+      y + (height == null ? 0 : (height - painter.height) / 2),
+    ),
+  );
+  painter.dispose();
 }
 
 ({int minRow, int maxRow, int minCol, int maxCol})? _usedBounds(
