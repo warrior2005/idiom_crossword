@@ -340,18 +340,11 @@ class MainlineLearning {
             (previous['independent'] as int? ?? 0) + (independent ? 1 : 0);
         final reviewGap =
             sequence - (previous['lastReviewSequence'] as int? ?? -100);
+        // 退出复习只检查本词；旧提示归属缺失时使用已有词级wrong记录。
         final reviewClean =
-            hints == 0 &&
             !wrong.contains(word) &&
-            givens <= 2 &&
-            p.cells
-                    .where(
-                      (c) =>
-                          !level.grid.cellAt(c.$1, c.$2).isGiven &&
-                          level.grid.cellAt(c.$1, c.$2).isIntersection,
-                    )
-                    .length <=
-                1;
+            !(hinted?.contains(word) ?? false) &&
+            givens <= 2;
         final reviewSuccesses =
             (previous['reviewSuccesses'] as int? ?? 0) +
             (reviewClean && reviewGap >= 4 ? 1 : 0);

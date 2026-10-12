@@ -293,17 +293,6 @@ Future<engine.CrosswordLevel?> _generateMainline(
           )
           .toList()
         ..shuffle(rng);
-  final learningWords = observations['words'] as Map;
-  final reviewPriority = {
-    for (final r in reviewOptions)
-      r.word:
-          rng.nextDouble() /
-          (1 +
-              ((learningWords[r.word] as Map?)?['reviewSignals'] as int? ?? 0)),
-  };
-  reviewOptions.sort(
-    (a, b) => reviewPriority[a.word]!.compareTo(reviewPriority[b.word]!),
-  );
   final planned = !hadReview && reviewOptions.isNotEmpty
       ? reviewOptions.first.word
       : null;
