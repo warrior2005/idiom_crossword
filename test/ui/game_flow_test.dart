@@ -22,6 +22,7 @@ import 'package:idiom_crossword/src/state/player_state.dart';
 import 'package:idiom_crossword/src/ui/app_page_route.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
+import 'package:idiom_crossword/src/ui/theme/app_colors.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 import 'package:idiom_crossword/src/ui/widgets/primary_button.dart';
 import 'package:idiom_crossword/src/utils/ad_manager.dart';
@@ -1097,6 +1098,12 @@ void main() {
       gridRect.left + col * cellSize + cellSize / 2,
       gridRect.top + row * cellSize + cellSize / 2,
     );
+    await tester.tapAt(cellCenter(1, 0)); // 已揭示的“蛇”无需再提示
+    await tester.pump();
+    _expectDisabledHintVisible(tester);
+    await tester.tap(find.text('提示'));
+    await tester.pump();
+    expect(container.read(playerProvider).functionalItems['hint_card'], 2);
     await tester.tapAt(cellCenter(2, 0)); // 添（矩阵第 3 列 → 实际第 2 列）
     await tester.pump();
     await tester.tap(find.text('添'));
@@ -1111,6 +1118,7 @@ void main() {
     );
     expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
     expect(find.byKey(const ValueKey('win-card-idiom-画蛇添足')), findsOneWidget);
+    _expectDisabledHintVisible(tester);
 
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 800));
@@ -2028,6 +2036,34 @@ engine.CrosswordLevel _buildCrossingLevel() {
     givenCharacters: const {'画', '肠'},
     title: '第 1 关',
   );
+}
+
+void _expectDisabledHintVisible(WidgetTester tester) {
+  final button = find
+      .ancestor(of: find.text('提示'), matching: find.byType(GestureDetector))
+      .first;
+  expect(tester.widget<GestureDetector>(button).onTap, isNull);
+  final icon = tester.widget<AppIcon>(
+    find.byWidgetPredicate(
+      (widget) => widget is AppIcon && widget.name == 'hint',
+    ),
+  );
+  for (final color in [
+    icon.color!,
+    tester.widget<Text>(find.text('提示')).style!.color!,
+    tester.widget<Text>(find.text('剩 2')).style!.color!,
+  ]) {
+    for (final background in [
+      AppColors.bg,
+      AppColors.bgDeep,
+      AppColors.surface2,
+    ]) {
+      final contrast =
+          (background.computeLuminance() + 0.05) /
+          (color.computeLuminance() + 0.05);
+      expect(contrast, greaterThanOrEqualTo(3), reason: '禁用提示应在宣纸底色上保持可见');
+    }
+  }
 }
 
 class _DelayedHistoryDatabase extends AppDatabase {

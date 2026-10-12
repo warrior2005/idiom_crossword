@@ -2940,14 +2940,14 @@ class _ToolbarButton extends StatelessWidget {
                 AppIcon(
                   icon,
                   size: 24,
-                  color: enabled ? AppColors.fg : AppColors.faint,
+                  color: enabled ? AppColors.fg : AppColors.muted,
                 ),
                 Text(
                   label,
                   style: bodyStyle(
                     size: 12,
                     weight: FontWeight.w600,
-                    color: enabled ? AppColors.fg : AppColors.faint,
+                    color: enabled ? AppColors.fg : AppColors.muted,
                   ),
                 ),
               ],
@@ -2970,7 +2970,7 @@ class _ToolbarButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
-                      color: enabled ? AppColors.accent : AppColors.faint,
+                      color: enabled ? AppColors.accent : AppColors.muted,
                     ),
                   ),
                 ),
