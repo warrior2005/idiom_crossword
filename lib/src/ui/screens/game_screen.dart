@@ -424,31 +424,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
         _restoring = false;
       });
       ref.read(playerProvider.notifier).setCorrectStreak(_correctStreak);
-      _rebuildWrongIdiomsFromHistory();
     } catch (_) {
       if (mounted) setState(() => _restoring = false);
-    }
-  }
-
-  /// 从填字历史重建本局填错过的成语（断点续玩后仍能统计）
-  void _rebuildWrongIdiomsFromHistory() {
-    if (_wrongIdiomWords.isNotEmpty) return;
-    _wrongIdiomWords.clear();
-    for (final entry in _fillHistory) {
-      if (entry.candRow < 0 ||
-          entry.candCol < 0 ||
-          entry.candRow >= _candidateBoard.length ||
-          entry.candCol >= _candidateBoard[entry.candRow].length) {
-        continue;
-      }
-      final filledChar = _candidateBoard[entry.candRow][entry.candCol];
-      if (!_isCharCorrectForCell(entry.row, entry.col, filledChar)) {
-        final placement = _placementsContaining(
-          entry.row,
-          entry.col,
-        ).firstOrNull;
-        if (placement != null) _wrongIdiomWords.add(placement.idiom.text);
-      }
     }
   }
 
@@ -735,7 +712,6 @@ class _GameScreenState extends ConsumerState<GameScreen>
     } else {
       _errorsMade++;
       _correctStreak = 0;
-      _markActiveIdiomWrong(filledRow, filledCol);
       ref.read(playerProvider.notifier).recordWrongFill();
     }
 
@@ -771,7 +747,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
             hasWrongChar = true;
           }
         }
-        hasWrongCompletedIdiom |= allFilled && hasWrongChar;
+        if (allFilled && hasWrongChar) {
+          hasWrongCompletedIdiom = true;
+          _wrongIdiomWords.add(placement.idiom.text);
+        }
       }
       if (hasWrongCompletedIdiom) {
         shouldFail = _lives == 0;

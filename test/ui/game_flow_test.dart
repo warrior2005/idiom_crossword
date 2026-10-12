@@ -10,6 +10,7 @@ import 'package:idiom_crossword/src/audio/music_manager.dart';
 import 'package:idiom_crossword/src/audio/sound_manager.dart';
 import 'package:idiom_crossword/src/data/achievement_manager.dart';
 import 'package:idiom_crossword/src/data/database.dart';
+import 'package:idiom_crossword/src/data/mainline_learning.dart';
 import 'package:idiom_crossword/src/engine/grid_engine.dart' as engine;
 import 'package:idiom_crossword/src/notifications/daily_reminder_platform.dart';
 import 'package:idiom_crossword/src/reviews/app_review.dart';
@@ -575,9 +576,19 @@ void main() {
     await fill(2, 2, '心');
     await fill(3, 2, '蝎');
     expect(find.byIcon(Icons.favorite), findsNWidgets(3));
+    await tester.pumpAndSettle();
+    expect(
+      decodeGameState((await db.getLevelState(1))!.stateJson)!.wrongIdiomWords,
+      isEmpty,
+    );
     // 最后一笔本身正确，但闭合的两条成语共四个错字，只扣一次。
     await fill(1, 2, '蛇');
     expect(find.byIcon(Icons.favorite), findsNWidgets(2));
+    await tester.pumpAndSettle();
+    expect(
+      decodeGameState((await db.getLevelState(1))!.stateJson)!.wrongIdiomWords,
+      {'画蛇添足', '蛇蝎心肠'},
+    );
     final painter = tester.widget<CustomPaint>(board).painter! as GridPainter;
     expect(painter.errorCells, {(1, 3), (1, 4), (2, 2), (3, 2)});
     expect(painter.correctCells, {(1, 2)});
@@ -1257,6 +1268,90 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
   });
 
+  for (final resume in [false, true]) {
+    testWidgets('未填满时探索不记录错词或复习，续玩=$resume', (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final base = _buildLevel();
+      final level = engine.CrosswordLevel(
+        levelId: base.levelId,
+        grid: base.grid,
+        placements: base.placements,
+        givenCharacters: base.givenCharacters,
+        title: base.title,
+        strategyVersion: 1,
+        instanceId: 'exploration',
+      );
+      Widget app() => ProviderScope(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          nextLevelLoaderProvider.overrideWithValue((_) async => null),
+        ],
+        child: MaterialApp(home: GameScreen(level: level)),
+      );
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      final wrongChar = find.byWidgetPredicate(
+        (w) =>
+            w is Text &&
+            w.data != null &&
+            w.data!.length == 1 &&
+            !'蛇添足'.contains(w.data!),
+      );
+      await tester.tap(wrongChar.first);
+      await tester.pumpAndSettle();
+      await tester.tap(wrongChar.at(1));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.favorite), findsNWidgets(3));
+      final saved = await db.getLevelState(1);
+      expect(decodeGameState(saved!.stateJson)!.wrongIdiomWords, isEmpty);
+      expect(
+        (await MainlineLearning.read(db))['words']['画蛇添足']['reviewNeeded'],
+        isNot(true),
+      );
+
+      if (resume) {
+        await tester.pumpWidget(const SizedBox());
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(app());
+        await tester.pumpAndSettle();
+        final restored = await db.getLevelState(1);
+        expect(decodeGameState(restored!.stateJson)!.wrongIdiomWords, isEmpty);
+        expect(
+          (await MainlineLearning.read(db))['words']['画蛇添足']['reviewNeeded'],
+          isNot(true),
+        );
+      }
+      final rect = tester.getRect(
+        find.byWidgetPredicate(
+          (w) => w is CustomPaint && w.painter is GridPainter,
+        ),
+      );
+      for (final entry in [(1, '蛇'), (2, '添'), (3, '足')]) {
+        await tester.tapAt(
+          Offset(rect.left + (entry.$1 + 0.5) * rect.width / 4, rect.center.dy),
+        );
+        await tester.pump();
+        await tester.tap(find.text(entry.$2));
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      await _pumpUntil(
+        tester,
+        () => find.text('恭喜通过 · 第 1 关').evaluate().isNotEmpty,
+        const Duration(seconds: 5),
+      );
+      expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
+      expect(find.textContaining('填错'), findsNothing);
+      expect(find.byKey(const ValueKey('win-card-idiom-画蛇添足')), findsNothing);
+      expect(find.byIcon(Icons.favorite), findsNWidgets(3));
+      expect(
+        (await MainlineLearning.read(db))['words']['画蛇添足']['reviewNeeded'],
+        isNot(true),
+      );
+      await tester.pump(const Duration(milliseconds: 1200));
+    });
+  }
+
   testWidgets('过关弹窗展示本局填错过的成语', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -1269,7 +1364,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // 在同一个成语中故意填错两次
+    // 同一个成语填入两个错字，再填满触发判错
     final wrongChar = find.byWidgetPredicate(
       (w) =>
           w is Text &&
@@ -1281,6 +1376,9 @@ void main() {
     await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
     await tester.tap(wrongChar.at(1));
     await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
+    await tester.tap(find.text('足'));
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.favorite), findsNWidgets(2));
 
     // 回到填错的“蛇”格并改正，再依次补完
     final gridRect = tester.getRect(
@@ -1305,10 +1403,8 @@ void main() {
       ),
     );
     await tester.pump();
-    for (final ch in ['添', '足']) {
-      await tester.tap(find.text(ch));
-      await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
-    }
+    await tester.tap(find.text('添'));
+    await _pumpUntil(tester, () => true, const Duration(milliseconds: 200));
 
     await _pumpUntil(
       tester,
@@ -1397,7 +1493,7 @@ void main() {
     );
   });
 
-  testWidgets('交叉格填错只记当前方向成语', (tester) async {
+  testWidgets('交叉格填错只记已填满判错的成语', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await tester.pumpWidget(
@@ -1417,6 +1513,11 @@ void main() {
     );
     await tester.tap(wrongChar.first);
     await tester.pump();
+    for (final char in ['添', '足']) {
+      await tester.tap(find.text(char));
+      await tester.pump();
+    }
+    expect(find.byIcon(Icons.favorite), findsNWidgets(2));
 
     final gridRect = tester.getRect(
       find.byWidgetPredicate(
@@ -1428,7 +1529,7 @@ void main() {
       Offset(gridRect.left + cellSize * 1.5, gridRect.top + cellSize / 2),
     );
     await tester.pump();
-    for (final char in ['蛇', '添', '足', '蝎', '心']) {
+    for (final char in ['蛇', '蝎', '心']) {
       await tester.tap(find.text(char));
       await tester.pump(const Duration(milliseconds: 100));
     }
