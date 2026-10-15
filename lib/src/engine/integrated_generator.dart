@@ -98,6 +98,7 @@ class IntegratedGenerator {
               attempt < 3 ? preferredSeeds : fallbackSeeds,
               canSelect,
               wordPriority,
+              attempt,
             )
           : _tryGenerate(
               candidates,
@@ -130,18 +131,31 @@ class IntegratedGenerator {
     Set<String> preferred,
     bool Function(Iterable<Idiom>)? canSelect,
     double Function(String)? priority,
+    int seedAttempt,
   ) {
     final seeds = candidates.toList()..shuffle(_random);
-    seeds.sort(
-      (a, b) => (preferred.contains(graph.idioms[b].text) ? 1 : 0).compareTo(
-        preferred.contains(graph.idioms[a].text) ? 1 : 0,
-      ),
-    );
-    final viable = seeds.where(
-      (i) => canSelect == null || canSelect([graph.idioms[i]]),
-    );
+    seeds.sort((a, b) {
+      final preference = (preferred.contains(graph.idioms[b].text) ? 1 : 0)
+          .compareTo(preferred.contains(graph.idioms[a].text) ? 1 : 0);
+      if (preference != 0) return preference;
+      return priority == null
+          ? 0
+          : priority(
+              graph.idioms[a].text,
+            ).compareTo(priority(graph.idioms[b].text));
+    });
+    final viable = seeds
+        .where((i) => canSelect == null || canSelect([graph.idioms[i]]))
+        .toList();
     if (viable.isEmpty) return null;
-    final seed = viable.first;
+    final preferredCount = viable
+        .takeWhile((i) => preferred.contains(graph.idioms[i].text))
+        .length;
+    final seed =
+        viable[priority == null
+            ? 0
+            : seedAttempt %
+                  (preferredCount > 0 ? preferredCount : viable.length)];
     final placed = <int, _PlacedNode>{
       seed: _PlacedNode(
         idiomIdx: seed,

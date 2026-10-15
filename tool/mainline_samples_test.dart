@@ -79,12 +79,7 @@ void main() {
                 .abs(),
             lessThanOrEqualTo(5),
           );
-          expect(
-            ((l.strategy['unfamiliar'] as int) -
-                    (previous['unfamiliar'] as int))
-                .abs(),
-            lessThanOrEqualTo(2),
-          );
+
           expect(
             (l.idioms.length - (previous['size'] as int)).abs(),
             lessThanOrEqualTo(1),

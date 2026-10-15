@@ -58,11 +58,10 @@ class AdaptivePolicy {
     return true;
   }
 
-  /// 先给个人陌生词和生僻词支持，再把实际待填量约束到固定预算。
+  /// 按词汇档位提供支持，再把实际待填量约束到固定预算。
   bool support(
     CrosswordLevel puzzle,
-    Map<String, int> tiers,
-    Set<String> familiar, {
+    Map<String, int> tiers, {
     Set<int> weakTiers = const {},
   }) {
     bool canGive((int, int) pos) => puzzle.placements
@@ -80,12 +79,9 @@ class AdaptivePolicy {
       puzzle.givenCharacters.add(cell.character);
     }
 
-    // 陌生高档词最多留两空；其余预填随全局待填预算调节。
+    // 高档词先提供两字预填；其余预填随全局待填预算调节。
     for (final p in puzzle.placements) {
-      final goal =
-          (tiers[p.idiom.text] ?? 4) >= 3 && !familiar.contains(p.idiom.text)
-          ? 2
-          : 1;
+      final goal = (tiers[p.idiom.text] ?? 4) >= 3 ? 2 : 1;
       for (final pos in p.cells) {
         if (p.cells
                 .where((c) => puzzle.grid.cellAt(c.$1, c.$2).isGiven)
@@ -99,17 +95,14 @@ class AdaptivePolicy {
       }
     }
     final cells = puzzle.placements.expand((p) => p.cells).toSet().toList();
-    // 不预填交叉格优先保留自然线索；优先帮助未熟悉词。
+    // 不预填交叉格优先保留自然线索；优先帮助薄弱档位。
     cells.sort((a, b) {
       int priority((int, int) c) {
         final cell = puzzle.grid.cellAt(c.$1, c.$2);
-        final known = puzzle.placements
-            .where((p) => p.cells.contains(c))
-            .every((p) => familiar.contains(p.idiom.text));
         final weak = puzzle.placements
             .where((p) => p.cells.contains(c))
             .any((p) => weakTiers.contains(tiers[p.idiom.text]));
-        return (cell.isIntersection ? 4 : 0) + (known ? 2 : 0) + (weak ? 0 : 1);
+        return (cell.isIntersection ? 4 : 0) + (weak ? 0 : 1);
       }
 
       return priority(a).compareTo(priority(b));

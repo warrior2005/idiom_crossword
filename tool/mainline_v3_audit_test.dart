@@ -131,11 +131,6 @@ void main() {
           );
           if (prior != null) {
             expect(
-              ((strategy['unfamiliar'] as int) - (prior['unfamiliar'] as int))
-                  .abs(),
-              lessThanOrEqualTo(2),
-            );
-            expect(
               ((strategy['answers'] as int) - (prior['answers'] as int)).abs(),
               lessThanOrEqualTo(3),
             );

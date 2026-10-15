@@ -140,15 +140,15 @@ void main() {
     expect((await wordState(db))['reviewNeeded'], isFalse);
   });
 
-  test('目标词自身有提示、错误或三字预填时不计复习成功', () async {
-    for (final signal in ['hint', 'wrong', 'given']) {
+  test('目标词自身有提示或错误时不计复习成功', () async {
+    for (final signal in ['hint', 'wrong']) {
       final db = AppDatabase(NativeDatabase.memory());
       try {
         await enterReview(db);
         await intervening(db, 2, 7);
         await MainlineLearning.record(
           db,
-          puzzle(8, [target, '画龙点睛'], givens: signal == 'given' ? 3 : 1),
+          puzzle(8, [target, '画龙点睛']),
           status: 'complete',
           hints: signal == 'hint' ? 1 : 0,
           errors: signal == 'wrong' ? 1 : 0,
@@ -162,6 +162,28 @@ void main() {
       } finally {
         await db.close();
       }
+    }
+  });
+
+  test('系统预填三字也能两次成功退出复习', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await enterReview(db);
+    await intervening(db, 2, 7);
+    for (final n in [8, 15]) {
+      await MainlineLearning.record(
+        db,
+        puzzle(n, [target, n == 8 ? '画龙点睛' : '五光十色'], givens: 3),
+        status: 'complete',
+        hints: 0,
+        errors: 0,
+        hinted: {},
+        completed: [target],
+      );
+      final state = await wordState(db);
+      expect(state['reviewSuccesses'], n == 8 ? 1 : 2);
+      expect(state['reviewNeeded'], n == 8);
+      if (n == 8) await intervening(db, 9, 14);
     }
   });
 

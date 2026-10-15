@@ -229,6 +229,7 @@ Future<engine.CrosswordLevel?> _generateMainline(
   );
   final blocked = MainlineExposure.blocked(db, exposure);
   final due = await MainlineLearning.dueWords(db, now: now);
+  // 仅供输出诊断统计，不能用于生成准入或排序。
   final familiar = await MainlineLearning.familiarWords(db);
   final weakTiers = await MainlineLearning.weakTiers(db);
   final excluded = MainlineExposure.recentWords(exposure);
@@ -244,20 +245,6 @@ Future<engine.CrosswordLevel?> _generateMainline(
   final eligible = all.where((r) => !excluded.contains(r.word)).toList();
   final tiers = {for (final row in eligible) row.word: row.difficultyTier};
   final rng = Random(seed);
-  final knownCount = eligible.where((r) => familiar.contains(r.word)).length;
-  // 熟悉池不足时不强求半题旧词，避免围绕少数连接词反复组题。
-  var noveltyBudget = knownCount >= policy.size * 8
-      ? (policy.size / 2).ceil()
-      : policy.size;
-  final knownByTier = <int, int>{};
-  for (final r in eligible.where((r) => familiar.contains(r.word))) {
-    knownByTier.update(r.difficultyTier, (v) => v + 1, ifAbsent: () => 1);
-  }
-  final minimumUnknown = policy.quotas.entries.fold<int>(
-    0,
-    (sum, q) => sum + max(0, q.value - (knownByTier[q.key] ?? 0)),
-  );
-  noveltyBudget = max(noveltyBudget, minimumUnknown);
   final previous = (observations['sessions'] as List)
       .where(
         (s) =>
@@ -267,20 +254,19 @@ Future<engine.CrosswordLevel?> _generateMainline(
       )
       .lastOrNull;
   final previousPolicy = previous?['policy'] as Map?;
-  final previousUnfamiliar = previousPolicy?['unfamiliar'] as int?;
-  if (previousUnfamiliar != null) {
-    noveltyBudget = noveltyBudget.clamp(
-      max(0, previousUnfamiliar - 1),
-      min(policy.size, previousUnfamiliar + 1),
-    );
-  }
-
   final recentCounts = <String, int>{};
   for (final r in exposure['recent'] as List) {
     for (final word in (r['words'] as List).cast<String>()) {
       recentCounts[word] = (recentCounts[word] ?? 0) + 1;
     }
   }
+  // 所有路径使用同一份曝光权重，熟悉度不参与候选、起点或配额判断。
+  final priorities = {
+    for (final r in eligible)
+      r.word:
+          -log(max(0.000001, rng.nextDouble())) *
+          (1 + (recentCounts[r.word] ?? 0) * 2),
+  };
   final lastPolicy =
       (observations['sessions'] as List).lastOrNull?['policy'] as Map?;
   final hadReview = (lastPolicy?['reviewWords'] as List? ?? []).isNotEmpty;
@@ -292,8 +278,12 @@ Future<engine.CrosswordLevel?> _generateMainline(
                 (policy.quotas[r.difficultyTier] ?? 0) > 0,
           )
           .toList()
-        ..shuffle(rng);
-  final planned = !hadReview && reviewOptions.isNotEmpty
+        ..sort((a, b) => priorities[a.word]!.compareTo(priorities[b.word]!));
+  final planned =
+      !hadReview &&
+          reviewOptions.isNotEmpty &&
+          rng.nextDouble() <
+              1 / (1 + (recentCounts[reviewOptions.first.word] ?? 0) * 2)
       ? reviewOptions.first.word
       : null;
   for (var attempt = 0; attempt < 5; attempt++) {
@@ -305,10 +295,6 @@ Future<engine.CrosswordLevel?> _generateMainline(
         ..shuffle(rng);
       if (rows.length < quota.value) return null;
       final byWord = <String, Idiom>{};
-      for (final row
-          in rows.where((r) => familiar.contains(r.word)).take(100)) {
-        byWord[row.word] = row;
-      }
       for (final row in rows.take(350 + attempt * 150)) {
         byWord[row.word] = row;
       }
@@ -324,51 +310,14 @@ Future<engine.CrosswordLevel?> _generateMainline(
       }
       pool.addAll(byWord.values);
     }
-    final availableKnown = <int, int>{};
-    for (final r in pool) {
-      if (familiar.contains(r.word)) {
-        availableKnown.update(
-          r.difficultyTier,
-          (v) => v + 1,
-          ifAbsent: () => 1,
-        );
-      }
-    }
-    bool selectable(Iterable<engine.Idiom> words) {
-      if (!policy.accepts(words, tiers)) return false;
-      if (words
-              .where((w) => w.text == planned || fallbackWords.contains(w.text))
-              .length >
-          2) {
-        return false;
-      }
-      final unknown = words.where((w) => !familiar.contains(w.text)).length;
-      var requiredUnknown = 0;
-      final counts = <int, int>{}, known = <int, int>{};
-      for (final w in words) {
-        final t = tiers[w.text]!;
-        counts.update(t, (v) => v + 1, ifAbsent: () => 1);
-        if (familiar.contains(w.text)) {
-          known.update(t, (v) => v + 1, ifAbsent: () => 1);
-        }
-      }
-      for (final q in policy.quotas.entries) {
-        final remaining = q.value - (counts[q.key] ?? 0);
-        final usable = max(
-          0,
-          (availableKnown[q.key] ?? 0) - (known[q.key] ?? 0),
-        );
-        requiredUnknown += max(0, remaining - usable);
-      }
-      if (unknown + requiredUnknown > noveltyBudget) return false;
-      // 相邻题陌生量的下限也在选词时检查，避免完整布局后才拒绝。
-      if (previousUnfamiliar != null &&
-          unknown + policy.size - words.length <
-              max(0, previousUnfamiliar - 2)) {
-        return false;
-      }
-      return true;
-    }
+    bool selectable(Iterable<engine.Idiom> words) =>
+        policy.accepts(words, tiers) &&
+        words
+                .where(
+                  (w) => w.text == planned || fallbackWords.contains(w.text),
+                )
+                .length <=
+            2;
 
     final graph = CrossingGraph(
       idioms: pool
@@ -383,12 +332,6 @@ Future<engine.CrosswordLevel?> _generateMainline(
           )
           .toList(),
     );
-    final priorities = {
-      for (final r in pool)
-        r.word:
-            -log(max(0.000001, rng.nextDouble())) *
-            (1 + (recentCounts[r.word] ?? 0) * 2),
-    };
     final generator = IntegratedGenerator(graph: graph, random: rng);
     final generated = generator.generate(
       targetSize: policy.size,
@@ -405,12 +348,7 @@ Future<engine.CrosswordLevel?> _generateMainline(
         for (var i = 0; i < pool.length; i++)
           if (fallbackWords.contains(pool[i].word)) i,
       },
-      preferredSeeds: planned != null
-          ? {planned}
-          : noveltyBudget < policy.size
-          ? familiar
-          : {},
-      fallbackSeeds: noveltyBudget < policy.size ? familiar : {},
+      preferredSeeds: planned == null ? {} : {planned},
       wordPriority: (word) => priorities[word]!,
       canSelect: selectable,
       accept: (level) =>
@@ -418,13 +356,8 @@ Future<engine.CrosswordLevel?> _generateMainline(
             MainlineExposure.fingerprint(level.idioms.map((i) => i.text)),
           ) &&
           level.placements.length == policy.size &&
-          (previousUnfamiliar == null ||
-              (level.idioms.where((i) => !familiar.contains(i.text)).length -
-                          previousUnfamiliar)
-                      .abs() <=
-                  2) &&
           policy.accepts(level.idioms, tiers) &&
-          policy.support(level, tiers, familiar, weakTiers: weakTiers),
+          policy.support(level, tiers, weakTiers: weakTiers),
     );
     if (generated == null) continue;
     final dictionary = await db.findIdiomWordsMatchingPatterns(
@@ -452,14 +385,6 @@ Future<engine.CrosswordLevel?> _generateMainline(
       }
     }
     final candidatesCount = policy.candidateCount(answers.length);
-    final unfamiliar = level.idioms
-        .where((i) => !familiar.contains(i.text))
-        .length;
-    if (previousUnfamiliar != null &&
-        (unfamiliar - previousUnfamiliar).abs() > 2) {
-      continue;
-    }
-
     if (previousPolicy != null) {
       final previousAnswers = previousPolicy['answers'] as int?;
       final previousCandidates = previousPolicy['candidates'] as int?;
@@ -513,7 +438,7 @@ Future<engine.CrosswordLevel?> _generateMainline(
       givenCharacters: level.givenCharacters,
       title: title ?? '第 $number 关',
       contentVersion: FourTierContent.currentVersion,
-      strategyVersion: 4,
+      strategyVersion: 5,
       support: 2,
       instanceId: '${number}_${DateTime.now().microsecondsSinceEpoch}',
       initialCandidates: board,
@@ -550,7 +475,6 @@ Future<engine.CrosswordLevel?> _generateMainline(
         'distractorRatio': policy.distractorRatio,
         'quotas': {for (final e in policy.quotas.entries) '${e.key}': e.value},
         'wordTiers': {for (final i in level.idioms) i.text: tiers[i.text]},
-        'noveltyBudget': noveltyBudget,
         'unfamiliar': level.idioms
             .where((i) => !familiar.contains(i.text))
             .length,

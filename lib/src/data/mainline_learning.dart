@@ -342,9 +342,7 @@ class MainlineLearning {
             sequence - (previous['lastReviewSequence'] as int? ?? -100);
         // 退出复习只检查本词；旧提示归属缺失时使用已有词级wrong记录。
         final reviewClean =
-            !wrong.contains(word) &&
-            !(hinted?.contains(word) ?? false) &&
-            givens <= 2;
+            !wrong.contains(word) && !(hinted?.contains(word) ?? false);
         final reviewSuccesses =
             (previous['reviewSuccesses'] as int? ?? 0) +
             (reviewClean && reviewGap >= 4 ? 1 : 0);

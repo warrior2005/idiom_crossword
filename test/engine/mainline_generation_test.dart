@@ -78,7 +78,7 @@ void main() {
         expect(decodeLevel(encodeLevel(level))!.strategy, level.strategy);
         final tiers = Map<String, int>.from(level.strategy['wordTiers'] as Map);
         expect(policy.accepts(level.idioms, tiers), isTrue);
-        expect(level.strategyVersion, 4);
+        expect(level.strategyVersion, 5);
         expect(level.contentVersion, 6);
         if (step == 30 && number > 10) expect(tiers.values, contains(4));
       }

@@ -27,7 +27,7 @@ void main() {
     expect(run(true)?.idioms.map((i) => i.text), contains('五彩缤纷'));
     expect(run(false), isNull);
   });
-  test('后续布局尝试仍保留必需熟悉词起点，不只用于前三次', () {
+  test('显式设置的复习起点可用于后续布局尝试', () {
     final graph = CrossingGraph(
       idioms: [
         const Idiom(text: '画龙点睛', difficulty: 1),
@@ -51,6 +51,33 @@ void main() {
     );
     expect(level, isNotNull);
     expect(roots, List.filled(4, '龙飞凤舞'));
+  });
+
+  test('起始词也遵守曝光优先级，重试能换到下一个合法起点', () {
+    final graph = CrossingGraph(
+      idioms: const [
+        Idiom(text: '画龙点睛', difficulty: 1),
+        Idiom(text: '龙飞凤舞', difficulty: 1),
+      ],
+    );
+    for (var seed = 0; seed < 12; seed++) {
+      final roots = <String>[];
+      final level = IntegratedGenerator(graph: graph, random: Random(seed))
+          .generate(
+            targetSize: 2,
+            minDifficulty: 1,
+            maxDifficulty: 50,
+            boundedSearch: true,
+            maxAttempts: 2,
+            wordPriority: (word) => word == '画龙点睛' ? 1000 : 1,
+            accept: (candidate) {
+              roots.add(candidate.idioms.first.text);
+              return roots.length == 2;
+            },
+          );
+      expect(level, isNotNull);
+      expect(roots, ['龙飞凤舞', '画龙点睛'], reason: 'seed $seed');
+    }
   });
 
   test('选入死路词后能撤回，保留已找到的合法布局继续扩展', () {
