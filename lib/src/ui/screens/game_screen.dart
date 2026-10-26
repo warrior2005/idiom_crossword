@@ -43,6 +43,7 @@ import '../theme/app_text.dart';
 import '../theme/grid_skins.dart';
 import '../theme/decoration_catalog.dart';
 import '../../utils/ad_manager.dart';
+import '../../utils/character_pinyin.dart';
 import '../../utils/level_share_image.dart';
 import 'learning_screen.dart';
 import 'settings_screen.dart';
@@ -3055,10 +3056,17 @@ class GridPainter extends CustomPainter {
     final displayChar = cell.isGiven
         ? cell.character
         : (playerAnswers[(row, col)] ?? '');
-    if (!showPinyin || displayChar.isEmpty || displayChar != cell.character) {
+    if (!showPinyin || displayChar.isEmpty) {
       return null;
     }
-    return pinyinByCell[(row, col)];
+    // 答案已公开后使用成语读音；判定前只按实际填入的字取音。
+    if (cell.isGiven ||
+        ((correctCells.contains((row, col)) ||
+                completedCells.contains((row, col))) &&
+            displayChar == cell.character)) {
+      return pinyinByCell[(row, col)] ?? characterPinyin(displayChar);
+    }
+    return characterPinyin(displayChar);
   }
 
   @override

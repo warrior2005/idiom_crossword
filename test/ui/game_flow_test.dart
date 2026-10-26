@@ -23,9 +23,12 @@ import 'package:idiom_crossword/src/ui/app_page_route.dart';
 import 'package:idiom_crossword/src/ui/screens/game_screen.dart';
 import 'package:idiom_crossword/src/ui/screens/settings_screen.dart';
 import 'package:idiom_crossword/src/ui/theme/app_colors.dart';
+import 'package:idiom_crossword/src/ui/theme/grid_skins.dart';
 import 'package:idiom_crossword/src/ui/widgets/app_icons.dart';
 import 'package:idiom_crossword/src/ui/widgets/primary_button.dart';
+import 'package:idiom_crossword/src/ui/widgets/win_card_dialog.dart';
 import 'package:idiom_crossword/src/utils/ad_manager.dart';
+import 'package:idiom_crossword/src/utils/character_pinyin.dart';
 
 /// 完整通关流程端到端测试：候选字填字 → 过关对话框 → 经验/记录落库
 void main() {
@@ -391,7 +394,73 @@ void main() {
     expect(pinyin[(1, 4)], 'zu');
   });
 
-  testWidgets('显示拼音设置控制网格标注', (tester) async {
+  group('网格拼音跟随实际显示的字', () {
+    late engine.CrosswordLevel level;
+    setUp(() => level = _buildLevel());
+
+    GridPainter painter({
+      String? answer,
+      bool showPinyin = true,
+      bool correct = false,
+      bool completed = false,
+      bool error = false,
+    }) => GridPainter(
+      grid: level.grid,
+      playerAnswers: {(1, 2): ?answer},
+      focusRow: 1,
+      focusCol: 2,
+      errorCells: {if (error) (1, 2)},
+      correctCells: {if (correct) (1, 2)},
+      completedCells: {if (completed) (1, 2)},
+      cellSize: 48,
+      skin: gridSkins.first,
+      showPinyin: showPinyin,
+      pinyinByCell: pinyinByCell(level),
+      offset: Offset.zero,
+    );
+
+    test('未判定的正确字与错字均显示自身拼音', () {
+      expect(painter(answer: '蛇').pinyinAt(1, 2), 'she');
+      expect(painter(answer: '足').pinyinAt(1, 2), 'zu');
+    });
+
+    test('预填字和提示字显示拼音，空格不显示', () {
+      expect(painter().pinyinAt(1, 1), 'hua');
+      expect(painter().pinyinAt(1, 2), isNull);
+      level.grid.cellAt(1, 2).isGiven = true;
+      expect(painter().pinyinAt(1, 2), 'she');
+    });
+
+    test('已判定正确和已完成的格子显示拼音', () {
+      expect(painter(answer: '蛇', correct: true).pinyinAt(1, 2), 'she');
+      expect(painter(answer: '蛇', completed: true).pinyinAt(1, 2), 'she');
+    });
+
+    test('判错后仍显示错字自身拼音', () {
+      expect(painter(answer: '足', error: true).pinyinAt(1, 2), 'zu');
+    });
+
+    test('多音字判定前不因位置正误改变读音，判定后使用成语读音', () {
+      level.grid.cellAt(1, 2).character = '行';
+      final tentative = painter(answer: '行');
+      tentative.pinyinByCell[(1, 2)] = 'hang';
+      tentative.playerAnswers[(1, 3)] = '行';
+      expect(tentative.pinyinAt(1, 2), characterPinyin('行'));
+      expect(tentative.pinyinAt(1, 3), tentative.pinyinAt(1, 2));
+      final confirmed = painter(answer: '行', correct: true);
+      confirmed.pinyinByCell[(1, 2)] = 'hang';
+      expect(confirmed.pinyinAt(1, 2), 'hang');
+    });
+
+    test('关闭拼音时预填字和已判定字均不显示拼音', () {
+      final hidden = painter(answer: '蛇', showPinyin: false, correct: true);
+      expect(hidden.pinyinAt(1, 1), isNull);
+      expect(hidden.pinyinAt(1, 2), isNull);
+      expect(painter(answer: '足', showPinyin: false).pinyinAt(1, 2), isNull);
+    });
+  });
+
+  testWidgets('候选盘始终只显示汉字，填入棋盘后按开关显示拼音', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await db.setSetting(showPinyinKey, 'false');
@@ -399,11 +468,16 @@ void main() {
       overrides: [databaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
+    const candidates = ['蛇', '添', '足', '天'];
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+        child: MaterialApp(
+          home: GameScreen(
+            level: _buildLevel(initialCandidates: const [candidates]),
+          ),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -412,14 +486,46 @@ void main() {
         .map((widget) => widget.painter)
         .whereType<GridPainter>()
         .single;
+    void expectCandidatesWithoutPinyin() {
+      for (final char in candidates) {
+        final tile = find
+            .ancestor(
+              of: find.text(char),
+              matching: find.byType(GestureDetector),
+            )
+            .first;
+        expect(
+          tester
+              .widgetList<Text>(
+                find.descendant(of: tile, matching: find.byType(Text)),
+              )
+              .map((text) => text.data),
+          [char],
+        );
+      }
+    }
+
     expect(gridPainter().showPinyin, isFalse);
+    expectCandidatesWithoutPinyin();
 
     await container.read(showPinyinProvider.notifier).setEnabled(true);
     await tester.pump();
-    expect(gridPainter().showPinyin, isTrue);
+    expect(gridPainter().pinyinAt(1, 1), 'hua');
+    expectCandidatesWithoutPinyin();
+    await tester.tap(find.text('足'));
+    await tester.pump();
+    expect(gridPainter().pinyinAt(1, 2), 'zu');
+    expectCandidatesWithoutPinyin();
+
+    await container.read(showPinyinProvider.notifier).setEnabled(false);
+    await tester.pump();
+    expect(gridPainter().pinyinAt(1, 1), isNull);
+    expect(gridPainter().pinyinAt(1, 2), isNull);
+    expectCandidatesWithoutPinyin();
+    await tester.pump(const Duration(milliseconds: 300));
   });
 
-  testWidgets('填错时不展示正确答案的拼音', (tester) async {
+  testWidgets('未填满时错字显示自身拼音，预填字保持原拼音', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await db.setSetting(showPinyinKey, 'true');
@@ -427,19 +533,20 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
-        child: MaterialApp(home: GameScreen(level: _buildLevel())),
+        child: MaterialApp(
+          home: GameScreen(
+            level: _buildLevel(
+              initialCandidates: const [
+                ['蛇', '添', '足', '天'],
+              ],
+            ),
+          ),
+        ),
       ),
     );
     await tester.pumpAndSettle();
 
-    final wrongChar = find.byWidgetPredicate(
-      (widget) =>
-          widget is Text &&
-          widget.data != null &&
-          widget.data!.length == 1 &&
-          !'蛇添足'.contains(widget.data!),
-    );
-    await tester.tap(wrongChar.first);
+    await tester.tap(find.text('足'));
     await tester.pump();
 
     final painter = tester
@@ -447,8 +554,11 @@ void main() {
         .map((widget) => widget.painter)
         .whereType<GridPainter>()
         .single;
-    expect(painter.playerAnswers[(1, 2)], isNot('蛇'));
-    expect(painter.pinyinAt(1, 2), isNull);
+    expect(painter.playerAnswers[(1, 2)], '足');
+    expect(painter.playerAnswers[(1, 3)], isNull);
+    expect(painter.correctCells, isEmpty);
+    expect(painter.errorCells, isEmpty);
+    expect(painter.pinyinAt(1, 2), 'zu');
     expect(painter.pinyinAt(1, 1), 'hua');
 
     await tester.pump(const Duration(milliseconds: 300));
@@ -597,9 +707,10 @@ void main() {
   });
 
   for (final wrongCrossing in [false, true]) {
-    testWidgets('成语填满才逐字判色，交叉格错误=$wrongCrossing', (tester) async {
+    testWidgets('成语填满才逐字判色，拼音始终跟随填入字，交叉格错误=$wrongCrossing', (tester) async {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(db.close);
+      await db.setSetting(showPinyinKey, 'true');
       await tester.pumpWidget(
         ProviderScope(
           overrides: [databaseProvider.overrideWithValue(db)],
@@ -634,6 +745,14 @@ void main() {
         expect(painter().errorCells, isEmpty);
         expect(painter().correctCells, isEmpty);
         expect(painter().completedCells, isEmpty);
+        expect(painter().pinyinAt(1, 1), 'hua');
+        for (var col = 2; col <= 4; col++) {
+          final answer = painter().playerAnswers[(1, col)];
+          expect(
+            painter().pinyinAt(1, col),
+            answer == null ? null : characterPinyin(answer),
+          );
+        }
         expect(find.byIcon(Icons.favorite), findsNWidgets(3));
       }
       await tester.tap(find.text(chars.last));
@@ -642,12 +761,28 @@ void main() {
       expect(painter().errorCells, {(1, wrongCrossing ? 2 : 3)});
       expect(painter().correctCells, {(1, wrongCrossing ? 3 : 2), (1, 4)});
       expect(painter().completedCells, isEmpty);
+      expect(
+        painter().pinyinAt(1, 2),
+        wrongCrossing ? characterPinyin(wrongChar) : 'she',
+      );
+      expect(
+        painter().pinyinAt(1, 3),
+        wrongCrossing ? 'tian' : characterPinyin(wrongChar),
+      );
+      expect(painter().pinyinAt(1, 4), 'zu');
       // 纵向成语尚未填满，交叉格仍保留横向成语的判色。
       expect(painter().playerAnswers[(2, 2)], isNull);
       await tester.tap(find.text('撤销'));
       await tester.pump();
       expect(painter().errorCells, isEmpty);
       expect(painter().correctCells, isEmpty);
+      for (var col = 2; col <= 4; col++) {
+        final answer = painter().playerAnswers[(1, col)];
+        expect(
+          painter().pinyinAt(1, col),
+          answer == null ? null : characterPinyin(answer),
+        );
+      }
       await tester.pump(const Duration(milliseconds: 300));
     });
   }
@@ -938,7 +1073,10 @@ void main() {
       const Duration(seconds: 5),
     );
     expect(find.text('恭喜通过 · 第 1 关'), findsOneWidget);
-    expect(find.text('通'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(WinCard), matching: find.text('通')),
+      findsOneWidget,
+    );
     expect(find.text('下一关'), findsOneWidget);
 
     // 关闭结算弹框后，顶栏和已完成成语区仍可正常交互。
@@ -1799,7 +1937,10 @@ Future<void> _failCurrentLevel(WidgetTester tester) async {
   expect(find.text('挑战失败'), findsOneWidget);
 }
 
-engine.CrosswordLevel _buildLevel({int levelId = 1}) {
+engine.CrosswordLevel _buildLevel({
+  int levelId = 1,
+  List<List<String>>? initialCandidates,
+}) {
   final grid = engine.CrosswordGrid(rows: 5, cols: 5);
   const idiom = engine.Idiom(
     text: '画蛇添足',
@@ -1821,6 +1962,7 @@ engine.CrosswordLevel _buildLevel({int levelId = 1}) {
   }
   return engine.CrosswordLevel(
     levelId: levelId,
+    initialCandidates: initialCandidates,
     grid: grid,
     placements: [placement],
     givenCharacters: {'画'},
